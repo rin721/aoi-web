@@ -1,0 +1,21 @@
+{
+  "app": {
+    "name": "Aoi"
+  },
+  "nav": {
+    "home": "ホーム",
+    "categories": "カテゴリ",
+    "following": "フォロー",
+    "search": "検索",
+    "history": "履歴",
+    "collections": "コレクション",
+    "upload": "投稿",
+    "settings": "設定"
+  },
+  "home": {
+    "subtitle": "クリエイター向けの澄んだ高速な動画コミュニティフロントエンド。Nuxt 4 と mock データで将来の Go API を先取りします。",
+    "latest": "最新",
+    "gridView": "グリッド表示",
+    "listView": "リスト表示"
+  }
+}

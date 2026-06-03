@@ -1,0 +1,21 @@
+{
+  "app": {
+    "name": "Aoi"
+  },
+  "nav": {
+    "home": "Home",
+    "categories": "Categories",
+    "following": "Following",
+    "search": "Search",
+    "history": "History",
+    "collections": "Collections",
+    "upload": "Upload",
+    "settings": "Settings"
+  },
+  "home": {
+    "subtitle": "A clear, fast video community frontend for creators. This Nuxt 4 prototype uses mock data for the future Go API.",
+    "latest": "Latest",
+    "gridView": "Grid view",
+    "listView": "List view"
+  }
+}

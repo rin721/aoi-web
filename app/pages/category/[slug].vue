@@ -1,0 +1,85 @@
+<script setup lang="ts">
+const api = useAoiApi()
+const route = useRoute()
+const slug = computed(() => String(route.params.slug || "home"))
+
+const { data, error, pending, refresh } = useAsyncData(() => `category-${slug.value}`, async () => {
+  const [category, videos] = await Promise.all([
+    api.getCategory(slug.value),
+    api.listVideos({ category: slug.value })
+  ])
+
+  return {
+    category,
+    videos: videos.items
+  }
+}, {
+  default: () => ({
+    category: null,
+    videos: []
+  }),
+  watch: [slug]
+})
+
+useHead(() => ({
+  title: data.value.category ? `${data.value.category.name} - Aoi` : "Category - Aoi"
+}))
+</script>
+
+<template>
+  <div class="aoi-page">
+    <PageState
+      v-if="error"
+      icon="circle-alert"
+      title="分类加载失败"
+      description="Mock API 返回异常，请重试。"
+      action-icon="refresh-cw"
+      action-label="重试"
+      @action="refresh()"
+    />
+
+    <div v-else-if="pending" class="category-detail-state">
+      <AoiProgress indeterminate />
+    </div>
+
+    <PageState
+      v-else-if="!data.category"
+      icon="folder-x"
+      title="分类不存在"
+      :description="`没有找到「${slug}」这个分类。`"
+      action-icon="layout-grid"
+      action-label="返回分类"
+      @action="navigateTo('/category')"
+    />
+
+    <template v-else>
+      <PageHeader
+        icon="folder-open"
+        eyebrow="Category"
+        :title="data.category.name"
+        :description="data.category.description"
+      >
+        <template #actions>
+          <AoiButton variant="tonal" icon="layout-grid" to="/category">全部分类</AoiButton>
+        </template>
+      </PageHeader>
+
+      <PageState
+        v-if="data.videos.length === 0"
+        icon="inbox"
+        title="这个分类暂时没有内容"
+        description="稍后可以从真实 Go API 拉取更多内容。"
+      />
+      <VideoGrid v-else :videos="data.videos" />
+    </template>
+  </div>
+</template>
+
+<style scoped>
+.category-detail-state {
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-sm);
+  background: var(--aoi-surface);
+  padding: 16px;
+}
+</style>
