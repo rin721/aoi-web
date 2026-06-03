@@ -27,6 +27,14 @@ function snapshotVideo(video: VideoSummary): LibraryVideoSnapshot {
   }
 }
 
+function normalizeProgress(video: VideoSummary, progressSeconds?: number) {
+  if (typeof progressSeconds !== "number" || !Number.isFinite(progressSeconds)) {
+    return undefined
+  }
+
+  return Math.max(0, Math.min(video.durationSeconds, Math.floor(progressSeconds)))
+}
+
 function coercePersistedState(value: unknown): PersistedLibraryState {
   if (!value || typeof value !== "object") {
     return emptyState()
@@ -111,17 +119,39 @@ export const useLibraryStore = defineStore("library", () => {
     }
   }
 
-  function recordView(video: VideoSummary) {
+  function recordView(video: VideoSummary, progressSeconds?: number) {
+    const existing = history.value.find((entry) => entry.video.id === video.id)
     const current = history.value.filter((entry) => entry.video.id !== video.id)
+    const normalizedProgress = normalizeProgress(video, progressSeconds)
 
     history.value = [
       {
         lastViewedAt: new Date().toISOString(),
-        progressSeconds: 0,
+        progressSeconds: normalizedProgress ?? existing?.progressSeconds ?? 0,
         video: snapshotVideo(video)
       },
       ...current
     ]
+  }
+
+  function updateHistoryProgress(videoId: string, progressSeconds: number) {
+    history.value = history.value.map((entry) => {
+      if (entry.video.id !== videoId) {
+        return entry
+      }
+
+      const normalizedProgress = normalizeProgress(entry.video, progressSeconds)
+
+      return {
+        ...entry,
+        lastViewedAt: new Date().toISOString(),
+        progressSeconds: normalizedProgress ?? entry.progressSeconds
+      }
+    })
+  }
+
+  function historyProgressForVideo(videoId: string) {
+    return history.value.find((entry) => entry.video.id === videoId)?.progressSeconds || 0
   }
 
   function toggleFavorite(video: VideoSummary) {
@@ -212,12 +242,14 @@ export const useLibraryStore = defineStore("library", () => {
     isWatchLater,
     likedCount,
     likedVideoIds,
+    historyProgressForVideo,
     recordView,
     resetLibrary,
     restore,
     toggleFavorite,
     toggleLiked,
     toggleWatchLater,
+    updateHistoryProgress,
     watchLaterList,
     watchLaterVideos
   }

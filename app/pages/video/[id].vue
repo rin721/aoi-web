@@ -1,8 +1,12 @@
 <script setup lang="ts">
+import type { CommentSortMode } from "~/types/comments"
+
 const route = useRoute()
 const api = useAoiApi()
 const library = useLibraryStore()
+const comments = useCommentsStore()
 const id = computed(() => String(route.params.id || ""))
+const commentSortMode = ref<CommentSortMode>("newest")
 
 const { data: video, error, pending, refresh } = useAsyncData(() => `video-${id.value}`, () => api.getVideoDetail(id.value), {
   watch: [id]
@@ -12,12 +16,50 @@ const isFavorite = computed(() => video.value ? library.isFavorite(video.value.i
 const isLiked = computed(() => video.value ? library.isLiked(video.value.id) : false)
 const isWatchLater = computed(() => video.value ? library.isWatchLater(video.value.id) : false)
 const localLikeCount = computed(() => video.value ? video.value.likeCount + (isLiked.value ? 1 : 0) : 0)
+const localCommentCount = computed(() => video.value ? comments.commentCountForVideo(video.value.id) : 0)
+const displayCommentCount = computed(() => video.value ? video.value.commentCount + localCommentCount.value : 0)
+const visibleComments = computed(() => video.value ? comments.commentsForVideo(video.value.id, commentSortMode.value) : [])
+const initialProgressSeconds = computed(() => video.value ? library.historyProgressForVideo(video.value.id) : 0)
+const commentAuthorName = computed({
+  get: () => comments.authorName,
+  set: (value: string) => comments.setAuthorName(value)
+})
 
 watch([video, () => library.hydrated], ([current, hydrated]) => {
   if (import.meta.client && hydrated && current) {
     library.recordView(current)
   }
 }, { immediate: true })
+
+function onPlayerProgress(seconds: number) {
+  if (video.value && library.hydrated) {
+    library.updateHistoryProgress(video.value.id, seconds)
+  }
+}
+
+function onPlayerEnded() {
+  if (video.value && library.hydrated) {
+    library.updateHistoryProgress(video.value.id, video.value.durationSeconds)
+  }
+}
+
+function submitComment(body: string) {
+  if (video.value) {
+    comments.submitComment(video.value.id, body)
+  }
+}
+
+function editComment(commentId: string, body: string) {
+  if (video.value) {
+    comments.editComment(video.value.id, commentId, body)
+  }
+}
+
+function deleteComment(commentId: string) {
+  if (video.value) {
+    comments.deleteComment(video.value.id, commentId)
+  }
+}
 
 useHead(() => ({
   title: video.value ? `${video.value.title} - Aoi` : "Video - Aoi"
@@ -30,7 +72,7 @@ useHead(() => ({
       v-if="error"
       icon="video-off"
       title="视频不存在"
-      :description="`没有找到「${route.params.id}」对应的视频。`"
+      :description="`没有找到“${route.params.id}”对应的视频。`"
       action-icon="home"
       action-label="返回首页"
       @action="navigateTo('/')"
@@ -41,7 +83,12 @@ useHead(() => ({
     </div>
 
     <article v-else-if="video" class="video-detail">
-      <VideoPlayerShell :video="video" />
+      <VideoPlayerShell
+        :video="video"
+        :initial-progress-seconds="initialProgressSeconds"
+        @ended="onPlayerEnded"
+        @progress="onPlayerProgress"
+      />
 
       <section class="video-detail__main">
         <div class="video-detail__body">
@@ -60,7 +107,9 @@ useHead(() => ({
               >
                 {{ localLikeCount }}
               </AoiButton>
-              <AoiButton variant="outlined" icon="message-circle">{{ video.commentCount }}</AoiButton>
+              <AoiButton variant="outlined" icon="message-circle">
+                {{ displayCommentCount }}
+              </AoiButton>
             </template>
           </PageHeader>
 
@@ -97,6 +146,21 @@ useHead(() => ({
               # {{ tag }}
             </NuxtLink>
           </div>
+
+          <section class="video-detail__comments" aria-label="本地讨论区">
+            <CommentComposer
+              v-model:author-name="commentAuthorName"
+              :disabled="!comments.hydrated"
+              @submit="submitComment"
+            />
+            <CommentThread
+              v-model:sort-mode="commentSortMode"
+              :comments="visibleComments"
+              :hydrated="comments.hydrated"
+              @delete="deleteComment"
+              @edit="editComment"
+            />
+          </section>
         </div>
 
         <aside class="video-detail__side" aria-labelledby="related-title">
@@ -160,6 +224,12 @@ useHead(() => ({
   font-size: 12px;
   font-weight: 750;
   padding: 5px 9px;
+}
+
+.video-detail__comments {
+  display: grid;
+  gap: 18px;
+  margin-top: 22px;
 }
 
 .video-detail__side {

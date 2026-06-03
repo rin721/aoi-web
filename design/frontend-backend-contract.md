@@ -119,6 +119,15 @@ export interface SearchPayload {
   categories: PageResult<Category>
 }
 
+export interface CommentSummary {
+  id: string
+  videoId: string
+  body: string
+  author: UserSummary
+  createdAt: string
+  updatedAt: string
+}
+
 export interface ErrorResponse {
   error: {
     code: string
@@ -144,11 +153,15 @@ export interface AoiApiErrorPayload {
 | GET | `/api/v1/categories` | Category list for nav and filters. |
 | GET | `/api/v1/videos` | Paged video list, filtered by category, tag, or uploader. |
 | GET | `/api/v1/videos/{id}` | Video detail and related videos. |
+| GET | `/api/v1/videos/{id}/comments` | Paged comments for one video. |
 | GET | `/api/v1/search` | Search videos, creators, and categories by query. |
 | GET | `/api/v1/feed/following` | Following feed after auth is available. |
 | GET | `/api/v1/users/{handle}` | Public creator profile. |
 | GET | `/api/v1/status` | Lightweight API status for diagnostics and settings UI. |
 | POST | `/api/v1/videos` | Future authenticated upload metadata creation. |
+| POST | `/api/v1/videos/{id}/comments` | Future authenticated or anonymous comment creation. |
+| PUT | `/api/v1/comments/{id}` | Future comment editing. |
+| DELETE | `/api/v1/comments/{id}` | Future comment deletion. |
 
 ## Query Examples
 
@@ -207,10 +220,42 @@ Future Go mapping can use authenticated endpoints such as:
 | PUT | `/api/v1/me/library/watch-later/{videoId}` | Add or remove one watch-later item. |
 | PUT | `/api/v1/me/library/likes/{videoId}` | Add or remove one local like. |
 | POST | `/api/v1/me/history` | Record a viewed video and optional progress. |
+| PUT | `/api/v1/me/history/{videoId}/progress` | Update the authenticated user's watch progress. |
+
+## Local Player State
+
+Phase 11 keeps player preferences in the browser. These preferences do not call `/api/mock` and are separate from backend video facts.
+
+```ts
+export type PlayerPlaybackRate = 0.75 | 1 | 1.25 | 1.5 | 2
+
+export interface PlayerSettings {
+  volume: number
+  muted: boolean
+  playbackRate: PlayerPlaybackRate
+  theaterMode: boolean
+}
+```
+
+Current frontend storage:
+
+- `localStorage` key: `aoi.player.v1`
+- Fields: `volume`, `muted`, `playbackRate`, `theaterMode`
+- Defaults: volume `0.8`, muted `false`, playback rate `1`, theater mode `false`
+- Recovery: invalid JSON, unavailable storage, or incompatible values fall back to defaults.
+- Media source: all mock video details currently use `/media/aoi-sample.webm`.
+
+Future Go mapping for playback history can use authenticated endpoints such as:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/me/history` | Return videos watched by the current user with progress. |
+| PUT | `/api/v1/me/history/{videoId}/progress` | Save watch progress seconds for one video. |
+| POST | `/api/v1/me/player-preferences` | Persist player defaults after login exists. |
 
 ## Local Upload Draft State
 
-Phase 7 keeps upload preparation frontend-only. The browser stores draft metadata so creators can rehearse the投稿 flow before authentication, object storage, moderation, and transcoding exist. It does not store video bytes and does not call `/api/mock`.
+Phase 7 keeps upload preparation frontend-only. The browser stores draft metadata so creators can rehearse the投稿流程 before authentication, object storage, moderation, and transcoding exist. It does not store video bytes and does not call `/api/mock`.
 
 ```ts
 export type UploadDraftVisibility = "public" | "unlisted" | "private"
@@ -282,6 +327,40 @@ Future Go mapping can use authenticated endpoints such as:
 | DELETE | `/api/v1/me/following/{creatorId}` | Unfollow one creator. |
 | GET | `/api/v1/me/feed/following` | Return the personalized following feed after auth exists. |
 
+## Local Comment State
+
+Phase 10 keeps video discussion data in the browser only. Local comments are not sent to `/api/mock` because they represent anonymous prototype interaction, not backend facts.
+
+```ts
+export type CommentSortMode = "newest" | "oldest"
+
+export interface LocalComment {
+  id: string
+  videoId: string
+  body: string
+  authorName: string
+  createdAt: string
+  updatedAt: string
+}
+```
+
+Current frontend storage:
+
+- `localStorage` key: `aoi.comments.v1`
+- Fields: `authorName`, `commentsByVideoId`
+- Defaults: author name is `Aoi 游客`; comment body is 1-500 characters after trimming; author name is 1-24 characters after trimming.
+- Recovery: invalid JSON, unavailable storage, or incompatible shapes fall back to an empty local comment state.
+- UI behavior: video detail combines backend/mock `commentCount` with local comments for the visible count.
+
+Future Go mapping can use comment endpoints such as:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | `/api/v1/videos/{videoId}/comments` | Return paged comments for one video. |
+| POST | `/api/v1/videos/{videoId}/comments` | Create a comment for the current viewer or anonymous session. |
+| PUT | `/api/v1/comments/{commentId}` | Edit a comment owned by the current viewer. |
+| DELETE | `/api/v1/comments/{commentId}` | Delete a comment owned by the current viewer or moderator. |
+
 ## Mock Strategy
 
 - Keep initial fixtures in `app/mocks/`.
@@ -300,6 +379,8 @@ Current Nuxt mock implementation:
 - Implemented mock endpoints: `/api/mock/home`, `/api/mock/categories`, `/api/mock/videos`, `/api/mock/search`, `/api/mock/videos/:id`, `/api/mock/feed/following`, `/api/mock/users/:handle`, `/api/mock/status`.
 - `/api/mock/search` returns a unified `SearchPayload` with videos, creators, categories, and total count.
 - Implemented frontend routes beyond the first browsing pass: `/u/:handle` for creator profiles, an API-aware `/feed/following` preview, and tabbed unified search results.
+- Local comments are implemented through frontend state only and are intentionally excluded from `/api/mock`.
+- Local player progress and preferences are frontend-only; mock video details point to the shared local sample `/media/aoi-sample.webm`.
 
 ## Go Backend Notes
 

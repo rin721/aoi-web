@@ -170,6 +170,52 @@ Current Phase 9 frontend-only implementation:
 - `/api/mock/search` now returns videos, creators, categories, query, and total count.
 - `/search` displays tabbed discovery results with `VideoGrid`, `CreatorCard`, and `CategoryCard`.
 
+## Phase 10: Local Comments Discussion Layer
+
+- Add a browser-local discussion layer for video detail pages without authentication or backend writes.
+- Store anonymous comments by video under `aoi.comments.v1`, including local author name, timestamps, edit state, and recovery from corrupt storage.
+- Add comment composer, thread, and item components for publish, edit, delete, and newest/oldest sorting.
+- Surface local comment diagnostics and reset controls in settings.
+- Fix garbled Chinese copy in touched video detail and settings surfaces.
+
+Acceptance:
+
+- Opening `/video/:id` shows a stable comments section after client hydration.
+- Publishing, editing, deleting, and sorting local comments works without direct `md-*` usage.
+- The visible comment count combines mock `commentCount` with local comments for that video.
+- Refreshing preserves local comments and author name.
+- Settings displays local comment count, participated video count, author name, and can reset `aoi.comments.v1`.
+- Corrupt or unavailable localStorage falls back to an empty comment state without crashing.
+
+Current Phase 10 frontend-only implementation:
+
+- `useCommentsStore()` owns local comments and persists them under `aoi.comments.v1`.
+- `CommentComposer`, `CommentThread`, and `CommentItem` provide the discussion UI.
+- Video detail pages now expose a local discussion section and settings includes local comment diagnostics.
+
+## Phase 11: Local Player Experience Layer
+
+- Replace the video detail placeholder with a real HTML video player backed by a local WebM sample.
+- Persist player preferences under `aoi.player.v1`: volume, muted, playback rate, and theater mode.
+- Make `HistoryEntry.progressSeconds` active by writing playback progress during playback, pause, seek, and ended states.
+- Show continue-watching progress in `/history`.
+- Surface player preference diagnostics and reset controls in settings.
+
+Acceptance:
+
+- `/video/:id` plays `/media/aoi-sample.webm` through custom Aoi controls.
+- Play, pause, seek, volume, mute, playback rate, theater mode, fullscreen, and keyboard shortcuts work without direct `md-*` usage.
+- Refreshing a video detail page resumes from local history progress.
+- `/history` shows progress percentage and "已看完" when progress is near complete.
+- Settings displays and resets `aoi.player.v1`.
+- Local video load failure renders a stable retry state.
+
+Current Phase 11 frontend-only implementation:
+
+- `VideoPlayerShell` uses a real `<video>` element with custom controls and progress events.
+- `usePlayerSettingsStore()` owns local player preferences.
+- `useLibraryStore()` now exposes progress read/write APIs for history entries.
+
 ## Out of Scope for First Design Pass
 
 - Real Go backend implementation.

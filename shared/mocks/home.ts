@@ -343,7 +343,7 @@ export function getMockVideoDetail(idOrSlug: string): VideoDetail | null {
     ...video,
     likeCount: Math.max(24, Math.round(video.viewCount / 12)),
     related: mockVideos.filter((item) => item.id !== video.id).slice(0, 4),
-    sourceUrl: "",
+    sourceUrl: "/media/aoi-sample.webm",
     tags
   }
 }

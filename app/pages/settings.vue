@@ -6,7 +6,10 @@ const library = useLibraryStore()
 const telemetry = useAoiApiTelemetry()
 const uploadDrafts = useUploadDraftStore()
 const following = useFollowingStore()
+const comments = useCommentsStore()
+const playerSettings = usePlayerSettingsStore()
 
+const defaultCommentAuthor = "Aoi 游客"
 const activeBaseURL = computed(() => config.public.apiMock ? "/api/mock" : config.public.apiBaseURL)
 const localStats = computed(() => ({
   favorites: Object.keys(library.favoriteVideos).length,
@@ -26,6 +29,24 @@ const followingStats = computed(() => ({
   videos: following.latestVideos.length
 }))
 const hasFollowingData = computed(() => followingStats.value.creators > 0)
+const commentStats = computed(() => ({
+  author: comments.authorName,
+  total: comments.totalCount,
+  videos: comments.videoCount
+}))
+const hasCommentData = computed(() => commentStats.value.total > 0 || commentStats.value.author !== defaultCommentAuthor)
+const playerStats = computed(() => ({
+  muted: playerSettings.muted,
+  playbackRate: playerSettings.playbackRate,
+  theaterMode: playerSettings.theaterMode,
+  volume: Math.round(playerSettings.volume * 100)
+}))
+const hasPlayerSettings = computed(() => {
+  return playerSettings.volume !== 0.8
+    || playerSettings.muted
+    || playerSettings.playbackRate !== 1
+    || playerSettings.theaterMode
+})
 
 const {
   data: apiStatus,
@@ -59,7 +80,7 @@ useHead({
     <PageHeader
       icon="settings"
       title="设置"
-      description="管理 Aoi 前端原型的本地偏好和 API mock 状态。"
+      description="管理 Aoi 前端原型的本地偏好、匿名互动数据和 API mock 状态。"
     />
 
     <section class="settings-grid">
@@ -160,16 +181,57 @@ useHead({
 
       <div class="settings-panel settings-panel--wide">
         <div class="settings-panel__title-row">
+          <h2>播放器偏好</h2>
+          <AoiButton
+            variant="outlined"
+            size="sm"
+            icon="rotate-ccw"
+            aria-label="重置播放器偏好"
+            :disabled="!playerSettings.hydrated || !hasPlayerSettings"
+            @click="playerSettings.resetPlayerSettings()"
+          >
+            重置播放器
+          </AoiButton>
+        </div>
+
+        <AoiProgress v-if="!playerSettings.hydrated" indeterminate />
+
+        <div v-else class="local-player-status">
+          <div>
+            <span>音量</span>
+            <strong>{{ playerStats.volume }}%</strong>
+          </div>
+          <div>
+            <span>静音</span>
+            <strong>{{ playerStats.muted ? "开启" : "关闭" }}</strong>
+          </div>
+          <div>
+            <span>倍速</span>
+            <strong>{{ playerStats.playbackRate }}x</strong>
+          </div>
+          <div>
+            <span>剧场模式</span>
+            <strong>{{ playerStats.theaterMode ? "开启" : "关闭" }}</strong>
+          </div>
+        </div>
+
+        <p class="settings-note">
+          播放器偏好写入当前浏览器的 <code>aoi.player.v1</code>，用于保存本地音量、静音、倍速和剧场模式。
+        </p>
+      </div>
+
+      <div class="settings-panel settings-panel--wide">
+        <div class="settings-panel__title-row">
           <h2>本地互动数据</h2>
           <AoiButton
             variant="outlined"
             size="sm"
             icon="rotate-ccw"
-            aria-label="重置本地数据"
+            aria-label="重置本地互动数据"
             :disabled="!library.hydrated || !hasLocalData"
             @click="library.resetLibrary()"
           >
-            重置本地数据
+            重置本地互动
           </AoiButton>
         </div>
 
@@ -196,6 +258,43 @@ useHead({
 
         <p class="settings-note">
           这些数据只写入当前浏览器的 <code>aoi.library.v1</code>，不会发送到 mock API。
+        </p>
+      </div>
+
+      <div class="settings-panel settings-panel--wide">
+        <div class="settings-panel__title-row">
+          <h2>本地评论数据</h2>
+          <AoiButton
+            variant="outlined"
+            size="sm"
+            icon="message-circle-x"
+            aria-label="重置本地评论数据"
+            :disabled="!comments.hydrated || !hasCommentData"
+            @click="comments.resetComments()"
+          >
+            重置评论
+          </AoiButton>
+        </div>
+
+        <AoiProgress v-if="!comments.hydrated" indeterminate />
+
+        <div v-else class="local-comments-status">
+          <div>
+            <span>评论</span>
+            <strong>{{ commentStats.total }}</strong>
+          </div>
+          <div>
+            <span>参与视频</span>
+            <strong>{{ commentStats.videos }}</strong>
+          </div>
+          <div>
+            <span>本地作者</span>
+            <strong>{{ commentStats.author }}</strong>
+          </div>
+        </div>
+
+        <p class="settings-note">
+          本地评论只写入当前浏览器的 <code>aoi.comments.v1</code>，用于预演未来 Go 评论接口。
         </p>
       </div>
 
@@ -321,16 +420,24 @@ useHead({
 .api-status,
 .local-library-status,
 .local-upload-status,
-.local-following-status {
+.local-following-status,
+.local-comments-status,
+.local-player-status {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
+.local-comments-status {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .api-status div,
 .local-library-status div,
 .local-upload-status div,
-.local-following-status div {
+.local-following-status div,
+.local-comments-status div,
+.local-player-status div {
   display: grid;
   gap: 4px;
   border: 1px solid var(--aoi-border);
@@ -343,6 +450,8 @@ useHead({
 .local-library-status span,
 .local-upload-status span,
 .local-following-status span,
+.local-comments-status span,
+.local-player-status span,
 .api-errors span,
 .api-errors small {
   color: var(--aoi-text-muted);
@@ -351,7 +460,9 @@ useHead({
 .api-status strong,
 .local-library-status strong,
 .local-upload-status strong,
-.local-following-status strong {
+.local-following-status strong,
+.local-comments-status strong,
+.local-player-status strong {
   overflow: hidden;
   color: var(--aoi-text);
   text-overflow: ellipsis;
@@ -399,11 +510,10 @@ useHead({
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .local-upload-status {
-    grid-template-columns: 1fr;
-  }
-
-  .local-following-status {
+  .local-upload-status,
+  .local-following-status,
+  .local-comments-status,
+  .local-player-status {
     grid-template-columns: 1fr;
   }
 
