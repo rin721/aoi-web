@@ -1,4 +1,4 @@
-# 项目代号 ｢<ruby>Aoi<rp>（</rp><rt>[Rin ]</rt><rp>）</rp></ruby>｣
+# 项目代号 ｢<ruby>Aoi<rp>（</rp><rt>[深作葵](https://www.anisearch.com/character/43848,aoi-fukasaku)</rt><rp>）</rp></ruby>｣
 ![State][state-shield]
 ![Tag][tag-shield]
 [![LICENSE-MIT][license-shield]][license-url]
