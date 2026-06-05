@@ -1,7 +1,4 @@
 # 项目代号 ｢<ruby>Aoi<rp>（</rp><rt>[深作葵](https://www.anisearch.com/character/43848,aoi-fukasaku)</rt><rp>）</rp></ruby>｣
-![State][state-shield]
-![Tag][tag-shield]
-[![LICENSE-MIT][license-shield]][license-url]
 
 Aoi Web 是一个基于 Nuxt 4 的前端项目模板，旨在提供一个现代化、模块化、性能优化的开发基础。项目集成了 Pinia 持久化、Google Material Web Components、I18n 国际化、基于文件系统的 Content 生成机制以及全屏 Loading 策略。样式系统采用 CSS Variables 实现主题定制。
 
