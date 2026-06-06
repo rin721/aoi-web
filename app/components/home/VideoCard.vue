@@ -1,50 +1,31 @@
 <script setup lang="ts">
 import type { VideoSummary } from "~/types/api"
 
-const props = withDefaults(defineProps<{
-  showActions?: boolean
+const props = defineProps<{
   video: VideoSummary
   index: number
-}>(), {
-  showActions: true
-})
+}>()
 
-const library = useLibraryStore()
+const settings = useAppSettingsStore()
 const coverClass = computed(() => `video-card__cover--${(props.index % 6) + 1}`)
 const detailPath = computed(() => `/video/${props.video.slug}`)
-const isFavorite = computed(() => library.isFavorite(props.video.id))
-const isWatchLater = computed(() => library.isWatchLater(props.video.id))
+const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undefined)
 </script>
 
 <template>
   <article class="video-card">
     <div class="video-card__media">
-      <NuxtLink class="video-card__cover-link" :to="detailPath" :aria-label="video.title">
+      <AoiLink
+        class="video-card__cover-link"
+        :to="detailPath"
+        :aria-label="video.title"
+        :target="linkTarget"
+      >
         <span class="video-card__cover" :class="coverClass" />
-      </NuxtLink>
-      <div v-if="showActions" class="video-card__actions" aria-label="视频快捷操作">
-        <AoiIconButton
-          :active="isFavorite"
-          :icon="isFavorite ? 'star' : 'star'"
-          :label="isFavorite ? '取消收藏' : '收藏'"
-          :disabled="!library.hydrated"
-          size="sm"
-          :variant="isFavorite ? 'tonal' : 'standard'"
-          @click="library.toggleFavorite(video)"
-        />
-        <AoiIconButton
-          :active="isWatchLater"
-          icon="clock-3"
-          :label="isWatchLater ? '移出稍后看' : '稍后看'"
-          :disabled="!library.hydrated"
-          size="sm"
-          :variant="isWatchLater ? 'tonal' : 'standard'"
-          @click="library.toggleWatchLater(video)"
-        />
-      </div>
+      </AoiLink>
     </div>
 
-    <NuxtLink class="video-card__title" :to="detailPath">{{ video.title }}</NuxtLink>
+    <AoiLink class="video-card__title" :to="detailPath" :target="linkTarget">{{ video.title }}</AoiLink>
     <VideoMeta :video="video" compact />
   </article>
 </template>
@@ -127,19 +108,6 @@ const isWatchLater = computed(() => library.isWatchLater(props.video.id))
 .video-card__cover--5 { --cover: linear-gradient(135deg, #17262b, #216d7d 48%, #f2709c); }
 .video-card__cover--6 { --cover: linear-gradient(135deg, #fff6fb, #f2709c 45%, #22b8cf); }
 
-.video-card__actions {
-  position: absolute;
-  inset: 8px 8px auto auto;
-  display: flex;
-  gap: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.36);
-  border-radius: var(--aoi-radius-sm);
-  background: rgba(255, 255, 255, 0.76);
-  box-shadow: var(--aoi-shadow-sm);
-  padding: 2px;
-  backdrop-filter: blur(14px);
-}
-
 .video-card__title {
   display: -webkit-box;
   min-height: 42px;
@@ -178,10 +146,5 @@ const isWatchLater = computed(() => library.isWatchLater(props.video.id))
     overflow-wrap: anywhere;
   }
 
-  .video-card__actions {
-    inset: 5px 5px auto auto;
-    gap: 1px;
-    padding: 1px;
-  }
 }
 </style>

@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import DxTransitionShowcase from "~/components/home/DxTransitionShowcase.vue"
+
 const { t } = useI18n()
 const {
   announcement,
@@ -21,6 +23,10 @@ useHead({
     <BrandBand />
 
     <div class="aoi-page">
+      <ClientOnly>
+        <DxTransitionShowcase />
+      </ClientOnly>
+
       <CategoryTabs
         v-model="selectedCategory"
         :categories="categories"

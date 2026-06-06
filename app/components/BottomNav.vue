@@ -20,7 +20,7 @@ const items = computed(() => [
 
 <template>
   <nav class="bottom-nav" aria-label="移动端主导航">
-    <NuxtLink
+    <AoiLink
       v-for="item in items"
       :key="item.to"
       class="bottom-nav__item"
@@ -30,7 +30,7 @@ const items = computed(() => [
     >
       <AoiIcon :name="item.icon" :size="20" decorative />
       <span>{{ item.label }}</span>
-    </NuxtLink>
+    </AoiLink>
   </nav>
 </template>
 
@@ -43,7 +43,7 @@ const items = computed(() => [
   height: var(--aoi-mobile-nav-height);
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border-top: 1px solid var(--aoi-border);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--aoi-nav-bg);
   backdrop-filter: blur(18px);
 }
 
@@ -57,8 +57,16 @@ const items = computed(() => [
   gap: 2px;
 }
 
+.bottom-nav__item:hover {
+  background: var(--aoi-nav-hover-bg);
+}
+
+.bottom-nav__item:active {
+  background: var(--aoi-nav-pressed-bg);
+}
+
 .bottom-nav__item--active {
-  color: var(--aoi-sakura-50);
+  color: var(--aoi-nav-active-color);
 }
 
 @media (max-width: 639px) {

@@ -1,12 +1,15 @@
-# Claude Code Rules
+# Claude Code 规则
 
-Follow the project rules in `AGENTS.md`. This file exists so Claude Code can discover the same repository guidance.
+请遵循 `AGENTS.md` 中的项目规则。这个文件用于让 Claude Code 发现同一套仓库约定。
 
-## Claude-Specific Notes
+## Claude Code 专用说明
 
-- Read `AGENTS.md` before making code changes.
-- Use `pnpm` commands only; do not introduce npm, Yarn, or Bun lockfiles.
-- Keep Material Web behind Aoi wrapper components in `app/components/aoi/`.
-- Prefer small, verifiable edits and preserve unrelated working-tree changes.
-- Run `pnpm typecheck` after code changes when practical, and report any skipped checks.
-- Reply in Simplified Chinese when the user writes in Chinese, unless they request another language.
+- 修改代码前先阅读 `AGENTS.md`。
+- 较大的产品、架构、UI、API 或交互变更，同时阅读 `design/rules.md`。
+- 只使用 `pnpm` 命令；不要引入 npm、Yarn 或 Bun 的 lockfile。
+- Material Web 必须保持在 `app/components/aoi/` 的 Aoi wrapper 后面。
+- 普通内部路由或外部链接使用 `AoiLink`，不要在业务代码中直接使用 `NuxtLink` 或裸 `<a>`。
+- 按钮式链接使用 `AoiButton` 或 `AoiIconButton` 的 `to`/`href`。
+- 优先做小而可验证的改动，并保留无关的工作区改动。
+- 代码变更后，在可行时运行 `pnpm typecheck`，并报告跳过的检查。
+- 用户使用中文时，默认使用简体中文回复，除非用户要求其他语言。

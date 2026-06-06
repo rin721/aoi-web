@@ -1,12 +1,9 @@
 <script setup lang="ts">
 import type { VideoSummary } from "~/types/api"
 
-withDefaults(defineProps<{
-  showActions?: boolean
+defineProps<{
   videos: VideoSummary[]
-}>(), {
-  showActions: true
-})
+}>()
 </script>
 
 <template>
@@ -16,7 +13,6 @@ withDefaults(defineProps<{
       :key="video.id"
       :video="video"
       :index="index"
-      :show-actions="showActions"
     />
   </div>
 </template>

@@ -14,7 +14,7 @@ defineProps<{
     <div>
       <h2 id="notice-title" class="notice__title">{{ announcement.title }}</h2>
       <p class="notice__body">
-        <NuxtLink v-if="announcement.href" :to="announcement.href">{{ announcement.body }}</NuxtLink>
+        <AoiLink v-if="announcement.href" :to="announcement.href">{{ announcement.body }}</AoiLink>
         <template v-else>{{ announcement.body }}</template>
       </p>
     </div>

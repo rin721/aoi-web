@@ -5,10 +5,17 @@ const { t } = useI18n()
 <template>
   <header class="mobile-header">
     <AoiIconButton icon="menu" label="打开菜单" />
-    <NuxtLink class="mobile-header__brand" to="/">
+    <AoiLink class="mobile-header__brand" to="/">
       {{ t("app.name") }}
-    </NuxtLink>
-    <AoiIconButton icon="search" :label="t('nav.search')" to="/search" />
+    </AoiLink>
+    <div class="mobile-header__actions">
+      <AoiIconButton icon="search" :label="t('nav.search')" to="/search" />
+      <AoiIconButton
+        icon="log-in"
+        label="登录"
+        to="/login"
+      />
+    </div>
   </header>
 </template>
 
@@ -22,7 +29,7 @@ const { t } = useI18n()
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--aoi-border);
-  background: rgba(255, 255, 255, 0.9);
+  background: var(--aoi-nav-bg);
   backdrop-filter: blur(18px);
   padding: 0 14px;
 }
@@ -32,6 +39,12 @@ const { t } = useI18n()
   font-family: Montserrat, Inter, "Noto Sans SC", system-ui, sans-serif;
   font-size: 20px;
   font-weight: 800;
+}
+
+.mobile-header__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
 @media (max-width: 639px) {

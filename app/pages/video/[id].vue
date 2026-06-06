@@ -3,6 +3,7 @@ import type { CommentSortMode } from "~/types/comments"
 
 const route = useRoute()
 const api = useAoiApi()
+const settings = useAppSettingsStore()
 const library = useLibraryStore()
 const comments = useCommentsStore()
 const id = computed(() => String(route.params.id || ""))
@@ -19,26 +20,32 @@ const localLikeCount = computed(() => video.value ? video.value.likeCount + (isL
 const localCommentCount = computed(() => video.value ? comments.commentCountForVideo(video.value.id) : 0)
 const displayCommentCount = computed(() => video.value ? video.value.commentCount + localCommentCount.value : 0)
 const visibleComments = computed(() => video.value ? comments.commentsForVideo(video.value.id, commentSortMode.value) : [])
-const initialProgressSeconds = computed(() => video.value ? library.historyProgressForVideo(video.value.id) : 0)
+const initialProgressSeconds = computed(() => {
+  if (!video.value || settings.disableWatchHistory) {
+    return 0
+  }
+
+  return library.historyProgressForVideo(video.value.id)
+})
 const commentAuthorName = computed({
   get: () => comments.authorName,
   set: (value: string) => comments.setAuthorName(value)
 })
 
 watch([video, () => library.hydrated], ([current, hydrated]) => {
-  if (import.meta.client && hydrated && current) {
+  if (import.meta.client && hydrated && current && !settings.disableWatchHistory) {
     library.recordView(current)
   }
 }, { immediate: true })
 
 function onPlayerProgress(seconds: number) {
-  if (video.value && library.hydrated) {
+  if (video.value && library.hydrated && !settings.disableWatchHistory) {
     library.updateHistoryProgress(video.value.id, seconds)
   }
 }
 
 function onPlayerEnded() {
-  if (video.value && library.hydrated) {
+  if (video.value && library.hydrated && !settings.disableWatchHistory) {
     library.updateHistoryProgress(video.value.id, video.value.durationSeconds)
   }
 }
@@ -137,14 +144,14 @@ useHead(() => ({
           </div>
 
           <div class="video-detail__tags" aria-label="标签">
-            <NuxtLink
+            <AoiLink
               v-for="tag in video.tags"
               :key="tag"
               class="video-detail__tag"
               :to="`/search?q=${encodeURIComponent(tag)}`"
             >
               # {{ tag }}
-            </NuxtLink>
+            </AoiLink>
           </div>
 
           <section class="video-detail__comments" aria-label="本地讨论区">

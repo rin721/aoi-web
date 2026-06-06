@@ -22,7 +22,7 @@ function formatCount(value: number) {
 
 <template>
   <article class="creator-card">
-    <NuxtLink class="creator-card__link" :to="`/u/${creator.handle}`" :aria-label="creator.displayName">
+    <AoiLink class="creator-card__link" :to="`/u/${creator.handle}`" :aria-label="creator.displayName">
       <span class="creator-card__avatar" aria-hidden="true">
         {{ creator.displayName.slice(0, 1).toUpperCase() }}
       </span>
@@ -41,7 +41,7 @@ function formatCount(value: number) {
           </span>
         </span>
       </span>
-    </NuxtLink>
+    </AoiLink>
 
     <div v-if="showActions" class="creator-card__actions">
       <AoiButton

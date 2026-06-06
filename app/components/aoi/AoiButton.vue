@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router"
+
 type ButtonVariant = "filled" | "tonal" | "outlined" | "text" | "elevated"
 type ButtonSize = "sm" | "md" | "lg"
+type LinkTarget = "_blank" | "_parent" | "_self" | "_top" | (string & {})
 
 const props = withDefaults(defineProps<{
   variant?: ButtonVariant
@@ -10,9 +13,12 @@ const props = withDefaults(defineProps<{
   loading?: boolean
   disabled?: boolean
   ariaLabel?: string
-  href?: string
-  to?: string
-  target?: string
+  external?: boolean
+  href?: RouteLocationRaw
+  noRel?: boolean
+  rel?: string | null
+  target?: LinkTarget | null
+  to?: RouteLocationRaw
   type?: "button" | "submit" | "reset"
 }>(), {
   variant: "filled",
@@ -22,9 +28,12 @@ const props = withDefaults(defineProps<{
   loading: false,
   disabled: false,
   ariaLabel: undefined,
+  external: undefined,
   href: undefined,
-  to: undefined,
+  noRel: false,
+  rel: undefined,
   target: undefined,
+  to: undefined,
   type: "button"
 })
 
@@ -44,7 +53,7 @@ const tagName = computed(() => {
   return map[props.variant]
 })
 
-const resolvedHref = computed(() => props.href || props.to)
+const hasLink = computed(() => Boolean(props.to || props.href))
 const resolvedIcon = computed(() => props.loading ? "loader-circle" : props.icon)
 const hasTrailingIcon = computed(() => Boolean(props.trailingIcon && !props.loading))
 
@@ -54,16 +63,52 @@ function onClick(event: MouseEvent) {
 </script>
 
 <template>
+  <AoiLink
+    v-if="hasLink && !disabled && !loading"
+    class="aoi-button-link"
+    :aria-label="ariaLabel"
+    :external="external"
+    :href="href"
+    :no-rel="noRel"
+    :rel="rel"
+    :target="target"
+    :to="to"
+    @click="onClick"
+  >
+    <component
+      :is="tagName"
+      class="aoi-button"
+      :class="`aoi-button--${size}`"
+      aria-hidden="true"
+      tabindex="-1"
+      :type="type"
+      :trailing-icon="hasTrailingIcon || undefined"
+    >
+      <AoiIcon
+        v-if="resolvedIcon"
+        slot="icon"
+        :class="{ 'aoi-spin': loading }"
+        :name="resolvedIcon"
+        decorative
+      />
+      <AoiIcon
+        v-if="hasTrailingIcon && trailingIcon"
+        slot="icon"
+        :name="trailingIcon"
+        decorative
+      />
+      <slot />
+    </component>
+  </AoiLink>
   <component
+    v-else
     :is="tagName"
     class="aoi-button"
     :class="`aoi-button--${size}`"
+    :aria-label="ariaLabel"
     :disabled="disabled || loading || undefined"
-    :href="resolvedHref"
-    :target="target"
     :type="type"
     :trailing-icon="hasTrailingIcon || undefined"
-    :aria-label="ariaLabel"
     @click="onClick"
   >
     <AoiIcon
@@ -86,6 +131,16 @@ function onClick(event: MouseEvent) {
 <style scoped>
 .aoi-spin {
   animation: aoi-spin 900ms linear infinite;
+}
+
+.aoi-button-link {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+}
+
+.aoi-button-link > .aoi-button {
+  pointer-events: none;
 }
 
 @keyframes aoi-spin {

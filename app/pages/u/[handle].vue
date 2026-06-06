@@ -121,14 +121,14 @@ useHead(() => ({
       </section>
 
       <section v-if="creator.categories.length" class="creator-profile__tags" aria-label="常见分区">
-        <NuxtLink
+        <AoiLink
           v-for="category in creator.categories"
           :key="category.id"
           class="creator-profile__tag"
           :to="`/category/${category.slug}`"
         >
           {{ category.name }}
-        </NuxtLink>
+        </AoiLink>
       </section>
 
       <section class="creator-profile__videos" aria-labelledby="creator-videos-title">

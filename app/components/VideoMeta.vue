@@ -10,6 +10,7 @@ const props = withDefaults(defineProps<{
   linkUploader: false
 })
 
+const settings = useAppSettingsStore()
 const duration = computed(() => {
   const minutes = Math.floor(props.video.durationSeconds / 60).toString().padStart(2, "0")
   const seconds = (props.video.durationSeconds % 60).toString().padStart(2, "0")
@@ -25,11 +26,52 @@ const views = computed(() => {
   return String(props.video.viewCount)
 })
 
-const publishedDate = computed(() => new Intl.DateTimeFormat("zh-CN", {
-  day: "2-digit",
-  month: "2-digit",
-  year: "numeric"
-}).format(new Date(props.video.publishedAt)))
+const publishedDate = computed(() => {
+  const date = new Date(props.video.publishedAt)
+
+  if (settings.useRelativeDates) {
+    return formatRelativeDate(date)
+  }
+
+  return new Intl.DateTimeFormat("zh-CN", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric"
+  }).format(date)
+})
+
+function formatRelativeDate(date: Date) {
+  const diffMs = Date.now() - date.getTime()
+  const minutes = Math.floor(diffMs / 1000 / 60)
+
+  if (!Number.isFinite(minutes) || minutes < 1) {
+    return "刚刚"
+  }
+
+  if (minutes < 60) {
+    return `${minutes} 分钟前`
+  }
+
+  const hours = Math.floor(minutes / 60)
+
+  if (hours < 24) {
+    return `${hours} 小时前`
+  }
+
+  const days = Math.floor(hours / 24)
+
+  if (days < 30) {
+    return `${days} 天前`
+  }
+
+  const months = Math.floor(days / 30)
+
+  if (months < 12) {
+    return `${months} 个月前`
+  }
+
+  return `${Math.floor(months / 12)} 年前`
+}
 </script>
 
 <template>
@@ -37,13 +79,13 @@ const publishedDate = computed(() => new Intl.DateTimeFormat("zh-CN", {
     <div class="video-meta__line">
       <span class="video-meta__item video-meta__uploader">
         <span class="video-meta__dot" />
-        <NuxtLink
+        <AoiLink
           v-if="linkUploader"
           class="video-meta__name video-meta__name--link"
           :to="`/u/${video.uploader.handle}`"
         >
           {{ video.uploader.displayName }}
-        </NuxtLink>
+        </AoiLink>
         <span v-else class="video-meta__name">{{ video.uploader.displayName }}</span>
       </span>
     </div>

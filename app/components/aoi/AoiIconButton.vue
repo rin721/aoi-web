@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import type { RouteLocationRaw } from "vue-router"
+
 type IconButtonVariant = "standard" | "filled" | "tonal" | "outlined"
 type IconButtonSize = "sm" | "md" | "lg"
+type LinkTarget = "_blank" | "_parent" | "_self" | "_top" | (string & {})
 
 const props = withDefaults(defineProps<{
   icon: string
@@ -9,14 +12,22 @@ const props = withDefaults(defineProps<{
   size?: IconButtonSize
   active?: boolean
   disabled?: boolean
-  href?: string
-  to?: string
+  external?: boolean
+  href?: RouteLocationRaw
+  noRel?: boolean
+  rel?: string | null
+  target?: LinkTarget | null
+  to?: RouteLocationRaw
 }>(), {
   variant: "standard",
   size: "md",
   active: false,
   disabled: false,
+  external: undefined,
   href: undefined,
+  noRel: false,
+  rel: undefined,
+  target: undefined,
   to: undefined
 })
 
@@ -45,8 +56,8 @@ const iconSize = computed(() => {
   return map[props.size]
 })
 
-const resolvedHref = computed(() => props.href || props.to)
-const ariaCurrent = computed(() => props.active && resolvedHref.value ? "page" : undefined)
+const hasLink = computed(() => Boolean(props.to || props.href))
+const ariaCurrent = computed(() => props.active && hasLink.value ? "page" : undefined)
 
 function onClick(event: MouseEvent) {
   emit("click", event)
@@ -54,18 +65,54 @@ function onClick(event: MouseEvent) {
 </script>
 
 <template>
+  <AoiLink
+    v-if="hasLink && !disabled"
+    class="aoi-icon-button-link"
+    :aria-current="ariaCurrent"
+    :aria-label="label"
+    :external="external"
+    :href="href"
+    :no-rel="noRel"
+    :rel="rel"
+    :target="target"
+    :to="to"
+    @click="onClick"
+  >
+    <component
+      :is="tagName"
+      class="aoi-icon-button"
+      :class="{ 'aoi-icon-button--active': active }"
+      aria-hidden="true"
+      :selected="active || undefined"
+      tabindex="-1"
+      :toggle="active || undefined"
+    >
+      <AoiIcon :name="icon" :size="iconSize" decorative />
+    </component>
+  </AoiLink>
   <component
+    v-else
     :is="tagName"
     class="aoi-icon-button"
     :class="{ 'aoi-icon-button--active': active }"
     :aria-label="label"
-    :aria-current="ariaCurrent"
     :disabled="disabled || undefined"
-    :href="resolvedHref"
-    :toggle="active || undefined"
     :selected="active || undefined"
+    :toggle="active || undefined"
     @click="onClick"
   >
     <AoiIcon :name="icon" :size="iconSize" decorative />
   </component>
 </template>
+
+<style scoped>
+.aoi-icon-button-link {
+  display: inline-flex;
+  color: inherit;
+  text-decoration: none;
+}
+
+.aoi-icon-button-link > .aoi-icon-button {
+  pointer-events: none;
+}
+</style>

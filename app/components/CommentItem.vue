@@ -110,7 +110,7 @@ function saveEdit() {
   place-items: center;
   border-radius: var(--aoi-radius-sm);
   background: var(--aoi-accent-10);
-  color: var(--aoi-accent-70);
+  color: var(--aoi-accent-60);
   font-weight: 800;
 }
 

@@ -7,7 +7,11 @@
   --aoi-accent-20: #c9f3f7;
   --aoi-accent-10: #e9fbfd;
   --aoi-secondary-50: #5b8def;
+  --aoi-sakura-60: #dc4f86;
   --aoi-sakura-50: #f2709c;
+  --aoi-sakura-40: #f79bbb;
+  --aoi-sakura-20: #ffd6e6;
+  --aoi-sakura-10: #fff1f7;
   --aoi-sun-50: #f7b955;
 
   --aoi-bg: #fbfdff;
@@ -21,6 +25,32 @@
   --aoi-focus: rgba(34, 184, 207, 0.32);
   --aoi-shadow-sm: 0 4px 12px rgba(19, 80, 96, 0.08);
   --aoi-shadow-md: 0 10px 28px rgba(19, 80, 96, 0.14);
+  --aoi-danger: #ba1a1a;
+  --aoi-content-max-width: 1280px;
+  --aoi-content-wide-max-width: 1360px;
+  --aoi-page-padding-block-start: 18px;
+  --aoi-page-padding-block-end: 56px;
+  --aoi-page-padding-inline: 5vw;
+  --aoi-page-padding-mobile: 16px 12px 78px;
+  --aoi-panel-bg: var(--aoi-surface);
+  --aoi-card-bg: rgba(255, 255, 255, 0.52);
+  --aoi-control-bg: rgba(255, 255, 255, 0.48);
+  --aoi-state-hover: color-mix(in srgb, var(--aoi-accent-60) 6%, white);
+  --aoi-state-active: color-mix(in srgb, var(--aoi-accent-60) 10%, white);
+  --aoi-state-border-active: color-mix(in srgb, var(--aoi-accent-60) 34%, var(--aoi-border));
+  --aoi-grid-gap: 16px;
+  --aoi-grid-gap-compact: 12px;
+  --aoi-nav-bg: rgba(255, 255, 255, 0.9);
+  --aoi-nav-hover-bg: var(--aoi-state-hover);
+  --aoi-nav-pressed-bg: color-mix(in srgb, var(--aoi-accent-60) 8%, white);
+  --aoi-nav-active-bg: var(--aoi-accent-10);
+  --aoi-nav-active-color: var(--aoi-sakura-50);
+  --aoi-nav-bg-colorful: linear-gradient(135deg, color-mix(in srgb, var(--aoi-accent-60) 12%, white), rgba(255, 255, 255, 0.9));
+  --aoi-nav-border-colorful: color-mix(in srgb, var(--aoi-accent-60) 18%, transparent);
+  --aoi-user-bg-image: none;
+  --aoi-user-bg-opacity: 0;
+  --aoi-user-bg-blur: 0px;
+  --aoi-user-bg-dim: 0;
 
   --aoi-radius-xs: 4px;
   --aoi-radius-sm: 6px;
@@ -78,6 +108,18 @@
   --aoi-focus: rgba(94, 211, 223, 0.34);
   --aoi-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.22);
   --aoi-shadow-md: 0 12px 32px rgba(0, 0, 0, 0.34);
+  --aoi-card-bg: rgba(255, 255, 255, 0.06);
+  --aoi-control-bg: rgba(255, 255, 255, 0.05);
+  --aoi-state-hover: color-mix(in srgb, var(--aoi-accent-40) 10%, var(--aoi-surface-solid));
+  --aoi-state-active: color-mix(in srgb, var(--aoi-accent-40) 16%, var(--aoi-surface-solid));
+  --aoi-state-border-active: color-mix(in srgb, var(--aoi-accent-40) 36%, var(--aoi-border));
+  --aoi-nav-bg: rgba(22, 33, 36, 0.9);
+  --aoi-nav-hover-bg: var(--aoi-state-hover);
+  --aoi-nav-pressed-bg: color-mix(in srgb, var(--aoi-accent-40) 14%, var(--aoi-surface-solid));
+  --aoi-nav-active-bg: color-mix(in srgb, var(--aoi-accent-40) 12%, var(--aoi-surface-solid));
+  --aoi-nav-active-color: var(--aoi-sakura-40);
+  --aoi-nav-bg-colorful: linear-gradient(135deg, color-mix(in srgb, var(--aoi-accent-60) 18%, var(--aoi-surface-solid)), var(--aoi-surface));
+  --aoi-nav-border-colorful: color-mix(in srgb, var(--aoi-accent-40) 22%, transparent);
 
   --md-sys-color-primary: var(--aoi-accent-40);
   --md-sys-color-on-primary: #00363f;

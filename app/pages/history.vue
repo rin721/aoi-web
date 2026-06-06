@@ -143,7 +143,7 @@ useHead({
 }
 
 .history-entry__progress-label {
-  color: var(--aoi-accent-70);
+  color: var(--aoi-accent-60);
 }
 
 .history-entry__progress {
@@ -157,7 +157,7 @@ useHead({
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--aoi-accent-50), var(--aoi-primary-60));
+  background: linear-gradient(90deg, var(--aoi-accent-50), var(--aoi-accent-60));
 }
 
 @media (max-width: 639px) {

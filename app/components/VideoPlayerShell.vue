@@ -363,7 +363,7 @@ onMounted(() => {
         />
 
         <label class="video-player-shell__volume">
-          <span>音量</span>
+          <span class="video-player-shell__volume-label">音量</span>
           <input
             class="video-player-shell__range"
             type="range"
@@ -547,6 +547,11 @@ onMounted(() => {
     min-height: 190px;
   }
 
+  .video-player-shell__controls {
+    gap: 8px;
+    padding: 10px;
+  }
+
   .video-player-shell--theater {
     margin-inline: 0;
   }
@@ -558,17 +563,28 @@ onMounted(() => {
 
   .video-player-shell__actions {
     display: grid;
-    grid-template-columns: repeat(4, minmax(44px, 1fr));
+    grid-template-columns: 44px 44px minmax(0, 1fr) 88px 44px 44px;
+    gap: 6px;
   }
 
-  .video-player-shell__volume,
-  .video-player-shell__rate {
-    grid-column: 1 / -1;
+  .video-player-shell__volume {
+    min-width: 0;
+    min-height: 44px;
     width: 100%;
+  }
+
+  .video-player-shell__volume-label {
+    display: none;
   }
 
   .video-player-shell__volume input {
+    min-width: 0;
     width: 100%;
+  }
+
+  .video-player-shell__rate {
+    min-width: 0;
+    width: 88px;
   }
 }
 </style>

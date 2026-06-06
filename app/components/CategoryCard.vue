@@ -8,14 +8,14 @@ defineProps<{
 </script>
 
 <template>
-  <NuxtLink class="category-card" :to="`/category/${category.slug}`">
+  <AoiLink class="category-card" :to="`/category/${category.slug}`">
     <span class="category-card__swatch" :style="{ backgroundColor: category.accentColor || 'var(--aoi-accent-50)' }" />
     <span class="category-card__body">
       <span class="category-card__name">{{ category.name }}</span>
       <span v-if="category.description" class="category-card__description">{{ category.description }}</span>
     </span>
     <span v-if="typeof count === 'number'" class="category-card__count">{{ count }}</span>
-  </NuxtLink>
+  </AoiLink>
 </template>
 
 <style scoped>

@@ -1,525 +1,274 @@
 <script setup lang="ts">
-const config = useRuntimeConfig()
-const settings = useAppSettingsStore()
-const api = useAoiApi()
-const library = useLibraryStore()
-const telemetry = useAoiApiTelemetry()
-const uploadDrafts = useUploadDraftStore()
-const following = useFollowingStore()
-const comments = useCommentsStore()
-const playerSettings = usePlayerSettingsStore()
+const route = useRoute()
+const query = ref("")
 
-const defaultCommentAuthor = "Aoi 游客"
-const activeBaseURL = computed(() => config.public.apiMock ? "/api/mock" : config.public.apiBaseURL)
-const localStats = computed(() => ({
-  favorites: Object.keys(library.favoriteVideos).length,
-  history: library.history.length,
-  liked: library.likedCount,
-  watchLater: Object.keys(library.watchLaterVideos).length
-}))
-const hasLocalData = computed(() => Object.values(localStats.value).some((value) => value > 0))
-const uploadStats = computed(() => ({
-  drafts: uploadDrafts.draftCount,
-  queued: uploadDrafts.queuedCount,
-  ready: uploadDrafts.readyCount
-}))
-const hasUploadDrafts = computed(() => uploadStats.value.drafts > 0)
-const followingStats = computed(() => ({
-  creators: following.followedCount,
-  videos: following.latestVideos.length
-}))
-const hasFollowingData = computed(() => followingStats.value.creators > 0)
-const commentStats = computed(() => ({
-  author: comments.authorName,
-  total: comments.totalCount,
-  videos: comments.videoCount
-}))
-const hasCommentData = computed(() => commentStats.value.total > 0 || commentStats.value.author !== defaultCommentAuthor)
-const playerStats = computed(() => ({
-  muted: playerSettings.muted,
-  playbackRate: playerSettings.playbackRate,
-  theaterMode: playerSettings.theaterMode,
-  volume: Math.round(playerSettings.volume * 100)
-}))
-const hasPlayerSettings = computed(() => {
-  return playerSettings.volume !== 0.8
-    || playerSettings.muted
-    || playerSettings.playbackRate !== 1
-    || playerSettings.theaterMode
-})
-
-const {
-  data: apiStatus,
-  error: apiStatusError,
-  pending: apiStatusPending,
-  refresh: refreshApiStatus
-} = useAsyncData("api-status", () => api.getApiStatus())
-
-const themeOptions = [
-  { label: "跟随系统", value: "system" },
-  { label: "浅色", value: "light" },
-  { label: "深色", value: "dark" }
+const settingGroups = [
+  {
+    label: "应用设置",
+    items: [
+      { icon: "palette", label: "外观", keywords: "主题 色板 背景 DIY 自定义", to: "/settings/appearance" },
+      { icon: "play-circle", label: "播放器", keywords: "音量 静音 倍速 剧场", to: "/settings/player" },
+      { icon: "message-square-text", label: "弹幕", keywords: "弹幕 占位", to: "/settings/danmaku" },
+      { icon: "sliders-horizontal", label: "偏好", keywords: "省流 隐私 新标签 日期 搜索", to: "/settings/preference" },
+      { icon: "languages", label: "语言", keywords: "中文 English 日本語 i18n", to: "/settings/language" },
+      { icon: "flask-conical", label: "实验", keywords: "实验 功能预览", to: "/settings/experimental" },
+      { icon: "keyboard", label: "快捷键", keywords: "键盘 播放 评论", to: "/settings/shortcut-key" }
+    ]
+  },
+  {
+    label: "项目",
+    items: [
+      { icon: "info", label: "关于", keywords: "版本 技术栈 仓库", to: "/settings/about" },
+      { icon: "heart-handshake", label: "鸣谢", keywords: "链接 友情链接 致谢", to: "/settings/acknowledgement" },
+      { icon: "database", label: "高级", keywords: "API mock 错误 本地缓存 重置 数据", to: "/settings/advanced" }
+    ]
+  }
 ]
 
-if (import.meta.client) {
-  watchEffect(() => {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches
-    const shouldDark = settings.preferredTheme === "dark" || (settings.preferredTheme === "system" && prefersDark)
+const normalizedQuery = computed(() => query.value.trim().toLowerCase())
+const visibleGroups = computed(() => {
+  if (!normalizedQuery.value) {
+    return settingGroups
+  }
 
-    document.documentElement.classList.toggle("dark", shouldDark)
-  })
-}
+  return settingGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => {
+        const haystack = `${item.label} ${item.keywords}`.toLowerCase()
 
-useHead({
-  title: "Settings - Aoi"
+        return haystack.includes(normalizedQuery.value)
+      })
+    }))
+    .filter((group) => group.items.length > 0)
 })
+const activeItem = computed(() => {
+  return settingGroups
+    .flatMap((group) => group.items)
+    .find((item) => route.path === item.to)
+})
+
+useHead(() => ({
+  title: activeItem.value ? `${activeItem.value.label} - 设置 - Aoi` : "设置 - Aoi"
+}))
 </script>
 
 <template>
-  <div class="aoi-page">
-    <PageHeader
-      icon="settings"
-      title="设置"
-      description="管理 Aoi 前端原型的本地偏好、匿名互动数据和 API mock 状态。"
-    />
-
-    <section class="settings-grid">
-      <div class="settings-panel">
-        <h2>外观</h2>
-        <AoiSelect
-          v-model="settings.preferredTheme"
-          label="主题"
-          variant="outlined"
-          :options="themeOptions"
-        />
-      </div>
-
-      <div class="settings-panel">
-        <h2>数据源</h2>
-        <div class="settings-row">
-          <span>Mock API</span>
-          <AoiSwitch :model-value="Boolean(config.public.apiMock)" disabled />
+  <div class="aoi-page settings-shell">
+    <aside class="settings-shell__nav" aria-label="设置分类">
+      <div class="settings-shell__intro">
+        <span class="settings-shell__mark" aria-hidden="true">
+          <AoiIcon name="settings" :size="22" decorative />
+        </span>
+        <div>
+          <h1>设置</h1>
+          <p>调整 Aoi 的外观、偏好、本地数据和开发诊断。</p>
         </div>
-        <p class="settings-note">当前 API Base URL：{{ activeBaseURL }}</p>
       </div>
 
-      <div class="settings-panel settings-panel--wide">
-        <div class="settings-panel__title-row">
-          <h2>API 状态</h2>
-          <AoiButton
-            variant="outlined"
-            size="sm"
-            icon="refresh-cw"
-            :loading="apiStatusPending"
-            @click="refreshApiStatus()"
+      <AoiTextField
+        v-model="query"
+        label="搜索设置"
+        placeholder="主题、背景、播放器..."
+        variant="outlined"
+        type="search"
+      />
+
+      <nav class="settings-shell__groups" aria-label="设置页面">
+        <section
+          v-for="group in visibleGroups"
+          :key="group.label"
+          class="settings-shell__group"
+        >
+          <h2>{{ group.label }}</h2>
+          <AoiLink
+            v-for="item in group.items"
+            :key="item.to"
+            class="settings-shell__nav-item"
+            :class="{ 'settings-shell__nav-item--active': route.path === item.to }"
+            :to="item.to"
           >
-            刷新
-          </AoiButton>
-        </div>
+            <AoiIcon :name="item.icon" :size="17" decorative />
+            <span>{{ item.label }}</span>
+          </AoiLink>
+        </section>
 
-        <AoiProgress v-if="apiStatusPending" indeterminate />
-        <PageState
-          v-else-if="apiStatusError"
-          icon="cloud-alert"
-          title="API 状态不可用"
-          description="当前 API 状态探测失败。"
-          action-icon="refresh-cw"
-          action-label="重试"
-          @action="refreshApiStatus()"
-        />
-
-        <div v-else-if="apiStatus" class="api-status">
-          <div>
-            <span>模式</span>
-            <strong>{{ apiStatus.mode }}</strong>
-          </div>
-          <div>
-            <span>Base Path</span>
-            <strong>{{ apiStatus.basePath }}</strong>
-          </div>
-          <div>
-            <span>Endpoint</span>
-            <strong>{{ apiStatus.endpoints.length }}</strong>
-          </div>
-          <div>
-            <span>更新时间</span>
-            <strong>{{ new Date(apiStatus.generatedAt).toLocaleTimeString("zh-CN") }}</strong>
-          </div>
-        </div>
-
-        <div v-if="apiStatus?.endpoints.length" class="endpoint-list" aria-label="已实现 mock endpoints">
-          <code v-for="endpoint in apiStatus.endpoints" :key="endpoint">{{ endpoint }}</code>
-        </div>
-      </div>
-
-      <div class="settings-panel settings-panel--wide">
-        <div class="settings-panel__title-row">
-          <h2>最近 API 错误</h2>
-          <AoiButton
-            variant="text"
-            size="sm"
-            icon="trash-2"
-            :disabled="telemetry.recentErrors.value.length === 0"
-            @click="telemetry.clearErrors()"
-          >
-            清空
-          </AoiButton>
-        </div>
-
-        <p v-if="telemetry.recentErrors.value.length === 0" class="settings-note">
-          暂无错误记录。页面请求失败时会在这里保留最近 8 条，方便后续对接 Go API 时排查。
+        <p v-if="visibleGroups.length === 0" class="settings-shell__empty">
+          没有匹配的设置项。
         </p>
+      </nav>
+    </aside>
 
-        <ul v-else class="api-errors">
-          <li v-for="item in telemetry.recentErrors.value" :key="`${item.requestId}-${item.occurredAt}`">
-            <strong>{{ item.statusCode }} · {{ item.code }}</strong>
-            <span>{{ item.endpoint }}</span>
-            <small>{{ item.message }} / {{ item.requestId }}</small>
-          </li>
-        </ul>
-      </div>
-
-      <div class="settings-panel settings-panel--wide">
-        <div class="settings-panel__title-row">
-          <h2>播放器偏好</h2>
-          <AoiButton
-            variant="outlined"
-            size="sm"
-            icon="rotate-ccw"
-            aria-label="重置播放器偏好"
-            :disabled="!playerSettings.hydrated || !hasPlayerSettings"
-            @click="playerSettings.resetPlayerSettings()"
-          >
-            重置播放器
-          </AoiButton>
-        </div>
-
-        <AoiProgress v-if="!playerSettings.hydrated" indeterminate />
-
-        <div v-else class="local-player-status">
-          <div>
-            <span>音量</span>
-            <strong>{{ playerStats.volume }}%</strong>
-          </div>
-          <div>
-            <span>静音</span>
-            <strong>{{ playerStats.muted ? "开启" : "关闭" }}</strong>
-          </div>
-          <div>
-            <span>倍速</span>
-            <strong>{{ playerStats.playbackRate }}x</strong>
-          </div>
-          <div>
-            <span>剧场模式</span>
-            <strong>{{ playerStats.theaterMode ? "开启" : "关闭" }}</strong>
-          </div>
-        </div>
-
-        <p class="settings-note">
-          播放器偏好写入当前浏览器的 <code>aoi.player.v1</code>，用于保存本地音量、静音、倍速和剧场模式。
-        </p>
-      </div>
-
-      <div class="settings-panel settings-panel--wide">
-        <div class="settings-panel__title-row">
-          <h2>本地互动数据</h2>
-          <AoiButton
-            variant="outlined"
-            size="sm"
-            icon="rotate-ccw"
-            aria-label="重置本地互动数据"
-            :disabled="!library.hydrated || !hasLocalData"
-            @click="library.resetLibrary()"
-          >
-            重置本地互动
-          </AoiButton>
-        </div>
-
-        <AoiProgress v-if="!library.hydrated" indeterminate />
-
-        <div v-else class="local-library-status">
-          <div>
-            <span>历史</span>
-            <strong>{{ localStats.history }}</strong>
-          </div>
-          <div>
-            <span>收藏</span>
-            <strong>{{ localStats.favorites }}</strong>
-          </div>
-          <div>
-            <span>稍后看</span>
-            <strong>{{ localStats.watchLater }}</strong>
-          </div>
-          <div>
-            <span>点赞</span>
-            <strong>{{ localStats.liked }}</strong>
-          </div>
-        </div>
-
-        <p class="settings-note">
-          这些数据只写入当前浏览器的 <code>aoi.library.v1</code>，不会发送到 mock API。
-        </p>
-      </div>
-
-      <div class="settings-panel settings-panel--wide">
-        <div class="settings-panel__title-row">
-          <h2>本地评论数据</h2>
-          <AoiButton
-            variant="outlined"
-            size="sm"
-            icon="message-circle-x"
-            aria-label="重置本地评论数据"
-            :disabled="!comments.hydrated || !hasCommentData"
-            @click="comments.resetComments()"
-          >
-            重置评论
-          </AoiButton>
-        </div>
-
-        <AoiProgress v-if="!comments.hydrated" indeterminate />
-
-        <div v-else class="local-comments-status">
-          <div>
-            <span>评论</span>
-            <strong>{{ commentStats.total }}</strong>
-          </div>
-          <div>
-            <span>参与视频</span>
-            <strong>{{ commentStats.videos }}</strong>
-          </div>
-          <div>
-            <span>本地作者</span>
-            <strong>{{ commentStats.author }}</strong>
-          </div>
-        </div>
-
-        <p class="settings-note">
-          本地评论只写入当前浏览器的 <code>aoi.comments.v1</code>，用于预演未来 Go 评论接口。
-        </p>
-      </div>
-
-      <div class="settings-panel settings-panel--wide">
-        <div class="settings-panel__title-row">
-          <h2>投稿草稿缓存</h2>
-          <AoiButton
-            variant="outlined"
-            size="sm"
-            icon="trash-2"
-            aria-label="清空投稿草稿"
-            :disabled="!uploadDrafts.hydrated || !hasUploadDrafts"
-            @click="uploadDrafts.resetDrafts()"
-          >
-            清空草稿
-          </AoiButton>
-        </div>
-
-        <AoiProgress v-if="!uploadDrafts.hydrated" indeterminate />
-
-        <div v-else class="local-upload-status">
-          <div>
-            <span>草稿</span>
-            <strong>{{ uploadStats.drafts }}</strong>
-          </div>
-          <div>
-            <span>可排队</span>
-            <strong>{{ uploadStats.ready }}</strong>
-          </div>
-          <div>
-            <span>已本地排队</span>
-            <strong>{{ uploadStats.queued }}</strong>
-          </div>
-        </div>
-
-        <p class="settings-note">
-          投稿草稿只保存元信息和本地文件摘要，存储 key 为 <code>aoi.uploadDrafts.v1</code>；真实文件不会写入浏览器存储或 mock API。
-        </p>
-      </div>
-
-      <div class="settings-panel settings-panel--wide">
-        <div class="settings-panel__title-row">
-          <h2>本地关注缓存</h2>
-          <AoiButton
-            variant="outlined"
-            size="sm"
-            icon="user-minus"
-            aria-label="清空本地关注"
-            :disabled="!following.hydrated || !hasFollowingData"
-            @click="following.resetFollowing()"
-          >
-            清空关注
-          </AoiButton>
-        </div>
-
-        <AoiProgress v-if="!following.hydrated" indeterminate />
-
-        <div v-else class="local-following-status">
-          <div>
-            <span>已关注创作者</span>
-            <strong>{{ followingStats.creators }}</strong>
-          </div>
-          <div>
-            <span>关注更新</span>
-            <strong>{{ followingStats.videos }}</strong>
-          </div>
-        </div>
-
-        <p class="settings-note">
-          本地关注只写入当前浏览器的 <code>aoi.following.v1</code>，用于预演未来 Go 用户关系接口。
-        </p>
-      </div>
-    </section>
+    <main class="settings-shell__content">
+      <NuxtPage />
+    </main>
   </div>
 </template>
 
 <style scoped>
-.settings-grid {
+.settings-shell {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 14px;
+  max-width: var(--aoi-content-wide-max-width);
+  grid-template-columns: minmax(240px, 288px) minmax(0, 1fr);
+  gap: 20px;
 }
 
-.settings-panel {
+.settings-shell__nav {
+  position: sticky;
+  top: 18px;
   display: grid;
+  max-height: calc(100vh - 36px);
+  align-self: start;
   gap: 14px;
+  overflow: auto;
   border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
+  border-radius: var(--aoi-radius-md);
+  background: var(--aoi-panel-bg);
   box-shadow: var(--aoi-shadow-sm);
   padding: 16px;
 }
 
-.settings-panel h2 {
-  margin: 0;
-  font-size: 16px;
-}
-
-.settings-panel--wide {
-  grid-column: 1 / -1;
-}
-
-.settings-panel__title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.settings-shell__intro {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 12px;
+  align-items: start;
 }
 
-.settings-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.settings-shell__mark {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--aoi-accent-10);
+  color: var(--aoi-accent-60);
 }
 
-.settings-note {
+.settings-shell__intro h1,
+.settings-shell__intro p,
+.settings-shell__group h2 {
   margin: 0;
+}
+
+.settings-shell__intro h1 {
+  font-size: 24px;
+  line-height: 1.1;
+}
+
+.settings-shell__intro p,
+.settings-shell__empty {
   color: var(--aoi-text-muted);
   line-height: 1.7;
 }
 
-.api-status,
-.local-library-status,
-.local-upload-status,
-.local-following-status,
-.local-comments-status,
-.local-player-status {
+.settings-shell__groups {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: 16px;
 }
 
-.local-comments-status {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.api-status div,
-.local-library-status div,
-.local-upload-status div,
-.local-following-status div,
-.local-comments-status div,
-.local-player-status div {
+.settings-shell__group {
   display: grid;
-  gap: 4px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: rgba(255, 255, 255, 0.56);
-  padding: 10px;
+  gap: 7px;
 }
 
-.api-status span,
-.local-library-status span,
-.local-upload-status span,
-.local-following-status span,
-.local-comments-status span,
-.local-player-status span,
-.api-errors span,
-.api-errors small {
+.settings-shell__group h2 {
   color: var(--aoi-text-muted);
-}
-
-.api-status strong,
-.local-library-status strong,
-.local-upload-status strong,
-.local-following-status strong,
-.local-comments-status strong,
-.local-player-status strong {
-  overflow: hidden;
-  color: var(--aoi-text);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.endpoint-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.endpoint-list code {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-bg);
-  color: var(--aoi-accent-60);
   font-size: 12px;
-  padding: 5px 8px;
+  font-weight: 780;
+  letter-spacing: 0;
 }
 
-.api-errors {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 0;
-}
-
-.api-errors li {
-  display: grid;
-  gap: 3px;
-  border: 1px solid var(--aoi-border);
+.settings-shell__nav-item {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  gap: 10px;
   border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-bg);
-  list-style: none;
-  padding: 10px;
+  color: var(--aoi-text);
+  font-weight: 720;
+  padding: 0 11px;
+  transition:
+    background var(--aoi-motion-fast) var(--aoi-ease-out),
+    color var(--aoi-motion-fast) var(--aoi-ease-out),
+    transform var(--aoi-motion-fast) var(--aoi-ease-press);
 }
 
-@media (max-width: 760px) {
-  .api-status {
+.settings-shell__nav-item:hover {
+  background: var(--aoi-state-hover);
+}
+
+.settings-shell__nav-item:active {
+  transform: scale(.98);
+}
+
+.settings-shell__nav-item--active {
+  background: var(--aoi-state-active);
+  color: var(--aoi-accent-60);
+}
+
+.settings-shell__content {
+  min-width: 0;
+}
+
+@media (max-width: 900px) {
+  .settings-shell {
     grid-template-columns: 1fr;
   }
 
-  .local-library-status {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .settings-shell__nav {
+    position: static;
+    max-height: none;
+    gap: 12px;
+    padding: 14px;
   }
 
-  .local-upload-status,
-  .local-following-status,
-  .local-comments-status,
-  .local-player-status {
-    grid-template-columns: 1fr;
+  .settings-shell__groups {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
   }
 
-  .settings-panel__title-row {
-    align-items: start;
-    flex-direction: column;
+  .settings-shell__groups::-webkit-scrollbar {
+    display: none;
+  }
+
+  .settings-shell__group {
+    display: contents;
+  }
+
+  .settings-shell__group h2 {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .settings-shell__nav-item {
+    min-width: max-content;
+    min-height: 36px;
+    border: 1px solid var(--aoi-border);
+    background: var(--aoi-card-bg);
+    padding: 0 12px;
+  }
+}
+
+@media (max-width: 639px) {
+  .settings-shell__nav {
+    border-radius: var(--aoi-radius-sm);
+  }
+
+  .settings-shell__intro {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .settings-shell__intro h1 {
+    font-size: 22px;
   }
 }
 </style>

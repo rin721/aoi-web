@@ -9,11 +9,6 @@ const { t } = useI18n()
         <h1 class="brand-band__title">{{ t("app.name") }}</h1>
         <p class="brand-band__subtitle">{{ t("home.subtitle") }}</p>
       </div>
-      <div class="brand-band__badges" aria-label="项目状态">
-        <span class="brand-band__badge">Nuxt 4 Frontend</span>
-        <span class="brand-band__badge">Material Web</span>
-        <span class="brand-band__badge">Go API Ready</span>
-      </div>
     </div>
   </section>
 </template>
@@ -85,35 +80,10 @@ const { t } = useI18n()
   line-height: 1.7;
 }
 
-.brand-band__badges {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 8px;
-  min-width: 220px;
-}
-
-.brand-band__badge {
-  display: inline-flex;
-  min-height: 30px;
-  align-items: center;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--aoi-text-muted);
-  padding: 6px 10px;
-  box-shadow: var(--aoi-shadow-sm);
-  white-space: nowrap;
-}
-
 @media (max-width: 900px) {
   .brand-band__inner {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .brand-band__badges {
-    justify-content: flex-start;
   }
 }
 
