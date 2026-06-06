@@ -8,6 +8,16 @@ import {
   isAoiRevealMotionEffect,
   isAoiRevealMotionReplay
 } from "~/utils/aoiReveal"
+import type {
+  AoiScrollHijackMode,
+  AoiScrollSnapMode
+} from "~/utils/aoiScroll"
+import {
+  AOI_SCROLL_DEFAULTS,
+  clampAoiScrollSetting,
+  isAoiScrollHijackMode,
+  isAoiScrollSnapMode
+} from "~/utils/aoiScroll"
 import type { AoiRgbaColor } from "~/utils/aoiColor"
 import {
   aoiRgbaToCss,
@@ -68,7 +78,19 @@ interface PersistedAppSettings {
   revealMotionMaxDelayMs: number
   revealMotionReplay: AoiRevealMotionReplayValue
   revealMotionStaggerMs: number
+  rubberBandEnabled: boolean
+  rubberBandMaxOffsetPx: number
+  rubberBandStrength: number
+  scrollHijackEnabled: boolean
+  scrollHijackMode: AoiScrollHijackMode
+  scrollHijackThresholdPx: number
+  scrollSnapEnabled: boolean
+  scrollSnapMode: AoiScrollSnapMode
+  scrollSnapStrength: number
   selectedCategory: string
+  smoothScrollDamping: number
+  smoothScrollDurationMs: number
+  smoothScrollEnabled: boolean
   useRelativeDates: boolean
 }
 
@@ -198,7 +220,19 @@ function emptyState(): PersistedAppSettings {
     revealMotionMaxDelayMs: AOI_REVEAL_DEFAULTS.maxDelayMs,
     revealMotionReplay: AOI_REVEAL_DEFAULTS.replay,
     revealMotionStaggerMs: AOI_REVEAL_DEFAULTS.staggerMs,
+    rubberBandEnabled: AOI_SCROLL_DEFAULTS.rubberBand.enabled,
+    rubberBandMaxOffsetPx: AOI_SCROLL_DEFAULTS.rubberBand.maxOffsetPx,
+    rubberBandStrength: AOI_SCROLL_DEFAULTS.rubberBand.strength,
+    scrollHijackEnabled: AOI_SCROLL_DEFAULTS.hijack.enabled,
+    scrollHijackMode: AOI_SCROLL_DEFAULTS.hijack.mode,
+    scrollHijackThresholdPx: AOI_SCROLL_DEFAULTS.hijack.thresholdPx,
+    scrollSnapEnabled: AOI_SCROLL_DEFAULTS.snap.enabled,
+    scrollSnapMode: AOI_SCROLL_DEFAULTS.snap.mode,
+    scrollSnapStrength: AOI_SCROLL_DEFAULTS.snap.strength,
     selectedCategory: "home",
+    smoothScrollDamping: AOI_SCROLL_DEFAULTS.smooth.damping,
+    smoothScrollDurationMs: AOI_SCROLL_DEFAULTS.smooth.durationMs,
+    smoothScrollEnabled: AOI_SCROLL_DEFAULTS.smooth.enabled,
     useRelativeDates: false
   }
 }
@@ -242,7 +276,19 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     revealMotionMaxDelayMs: clampAoiRevealSetting(candidate.revealMotionMaxDelayMs, 0, 600, fallback.revealMotionMaxDelayMs),
     revealMotionReplay: isAoiRevealMotionReplay(candidate.revealMotionReplay) ? candidate.revealMotionReplay : fallback.revealMotionReplay,
     revealMotionStaggerMs: clampAoiRevealSetting(candidate.revealMotionStaggerMs, 0, 120, fallback.revealMotionStaggerMs),
+    rubberBandEnabled: typeof candidate.rubberBandEnabled === "boolean" ? candidate.rubberBandEnabled : fallback.rubberBandEnabled,
+    rubberBandMaxOffsetPx: clampAoiScrollSetting(candidate.rubberBandMaxOffsetPx, 8, 36, fallback.rubberBandMaxOffsetPx),
+    rubberBandStrength: clampAoiScrollSetting(candidate.rubberBandStrength, 0, 100, fallback.rubberBandStrength),
+    scrollHijackEnabled: typeof candidate.scrollHijackEnabled === "boolean" ? candidate.scrollHijackEnabled : fallback.scrollHijackEnabled,
+    scrollHijackMode: isAoiScrollHijackMode(candidate.scrollHijackMode) ? candidate.scrollHijackMode : fallback.scrollHijackMode,
+    scrollHijackThresholdPx: clampAoiScrollSetting(candidate.scrollHijackThresholdPx, 24, 180, fallback.scrollHijackThresholdPx),
+    scrollSnapEnabled: typeof candidate.scrollSnapEnabled === "boolean" ? candidate.scrollSnapEnabled : fallback.scrollSnapEnabled,
+    scrollSnapMode: isAoiScrollSnapMode(candidate.scrollSnapMode) ? candidate.scrollSnapMode : fallback.scrollSnapMode,
+    scrollSnapStrength: clampAoiScrollSetting(candidate.scrollSnapStrength, 0, 100, fallback.scrollSnapStrength),
     selectedCategory: typeof candidate.selectedCategory === "string" && candidate.selectedCategory ? candidate.selectedCategory : fallback.selectedCategory,
+    smoothScrollDamping: clampAoiScrollSetting(candidate.smoothScrollDamping, 0.04, 0.22, fallback.smoothScrollDamping),
+    smoothScrollDurationMs: clampAoiScrollSetting(candidate.smoothScrollDurationMs, 600, 1800, fallback.smoothScrollDurationMs),
+    smoothScrollEnabled: typeof candidate.smoothScrollEnabled === "boolean" ? candidate.smoothScrollEnabled : fallback.smoothScrollEnabled,
     useRelativeDates: Boolean(candidate.useRelativeDates)
   }
 }
@@ -404,6 +450,18 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const revealMotionDistancePx = ref(AOI_REVEAL_DEFAULTS.distancePx)
   const revealMotionStaggerMs = ref(AOI_REVEAL_DEFAULTS.staggerMs)
   const revealMotionMaxDelayMs = ref(AOI_REVEAL_DEFAULTS.maxDelayMs)
+  const smoothScrollEnabled = ref(AOI_SCROLL_DEFAULTS.smooth.enabled)
+  const smoothScrollDurationMs = ref(AOI_SCROLL_DEFAULTS.smooth.durationMs)
+  const smoothScrollDamping = ref(AOI_SCROLL_DEFAULTS.smooth.damping)
+  const scrollSnapEnabled = ref(AOI_SCROLL_DEFAULTS.snap.enabled)
+  const scrollSnapMode = ref<AoiScrollSnapMode>(AOI_SCROLL_DEFAULTS.snap.mode)
+  const scrollSnapStrength = ref(AOI_SCROLL_DEFAULTS.snap.strength)
+  const scrollHijackEnabled = ref(AOI_SCROLL_DEFAULTS.hijack.enabled)
+  const scrollHijackMode = ref<AoiScrollHijackMode>(AOI_SCROLL_DEFAULTS.hijack.mode)
+  const scrollHijackThresholdPx = ref(AOI_SCROLL_DEFAULTS.hijack.thresholdPx)
+  const rubberBandEnabled = ref(AOI_SCROLL_DEFAULTS.rubberBand.enabled)
+  const rubberBandStrength = ref(AOI_SCROLL_DEFAULTS.rubberBand.strength)
+  const rubberBandMaxOffsetPx = ref(AOI_SCROLL_DEFAULTS.rubberBand.maxOffsetPx)
 
   const activePreset = computed(() => {
     return AOI_ACCENT_PRESETS.find((preset) => preset.value === accentPreset.value) || DEFAULT_ACCENT_PRESET_OPTION
@@ -454,7 +512,19 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       revealMotionMaxDelayMs: revealMotionMaxDelayMs.value,
       revealMotionReplay: revealMotionReplay.value,
       revealMotionStaggerMs: revealMotionStaggerMs.value,
+      rubberBandEnabled: rubberBandEnabled.value,
+      rubberBandMaxOffsetPx: rubberBandMaxOffsetPx.value,
+      rubberBandStrength: rubberBandStrength.value,
+      scrollHijackEnabled: scrollHijackEnabled.value,
+      scrollHijackMode: scrollHijackMode.value,
+      scrollHijackThresholdPx: scrollHijackThresholdPx.value,
+      scrollSnapEnabled: scrollSnapEnabled.value,
+      scrollSnapMode: scrollSnapMode.value,
+      scrollSnapStrength: scrollSnapStrength.value,
       selectedCategory: selectedCategory.value,
+      smoothScrollDamping: smoothScrollDamping.value,
+      smoothScrollDurationMs: smoothScrollDurationMs.value,
+      smoothScrollEnabled: smoothScrollEnabled.value,
       useRelativeDates: useRelativeDates.value
     }
   }
@@ -489,7 +559,19 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     revealMotionMaxDelayMs.value = state.revealMotionMaxDelayMs
     revealMotionReplay.value = state.revealMotionReplay
     revealMotionStaggerMs.value = state.revealMotionStaggerMs
+    rubberBandEnabled.value = state.rubberBandEnabled
+    rubberBandMaxOffsetPx.value = state.rubberBandMaxOffsetPx
+    rubberBandStrength.value = state.rubberBandStrength
+    scrollHijackEnabled.value = state.scrollHijackEnabled
+    scrollHijackMode.value = state.scrollHijackMode
+    scrollHijackThresholdPx.value = state.scrollHijackThresholdPx
+    scrollSnapEnabled.value = state.scrollSnapEnabled
+    scrollSnapMode.value = state.scrollSnapMode
+    scrollSnapStrength.value = state.scrollSnapStrength
     selectedCategory.value = state.selectedCategory
+    smoothScrollDamping.value = state.smoothScrollDamping
+    smoothScrollDurationMs.value = state.smoothScrollDurationMs
+    smoothScrollEnabled.value = state.smoothScrollEnabled
     useRelativeDates.value = state.useRelativeDates
   }
 
@@ -624,6 +706,24 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function setScrollSnapMode(value: AoiScrollSnapMode) {
+    if (!isAoiScrollSnapMode(value)) {
+      return
+    }
+
+    scrollSnapMode.value = value
+    persist()
+  }
+
+  function setScrollHijackMode(value: AoiScrollHijackMode) {
+    if (!isAoiScrollHijackMode(value)) {
+      return
+    }
+
+    scrollHijackMode.value = value
+    persist()
+  }
+
   function setAccentPreset(value: string) {
     if (!isAccentPreset(value)) {
       return
@@ -705,6 +805,18 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     revealMotionMaxDelayMs.value = next.revealMotionMaxDelayMs
     revealMotionReplay.value = next.revealMotionReplay
     revealMotionStaggerMs.value = next.revealMotionStaggerMs
+    rubberBandEnabled.value = next.rubberBandEnabled
+    rubberBandMaxOffsetPx.value = next.rubberBandMaxOffsetPx
+    rubberBandStrength.value = next.rubberBandStrength
+    scrollHijackEnabled.value = next.scrollHijackEnabled
+    scrollHijackMode.value = next.scrollHijackMode
+    scrollHijackThresholdPx.value = next.scrollHijackThresholdPx
+    scrollSnapEnabled.value = next.scrollSnapEnabled
+    scrollSnapMode.value = next.scrollSnapMode
+    scrollSnapStrength.value = next.scrollSnapStrength
+    smoothScrollDamping.value = next.smoothScrollDamping
+    smoothScrollDurationMs.value = next.smoothScrollDurationMs
+    smoothScrollEnabled.value = next.smoothScrollEnabled
     await clearBackground()
     persist()
   }
@@ -756,6 +868,18 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       revealMotionDistancePx,
       revealMotionStaggerMs,
       revealMotionMaxDelayMs,
+      smoothScrollEnabled,
+      smoothScrollDurationMs,
+      smoothScrollDamping,
+      scrollSnapEnabled,
+      scrollSnapMode,
+      scrollSnapStrength,
+      scrollHijackEnabled,
+      scrollHijackMode,
+      scrollHijackThresholdPx,
+      rubberBandEnabled,
+      rubberBandStrength,
+      rubberBandMaxOffsetPx,
       selectedCategory
     ], persist, { flush: "sync" })
   }
@@ -798,6 +922,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     revealMotionMaxDelayMs,
     revealMotionReplay,
     revealMotionStaggerMs,
+    rubberBandEnabled,
+    rubberBandMaxOffsetPx,
+    rubberBandStrength,
+    scrollHijackEnabled,
+    scrollHijackMode,
+    scrollHijackThresholdPx,
+    scrollSnapEnabled,
+    scrollSnapMode,
+    scrollSnapStrength,
     resetAllAppSettings,
     resetAppearance,
     restore,
@@ -813,7 +946,12 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     setPreferredTheme,
     setRevealMotionEffect,
     setRevealMotionReplay,
+    setScrollHijackMode,
+    setScrollSnapMode,
     setSelectedCategory,
+    smoothScrollDamping,
+    smoothScrollDurationMs,
+    smoothScrollEnabled,
     useRelativeDates
   }
 })

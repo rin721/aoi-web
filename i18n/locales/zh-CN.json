@@ -27,7 +27,8 @@
     "subtitle": "清透、快速、面向创作者的视频社区前端。当前为 Nuxt 4 前端设计原型，使用 mock 数据预演未来 Go API。",
     "latest": "最新",
     "gridView": "网格视图",
-    "listView": "列表视图"
+    "listView": "列表视图",
+    "categoryTabsAria": "内容分类"
   },
   "settings": {
     "appearance": {
@@ -136,6 +137,62 @@
         "staggerLabel": "错峰",
         "maxDelayTitle": "最大延迟",
         "maxDelayLabel": "最大延迟"
+      },
+      "scroll": {
+        "title": "滚动体验",
+        "description": "控制全站阻尼平滑滚动、磁吸吸附、显式滚动场景劫持和边缘阻尼。",
+        "smooth": {
+          "enabledTitle": "阻尼平滑滚动",
+          "enabledDescription": "使用 Lenis 柔化滚轮触发的页面滚动，同时保留触控设备的原生惯性。",
+          "durationTitle": "滚动时长",
+          "durationLabel": "滚动时长",
+          "dampingTitle": "阻尼",
+          "dampingLabel": "阻尼"
+        },
+        "snap": {
+          "enabledTitle": "滚动吸附 / 磁吸",
+          "enabledDescription": "允许 Aoi 滚动区域和滚动场景停靠到附近项目或段落。",
+          "modeTitle": "吸附模式",
+          "modeDescription": "选择较柔和的邻近吸附，或更强制的逐项吸附。",
+          "mode": {
+            "proximity": {
+              "label": "邻近",
+              "description": "靠近时停靠"
+            },
+            "mandatory": {
+              "label": "强制",
+              "description": "始终锁定目标"
+            }
+          },
+          "strengthTitle": "磁吸强度",
+          "strengthLabel": "磁吸强度"
+        },
+        "hijack": {
+          "enabledTitle": "滚动场景劫持",
+          "enabledDescription": "让显式 Aoi 滚动场景捕获较大的滚轮或键盘步进，并按段落切换。",
+          "modeTitle": "场景策略",
+          "modeDescription": "选择跟随当前段落，或在移动前重新计算最近段落。",
+          "mode": {
+            "section": {
+              "label": "段落",
+              "description": "使用当前段落"
+            },
+            "nearest": {
+              "label": "最近",
+              "description": "重新定位"
+            }
+          },
+          "thresholdTitle": "滚轮阈值",
+          "thresholdLabel": "滚轮阈值"
+        },
+        "rubberBand": {
+          "enabledTitle": "边缘阻尼 / 橡皮筋",
+          "enabledDescription": "在页面和滚动区域边缘显示轻微的橡皮筋反馈。",
+          "strengthTitle": "阻尼强度",
+          "strengthLabel": "阻尼强度",
+          "maxOffsetTitle": "最大位移",
+          "maxOffsetLabel": "最大位移"
+        }
       }
     },
     "experimental": {
@@ -164,6 +221,25 @@
             "title": "夜间对比测试",
             "description": "用于检查说明文字对比度和 reduced-motion 行为的深色图片占位。",
             "alt": "深色抽象图片"
+          }
+        }
+      },
+      "scrollDemo": {
+        "title": "滚动系统演示",
+        "description": "用于一起检查平滑滚动、磁吸吸附、滚动劫持和边缘阻尼的紧凑场景。",
+        "ariaLabel": "滚动系统演示",
+        "items": {
+          "smooth": {
+            "title": "惯性页面运动",
+            "description": "启用平滑滚动后，滚轮输入会通过全站 Lenis 运行时缓入到位。"
+          },
+          "snap": {
+            "title": "磁吸段落",
+            "description": "每个面板都是吸附目标，场景会停靠在更适合阅读的位置。"
+          },
+          "hijack": {
+            "title": "显式场景控制",
+            "description": "启用滚动场景劫持后，大幅滚轮和键盘步进会一次移动一个面板。"
           }
         }
       },

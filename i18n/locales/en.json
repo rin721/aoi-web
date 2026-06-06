@@ -27,7 +27,8 @@
     "subtitle": "A clear, fast video community frontend for creators. This Nuxt 4 prototype uses mock data for the future Go API.",
     "latest": "Latest",
     "gridView": "Grid view",
-    "listView": "List view"
+    "listView": "List view",
+    "categoryTabsAria": "Content categories"
   },
   "settings": {
     "appearance": {
@@ -136,6 +137,62 @@
         "staggerLabel": "Stagger",
         "maxDelayTitle": "Max delay",
         "maxDelayLabel": "Max delay"
+      },
+      "scroll": {
+        "title": "Scroll experience",
+        "description": "Control global smooth scrolling, magnetic snapping, opt-in scroll scenes, and edge damping.",
+        "smooth": {
+          "enabledTitle": "Smooth inertial scrolling",
+          "enabledDescription": "Use Lenis to soften wheel-driven page scrolling while preserving native touch inertia.",
+          "durationTitle": "Scroll duration",
+          "durationLabel": "Scroll duration",
+          "dampingTitle": "Damping",
+          "dampingLabel": "Damping"
+        },
+        "snap": {
+          "enabledTitle": "Scroll snap and magnetism",
+          "enabledDescription": "Allow Aoi scroll areas and scenes to settle on nearby items or sections.",
+          "modeTitle": "Snap mode",
+          "modeDescription": "Choose a softer proximity snap or a stricter mandatory snap.",
+          "mode": {
+            "proximity": {
+              "label": "Proximity",
+              "description": "Settle near targets"
+            },
+            "mandatory": {
+              "label": "Mandatory",
+              "description": "Always lock to targets"
+            }
+          },
+          "strengthTitle": "Magnet strength",
+          "strengthLabel": "Magnet strength"
+        },
+        "hijack": {
+          "enabledTitle": "Scroll scene hijacking",
+          "enabledDescription": "Let explicit Aoi scroll scenes capture large wheel or keyboard steps and jump section by section.",
+          "modeTitle": "Scene strategy",
+          "modeDescription": "Choose whether a scene follows its current section or recalculates the nearest section before moving.",
+          "mode": {
+            "section": {
+              "label": "Section",
+              "description": "Use active section"
+            },
+            "nearest": {
+              "label": "Nearest",
+              "description": "Recheck position"
+            }
+          },
+          "thresholdTitle": "Wheel threshold",
+          "thresholdLabel": "Wheel threshold"
+        },
+        "rubberBand": {
+          "enabledTitle": "Edge damping",
+          "enabledDescription": "Show a small rubber-band response at page and scroll-area edges.",
+          "strengthTitle": "Damping strength",
+          "strengthLabel": "Damping strength",
+          "maxOffsetTitle": "Max offset",
+          "maxOffsetLabel": "Max offset"
+        }
       }
     },
     "experimental": {
@@ -164,6 +221,25 @@
             "title": "Night mode contrast",
             "description": "A darker image placeholder for checking caption contrast and reduced-motion behavior.",
             "alt": "Dark abstract image"
+          }
+        }
+      },
+      "scrollDemo": {
+        "title": "Scroll system demo",
+        "description": "A compact scene for checking smooth scrolling, magnetic snapping, scroll hijacking, and edge damping together.",
+        "ariaLabel": "Scroll system demonstration",
+        "items": {
+          "smooth": {
+            "title": "Inertial page motion",
+            "description": "Wheel input eases into place through the global Lenis runtime when smooth scrolling is enabled."
+          },
+          "snap": {
+            "title": "Magnetic sections",
+            "description": "Each panel is a snap target, so the scene can settle on the nearest useful reading position."
+          },
+          "hijack": {
+            "title": "Opt-in scene control",
+            "description": "When scene hijacking is enabled, large wheel and keyboard steps move one panel at a time."
           }
         }
       },

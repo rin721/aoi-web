@@ -47,6 +47,23 @@ const lightboxItems = computed<AoiLightboxItem[]>(() => [
     description: t("settings.experimental.lightbox.items.night.description")
   }
 ])
+const scrollDemoItems = computed(() => [
+  {
+    icon: "waves",
+    title: t("settings.experimental.scrollDemo.items.smooth.title"),
+    description: t("settings.experimental.scrollDemo.items.smooth.description")
+  },
+  {
+    icon: "magnet",
+    title: t("settings.experimental.scrollDemo.items.snap.title"),
+    description: t("settings.experimental.scrollDemo.items.snap.description")
+  },
+  {
+    icon: "move-vertical",
+    title: t("settings.experimental.scrollDemo.items.hijack.title"),
+    description: t("settings.experimental.scrollDemo.items.hijack.description")
+  }
+])
 
 const richTextPreviewTabs = computed(() => [
   { value: "markdown", label: t("settings.experimental.richText.preview.markdown"), icon: "file-text" },
@@ -74,6 +91,34 @@ function updateRichTextPayload(payload: AoiRichTextChangePayload) {
       :description="t('settings.experimental.lightbox.description')"
     >
       <AoiLightboxGallery :items="lightboxItems" loop />
+    </SettingsPanel>
+
+    <SettingsPanel
+      icon="move-vertical"
+      :title="t('settings.experimental.scrollDemo.title')"
+      :description="t('settings.experimental.scrollDemo.description')"
+    >
+      <AoiScrollScene
+        class="scroll-demo"
+        :aria-label="t('settings.experimental.scrollDemo.ariaLabel')"
+      >
+        <AoiScrollSnapItem
+          v-for="(item, index) in scrollDemoItems"
+          :key="item.title"
+          class="scroll-demo__panel"
+          :class="`scroll-demo__panel--${index + 1}`"
+          align="center"
+          stop="always"
+        >
+          <span class="scroll-demo__icon" aria-hidden="true">
+            <AoiIcon :name="item.icon" :size="24" decorative />
+          </span>
+          <div>
+            <h3>{{ item.title }}</h3>
+            <p>{{ item.description }}</p>
+          </div>
+        </AoiScrollSnapItem>
+      </AoiScrollScene>
     </SettingsPanel>
 
     <SettingsPanel
@@ -120,6 +165,79 @@ function updateRichTextPayload(payload: AoiRichTextChangePayload) {
 </template>
 
 <style scoped>
+.scroll-demo {
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-container);
+  background: color-mix(in srgb, var(--aoi-surface-muted) 72%, transparent);
+  padding: 10px;
+}
+
+.scroll-demo__panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-card);
+  color: var(--aoi-text);
+  padding: clamp(18px, 4vw, 34px);
+}
+
+.scroll-demo__panel--1 {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--aoi-accent-20) 82%, white), color-mix(in srgb, var(--aoi-secondary-50) 16%, white));
+}
+
+.scroll-demo__panel--2 {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--aoi-sakura-20) 76%, white), color-mix(in srgb, var(--aoi-sun-50) 22%, white));
+}
+
+.scroll-demo__panel--3 {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--aoi-secondary-50) 18%, white), color-mix(in srgb, var(--aoi-accent-40) 18%, white));
+}
+
+:global(:root.dark) .scroll-demo__panel--1 {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--aoi-accent-60) 24%, var(--aoi-surface-solid)), color-mix(in srgb, var(--aoi-secondary-50) 24%, var(--aoi-surface-solid)));
+}
+
+:global(:root.dark) .scroll-demo__panel--2 {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--aoi-sakura-60) 22%, var(--aoi-surface-solid)), color-mix(in srgb, var(--aoi-sun-50) 18%, var(--aoi-surface-solid)));
+}
+
+:global(:root.dark) .scroll-demo__panel--3 {
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--aoi-secondary-50) 24%, var(--aoi-surface-solid)), color-mix(in srgb, var(--aoi-accent-50) 20%, var(--aoi-surface-solid)));
+}
+
+.scroll-demo__icon {
+  display: inline-grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: var(--aoi-radius-control);
+  background: color-mix(in srgb, var(--aoi-surface-solid) 76%, transparent);
+  color: var(--aoi-active-color);
+}
+
+.scroll-demo__panel h3,
+.scroll-demo__panel p {
+  margin: 0;
+}
+
+.scroll-demo__panel h3 {
+  font-size: 18px;
+}
+
+.scroll-demo__panel p {
+  margin-top: 6px;
+  color: var(--aoi-text-muted);
+  line-height: 1.7;
+}
+
 .rich-text-demo {
   display: grid;
   min-width: 0;
@@ -171,6 +289,10 @@ function updateRichTextPayload(payload: AoiRichTextChangePayload) {
 }
 
 @media (max-width: 760px) {
+  .scroll-demo__panel {
+    grid-template-columns: 1fr;
+  }
+
   .rich-text-demo__preview-header {
     grid-template-columns: 1fr;
   }

@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { AoiDataMode } from "~/stores/app-settings"
 import type { AoiRevealMotionEffect, AoiRevealMotionReplay } from "~/utils/aoiReveal"
+import type { AoiScrollHijackMode, AoiScrollSnapMode } from "~/utils/aoiScroll"
+import { clampAoiScrollSetting } from "~/utils/aoiScroll"
 
 const { t } = useI18n()
 const settings = useAppSettingsStore()
@@ -55,6 +57,38 @@ const revealReplayOptions = computed(() => [
     disabled: !settings.revealMotionEnabled
   }
 ])
+const scrollSnapModeOptions = computed(() => [
+  {
+    icon: "magnet",
+    label: t("settings.preference.scroll.snap.mode.proximity.label"),
+    description: t("settings.preference.scroll.snap.mode.proximity.description"),
+    value: "proximity",
+    disabled: !settings.scrollSnapEnabled
+  },
+  {
+    icon: "panel-top",
+    label: t("settings.preference.scroll.snap.mode.mandatory.label"),
+    description: t("settings.preference.scroll.snap.mode.mandatory.description"),
+    value: "mandatory",
+    disabled: !settings.scrollSnapEnabled
+  }
+])
+const scrollHijackModeOptions = computed(() => [
+  {
+    icon: "rows-3",
+    label: t("settings.preference.scroll.hijack.mode.section.label"),
+    description: t("settings.preference.scroll.hijack.mode.section.description"),
+    value: "section",
+    disabled: !settings.scrollHijackEnabled
+  },
+  {
+    icon: "crosshair",
+    label: t("settings.preference.scroll.hijack.mode.nearest.label"),
+    description: t("settings.preference.scroll.hijack.mode.nearest.description"),
+    value: "nearest",
+    disabled: !settings.scrollHijackEnabled
+  }
+])
 const revealEffectModel = computed({
   get: () => settings.revealMotionEffect,
   set: (value: string) => settings.setRevealMotionEffect(value as AoiRevealMotionEffect)
@@ -85,6 +119,50 @@ const revealMaxDelayModel = computed({
   get: () => settings.revealMotionMaxDelayMs,
   set: (value: number) => {
     settings.revealMotionMaxDelayMs = clampRevealSetting(value, 0, 600)
+  }
+})
+const smoothDurationModel = computed({
+  get: () => settings.smoothScrollDurationMs,
+  set: (value: number) => {
+    settings.smoothScrollDurationMs = clampAoiScrollSetting(value, 600, 1800, settings.smoothScrollDurationMs)
+  }
+})
+const smoothDampingModel = computed({
+  get: () => settings.smoothScrollDamping,
+  set: (value: number) => {
+    settings.smoothScrollDamping = clampAoiScrollSetting(value, 0.04, 0.22, settings.smoothScrollDamping)
+  }
+})
+const scrollSnapModeModel = computed({
+  get: () => settings.scrollSnapMode,
+  set: (value: string) => settings.setScrollSnapMode(value as AoiScrollSnapMode)
+})
+const scrollSnapStrengthModel = computed({
+  get: () => settings.scrollSnapStrength,
+  set: (value: number) => {
+    settings.scrollSnapStrength = clampAoiScrollSetting(value, 0, 100, settings.scrollSnapStrength)
+  }
+})
+const scrollHijackModeModel = computed({
+  get: () => settings.scrollHijackMode,
+  set: (value: string) => settings.setScrollHijackMode(value as AoiScrollHijackMode)
+})
+const scrollHijackThresholdModel = computed({
+  get: () => settings.scrollHijackThresholdPx,
+  set: (value: number) => {
+    settings.scrollHijackThresholdPx = clampAoiScrollSetting(value, 24, 180, settings.scrollHijackThresholdPx)
+  }
+})
+const rubberBandStrengthModel = computed({
+  get: () => settings.rubberBandStrength,
+  set: (value: number) => {
+    settings.rubberBandStrength = clampAoiScrollSetting(value, 0, 100, settings.rubberBandStrength)
+  }
+})
+const rubberBandMaxOffsetModel = computed({
+  get: () => settings.rubberBandMaxOffsetPx,
+  set: (value: number) => {
+    settings.rubberBandMaxOffsetPx = clampAoiScrollSetting(value, 8, 36, settings.rubberBandMaxOffsetPx)
   }
 })
 
@@ -237,6 +315,154 @@ function clampRevealSetting(value: number, min: number, max: number) {
             :max="600"
             :step="20"
             :disabled="!settings.revealMotionEnabled"
+          />
+        </SettingsRow>
+      </div>
+    </SettingsPanel>
+
+    <SettingsPanel
+      icon="move-vertical"
+      :title="t('settings.preference.scroll.title')"
+      :description="t('settings.preference.scroll.description')"
+    >
+      <SettingsRow
+        :title="t('settings.preference.scroll.smooth.enabledTitle')"
+        :description="t('settings.preference.scroll.smooth.enabledDescription')"
+      >
+        <AoiSwitch v-model="settings.smoothScrollEnabled" />
+      </SettingsRow>
+
+      <div class="settings-reveal-slider-grid">
+        <SettingsRow
+          :title="t('settings.preference.scroll.smooth.durationTitle')"
+          :description="`${settings.smoothScrollDurationMs}ms`"
+        >
+          <AoiSlider
+            v-model="smoothDurationModel"
+            :label="t('settings.preference.scroll.smooth.durationLabel')"
+            :min="600"
+            :max="1800"
+            :step="50"
+            :disabled="!settings.smoothScrollEnabled"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          :title="t('settings.preference.scroll.smooth.dampingTitle')"
+          :description="`${Math.round(settings.smoothScrollDamping * 100)}%`"
+        >
+          <AoiSlider
+            v-model="smoothDampingModel"
+            :label="t('settings.preference.scroll.smooth.dampingLabel')"
+            :min="0.04"
+            :max="0.22"
+            :step="0.01"
+            :disabled="!settings.smoothScrollEnabled"
+          />
+        </SettingsRow>
+      </div>
+
+      <SettingsRow
+        :title="t('settings.preference.scroll.snap.enabledTitle')"
+        :description="t('settings.preference.scroll.snap.enabledDescription')"
+      >
+        <AoiSwitch v-model="settings.scrollSnapEnabled" />
+      </SettingsRow>
+
+      <SettingsRow
+        :title="t('settings.preference.scroll.snap.modeTitle')"
+        :description="t('settings.preference.scroll.snap.modeDescription')"
+      >
+        <AoiSegmentedControl
+          v-model="scrollSnapModeModel"
+          class="settings-reveal-control"
+          :items="scrollSnapModeOptions"
+          :columns="2"
+          :aria-label="t('settings.preference.scroll.snap.modeTitle')"
+        />
+      </SettingsRow>
+
+      <SettingsRow
+        :title="t('settings.preference.scroll.snap.strengthTitle')"
+        :description="`${settings.scrollSnapStrength}%`"
+      >
+        <AoiSlider
+          v-model="scrollSnapStrengthModel"
+          :label="t('settings.preference.scroll.snap.strengthLabel')"
+          :min="0"
+          :max="100"
+          :step="5"
+          :disabled="!settings.scrollSnapEnabled"
+        />
+      </SettingsRow>
+
+      <SettingsRow
+        :title="t('settings.preference.scroll.hijack.enabledTitle')"
+        :description="t('settings.preference.scroll.hijack.enabledDescription')"
+      >
+        <AoiSwitch v-model="settings.scrollHijackEnabled" />
+      </SettingsRow>
+
+      <SettingsRow
+        :title="t('settings.preference.scroll.hijack.modeTitle')"
+        :description="t('settings.preference.scroll.hijack.modeDescription')"
+      >
+        <AoiSegmentedControl
+          v-model="scrollHijackModeModel"
+          class="settings-reveal-control"
+          :items="scrollHijackModeOptions"
+          :columns="2"
+          :aria-label="t('settings.preference.scroll.hijack.modeTitle')"
+        />
+      </SettingsRow>
+
+      <SettingsRow
+        :title="t('settings.preference.scroll.hijack.thresholdTitle')"
+        :description="`${settings.scrollHijackThresholdPx}px`"
+      >
+        <AoiSlider
+          v-model="scrollHijackThresholdModel"
+          :label="t('settings.preference.scroll.hijack.thresholdLabel')"
+          :min="24"
+          :max="180"
+          :step="4"
+          :disabled="!settings.scrollHijackEnabled"
+        />
+      </SettingsRow>
+
+      <SettingsRow
+        :title="t('settings.preference.scroll.rubberBand.enabledTitle')"
+        :description="t('settings.preference.scroll.rubberBand.enabledDescription')"
+      >
+        <AoiSwitch v-model="settings.rubberBandEnabled" />
+      </SettingsRow>
+
+      <div class="settings-reveal-slider-grid">
+        <SettingsRow
+          :title="t('settings.preference.scroll.rubberBand.strengthTitle')"
+          :description="`${settings.rubberBandStrength}%`"
+        >
+          <AoiSlider
+            v-model="rubberBandStrengthModel"
+            :label="t('settings.preference.scroll.rubberBand.strengthLabel')"
+            :min="0"
+            :max="100"
+            :step="5"
+            :disabled="!settings.rubberBandEnabled"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          :title="t('settings.preference.scroll.rubberBand.maxOffsetTitle')"
+          :description="`${settings.rubberBandMaxOffsetPx}px`"
+        >
+          <AoiSlider
+            v-model="rubberBandMaxOffsetModel"
+            :label="t('settings.preference.scroll.rubberBand.maxOffsetLabel')"
+            :min="8"
+            :max="36"
+            :step="2"
+            :disabled="!settings.rubberBandEnabled"
           />
         </SettingsRow>
       </div>

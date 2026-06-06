@@ -24,6 +24,23 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+
+html.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+html.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+html.lenis.lenis-stopped {
+  overflow: clip;
+}
+
 body {
   position: relative;
   isolation: isolate;
@@ -94,6 +111,39 @@ a {
 .aoi-shell {
   min-height: 100vh;
   margin-left: var(--aoi-rail-width);
+  transform: translate3d(0, var(--aoi-page-rubber-band-offset, 0px), 0);
+}
+
+.aoi-shell::before,
+.aoi-shell::after {
+  position: fixed;
+  right: 0;
+  left: var(--aoi-rail-width);
+  z-index: var(--aoi-z-page);
+  height: 56px;
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--aoi-motion-fast) var(--aoi-ease-out);
+}
+
+.aoi-shell::before {
+  top: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--aoi-accent-50) 24%, transparent), transparent);
+}
+
+.aoi-shell::after {
+  bottom: 0;
+  background: linear-gradient(0deg, color-mix(in srgb, var(--aoi-accent-50) 24%, transparent), transparent);
+}
+
+:root[data-aoi-rubber-band="active"] .aoi-shell {
+  will-change: transform;
+}
+
+:root[data-aoi-rubber-band-edge="top"] .aoi-shell::before,
+:root[data-aoi-rubber-band-edge="bottom"] .aoi-shell::after {
+  opacity: .82;
 }
 
 .aoi-page {
@@ -336,6 +386,19 @@ a {
     padding-top: var(--aoi-mobile-nav-height);
   }
 
+  .aoi-shell::before,
+  .aoi-shell::after {
+    left: 0;
+  }
+
+  .aoi-shell::before {
+    top: var(--aoi-mobile-nav-height);
+  }
+
+  .aoi-shell::after {
+    bottom: var(--aoi-mobile-nav-height);
+  }
+
   .aoi-page {
     width: 100%;
     max-width: 100%;
@@ -363,5 +426,15 @@ a {
     transform: none !important;
     transition-delay: 0ms !important;
     will-change: auto !important;
+  }
+
+  .aoi-shell {
+    transform: none !important;
+    will-change: auto !important;
+  }
+
+  .aoi-shell::before,
+  .aoi-shell::after {
+    opacity: 0 !important;
   }
 }

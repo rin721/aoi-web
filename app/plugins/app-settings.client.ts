@@ -34,6 +34,14 @@ export default defineNuxtPlugin((nuxtApp) => {
     root.dataset.aoiRevealEffect = settings.revealMotionEffect
     root.dataset.aoiRevealMotion = settings.revealMotionEnabled ? "enabled" : "disabled"
     root.dataset.aoiRevealReplay = settings.revealMotionReplay
+    root.dataset.aoiRubberBand = root.dataset.aoiRubberBand || "idle"
+    root.dataset.aoiRubberBandEdge = root.dataset.aoiRubberBandEdge || "none"
+    root.dataset.aoiRubberBandMotion = settings.rubberBandEnabled ? "enabled" : "disabled"
+    root.dataset.aoiScrollHijack = settings.scrollHijackEnabled ? "enabled" : "disabled"
+    root.dataset.aoiScrollHijackMode = settings.scrollHijackMode
+    root.dataset.aoiScrollSnap = settings.scrollSnapEnabled ? "enabled" : "disabled"
+    root.dataset.aoiScrollSnapMode = settings.scrollSnapMode
+    root.dataset.aoiSmoothScroll = settings.smoothScrollEnabled ? "enabled" : "disabled"
     root.dataset.aoiShape = settings.appearanceShape
     root.dataset.aoiSize = settings.appearanceSize
 
@@ -50,6 +58,12 @@ export default defineNuxtPlugin((nuxtApp) => {
     style.setProperty("--aoi-reveal-distance-setting", `${settings.revealMotionDistancePx}px`)
     style.setProperty("--aoi-reveal-stagger-setting", `${settings.revealMotionStaggerMs}ms`)
     style.setProperty("--aoi-reveal-max-delay-setting", `${settings.revealMotionMaxDelayMs}ms`)
+    style.setProperty("--aoi-page-rubber-band-max", `${settings.rubberBandMaxOffsetPx}px`)
+    style.setProperty("--aoi-page-rubber-band-strength", String(settings.rubberBandStrength))
+    style.setProperty("--aoi-scroll-hijack-threshold", `${settings.scrollHijackThresholdPx}px`)
+    style.setProperty("--aoi-scroll-smooth-duration", `${settings.smoothScrollDurationMs}ms`)
+    style.setProperty("--aoi-scroll-smooth-damping", String(settings.smoothScrollDamping))
+    style.setProperty("--aoi-scroll-snap-strength", String(settings.scrollSnapStrength))
   }
 
   onNuxtReady(async () => {
@@ -83,7 +97,19 @@ export default defineNuxtPlugin((nuxtApp) => {
       settings.revealMotionDurationMs,
       settings.revealMotionDistancePx,
       settings.revealMotionStaggerMs,
-      settings.revealMotionMaxDelayMs
+      settings.revealMotionMaxDelayMs,
+      settings.smoothScrollEnabled,
+      settings.smoothScrollDurationMs,
+      settings.smoothScrollDamping,
+      settings.scrollSnapEnabled,
+      settings.scrollSnapMode,
+      settings.scrollSnapStrength,
+      settings.scrollHijackEnabled,
+      settings.scrollHijackMode,
+      settings.scrollHijackThresholdPx,
+      settings.rubberBandEnabled,
+      settings.rubberBandStrength,
+      settings.rubberBandMaxOffsetPx
     ], applySettings)
     prefersDark.addEventListener("change", applySettings)
   })

@@ -27,7 +27,8 @@
     "subtitle": "クリエイター向けの澄んだ高速な動画コミュニティフロントエンド。Nuxt 4 と mock データで将来の Go API を先取りします。",
     "latest": "最新",
     "gridView": "グリッド表示",
-    "listView": "リスト表示"
+    "listView": "リスト表示",
+    "categoryTabsAria": "コンテンツカテゴリ"
   },
   "settings": {
     "appearance": {
@@ -136,6 +137,62 @@
         "staggerLabel": "間隔",
         "maxDelayTitle": "最大遅延",
         "maxDelayLabel": "最大遅延"
+      },
+      "scroll": {
+        "title": "スクロール体験",
+        "description": "全体の慣性スクロール、磁石のような吸着、明示的なスクロールシーン、端の減衰を調整します。",
+        "smooth": {
+          "enabledTitle": "慣性スムーズスクロール",
+          "enabledDescription": "Lenis でホイール操作のページスクロールをなめらかにし、タッチ端末ではネイティブ慣性を保ちます。",
+          "durationTitle": "スクロール時間",
+          "durationLabel": "スクロール時間",
+          "dampingTitle": "減衰",
+          "dampingLabel": "減衰"
+        },
+        "snap": {
+          "enabledTitle": "スクロール吸着 / マグネット",
+          "enabledDescription": "Aoi のスクロール領域やシーンを近くの項目やセクションに停泊させます。",
+          "modeTitle": "吸着モード",
+          "modeDescription": "柔らかい近接吸着、またはより強い強制吸着を選びます。",
+          "mode": {
+            "proximity": {
+              "label": "近接",
+              "description": "近づいた時に停泊"
+            },
+            "mandatory": {
+              "label": "強制",
+              "description": "常に目標へ固定"
+            }
+          },
+          "strengthTitle": "マグネット強度",
+          "strengthLabel": "マグネット強度"
+        },
+        "hijack": {
+          "enabledTitle": "スクロールシーン制御",
+          "enabledDescription": "明示的な Aoi スクロールシーンで大きなホイール操作やキー操作を捕捉し、セクション単位で移動します。",
+          "modeTitle": "シーン戦略",
+          "modeDescription": "現在のセクションを基準にするか、移動前に最も近いセクションを再計算します。",
+          "mode": {
+            "section": {
+              "label": "セクション",
+              "description": "現在位置を使用"
+            },
+            "nearest": {
+              "label": "最寄り",
+              "description": "位置を再確認"
+            }
+          },
+          "thresholdTitle": "ホイール閾値",
+          "thresholdLabel": "ホイール閾値"
+        },
+        "rubberBand": {
+          "enabledTitle": "端の減衰 / ラバーバンド",
+          "enabledDescription": "ページやスクロール領域の端で控えめなラバーバンド反応を表示します。",
+          "strengthTitle": "減衰強度",
+          "strengthLabel": "減衰強度",
+          "maxOffsetTitle": "最大変位",
+          "maxOffsetLabel": "最大変位"
+        }
       }
     },
     "experimental": {
@@ -164,6 +221,25 @@
             "title": "夜間コントラスト確認",
             "description": "キャプションのコントラストと reduced-motion の挙動を確認する暗色の画像プレースホルダーです。",
             "alt": "暗色の抽象画像"
+          }
+        }
+      },
+      "scrollDemo": {
+        "title": "スクロールシステムデモ",
+        "description": "スムーズスクロール、磁気吸着、スクロール制御、端の減衰をまとめて確認する小さなシーンです。",
+        "ariaLabel": "スクロールシステムのデモ",
+        "items": {
+          "smooth": {
+            "title": "慣性ページモーション",
+            "description": "スムーズスクロールを有効にすると、ホイール入力は全体の Lenis ランタイムでなめらかに収束します。"
+          },
+          "snap": {
+            "title": "磁気セクション",
+            "description": "各パネルが吸着対象になり、読みやすい位置へシーンが停泊します。"
+          },
+          "hijack": {
+            "title": "明示的なシーン制御",
+            "description": "スクロールシーン制御を有効にすると、大きなホイール操作やキー操作でパネルを一つずつ移動します。"
           }
         }
       },

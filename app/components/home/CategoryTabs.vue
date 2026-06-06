@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { Category } from "~/types/api"
 
+const { t } = useI18n()
 const props = defineProps<{
   categories: Category[]
   modelValue: string
@@ -23,20 +24,25 @@ function change(value: string) {
 </script>
 
 <template>
-  <div v-aoi-reveal="'fade'" class="category-tabs">
+  <AoiScrollArea
+    v-aoi-reveal="'fade'"
+    class="category-tabs"
+    axis="x"
+    snap
+    :aria-label="t('home.categoryTabsAria')"
+  >
     <AoiTabs
       :model-value="modelValue"
       :items="tabItems"
-      aria-label="内容分类"
+      :aria-label="t('home.categoryTabsAria')"
       @update:model-value="change"
     />
-  </div>
+  </AoiScrollArea>
 </template>
 
 <style scoped>
 .category-tabs {
   margin: 0 -10px;
-  overflow-x: auto;
   padding: 0 10px 10px;
   scrollbar-width: none;
 }
@@ -47,6 +53,11 @@ function change(value: string) {
 
 .category-tabs :deep(md-tabs) {
   min-width: max-content;
+}
+
+.category-tabs :deep(md-primary-tab) {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
 }
 
 @media (max-width: 639px) {
