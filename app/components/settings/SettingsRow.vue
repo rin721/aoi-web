@@ -22,7 +22,7 @@ withDefaults(defineProps<{
 <style scoped>
 .settings-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(180px, .44fr);
+  grid-template-columns: minmax(0, 1fr) minmax(var(--aoi-settings-control-min-width), .44fr);
   gap: var(--aoi-grid-gap);
   align-items: center;
   border: 1px solid var(--aoi-border);
@@ -34,7 +34,7 @@ withDefaults(defineProps<{
 .settings-row__copy {
   display: grid;
   min-width: 0;
-  gap: 4px;
+  gap: max(4px, calc(var(--aoi-grid-gap-compact) - 8px));
 }
 
 .settings-row__copy strong,

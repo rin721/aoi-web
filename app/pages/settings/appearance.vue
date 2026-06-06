@@ -7,6 +7,10 @@ import type {
   AoiAppearanceSize,
   AoiPreferredTheme
 } from "~/stores/app-settings"
+import type { AoiSpecUnitKey } from "~/utils/aoiSpecUnits"
+import {
+  AOI_SPEC_UNIT_RANGES
+} from "~/utils/aoiSpecUnits"
 import type { AoiRgbaColor } from "~/utils/aoiColor"
 
 const { t } = useI18n()
@@ -97,10 +101,82 @@ const contrastOptions = computed<Array<AppearanceOption<AoiAppearanceContrast>>>
   }
 ])
 
+const specUnitControls: Array<{
+  descriptionKey: string
+  key: AoiSpecUnitKey
+  labelKey: string
+  titleKey: string
+}> = [
+  {
+    key: "baseFontPx",
+    titleKey: "settings.appearance.specUnits.baseFont.title",
+    descriptionKey: "settings.appearance.specUnits.baseFont.description",
+    labelKey: "settings.appearance.specUnits.baseFont.label"
+  },
+  {
+    key: "spaceUnitPx",
+    titleKey: "settings.appearance.specUnits.space.title",
+    descriptionKey: "settings.appearance.specUnits.space.description",
+    labelKey: "settings.appearance.specUnits.space.label"
+  },
+  {
+    key: "radiusUnitPx",
+    titleKey: "settings.appearance.specUnits.radius.title",
+    descriptionKey: "settings.appearance.specUnits.radius.description",
+    labelKey: "settings.appearance.specUnits.radius.label"
+  },
+  {
+    key: "controlHeightPx",
+    titleKey: "settings.appearance.specUnits.controlHeight.title",
+    descriptionKey: "settings.appearance.specUnits.controlHeight.description",
+    labelKey: "settings.appearance.specUnits.controlHeight.label"
+  },
+  {
+    key: "contentMaxWidthPx",
+    titleKey: "settings.appearance.specUnits.contentMaxWidth.title",
+    descriptionKey: "settings.appearance.specUnits.contentMaxWidth.description",
+    labelKey: "settings.appearance.specUnits.contentMaxWidth.label"
+  },
+  {
+    key: "contentWideMaxWidthPx",
+    titleKey: "settings.appearance.specUnits.contentWideMaxWidth.title",
+    descriptionKey: "settings.appearance.specUnits.contentWideMaxWidth.description",
+    labelKey: "settings.appearance.specUnits.contentWideMaxWidth.label"
+  },
+  {
+    key: "railWidthPx",
+    titleKey: "settings.appearance.specUnits.railWidth.title",
+    descriptionKey: "settings.appearance.specUnits.railWidth.description",
+    labelKey: "settings.appearance.specUnits.railWidth.label"
+  },
+  {
+    key: "mobileNavHeightPx",
+    titleKey: "settings.appearance.specUnits.mobileNavHeight.title",
+    descriptionKey: "settings.appearance.specUnits.mobileNavHeight.description",
+    labelKey: "settings.appearance.specUnits.mobileNavHeight.label"
+  },
+  {
+    key: "videoGridMinCardWidthPx",
+    titleKey: "settings.appearance.specUnits.videoGridMinCardWidth.title",
+    descriptionKey: "settings.appearance.specUnits.videoGridMinCardWidth.description",
+    labelKey: "settings.appearance.specUnits.videoGridMinCardWidth.label"
+  },
+  {
+    key: "settingsCardMinWidthPx",
+    titleKey: "settings.appearance.specUnits.settingsCardMinWidth.title",
+    descriptionKey: "settings.appearance.specUnits.settingsCardMinWidth.description",
+    labelKey: "settings.appearance.specUnits.settingsCardMinWidth.label"
+  }
+]
+
 const customAccentModel = computed<AoiRgbaColor>({
   get: () => settings.customAccent,
   set: (value) => settings.setCustomAccent(value)
 })
+
+function setSpecUnit(key: AoiSpecUnitKey, value: number) {
+  settings.setSpecUnit(key, value)
+}
 
 function setAppearanceDensity(value: string) {
   settings.setAppearanceDensity(value as AoiAppearanceDensity)
@@ -165,10 +241,22 @@ function formatBytes(value: number) {
     </SettingsPanel>
 
     <SettingsPanel
+      id="appearance-spec-presets"
       icon="sliders-horizontal"
       :title="t('settings.appearance.form.title')"
       :description="t('settings.appearance.form.description')"
     >
+      <template #actions>
+        <AoiButton
+          variant="outlined"
+          size="sm"
+          icon="ruler"
+          to="/settings/appearance#appearance-spec-units"
+        >
+          {{ t("settings.appearance.specUnits.jump") }}
+        </AoiButton>
+      </template>
+
       <div class="settings-form-grid">
         <section class="settings-form-group">
           <div class="settings-form-group__copy">
@@ -233,6 +321,43 @@ function formatBytes(value: number) {
       >
         <AoiSwitch v-model="settings.colorfulNavigation" />
       </SettingsRow>
+    </SettingsPanel>
+
+    <SettingsPanel
+      id="appearance-spec-units"
+      icon="ruler"
+      :title="t('settings.appearance.specUnits.title')"
+      :description="t('settings.appearance.specUnits.description')"
+    >
+      <template #actions>
+        <AoiButton
+          variant="outlined"
+          size="sm"
+          icon="rotate-ccw"
+          @click="settings.resetSpecUnits()"
+        >
+          {{ t("settings.appearance.specUnits.reset") }}
+        </AoiButton>
+      </template>
+
+      <div class="settings-spec-grid">
+        <SettingsRow
+          v-for="control in specUnitControls"
+          :key="control.key"
+          :title="t(control.titleKey)"
+          :description="`${settings.specUnits[control.key]}px · ${t(control.descriptionKey)}`"
+        >
+          <AoiSlider
+            class="settings-spec-slider"
+            :model-value="settings.specUnits[control.key]"
+            :label="t(control.labelKey)"
+            :min="AOI_SPEC_UNIT_RANGES[control.key].min"
+            :max="AOI_SPEC_UNIT_RANGES[control.key].max"
+            :step="AOI_SPEC_UNIT_RANGES[control.key].step"
+            @update:model-value="(value) => setSpecUnit(control.key, value)"
+          />
+        </SettingsRow>
+      </div>
     </SettingsPanel>
 
     <SettingsPanel
@@ -355,7 +480,7 @@ function formatBytes(value: number) {
 .settings-form-group__copy {
   display: grid;
   align-content: center;
-  gap: 4px;
+  gap: max(4px, calc(var(--aoi-grid-gap-compact) - 8px));
 }
 
 .settings-form-group__copy strong,
@@ -374,18 +499,18 @@ function formatBytes(value: number) {
 
 .settings-palette-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(var(--aoi-settings-card-min-width), 1fr));
+  gap: var(--aoi-grid-gap-compact);
 }
 
 .settings-palette-card {
-  min-height: 148px;
+  min-height: calc(var(--aoi-settings-card-min-width) - 22px);
 }
 
 .settings-palette-card__preview {
   display: block;
   width: 100%;
-  height: 66px;
+  height: calc(var(--aoi-control-height-lg) + var(--aoi-grid-gap));
   border-radius: var(--aoi-radius-card);
   background:
     radial-gradient(circle at 78% 72%, var(--preview-10) 0 18%, transparent 19%),
@@ -417,14 +542,23 @@ function formatBytes(value: number) {
 
 .settings-background-preview--empty span {
   display: inline-grid;
-  gap: 8px;
+  gap: var(--aoi-grid-gap-compact);
   justify-items: center;
 }
 
 .settings-slider-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: var(--aoi-grid-gap-compact);
+}
+
+.settings-spec-grid {
+  display: grid;
+  gap: var(--aoi-grid-gap-compact);
+}
+
+.settings-spec-slider {
+  width: min(calc(var(--aoi-settings-card-min-width) * 1.88), 100%);
 }
 
 @media (max-width: 760px) {

@@ -46,6 +46,62 @@
         "colorfulNavTitle": "Colorful navigation",
         "colorfulNavDescription": "Lightly tints side and mobile navigation with the current accent color."
       },
+      "specUnits": {
+        "title": "Primary size units",
+        "description": "Manage the source dimensions used to derive spacing, controls, navigation, grids, and rounded corners.",
+        "jump": "Adjust primary units",
+        "reset": "Reset units",
+        "baseFont": {
+          "title": "Base type",
+          "description": "Feeds body text and heading scale.",
+          "label": "Base font size"
+        },
+        "space": {
+          "title": "Spacing unit",
+          "description": "Feeds page padding, panel rhythm, and compact gaps.",
+          "label": "Base spacing"
+        },
+        "radius": {
+          "title": "Corner unit",
+          "description": "Feeds surface, card, control, and choice radii.",
+          "label": "Base corner radius"
+        },
+        "controlHeight": {
+          "title": "Control height",
+          "description": "Feeds buttons, fields, icon buttons, and navigation actions.",
+          "label": "Base control height"
+        },
+        "contentMaxWidth": {
+          "title": "Content width",
+          "description": "Caps normal pages.",
+          "label": "Content max width"
+        },
+        "contentWideMaxWidth": {
+          "title": "Wide content width",
+          "description": "Caps wide utility pages such as settings.",
+          "label": "Wide content max width"
+        },
+        "railWidth": {
+          "title": "Desktop rail",
+          "description": "Sets the fixed side navigation width.",
+          "label": "Desktop rail width"
+        },
+        "mobileNavHeight": {
+          "title": "Mobile navigation",
+          "description": "Sets mobile header, bottom navigation, and safe page padding.",
+          "label": "Mobile nav height"
+        },
+        "videoGridMinCardWidth": {
+          "title": "Video grid card",
+          "description": "Sets the minimum card column width on desktop grids.",
+          "label": "Video card min width"
+        },
+        "settingsCardMinWidth": {
+          "title": "Settings card",
+          "description": "Sets the minimum settings card and control column width.",
+          "label": "Settings card min width"
+        }
+      },
       "palette": {
         "title": "Accent color",
         "description": "Choose a preset palette or switch to a custom color.",
@@ -141,6 +197,28 @@
       "scroll": {
         "title": "Scroll experience",
         "description": "Control global smooth scrolling, magnetic snapping, opt-in scroll scenes, and edge damping.",
+        "scrollbar": {
+          "strategyTitle": "Page scrollbar",
+          "strategyDescription": "Choose whether the page reserves scrollbar space to prevent Windows-style layout shifts.",
+          "strategy": {
+            "auto": {
+              "label": "System default",
+              "description": "Follow browser"
+            },
+            "stable": {
+              "label": "Stable gutter",
+              "description": "Reserve right side"
+            },
+            "stableBothEdges": {
+              "label": "Both edges",
+              "description": "Keep centered"
+            },
+            "hidden": {
+              "label": "Hidden",
+              "description": "Keep scrolling"
+            }
+          }
+        },
         "smooth": {
           "enabledTitle": "Smooth inertial scrolling",
           "enabledDescription": "Use Lenis to soften wheel-driven page scrolling while preserving native touch inertia.",

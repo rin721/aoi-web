@@ -49,7 +49,7 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   border-right: 1px solid var(--aoi-border);
   background: var(--aoi-nav-bg);
   box-shadow: 10px 0 28px rgba(19, 80, 96, 0.08);
-  backdrop-filter: blur(18px);
+  backdrop-filter: blur(var(--aoi-nav-surface-blur));
   padding: var(--aoi-nav-rail-padding-block) 0;
 }
 
@@ -106,11 +106,11 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 
 .app-rail__label {
   position: absolute;
-  left: calc(100% + 10px);
+  left: calc(100% + var(--aoi-nav-group-gap));
   top: 50%;
   z-index: var(--aoi-z-floating);
   display: inline-flex;
-  min-height: 28px;
+  min-height: calc(var(--aoi-control-height-sm) - 4px);
   align-items: center;
   border: 1px solid var(--aoi-border);
   border-radius: var(--aoi-radius-control);
@@ -121,9 +121,9 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   font-weight: 760;
   line-height: 1;
   opacity: 0;
-  padding: 0 10px;
+  padding: 0 var(--aoi-nav-group-gap);
   pointer-events: none;
-  transform: translate3d(-6px, -50%, 0) scale(.96);
+  transform: translate3d(calc(var(--aoi-nav-group-gap) * -.6), -50%, 0) scale(.96);
   transform-origin: left center;
   transition:
     opacity 180ms var(--aoi-ease-out),

@@ -81,6 +81,37 @@
   --aoi-bottom-nav-label-size: 11px;
   --aoi-settings-sticky-top: 18px;
   --aoi-settings-mobile-sticky-top: calc(var(--aoi-mobile-nav-height) + 8px);
+  --aoi-settings-anchor-offset: calc(var(--aoi-settings-sticky-top) + var(--aoi-grid-gap));
+  --aoi-settings-card-min-width: 170px;
+  --aoi-settings-control-min-width: 180px;
+  --aoi-settings-shell-nav-min-width: 240px;
+  --aoi-settings-shell-nav-width: 288px;
+  --aoi-settings-shell-gap: 20px;
+  --aoi-settings-shell-mark-size: 38px;
+  --aoi-settings-shell-title-size: 24px;
+  --aoi-settings-shell-mobile-title-size: 22px;
+  --aoi-settings-panel-icon-size: 34px;
+  --aoi-settings-panel-title-size: 17px;
+  --aoi-settings-nav-item-height: 40px;
+  --aoi-settings-nav-item-mobile-height: 36px;
+  --aoi-video-grid-min-card-width: 224px;
+  --aoi-video-grid-row-gap: 18px;
+  --aoi-video-grid-column-gap: 16px;
+  --aoi-video-grid-mobile-row-gap: 14px;
+  --aoi-video-grid-mobile-column-gap: 10px;
+  --aoi-category-tabs-bleed: 10px;
+  --aoi-category-tabs-mobile-bleed: 12px;
+  --aoi-rubber-band-edge-size: 56px;
+  --aoi-nav-surface-blur: 18px;
+  --aoi-bottom-nav-icon-size: 20px;
+  --aoi-bottom-nav-padding: 5px 8px 6px;
+  --aoi-bottom-nav-item-gap: 2px;
+  --aoi-bottom-nav-icon-min-height: 22px;
+  --aoi-bottom-nav-label-padding-inline: 3px;
+  --aoi-mobile-header-padding-inline: 12px;
+  --aoi-mobile-header-brand-size: 20px;
+  --aoi-focus-ring-width: 3px;
+  --aoi-focus-ring-offset: 3px;
   --aoi-rail-width: 56px;
   --aoi-mobile-nav-height: 56px;
   --aoi-z-background: 0;
@@ -178,72 +209,6 @@
   --md-sys-color-surface-container: #1a272a;
   --md-sys-color-surface-container-high: #243235;
   --md-sys-color-outline: rgba(192, 241, 248, 0.26);
-}
-
-:root[data-aoi-size="small"] {
-  --aoi-base-font-size: 13px;
-  --aoi-control-height-sm: 30px;
-  --aoi-control-height-md: 36px;
-  --aoi-control-height-lg: 40px;
-  --aoi-icon-button-size: 36px;
-  --aoi-nav-action-size: 40px;
-  --aoi-nav-icon-size: 20px;
-  --aoi-bottom-nav-label-size: 10px;
-}
-
-:root[data-aoi-size="large"] {
-  --aoi-base-font-size: 15px;
-  --aoi-control-height-sm: 34px;
-  --aoi-control-height-md: 44px;
-  --aoi-control-height-lg: 50px;
-  --aoi-icon-button-size: 44px;
-  --aoi-nav-action-size: 46px;
-  --aoi-nav-icon-size: 24px;
-  --aoi-bottom-nav-label-size: 12px;
-}
-
-:root[data-aoi-density="compact"] {
-  --aoi-page-padding-block-start: 14px;
-  --aoi-page-padding-block-end: 44px;
-  --aoi-page-padding-mobile: 12px 10px 72px;
-  --aoi-panel-padding: 14px;
-  --aoi-row-padding: 10px;
-  --aoi-card-padding: 12px;
-  --aoi-grid-gap: 12px;
-  --aoi-grid-gap-compact: 8px;
-  --aoi-nav-group-gap: 8px;
-  --aoi-nav-rail-padding-block: 10px;
-}
-
-:root[data-aoi-size="large"][data-aoi-density="comfortable"] {
-  --aoi-page-padding-block-start: 22px;
-  --aoi-page-padding-block-end: 64px;
-  --aoi-page-padding-mobile: 18px 14px 84px;
-  --aoi-panel-padding: 22px;
-  --aoi-row-padding: 14px;
-  --aoi-card-padding: 16px;
-  --aoi-grid-gap: 18px;
-  --aoi-grid-gap-compact: 14px;
-  --aoi-nav-group-gap: 11px;
-  --aoi-nav-rail-padding-block: 14px;
-}
-
-:root[data-aoi-shape="square"] {
-  --aoi-radius-container: 4px;
-  --aoi-radius-card: 3px;
-  --aoi-radius-control: 2px;
-  --aoi-radius-field: 2px;
-  --aoi-radius-choice: 4px;
-  --aoi-radius-xs: 2px;
-}
-
-:root[data-aoi-shape="pill"] {
-  --aoi-radius-container: 20px;
-  --aoi-radius-card: 14px;
-  --aoi-radius-control: 999px;
-  --aoi-radius-field: 14px;
-  --aoi-radius-choice: 16px;
-  --aoi-radius-xs: 10px;
 }
 
 :root[data-aoi-contrast="high"] {

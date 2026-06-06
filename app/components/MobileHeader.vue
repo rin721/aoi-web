@@ -42,8 +42,8 @@ const loginItem = computed(() => secondaryItems.value.find((item) => item.to ===
   justify-content: space-between;
   border-bottom: 1px solid var(--aoi-border);
   background: var(--aoi-nav-bg);
-  backdrop-filter: blur(18px);
-  padding: 0 12px;
+  backdrop-filter: blur(var(--aoi-nav-surface-blur));
+  padding: 0 var(--aoi-mobile-header-padding-inline);
 }
 
 .mobile-header__brand {
@@ -52,7 +52,7 @@ const loginItem = computed(() => secondaryItems.value.find((item) => item.to ===
   align-items: center;
   color: var(--aoi-accent-60);
   font-family: Montserrat, Inter, "Noto Sans SC", system-ui, sans-serif;
-  font-size: 20px;
+  font-size: var(--aoi-mobile-header-brand-size);
   font-weight: 820;
   line-height: 1;
 }
@@ -65,7 +65,7 @@ const loginItem = computed(() => secondaryItems.value.find((item) => item.to ===
   display: inline-flex;
   flex: 0 0 auto;
   align-items: center;
-  gap: 2px;
+  gap: var(--aoi-bottom-nav-item-gap);
 }
 
 @media (max-width: 639px) {

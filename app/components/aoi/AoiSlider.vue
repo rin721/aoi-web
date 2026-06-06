@@ -26,15 +26,42 @@ const emit = defineEmits<{
   "update:modelValue": [value: number]
 }>()
 
-function readValue(event: Event) {
-  const target = event.target as HTMLElement & { value?: number | string }
-  const value = Number(target.value)
-
-  if (!Number.isFinite(value)) {
-    return props.modelValue
+function parseSliderValue(value: unknown) {
+  if (value === "" || value === null || value === undefined) {
+    return undefined
   }
 
-  return value
+  const numberValue = Number(value)
+
+  return Number.isFinite(numberValue) ? numberValue : undefined
+}
+
+function readValue(event: Event) {
+  const path = typeof event.composedPath === "function" ? event.composedPath() : [event.target]
+
+  for (const item of path) {
+    if (!item || typeof item !== "object") {
+      continue
+    }
+
+    if ("value" in item) {
+      const value = parseSliderValue((item as { value?: number | string }).value)
+
+      if (value !== undefined) {
+        return value
+      }
+    }
+
+    if (item instanceof HTMLElement) {
+      const value = parseSliderValue(item.getAttribute("value"))
+
+      if (value !== undefined) {
+        return value
+      }
+    }
+  }
+
+  return props.modelValue
 }
 
 function onInput(event: Event) {

@@ -1,3 +1,5 @@
+import { createAoiSpecCssVars } from "~/utils/aoiSpecUnits"
+
 type I18nRuntime = {
   locale?: string | { value: string }
   setLocale?: (locale: string) => Promise<unknown> | unknown
@@ -31,6 +33,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     root.dataset.aoiContrast = settings.appearanceContrast
     root.dataset.aoiDataMode = settings.dataMode
     root.dataset.aoiDensity = settings.appearanceDensity
+    root.dataset.aoiPageScrollbar = settings.pageScrollbarStrategy
     root.dataset.aoiRevealEffect = settings.revealMotionEffect
     root.dataset.aoiRevealMotion = settings.revealMotionEnabled ? "enabled" : "disabled"
     root.dataset.aoiRevealReplay = settings.revealMotionReplay
@@ -44,6 +47,16 @@ export default defineNuxtPlugin((nuxtApp) => {
     root.dataset.aoiSmoothScroll = settings.smoothScrollEnabled ? "enabled" : "disabled"
     root.dataset.aoiShape = settings.appearanceShape
     root.dataset.aoiSize = settings.appearanceSize
+
+    const specVars = createAoiSpecCssVars(settings.specUnits, {
+      density: settings.appearanceDensity,
+      shape: settings.appearanceShape,
+      size: settings.appearanceSize
+    })
+
+    Object.entries(specVars).forEach(([name, value]) => {
+      style.setProperty(name, value)
+    })
 
     style.setProperty("--aoi-accent-60", settings.accentScale.accent60)
     style.setProperty("--aoi-accent-50", settings.accentScale.accent50)
@@ -98,6 +111,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       settings.revealMotionDistancePx,
       settings.revealMotionStaggerMs,
       settings.revealMotionMaxDelayMs,
+      settings.pageScrollbarStrategy,
       settings.smoothScrollEnabled,
       settings.smoothScrollDurationMs,
       settings.smoothScrollDamping,
@@ -109,7 +123,17 @@ export default defineNuxtPlugin((nuxtApp) => {
       settings.scrollHijackThresholdPx,
       settings.rubberBandEnabled,
       settings.rubberBandStrength,
-      settings.rubberBandMaxOffsetPx
+      settings.rubberBandMaxOffsetPx,
+      settings.specUnits.baseFontPx,
+      settings.specUnits.spaceUnitPx,
+      settings.specUnits.radiusUnitPx,
+      settings.specUnits.controlHeightPx,
+      settings.specUnits.contentMaxWidthPx,
+      settings.specUnits.contentWideMaxWidthPx,
+      settings.specUnits.railWidthPx,
+      settings.specUnits.mobileNavHeightPx,
+      settings.specUnits.videoGridMinCardWidthPx,
+      settings.specUnits.settingsCardMinWidthPx
     ], applySettings)
     prefersDark.addEventListener("change", applySettings)
   })

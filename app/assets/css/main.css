@@ -46,6 +46,33 @@ body {
   isolation: isolate;
 }
 
+:root:not([data-aoi-page-scrollbar]),
+:root[data-aoi-page-scrollbar="stable"] {
+  scrollbar-gutter: stable;
+}
+
+:root[data-aoi-page-scrollbar="stable-both-edges"] {
+  scrollbar-gutter: stable both-edges;
+}
+
+:root[data-aoi-page-scrollbar="hidden"] {
+  scrollbar-width: none;
+}
+
+:root[data-aoi-page-scrollbar="hidden"]::-webkit-scrollbar,
+:root[data-aoi-page-scrollbar="hidden"] body::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+@supports not (scrollbar-gutter: stable) {
+  :root:not([data-aoi-page-scrollbar]),
+  :root[data-aoi-page-scrollbar="stable"],
+  :root[data-aoi-page-scrollbar="stable-both-edges"] {
+    overflow-y: scroll;
+  }
+}
+
 body::before,
 body::after {
   position: fixed;
@@ -104,8 +131,8 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid var(--aoi-focus);
-  outline-offset: 3px;
+  outline: var(--aoi-focus-ring-width) solid var(--aoi-focus);
+  outline-offset: var(--aoi-focus-ring-offset);
 }
 
 .aoi-shell {
@@ -120,7 +147,7 @@ a {
   right: 0;
   left: 0;
   z-index: var(--aoi-z-page);
-  height: 56px;
+  height: var(--aoi-rubber-band-edge-size);
   content: "";
   opacity: 0;
   pointer-events: none;
@@ -245,7 +272,7 @@ a {
 .aoi-field-control {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--aoi-nav-group-gap);
   color: var(--aoi-text);
   min-height: var(--aoi-control-height-md);
 }
@@ -318,19 +345,19 @@ a {
 
 .settings-card-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(var(--aoi-settings-card-min-width), 1fr));
   gap: var(--aoi-grid-gap-compact);
 }
 
 .settings-stat-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
+  gap: var(--aoi-nav-group-gap);
 }
 
 .settings-stat {
   display: grid;
-  gap: 4px;
+  gap: max(4px, calc(var(--aoi-grid-gap-compact) - 8px));
   border: 1px solid var(--aoi-border);
   border-radius: var(--aoi-radius-card);
   background: var(--aoi-card-bg);
@@ -378,6 +405,10 @@ a {
 }
 
 @media (max-width: 639px) {
+  :root {
+    --aoi-settings-anchor-offset: calc(var(--aoi-settings-mobile-sticky-top) + var(--aoi-control-height-lg) + var(--aoi-grid-gap));
+  }
+
   .aoi-shell {
     width: 100%;
     max-width: 100%;

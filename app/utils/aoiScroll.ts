@@ -6,6 +6,7 @@ export type AoiScrollSnapAlign = "start" | "center" | "end" | "none"
 export type AoiScrollSnapMode = "proximity" | "mandatory"
 export type AoiScrollSnapStop = "normal" | "always"
 export type AoiScrollHijackMode = "section" | "nearest"
+export type AoiPageScrollbarStrategy = "auto" | "stable" | "stable-both-edges" | "hidden"
 
 export interface AoiSmoothScrollSettings {
   damping: number
@@ -31,8 +32,13 @@ export interface AoiRubberBandSettings {
   strength: number
 }
 
+export interface AoiPageScrollbarSettings {
+  strategy: AoiPageScrollbarStrategy
+}
+
 export interface AoiScrollRuntimeOptions {
   hijack: AoiScrollHijackSettings
+  pageScrollbar: AoiPageScrollbarSettings
   rubberBand: AoiRubberBandSettings
   smooth: AoiSmoothScrollSettings
   snap: AoiScrollSnapSettings
@@ -63,6 +69,9 @@ export const AOI_SCROLL_DEFAULTS: AoiScrollRuntimeOptions = {
     mode: "section",
     thresholdPx: 64
   },
+  pageScrollbar: {
+    strategy: "stable"
+  },
   rubberBand: {
     enabled: true,
     maxOffsetPx: 28,
@@ -82,6 +91,7 @@ export const AOI_SCROLL_DEFAULTS: AoiScrollRuntimeOptions = {
 
 const snapModes = new Set<AoiScrollSnapMode>(["proximity", "mandatory"])
 const hijackModes = new Set<AoiScrollHijackMode>(["section", "nearest"])
+const pageScrollbarStrategies = new Set<AoiPageScrollbarStrategy>(["auto", "stable", "stable-both-edges", "hidden"])
 const scrollControlSelector = [
   "a[href]",
   "button",
@@ -108,6 +118,10 @@ export function isAoiScrollSnapMode(value: unknown): value is AoiScrollSnapMode 
 
 export function isAoiScrollHijackMode(value: unknown): value is AoiScrollHijackMode {
   return typeof value === "string" && hijackModes.has(value as AoiScrollHijackMode)
+}
+
+export function isAoiPageScrollbarStrategy(value: unknown): value is AoiPageScrollbarStrategy {
+  return typeof value === "string" && pageScrollbarStrategies.has(value as AoiPageScrollbarStrategy)
 }
 
 export function clampAoiScrollSetting(value: unknown, min: number, max: number, fallback: number) {

@@ -9,15 +9,26 @@ import {
   isAoiRevealMotionReplay
 } from "~/utils/aoiReveal"
 import type {
+  AoiPageScrollbarStrategy,
   AoiScrollHijackMode,
   AoiScrollSnapMode
 } from "~/utils/aoiScroll"
 import {
   AOI_SCROLL_DEFAULTS,
   clampAoiScrollSetting,
+  isAoiPageScrollbarStrategy,
   isAoiScrollHijackMode,
   isAoiScrollSnapMode
 } from "~/utils/aoiScroll"
+import type {
+  AoiSpecUnitKey,
+  AoiSpecUnitSettings
+} from "~/utils/aoiSpecUnits"
+import {
+  AOI_SPEC_UNIT_DEFAULTS,
+  clampAoiSpecUnit,
+  normalizeAoiSpecUnits
+} from "~/utils/aoiSpecUnits"
 import type { AoiRgbaColor } from "~/utils/aoiColor"
 import {
   aoiRgbaToCss,
@@ -70,6 +81,7 @@ interface PersistedAppSettings {
   noRelatedVideos: boolean
   noSearchRecommendations: boolean
   openVideosInNewTab: boolean
+  pageScrollbarStrategy: AoiPageScrollbarStrategy
   preferredTheme: AoiPreferredTheme
   revealMotionDistancePx: number
   revealMotionDurationMs: number
@@ -91,6 +103,7 @@ interface PersistedAppSettings {
   smoothScrollDamping: number
   smoothScrollDurationMs: number
   smoothScrollEnabled: boolean
+  specUnits: AoiSpecUnitSettings
   useRelativeDates: boolean
 }
 
@@ -212,6 +225,7 @@ function emptyState(): PersistedAppSettings {
     noRelatedVideos: false,
     noSearchRecommendations: false,
     openVideosInNewTab: false,
+    pageScrollbarStrategy: AOI_SCROLL_DEFAULTS.pageScrollbar.strategy,
     preferredTheme: "system",
     revealMotionDistancePx: AOI_REVEAL_DEFAULTS.distancePx,
     revealMotionDurationMs: AOI_REVEAL_DEFAULTS.durationMs,
@@ -233,6 +247,7 @@ function emptyState(): PersistedAppSettings {
     smoothScrollDamping: AOI_SCROLL_DEFAULTS.smooth.damping,
     smoothScrollDurationMs: AOI_SCROLL_DEFAULTS.smooth.durationMs,
     smoothScrollEnabled: AOI_SCROLL_DEFAULTS.smooth.enabled,
+    specUnits: { ...AOI_SPEC_UNIT_DEFAULTS },
     useRelativeDates: false
   }
 }
@@ -268,6 +283,7 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     noRelatedVideos: Boolean(candidate.noRelatedVideos),
     noSearchRecommendations: Boolean(candidate.noSearchRecommendations),
     openVideosInNewTab: Boolean(candidate.openVideosInNewTab),
+    pageScrollbarStrategy: isAoiPageScrollbarStrategy(candidate.pageScrollbarStrategy) ? candidate.pageScrollbarStrategy : fallback.pageScrollbarStrategy,
     preferredTheme: isPreferredTheme(candidate.preferredTheme) ? candidate.preferredTheme : fallback.preferredTheme,
     revealMotionDistancePx: clampAoiRevealSetting(candidate.revealMotionDistancePx, 0, 48, fallback.revealMotionDistancePx),
     revealMotionDurationMs: clampAoiRevealSetting(candidate.revealMotionDurationMs, 120, 800, fallback.revealMotionDurationMs),
@@ -289,6 +305,7 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     smoothScrollDamping: clampAoiScrollSetting(candidate.smoothScrollDamping, 0.04, 0.22, fallback.smoothScrollDamping),
     smoothScrollDurationMs: clampAoiScrollSetting(candidate.smoothScrollDurationMs, 600, 1800, fallback.smoothScrollDurationMs),
     smoothScrollEnabled: typeof candidate.smoothScrollEnabled === "boolean" ? candidate.smoothScrollEnabled : fallback.smoothScrollEnabled,
+    specUnits: normalizeAoiSpecUnits(candidate.specUnits),
     useRelativeDates: Boolean(candidate.useRelativeDates)
   }
 }
@@ -443,6 +460,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const disableWatchHistory = ref(false)
   const noSearchRecommendations = ref(false)
   const noRelatedVideos = ref(false)
+  const pageScrollbarStrategy = ref<AoiPageScrollbarStrategy>(AOI_SCROLL_DEFAULTS.pageScrollbar.strategy)
   const revealMotionEnabled = ref(AOI_REVEAL_DEFAULTS.enabled)
   const revealMotionEffect = ref<AoiRevealMotionEffectValue>(AOI_REVEAL_DEFAULTS.effect)
   const revealMotionReplay = ref<AoiRevealMotionReplayValue>(AOI_REVEAL_DEFAULTS.replay)
@@ -462,6 +480,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const rubberBandEnabled = ref(AOI_SCROLL_DEFAULTS.rubberBand.enabled)
   const rubberBandStrength = ref(AOI_SCROLL_DEFAULTS.rubberBand.strength)
   const rubberBandMaxOffsetPx = ref(AOI_SCROLL_DEFAULTS.rubberBand.maxOffsetPx)
+  const specUnits = reactive<AoiSpecUnitSettings>({ ...AOI_SPEC_UNIT_DEFAULTS })
 
   const activePreset = computed(() => {
     return AOI_ACCENT_PRESETS.find((preset) => preset.value === accentPreset.value) || DEFAULT_ACCENT_PRESET_OPTION
@@ -504,6 +523,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       noRelatedVideos: noRelatedVideos.value,
       noSearchRecommendations: noSearchRecommendations.value,
       openVideosInNewTab: openVideosInNewTab.value,
+      pageScrollbarStrategy: pageScrollbarStrategy.value,
       preferredTheme: preferredTheme.value,
       revealMotionDistancePx: revealMotionDistancePx.value,
       revealMotionDurationMs: revealMotionDurationMs.value,
@@ -525,6 +545,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       smoothScrollDamping: smoothScrollDamping.value,
       smoothScrollDurationMs: smoothScrollDurationMs.value,
       smoothScrollEnabled: smoothScrollEnabled.value,
+      specUnits: { ...specUnits },
       useRelativeDates: useRelativeDates.value
     }
   }
@@ -551,6 +572,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     noRelatedVideos.value = state.noRelatedVideos
     noSearchRecommendations.value = state.noSearchRecommendations
     openVideosInNewTab.value = state.openVideosInNewTab
+    pageScrollbarStrategy.value = state.pageScrollbarStrategy
     preferredTheme.value = state.preferredTheme
     revealMotionDistancePx.value = state.revealMotionDistancePx
     revealMotionDurationMs.value = state.revealMotionDurationMs
@@ -572,6 +594,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     smoothScrollDamping.value = state.smoothScrollDamping
     smoothScrollDurationMs.value = state.smoothScrollDurationMs
     smoothScrollEnabled.value = state.smoothScrollEnabled
+    Object.assign(specUnits, normalizeAoiSpecUnits(state.specUnits))
     useRelativeDates.value = state.useRelativeDates
   }
 
@@ -724,6 +747,25 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function setPageScrollbarStrategy(value: AoiPageScrollbarStrategy) {
+    if (!isAoiPageScrollbarStrategy(value)) {
+      return
+    }
+
+    pageScrollbarStrategy.value = value
+    persist()
+  }
+
+  function setSpecUnit(key: AoiSpecUnitKey, value: number) {
+    specUnits[key] = clampAoiSpecUnit(key, value)
+    persist()
+  }
+
+  function resetSpecUnits() {
+    Object.assign(specUnits, AOI_SPEC_UNIT_DEFAULTS)
+    persist()
+  }
+
   function setAccentPreset(value: string) {
     if (!isAccentPreset(value)) {
       return
@@ -798,6 +840,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     backgroundBlur.value = next.backgroundBlur
     backgroundDim.value = next.backgroundDim
     colorfulNavigation.value = next.colorfulNavigation
+    pageScrollbarStrategy.value = next.pageScrollbarStrategy
     revealMotionDistancePx.value = next.revealMotionDistancePx
     revealMotionDurationMs.value = next.revealMotionDurationMs
     revealMotionEffect.value = next.revealMotionEffect
@@ -817,6 +860,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     smoothScrollDamping.value = next.smoothScrollDamping
     smoothScrollDurationMs.value = next.smoothScrollDurationMs
     smoothScrollEnabled.value = next.smoothScrollEnabled
+    Object.assign(specUnits, next.specUnits)
     await clearBackground()
     persist()
   }
@@ -861,6 +905,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       disableWatchHistory,
       noSearchRecommendations,
       noRelatedVideos,
+      pageScrollbarStrategy,
       revealMotionEnabled,
       revealMotionEffect,
       revealMotionReplay,
@@ -880,6 +925,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       rubberBandEnabled,
       rubberBandStrength,
       rubberBandMaxOffsetPx,
+      () => ({ ...specUnits }),
       selectedCategory
     ], persist, { flush: "sync" })
   }
@@ -913,6 +959,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     noRelatedVideos,
     noSearchRecommendations,
     openVideosInNewTab,
+    pageScrollbarStrategy,
     persist,
     preferredTheme,
     revealMotionDistancePx,
@@ -943,6 +990,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     setBackgroundFile,
     setCustomAccent,
     setLocalePreference,
+    setPageScrollbarStrategy,
     setPreferredTheme,
     setRevealMotionEffect,
     setRevealMotionReplay,
@@ -952,6 +1000,9 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     smoothScrollDamping,
     smoothScrollDurationMs,
     smoothScrollEnabled,
+    specUnits,
+    resetSpecUnits,
+    setSpecUnit,
     useRelativeDates
   }
 })

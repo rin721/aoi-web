@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import type { AoiDataMode } from "~/stores/app-settings"
 import type { AoiRevealMotionEffect, AoiRevealMotionReplay } from "~/utils/aoiReveal"
-import type { AoiScrollHijackMode, AoiScrollSnapMode } from "~/utils/aoiScroll"
+import type {
+  AoiPageScrollbarStrategy,
+  AoiScrollHijackMode,
+  AoiScrollSnapMode
+} from "~/utils/aoiScroll"
 import { clampAoiScrollSetting } from "~/utils/aoiScroll"
 
 const { t } = useI18n()
@@ -89,6 +93,32 @@ const scrollHijackModeOptions = computed(() => [
     disabled: !settings.scrollHijackEnabled
   }
 ])
+const pageScrollbarStrategyOptions = computed(() => [
+  {
+    icon: "monitor",
+    label: t("settings.preference.scroll.scrollbar.strategy.auto.label"),
+    description: t("settings.preference.scroll.scrollbar.strategy.auto.description"),
+    value: "auto"
+  },
+  {
+    icon: "panel-right",
+    label: t("settings.preference.scroll.scrollbar.strategy.stable.label"),
+    description: t("settings.preference.scroll.scrollbar.strategy.stable.description"),
+    value: "stable"
+  },
+  {
+    icon: "columns-2",
+    label: t("settings.preference.scroll.scrollbar.strategy.stableBothEdges.label"),
+    description: t("settings.preference.scroll.scrollbar.strategy.stableBothEdges.description"),
+    value: "stable-both-edges"
+  },
+  {
+    icon: "eye-off",
+    label: t("settings.preference.scroll.scrollbar.strategy.hidden.label"),
+    description: t("settings.preference.scroll.scrollbar.strategy.hidden.description"),
+    value: "hidden"
+  }
+])
 const revealEffectModel = computed({
   get: () => settings.revealMotionEffect,
   set: (value: string) => settings.setRevealMotionEffect(value as AoiRevealMotionEffect)
@@ -146,6 +176,10 @@ const scrollSnapStrengthModel = computed({
 const scrollHijackModeModel = computed({
   get: () => settings.scrollHijackMode,
   set: (value: string) => settings.setScrollHijackMode(value as AoiScrollHijackMode)
+})
+const pageScrollbarStrategyModel = computed({
+  get: () => settings.pageScrollbarStrategy,
+  set: (value: string) => settings.setPageScrollbarStrategy(value as AoiPageScrollbarStrategy)
 })
 const scrollHijackThresholdModel = computed({
   get: () => settings.scrollHijackThresholdPx,
@@ -325,6 +359,18 @@ function clampRevealSetting(value: number, min: number, max: number) {
       :title="t('settings.preference.scroll.title')"
       :description="t('settings.preference.scroll.description')"
     >
+      <SettingsRow
+        :title="t('settings.preference.scroll.scrollbar.strategyTitle')"
+        :description="t('settings.preference.scroll.scrollbar.strategyDescription')"
+      >
+        <AoiSegmentedControl
+          v-model="pageScrollbarStrategyModel"
+          class="settings-scrollbar-control"
+          :items="pageScrollbarStrategyOptions"
+          :aria-label="t('settings.preference.scroll.scrollbar.strategyTitle')"
+        />
+      </SettingsRow>
+
       <SettingsRow
         :title="t('settings.preference.scroll.smooth.enabledTitle')"
         :description="t('settings.preference.scroll.smooth.enabledDescription')"
@@ -517,6 +563,10 @@ function clampRevealSetting(value: number, min: number, max: number) {
 
 .settings-reveal-control {
   width: min(280px, 100%);
+}
+
+.settings-scrollbar-control {
+  width: min(560px, 100%);
 }
 
 .settings-reveal-slider-grid {

@@ -25,8 +25,8 @@ defineProps<{
 <style scoped>
 .video-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
-  gap: 18px 16px;
+  grid-template-columns: repeat(auto-fill, minmax(var(--aoi-video-grid-min-card-width), 1fr));
+  gap: var(--aoi-video-grid-row-gap) var(--aoi-video-grid-column-gap);
 }
 
 .video-grid__item {
@@ -38,7 +38,7 @@ defineProps<{
     width: 100%;
     max-width: 100%;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px 10px;
+    gap: var(--aoi-video-grid-mobile-row-gap) var(--aoi-video-grid-mobile-column-gap);
   }
 }
 </style>

@@ -46,6 +46,62 @@
         "colorfulNavTitle": "彩色导航栏",
         "colorfulNavDescription": "使用当前主题色轻微染色侧栏和移动导航背景。"
       },
+      "specUnits": {
+        "title": "主规格尺寸单位",
+        "description": "统一管理派生间距、控件、导航、网格和圆角的源尺寸。",
+        "jump": "调整主规格单位",
+        "reset": "重置单位",
+        "baseFont": {
+          "title": "基础字号",
+          "description": "派生正文和标题比例。",
+          "label": "基础字号"
+        },
+        "space": {
+          "title": "间距单位",
+          "description": "派生页面留白、面板节奏和紧凑间距。",
+          "label": "基础间距"
+        },
+        "radius": {
+          "title": "圆角单位",
+          "description": "派生容器、卡片、控件和选项圆角。",
+          "label": "基础圆角"
+        },
+        "controlHeight": {
+          "title": "控件高度",
+          "description": "派生按钮、输入框、图标按钮和导航操作尺寸。",
+          "label": "基础控件高度"
+        },
+        "contentMaxWidth": {
+          "title": "内容宽度",
+          "description": "限制普通页面最大宽度。",
+          "label": "内容最大宽度"
+        },
+        "contentWideMaxWidth": {
+          "title": "宽内容宽度",
+          "description": "限制设置等宽版工具页面宽度。",
+          "label": "宽内容最大宽度"
+        },
+        "railWidth": {
+          "title": "桌面侧栏",
+          "description": "控制固定桌面侧边导航宽度。",
+          "label": "桌面侧栏宽度"
+        },
+        "mobileNavHeight": {
+          "title": "移动导航",
+          "description": "控制移动端顶部、底部导航和页面安全留白。",
+          "label": "移动导航高度"
+        },
+        "videoGridMinCardWidth": {
+          "title": "视频网格卡片",
+          "description": "控制桌面网格卡片列的最小宽度。",
+          "label": "视频卡片最小宽度"
+        },
+        "settingsCardMinWidth": {
+          "title": "设置卡片",
+          "description": "控制设置卡片和控制列的最小宽度。",
+          "label": "设置卡片最小宽度"
+        }
+      },
       "palette": {
         "title": "个性色",
         "description": "选择一套色板，或切到自定义色。",
@@ -141,6 +197,28 @@
       "scroll": {
         "title": "滚动体验",
         "description": "控制全站阻尼平滑滚动、磁吸吸附、显式滚动场景劫持和边缘阻尼。",
+        "scrollbar": {
+          "strategyTitle": "页面滚动条",
+          "strategyDescription": "选择页面滚动条是否预留空间，避免 Windows 实体滚动条出现时挤压布局。",
+          "strategy": {
+            "auto": {
+              "label": "系统默认",
+              "description": "遵循浏览器"
+            },
+            "stable": {
+              "label": "稳定槽位",
+              "description": "预留右侧"
+            },
+            "stableBothEdges": {
+              "label": "双侧稳定",
+              "description": "保持居中"
+            },
+            "hidden": {
+              "label": "隐藏滚动条",
+              "description": "保留滚动"
+            }
+          }
+        },
         "smooth": {
           "enabledTitle": "阻尼平滑滚动",
           "enabledDescription": "使用 Lenis 柔化滚轮触发的页面滚动，同时保留触控设备的原生惯性。",

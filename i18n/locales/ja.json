@@ -46,6 +46,62 @@
         "colorfulNavTitle": "カラーナビゲーション",
         "colorfulNavDescription": "現在のアクセントカラーでサイドバーとモバイルナビを軽く色付けします。"
       },
+      "specUnits": {
+        "title": "主なサイズ単位",
+        "description": "余白、操作部、ナビゲーション、グリッド、角丸を派生する元の寸法をまとめて管理します。",
+        "jump": "主単位を調整",
+        "reset": "単位をリセット",
+        "baseFont": {
+          "title": "基本文字サイズ",
+          "description": "本文と見出しの比率に反映されます。",
+          "label": "基本文字サイズ"
+        },
+        "space": {
+          "title": "余白単位",
+          "description": "ページ余白、パネル間隔、コンパクトなギャップに反映されます。",
+          "label": "基本余白"
+        },
+        "radius": {
+          "title": "角丸単位",
+          "description": "面、カード、操作部、選択肢の角丸に反映されます。",
+          "label": "基本角丸"
+        },
+        "controlHeight": {
+          "title": "操作部の高さ",
+          "description": "ボタン、入力欄、アイコンボタン、ナビゲーション操作に反映されます。",
+          "label": "基本操作部高さ"
+        },
+        "contentMaxWidth": {
+          "title": "コンテンツ幅",
+          "description": "通常ページの最大幅を制限します。",
+          "label": "コンテンツ最大幅"
+        },
+        "contentWideMaxWidth": {
+          "title": "ワイド幅",
+          "description": "設定などの広いツールページの最大幅を制限します。",
+          "label": "ワイド最大幅"
+        },
+        "railWidth": {
+          "title": "デスクトップレール",
+          "description": "固定サイドナビゲーションの幅を設定します。",
+          "label": "レール幅"
+        },
+        "mobileNavHeight": {
+          "title": "モバイルナビ",
+          "description": "モバイルのヘッダー、下部ナビ、ページ余白に反映されます。",
+          "label": "モバイルナビ高さ"
+        },
+        "videoGridMinCardWidth": {
+          "title": "動画グリッドカード",
+          "description": "デスクトップグリッドのカード列の最小幅を設定します。",
+          "label": "動画カード最小幅"
+        },
+        "settingsCardMinWidth": {
+          "title": "設定カード",
+          "description": "設定カードと操作列の最小幅を設定します。",
+          "label": "設定カード最小幅"
+        }
+      },
       "palette": {
         "title": "アクセントカラー",
         "description": "プリセットの色板を選ぶか、カスタムカラーに切り替えます。",
@@ -141,6 +197,28 @@
       "scroll": {
         "title": "スクロール体験",
         "description": "全体の慣性スクロール、磁石のような吸着、明示的なスクロールシーン、端の減衰を調整します。",
+        "scrollbar": {
+          "strategyTitle": "ページスクロールバー",
+          "strategyDescription": "ページがスクロールバー分の余白を確保するかを選び、Windows でのレイアウトずれを防ぎます。",
+          "strategy": {
+            "auto": {
+              "label": "システム既定",
+              "description": "ブラウザに従う"
+            },
+            "stable": {
+              "label": "安定余白",
+              "description": "右側を確保"
+            },
+            "stableBothEdges": {
+              "label": "両側安定",
+              "description": "中央を維持"
+            },
+            "hidden": {
+              "label": "非表示",
+              "description": "スクロール維持"
+            }
+          }
+        },
         "smooth": {
           "enabledTitle": "慣性スムーズスクロール",
           "enabledDescription": "Lenis でホイール操作のページスクロールをなめらかにし、タッチ端末ではネイティブ慣性を保ちます。",

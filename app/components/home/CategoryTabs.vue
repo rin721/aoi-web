@@ -42,8 +42,8 @@ function change(value: string) {
 
 <style scoped>
 .category-tabs {
-  margin: 0 -10px;
-  padding: 0 10px 10px;
+  margin: 0 calc(var(--aoi-category-tabs-bleed) * -1);
+  padding: 0 var(--aoi-category-tabs-bleed) var(--aoi-category-tabs-bleed);
   scrollbar-width: none;
 }
 
@@ -62,8 +62,8 @@ function change(value: string) {
 
 @media (max-width: 639px) {
   .category-tabs {
-    margin: 0 -12px;
-    padding: 0 12px 12px;
+    margin: 0 calc(var(--aoi-category-tabs-mobile-bleed) * -1);
+    padding: 0 var(--aoi-category-tabs-mobile-bleed) var(--aoi-category-tabs-mobile-bleed);
   }
 }
 </style>

@@ -2,15 +2,17 @@
 withDefaults(defineProps<{
   description?: string
   icon?: string
+  id?: string
   title: string
 }>(), {
   description: undefined,
+  id: undefined,
   icon: undefined
 })
 </script>
 
 <template>
-  <section v-aoi-reveal="'rise'" class="settings-panel">
+  <section :id="id" v-aoi-reveal="'rise'" class="settings-panel">
     <header class="settings-panel__header">
       <span v-if="icon" class="settings-panel__icon" aria-hidden="true">
         <AoiIcon :name="icon" :size="18" decorative />
@@ -32,6 +34,7 @@ withDefaults(defineProps<{
 .settings-panel {
   display: grid;
   gap: var(--aoi-grid-gap);
+  scroll-margin-block-start: var(--aoi-settings-anchor-offset);
   border: 1px solid var(--aoi-border);
   border-radius: var(--aoi-radius-container);
   background: var(--aoi-panel-bg);
@@ -42,14 +45,14 @@ withDefaults(defineProps<{
 .settings-panel__header {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 12px;
+  gap: var(--aoi-grid-gap-compact);
   align-items: start;
 }
 
 .settings-panel__icon {
   display: inline-grid;
-  width: 34px;
-  height: 34px;
+  width: var(--aoi-settings-panel-icon-size);
+  height: var(--aoi-settings-panel-icon-size);
   place-items: center;
   border-radius: var(--aoi-radius-round);
   background: var(--aoi-accent-10);
@@ -59,7 +62,7 @@ withDefaults(defineProps<{
 .settings-panel__copy {
   display: grid;
   min-width: 0;
-  gap: 4px;
+  gap: max(4px, calc(var(--aoi-grid-gap-compact) - 8px));
 }
 
 .settings-panel__copy h2,
@@ -69,7 +72,7 @@ withDefaults(defineProps<{
 
 .settings-panel__copy h2 {
   color: var(--aoi-text);
-  font-size: 17px;
+  font-size: var(--aoi-settings-panel-title-size);
 }
 
 .settings-panel__copy p {
@@ -80,7 +83,7 @@ withDefaults(defineProps<{
 .settings-panel__actions {
   display: inline-flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: var(--aoi-grid-gap-compact);
   justify-content: end;
 }
 

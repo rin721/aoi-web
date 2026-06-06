@@ -6,7 +6,7 @@ const settingGroups = [
   {
     label: "应用设置",
     items: [
-      { icon: "palette", label: "外观", keywords: "主题 色板 背景 DIY 自定义", to: "/settings/appearance" },
+      { icon: "palette", label: "外观", keywords: "主题 色板 背景 DIY 自定义 规格 尺寸 单位 间距 圆角 导航宽度 卡片宽度", to: "/settings/appearance" },
       { icon: "play-circle", label: "播放器", keywords: "音量 静音 倍速 剧场", to: "/settings/player" },
       { icon: "message-square-text", label: "弹幕", keywords: "弹幕 占位", to: "/settings/danmaku" },
       { icon: "sliders-horizontal", label: "偏好", keywords: "省流 隐私 新标签 日期 搜索", to: "/settings/preference" },
@@ -133,8 +133,8 @@ useHead(() => ({
 .settings-shell {
   display: grid;
   max-width: var(--aoi-content-wide-max-width);
-  grid-template-columns: minmax(240px, 288px) minmax(0, 1fr);
-  gap: 20px;
+  grid-template-columns: minmax(var(--aoi-settings-shell-nav-min-width), var(--aoi-settings-shell-nav-width)) minmax(0, 1fr);
+  gap: var(--aoi-settings-shell-gap);
   align-items: start;
   animation: none;
 }
@@ -146,13 +146,13 @@ useHead(() => ({
   display: grid;
   max-height: calc(100dvh - var(--aoi-settings-sticky-top) * 2);
   align-self: start;
-  gap: 14px;
+  gap: var(--aoi-grid-gap-compact);
   overflow: auto;
   border: 1px solid var(--aoi-border);
   border-radius: var(--aoi-radius-container);
   background: var(--aoi-panel-bg);
   box-shadow: var(--aoi-shadow-sm);
-  padding: 16px;
+  padding: var(--aoi-card-padding);
 }
 
 .settings-shell__search-field {
@@ -163,14 +163,14 @@ useHead(() => ({
 .settings-shell__intro {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 12px;
+  gap: var(--aoi-grid-gap-compact);
   align-items: start;
 }
 
 .settings-shell__mark {
   display: inline-grid;
-  width: 38px;
-  height: 38px;
+  width: var(--aoi-settings-shell-mark-size);
+  height: var(--aoi-settings-shell-mark-size);
   place-items: center;
   border-radius: var(--aoi-radius-round);
   background: var(--aoi-accent-10);
@@ -184,7 +184,7 @@ useHead(() => ({
 }
 
 .settings-shell__intro h1 {
-  font-size: 24px;
+  font-size: var(--aoi-settings-shell-title-size);
   line-height: 1.1;
 }
 
@@ -196,7 +196,7 @@ useHead(() => ({
 
 .settings-shell__groups {
   display: grid;
-  gap: 16px;
+  gap: var(--aoi-grid-gap);
 }
 
 .settings-shell__mobile-groups {
@@ -205,7 +205,7 @@ useHead(() => ({
 
 .settings-shell__group {
   display: grid;
-  gap: 7px;
+  gap: max(6px, calc(var(--aoi-grid-gap-compact) - 5px));
 }
 
 .settings-shell__group h2 {
@@ -217,13 +217,13 @@ useHead(() => ({
 
 .settings-shell__nav-item {
   display: flex;
-  min-height: 40px;
+  min-height: var(--aoi-settings-nav-item-height);
   align-items: center;
-  gap: 10px;
+  gap: var(--aoi-nav-group-gap);
   border-radius: var(--aoi-radius-choice);
   color: var(--aoi-text);
   font-weight: 720;
-  padding: 0 11px;
+  padding: 0 calc(var(--aoi-nav-group-gap) + 1px);
   transition:
     background var(--aoi-motion-fast) var(--aoi-ease-out),
     color var(--aoi-motion-fast) var(--aoi-ease-out),
@@ -256,8 +256,8 @@ useHead(() => ({
     position: static;
     max-height: none;
     overflow: visible;
-    gap: 12px;
-    padding: 14px;
+    gap: var(--aoi-grid-gap-compact);
+    padding: var(--aoi-card-padding);
   }
 
   .settings-shell__groups {
@@ -270,14 +270,14 @@ useHead(() => ({
     z-index: var(--aoi-z-sticky);
     display: flex;
     overflow-x: auto;
-    gap: 8px;
+    gap: var(--aoi-grid-gap-compact);
     border: 1px solid var(--aoi-border);
     border-radius: var(--aoi-radius-card);
     background: var(--aoi-panel-bg);
     box-shadow: var(--aoi-shadow-sm);
-    padding: 8px;
+    padding: var(--aoi-grid-gap-compact);
     scrollbar-width: none;
-    backdrop-filter: blur(18px);
+    backdrop-filter: blur(var(--aoi-nav-surface-blur));
   }
 
   .settings-shell__mobile-groups::-webkit-scrollbar {
@@ -287,15 +287,15 @@ useHead(() => ({
   .settings-shell__mobile-groups .settings-shell__empty {
     flex: 0 0 auto;
     margin: 0;
-    padding: 0 6px;
+    padding: 0 max(6px, calc(var(--aoi-grid-gap-compact) - 6px));
   }
 
   .settings-shell__nav-item {
     min-width: max-content;
-    min-height: 36px;
+    min-height: var(--aoi-settings-nav-item-mobile-height);
     border: 1px solid var(--aoi-border);
     background: var(--aoi-card-bg);
-    padding: 0 12px;
+    padding: 0 var(--aoi-row-padding);
   }
 }
 
@@ -309,7 +309,7 @@ useHead(() => ({
   }
 
   .settings-shell__intro h1 {
-    font-size: 22px;
+    font-size: var(--aoi-settings-shell-mobile-title-size);
   }
 }
 </style>

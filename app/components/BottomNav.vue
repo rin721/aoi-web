@@ -14,7 +14,7 @@ const { mobilePrimaryItems } = useAoiNavigation()
       :aria-label="item.label"
     >
       <span class="bottom-nav__icon-wrap" aria-hidden="true">
-        <AoiIcon :name="item.icon" :size="20" decorative />
+        <AoiIcon :name="item.icon" size="var(--aoi-bottom-nav-icon-size)" decorative />
       </span>
       <span class="bottom-nav__label">{{ item.label }}</span>
     </AoiLink>
@@ -31,8 +31,8 @@ const { mobilePrimaryItems } = useAoiNavigation()
   grid-template-columns: repeat(4, minmax(0, 1fr));
   border-top: 1px solid var(--aoi-border);
   background: var(--aoi-nav-bg);
-  backdrop-filter: blur(18px);
-  padding: 5px 8px 6px;
+  backdrop-filter: blur(var(--aoi-nav-surface-blur));
+  padding: var(--aoi-bottom-nav-padding);
 }
 
 .bottom-nav__item {
@@ -43,7 +43,7 @@ const { mobilePrimaryItems } = useAoiNavigation()
   color: var(--aoi-icon);
   font-size: var(--aoi-bottom-nav-label-size);
   font-weight: 700;
-  gap: 2px;
+  gap: var(--aoi-bottom-nav-item-gap);
   line-height: 1;
   transform: translate3d(0, 0, 0);
   transition:
@@ -73,7 +73,7 @@ const { mobilePrimaryItems } = useAoiNavigation()
 
 .bottom-nav__icon-wrap {
   display: inline-grid;
-  min-height: 22px;
+  min-height: var(--aoi-bottom-nav-icon-min-height);
   place-items: center;
 }
 
@@ -81,7 +81,7 @@ const { mobilePrimaryItems } = useAoiNavigation()
   display: block;
   max-width: 100%;
   overflow: hidden;
-  padding: 0 3px;
+  padding: 0 var(--aoi-bottom-nav-label-padding-inline);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
