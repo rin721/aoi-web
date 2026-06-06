@@ -360,6 +360,7 @@ function clampRevealSetting(value: number, min: number, max: number) {
       :description="t('settings.preference.scroll.description')"
     >
       <SettingsRow
+        class="settings-scrollbar-row"
         :title="t('settings.preference.scroll.scrollbar.strategyTitle')"
         :description="t('settings.preference.scroll.scrollbar.strategyDescription')"
       >
@@ -367,6 +368,7 @@ function clampRevealSetting(value: number, min: number, max: number) {
           v-model="pageScrollbarStrategyModel"
           class="settings-scrollbar-control"
           :items="pageScrollbarStrategyOptions"
+          :columns="2"
           :aria-label="t('settings.preference.scroll.scrollbar.strategyTitle')"
         />
       </SettingsRow>
@@ -566,7 +568,16 @@ function clampRevealSetting(value: number, min: number, max: number) {
 }
 
 .settings-scrollbar-control {
-  width: min(560px, 100%);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+}
+
+.settings-row.settings-scrollbar-row {
+  grid-template-columns: 1fr;
+}
+
+.settings-row.settings-scrollbar-row :deep(.settings-row__control) {
+  justify-content: stretch;
 }
 
 .settings-reveal-slider-grid {
