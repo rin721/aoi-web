@@ -8,6 +8,12 @@ import {
   isAoiRevealMotionEffect,
   isAoiRevealMotionReplay
 } from "~/utils/aoiReveal"
+import type { AoiRgbaColor } from "~/utils/aoiColor"
+import {
+  aoiRgbaToCss,
+  mixAoiRgbaColor,
+  normalizeAoiRgbaColor
+} from "~/utils/aoiColor"
 
 export type AoiPreferredTheme = "system" | "light" | "dark"
 export type AoiAccentMode = "preset" | "custom"
@@ -46,7 +52,7 @@ interface PersistedAppSettings {
   backgroundImageId: string | null
   backgroundOpacity: number
   colorfulNavigation: boolean
-  customAccent: string
+  customAccent: AoiRgbaColor
   dataMode: AoiDataMode
   disableWatchHistory: boolean
   hideRecentSearches: boolean
@@ -157,7 +163,8 @@ export const AOI_ACCENT_PRESETS: AoiAccentPresetOption[] = [
 
 const STORAGE_KEY = "aoi.appSettings.v1"
 const DEFAULT_ACCENT_PRESET = "sunflower-orange"
-const DEFAULT_ACCENT = "#ff7d52"
+export const AOI_DEFAULT_CUSTOM_ACCENT: AoiRgbaColor = { r: 255, g: 125, b: 82, a: 1 }
+const DEFAULT_ACCENT = AOI_DEFAULT_CUSTOM_ACCENT
 const DEFAULT_ACCENT_PRESET_OPTION = AOI_ACCENT_PRESETS.find((preset) => preset.value === DEFAULT_ACCENT_PRESET) || AOI_ACCENT_PRESETS[0]!
 
 function emptyState(): PersistedAppSettings {
@@ -175,7 +182,7 @@ function emptyState(): PersistedAppSettings {
     backgroundImageId: null,
     backgroundOpacity: 0.56,
     colorfulNavigation: false,
-    customAccent: DEFAULT_ACCENT,
+    customAccent: { ...DEFAULT_ACCENT },
     dataMode: "standard",
     disableWatchHistory: false,
     hideRecentSearches: false,
@@ -219,7 +226,7 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     backgroundImageId: typeof candidate.backgroundImageId === "string" ? candidate.backgroundImageId : null,
     backgroundOpacity: clampNumber(candidate.backgroundOpacity, 0, 1, fallback.backgroundOpacity),
     colorfulNavigation: Boolean(candidate.colorfulNavigation),
-    customAccent: normalizeHex(candidate.customAccent, fallback.customAccent),
+    customAccent: normalizeAoiRgbaColor(candidate.customAccent, fallback.customAccent),
     dataMode: isDataMode(candidate.dataMode) ? candidate.dataMode : fallback.dataMode,
     disableWatchHistory: Boolean(candidate.disableWatchHistory),
     hideRecentSearches: Boolean(candidate.hideRecentSearches),
@@ -280,56 +287,22 @@ function clampNumber(value: unknown, min: number, max: number, fallback: number)
   return Math.min(max, Math.max(min, value))
 }
 
-function normalizeHex(value: unknown, fallback: string) {
-  if (typeof value !== "string") {
-    return fallback
-  }
+function mixRgbaWithWhite(color: AoiRgbaColor, amount: number) {
+  const base = normalizeAoiRgbaColor(color, DEFAULT_ACCENT)
+  const white = { r: 255, g: 255, b: 255, a: base.a }
 
-  const normalized = value.trim()
-
-  if (/^#[\da-f]{6}$/i.test(normalized)) {
-    return normalized.toLowerCase()
-  }
-
-  if (/^#[\da-f]{3}$/i.test(normalized)) {
-    return `#${normalized[1]}${normalized[1]}${normalized[2]}${normalized[2]}${normalized[3]}${normalized[3]}`.toLowerCase()
-  }
-
-  return fallback
+  return aoiRgbaToCss(mixAoiRgbaColor(base, white, amount))
 }
 
-function hexToRgb(hex: string) {
-  const safe = normalizeHex(hex, DEFAULT_ACCENT).slice(1)
-  const value = Number.parseInt(safe, 16)
+function scaleFromRgba(color: AoiRgbaColor): AoiAccentScale {
+  const base = normalizeAoiRgbaColor(color, DEFAULT_ACCENT)
 
   return {
-    b: value & 255,
-    g: value >> 8 & 255,
-    r: value >> 16 & 255
-  }
-}
-
-function componentToHex(value: number) {
-  return Math.round(value).toString(16).padStart(2, "0")
-}
-
-function mixHex(from: string, to: string, amount: number) {
-  const a = hexToRgb(from)
-  const b = hexToRgb(to)
-  const weight = Math.min(1, Math.max(0, amount))
-
-  return `#${componentToHex(a.r + (b.r - a.r) * weight)}${componentToHex(a.g + (b.g - a.g) * weight)}${componentToHex(a.b + (b.b - a.b) * weight)}`
-}
-
-function scaleFromHex(hex: string): AoiAccentScale {
-  const base = normalizeHex(hex, DEFAULT_ACCENT)
-
-  return {
-    accent10: mixHex(base, "#ffffff", 0.9),
-    accent20: mixHex(base, "#ffffff", 0.76),
-    accent40: mixHex(base, "#ffffff", 0.42),
-    accent50: mixHex(base, "#ffffff", 0.18),
-    accent60: base
+    accent10: mixRgbaWithWhite(base, 0.9),
+    accent20: mixRgbaWithWhite(base, 0.76),
+    accent40: mixRgbaWithWhite(base, 0.42),
+    accent50: mixRgbaWithWhite(base, 0.18),
+    accent60: aoiRgbaToCss(base)
   }
 }
 
@@ -409,7 +382,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const appearanceSize = ref<AoiAppearanceSize>("default")
   const accentMode = ref<AoiAccentMode>("preset")
   const accentPreset = ref(DEFAULT_ACCENT_PRESET)
-  const customAccent = ref(DEFAULT_ACCENT)
+  const customAccent = ref<AoiRgbaColor>({ ...DEFAULT_ACCENT })
   const backgroundImageId = ref<string | null>(null)
   const backgroundFileName = ref("")
   const backgroundFileSize = ref(0)
@@ -435,10 +408,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const activePreset = computed(() => {
     return AOI_ACCENT_PRESETS.find((preset) => preset.value === accentPreset.value) || DEFAULT_ACCENT_PRESET_OPTION
   })
-  const activeAccent = computed(() => accentMode.value === "custom" ? normalizeHex(customAccent.value, DEFAULT_ACCENT) : activePreset.value.accent60)
+  const activeAccent = computed(() => accentMode.value === "custom" ? aoiRgbaToCss(customAccent.value) : activePreset.value.accent60)
   const accentScale = computed<AoiAccentScale>(() => {
     if (accentMode.value === "custom") {
-      return scaleFromHex(customAccent.value)
+      return scaleFromRgba(customAccent.value)
     }
 
     return {
@@ -465,7 +438,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       backgroundImageId: backgroundImageId.value,
       backgroundOpacity: backgroundOpacity.value,
       colorfulNavigation: colorfulNavigation.value,
-      customAccent: customAccent.value,
+      customAccent: { ...customAccent.value },
       dataMode: dataMode.value,
       disableWatchHistory: disableWatchHistory.value,
       hideRecentSearches: hideRecentSearches.value,
@@ -500,7 +473,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     backgroundImageId.value = state.backgroundImageId
     backgroundOpacity.value = state.backgroundOpacity
     colorfulNavigation.value = state.colorfulNavigation
-    customAccent.value = state.customAccent
+    customAccent.value = normalizeAoiRgbaColor(state.customAccent, DEFAULT_ACCENT)
     dataMode.value = state.dataMode
     disableWatchHistory.value = state.disableWatchHistory
     hideRecentSearches.value = state.hideRecentSearches
@@ -661,8 +634,8 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
-  function setCustomAccent(value: string) {
-    customAccent.value = normalizeHex(value, customAccent.value)
+  function setCustomAccent(value: AoiRgbaColor | string) {
+    customAccent.value = normalizeAoiRgbaColor(value, customAccent.value)
     accentMode.value = "custom"
     persist()
   }
@@ -720,7 +693,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     appearanceDensity.value = next.appearanceDensity
     appearanceShape.value = next.appearanceShape
     appearanceSize.value = next.appearanceSize
-    customAccent.value = next.customAccent
+    customAccent.value = { ...next.customAccent }
     backgroundOpacity.value = next.backgroundOpacity
     backgroundBlur.value = next.backgroundBlur
     backgroundDim.value = next.backgroundDim

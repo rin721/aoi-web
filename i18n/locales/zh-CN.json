@@ -2,6 +2,16 @@
   "app": {
     "name": "Aoi"
   },
+  "components": {
+    "colorPalette": {
+      "alpha": "透明度",
+      "field": "颜色面板",
+      "hex": "HEX",
+      "hue": "色相",
+      "mode": "颜色模式",
+      "reset": "重置"
+    }
+  },
   "nav": {
     "home": "首页",
     "categories": "分类",
@@ -34,6 +44,11 @@
         "contrastDescription": "提高文本、边框和选中状态的辨识度。",
         "colorfulNavTitle": "彩色导航栏",
         "colorfulNavDescription": "使用当前主题色轻微染色侧栏和移动导航背景。"
+      },
+      "palette": {
+        "title": "个性色",
+        "description": "选择一套色板，或切到自定义色。",
+        "customTitle": "调色板"
       },
       "density": {
         "comfortable": {
@@ -150,6 +165,22 @@
             "description": "用于检查说明文字对比度和 reduced-motion 行为的深色图片占位。",
             "alt": "深色抽象图片"
           }
+        }
+      },
+      "richText": {
+        "title": "富文本编辑器",
+        "description": "以 Markdown 作为主文本输出，同时保留完整 Tiptap JSON 作为富文本兜底契约。",
+        "editorLabel": "富文本草稿",
+        "placeholder": "写一段创作者说明、发布计划或带格式简介...",
+        "supportingText": "Markdown 用于主要交换；JSON 保留 Markdown 无法表达的样式。",
+        "sample": "# Aoi 富文本草稿\n\n可以使用 **Markdown** 快捷输入，也可以通过工具栏整理内容。\n\n- 保持 Markdown 输出可读\n- 用 JSON 保留颜色、表格、对齐等富文本细节\n- 拒绝不安全链接和图片地址\n\n> 这个面板只是独立实验，不会改动投稿草稿或评论。",
+        "preview": {
+          "title": "输出预览",
+          "ariaLabel": "富文本输出格式",
+          "markdown": "Markdown",
+          "text": "纯文本",
+          "json": "JSON",
+          "meta": "{chars} 字符 · {words} 词"
         }
       }
     }

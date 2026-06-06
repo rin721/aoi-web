@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AOI_ACCENT_PRESETS } from "~/stores/app-settings"
+import { AOI_ACCENT_PRESETS, AOI_DEFAULT_CUSTOM_ACCENT } from "~/stores/app-settings"
 import type {
   AoiAppearanceContrast,
   AoiAppearanceDensity,
@@ -7,6 +7,7 @@ import type {
   AoiAppearanceSize,
   AoiPreferredTheme
 } from "~/stores/app-settings"
+import type { AoiRgbaColor } from "~/utils/aoiColor"
 
 const { t } = useI18n()
 const settings = useAppSettingsStore()
@@ -96,9 +97,9 @@ const contrastOptions = computed<Array<AppearanceOption<AoiAppearanceContrast>>>
   }
 ])
 
-const customAccentModel = computed({
+const customAccentModel = computed<AoiRgbaColor>({
   get: () => settings.customAccent,
-  set: (value: string) => settings.setCustomAccent(value)
+  set: (value) => settings.setCustomAccent(value)
 })
 
 function setAppearanceDensity(value: string) {
@@ -236,8 +237,8 @@ function formatBytes(value: number) {
 
     <SettingsPanel
       icon="swatch-book"
-      title="个性色"
-      description="选择一套色板，或切到自定义色。"
+      :title="t('settings.appearance.palette.title')"
+      :description="t('settings.appearance.palette.description')"
     >
       <div class="settings-palette-grid">
         <AoiChoiceCard
@@ -265,13 +266,11 @@ function formatBytes(value: number) {
       </div>
 
       <div class="settings-custom-color">
-        <AoiColorInput v-model="customAccentModel" label="自定义主题色" />
-        <AoiTextField
+        <AoiColorPalette
           v-model="customAccentModel"
-          label="自定义主题色"
-          placeholder="#0f9fb7"
-          variant="outlined"
-          supporting-text="选择或输入 6 位十六进制颜色。"
+          :label="t('settings.appearance.palette.customTitle')"
+          :reset-label="t('components.colorPalette.reset')"
+          :reset-value="AOI_DEFAULT_CUSTOM_ACCENT"
         />
       </div>
     </SettingsPanel>
@@ -396,9 +395,7 @@ function formatBytes(value: number) {
 
 .settings-custom-color {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 12px;
-  align-items: center;
+  justify-items: start;
 }
 
 .settings-background-preview {

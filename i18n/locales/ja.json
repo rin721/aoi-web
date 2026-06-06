@@ -2,6 +2,16 @@
   "app": {
     "name": "Aoi"
   },
+  "components": {
+    "colorPalette": {
+      "alpha": "透明度",
+      "field": "カラーフィールド",
+      "hex": "HEX",
+      "hue": "色相",
+      "mode": "カラーモード",
+      "reset": "リセット"
+    }
+  },
   "nav": {
     "home": "ホーム",
     "categories": "カテゴリ",
@@ -34,6 +44,11 @@
         "contrastDescription": "テキスト、境界線、選択状態の視認性を高めます。",
         "colorfulNavTitle": "カラーナビゲーション",
         "colorfulNavDescription": "現在のアクセントカラーでサイドバーとモバイルナビを軽く色付けします。"
+      },
+      "palette": {
+        "title": "アクセントカラー",
+        "description": "プリセットの色板を選ぶか、カスタムカラーに切り替えます。",
+        "customTitle": "カラーパレット"
       },
       "density": {
         "comfortable": {
@@ -150,6 +165,22 @@
             "description": "キャプションのコントラストと reduced-motion の挙動を確認する暗色の画像プレースホルダーです。",
             "alt": "暗色の抽象画像"
           }
+        }
+      },
+      "richText": {
+        "title": "リッチテキストエディター",
+        "description": "Markdown を主なテキスト出力にしつつ、完全な Tiptap JSON をリッチ表現の補助契約として保持します。",
+        "editorLabel": "リッチテキスト下書き",
+        "placeholder": "クリエイター向けメモ、公開計画、書式付き説明を書いてください...",
+        "supportingText": "Markdown を主な交換形式にし、Markdown で表せないスタイルは JSON に保持します。",
+        "sample": "# Aoi リッチテキスト下書き\n\n**Markdown** ショートカット、またはツールバーで内容を整えられます。\n\n- Markdown 出力を読みやすく保つ\n- 色、表、配置などの詳細は JSON に保持する\n- 安全でないリンクや画像 URL を拒否する\n\n> このパネルは独立した実験で、投稿下書きやコメントはまだ変更しません。",
+        "preview": {
+          "title": "出力プレビュー",
+          "ariaLabel": "リッチテキスト出力形式",
+          "markdown": "Markdown",
+          "text": "テキスト",
+          "json": "JSON",
+          "meta": "{chars} 文字 · {words} 語"
         }
       }
     }

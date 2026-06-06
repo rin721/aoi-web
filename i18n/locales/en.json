@@ -2,6 +2,16 @@
   "app": {
     "name": "Aoi"
   },
+  "components": {
+    "colorPalette": {
+      "alpha": "Alpha",
+      "field": "Color field",
+      "hex": "HEX",
+      "hue": "Hue",
+      "mode": "Color mode",
+      "reset": "Reset"
+    }
+  },
   "nav": {
     "home": "Home",
     "categories": "Categories",
@@ -34,6 +44,11 @@
         "contrastDescription": "Raises legibility for text, borders, and selected states.",
         "colorfulNavTitle": "Colorful navigation",
         "colorfulNavDescription": "Lightly tints side and mobile navigation with the current accent color."
+      },
+      "palette": {
+        "title": "Accent color",
+        "description": "Choose a preset palette or switch to a custom color.",
+        "customTitle": "Color palette"
       },
       "density": {
         "comfortable": {
@@ -150,6 +165,22 @@
             "description": "A darker image placeholder for checking caption contrast and reduced-motion behavior.",
             "alt": "Dark abstract image"
           }
+        }
+      },
+      "richText": {
+        "title": "Rich text editor",
+        "description": "Draft Markdown-first rich content while preserving the full Tiptap document as a fallback contract.",
+        "editorLabel": "Rich text draft",
+        "placeholder": "Write a creator note, release plan, or formatted description...",
+        "supportingText": "Markdown is the primary text output; JSON preserves styles Markdown cannot express.",
+        "sample": "# Aoi rich text draft\n\nUse **Markdown** shortcuts or the toolbar to shape content.\n\n- Keep the Markdown output readable\n- Preserve colors, tables, alignment, and other rich details in JSON\n- Reject unsafe links and image URLs\n\n> This panel is an isolated experiment and does not change upload drafts or comments yet.",
+        "preview": {
+          "title": "Output preview",
+          "ariaLabel": "Rich text output format",
+          "markdown": "Markdown",
+          "text": "Text",
+          "json": "JSON",
+          "meta": "{chars} chars · {words} words"
         }
       }
     }
