@@ -51,13 +51,15 @@ useHead({
       </template>
     </PageHeader>
 
-    <AoiTabs
-      v-model="activeTab"
-      :items="tabItems"
-      aria-label="收藏分类"
-    />
+    <AoiReveal variant="fade">
+      <AoiTabs
+        v-model="activeTab"
+        :items="tabItems"
+        aria-label="收藏分类"
+      />
+    </AoiReveal>
 
-    <div v-if="!library.hydrated" class="collections-state">
+    <div v-if="!library.hydrated" v-aoi-reveal class="collections-state">
       <AoiProgress indeterminate />
     </div>
 

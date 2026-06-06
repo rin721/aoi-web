@@ -38,7 +38,7 @@ useHead(() => ({
       @action="refresh()"
     />
 
-    <div v-else-if="pending" class="category-detail-state">
+    <div v-else-if="pending" v-aoi-reveal class="category-detail-state">
       <AoiProgress indeterminate />
     </div>
 

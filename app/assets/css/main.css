@@ -209,6 +209,58 @@ a {
   will-change: transform;
 }
 
+.aoi-reveal {
+  --aoi-reveal-delay: 0ms;
+  --aoi-reveal-distance: var(--aoi-reveal-distance-setting, var(--aoi-reveal-distance-md));
+  --aoi-reveal-duration: var(--aoi-reveal-duration-setting, var(--aoi-motion-slow));
+}
+
+.aoi-reveal[data-aoi-reveal-ready="true"] {
+  backface-visibility: hidden;
+  transform-origin: center;
+  transition:
+    opacity var(--aoi-reveal-duration) var(--aoi-ease-out) var(--aoi-reveal-delay),
+    transform var(--aoi-reveal-duration) var(--aoi-ease-out) var(--aoi-reveal-delay);
+}
+
+.aoi-reveal[data-aoi-reveal-ready="true"][data-aoi-reveal-state="in"] {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  will-change: auto;
+}
+
+.aoi-reveal[data-aoi-reveal-ready="true"][data-aoi-reveal-state="out"] {
+  opacity: 0;
+  will-change: opacity, transform;
+}
+
+.aoi-reveal[data-aoi-reveal-ready="true"][data-aoi-reveal-state="out"][data-aoi-reveal-variant="pop"] {
+  transform: translate3d(0, var(--aoi-reveal-distance), 0) scale(.96);
+}
+
+.aoi-reveal[data-aoi-reveal-ready="true"][data-aoi-reveal-state="out"][data-aoi-reveal-variant="rise"] {
+  transform: translate3d(0, var(--aoi-reveal-distance), 0);
+}
+
+.aoi-reveal[data-aoi-reveal-ready="true"][data-aoi-reveal-state="out"][data-aoi-reveal-variant="fade"] {
+  transform: translate3d(0, 0, 0);
+}
+
+.aoi-reveal[data-aoi-reveal-ready="true"][data-aoi-reveal-state="out"][data-aoi-reveal-variant="slide-left"] {
+  transform: translate3d(var(--aoi-reveal-distance), 0, 0);
+}
+
+.aoi-reveal[data-aoi-reveal-ready="true"][data-aoi-reveal-state="out"][data-aoi-reveal-variant="slide-right"] {
+  transform: translate3d(calc(var(--aoi-reveal-distance) * -1), 0, 0);
+}
+
+:root[data-aoi-reveal-motion="disabled"] .aoi-reveal[data-aoi-reveal-ready="true"] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+  will-change: auto !important;
+}
+
 .settings-page {
   display: grid;
   gap: var(--aoi-grid-gap);
@@ -304,5 +356,12 @@ a {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 1ms !important;
+  }
+
+  .aoi-reveal[data-aoi-reveal-ready="true"] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition-delay: 0ms !important;
+    will-change: auto !important;
   }
 }

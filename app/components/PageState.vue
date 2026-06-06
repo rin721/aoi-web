@@ -18,7 +18,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <section class="page-state">
+  <section v-aoi-reveal class="page-state">
     <div class="page-state__icon" aria-hidden="true">
       <AoiIcon :name="icon" :size="24" decorative />
     </div>

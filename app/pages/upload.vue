@@ -166,7 +166,7 @@ useHead({
       </template>
     </PageHeader>
 
-    <div v-if="!drafts.hydrated" class="upload-state">
+    <div v-if="!drafts.hydrated" v-aoi-reveal class="upload-state">
       <AoiProgress indeterminate />
     </div>
 
@@ -183,7 +183,7 @@ useHead({
         />
 
         <template v-else>
-          <section class="upload-panel upload-source">
+          <section v-aoi-reveal="{ variant: 'rise', index: 0 }" class="upload-panel upload-source">
             <div class="upload-panel__title">
               <h2>视频源</h2>
               <span>{{ statusLabel }}</span>
@@ -210,7 +210,7 @@ useHead({
             </div>
           </section>
 
-          <section class="upload-panel">
+          <section v-aoi-reveal="{ variant: 'rise', index: 1 }" class="upload-panel">
             <div class="upload-panel__title">
               <h2>基础信息</h2>
               <span>自动保存 · {{ lastSavedLabel }}</span>
@@ -282,7 +282,7 @@ useHead({
             </div>
           </section>
 
-          <section class="upload-actions" aria-label="投稿草稿操作">
+          <section v-aoi-reveal="{ variant: 'fade', index: 2 }" class="upload-actions" aria-label="投稿草稿操作">
             <AoiButton
               variant="filled"
               icon="send"
@@ -299,7 +299,7 @@ useHead({
       </main>
 
       <aside class="upload-workspace__side">
-        <section class="upload-panel">
+        <section v-aoi-reveal="{ variant: 'slide-left', index: 0 }" class="upload-panel">
           <div class="upload-panel__title">
             <h2>草稿</h2>
             <span>{{ drafts.draftCount }}</span>
@@ -319,7 +319,7 @@ useHead({
           </div>
         </section>
 
-        <section class="upload-panel upload-preview">
+        <section v-aoi-reveal="{ variant: 'slide-left', index: 1 }" class="upload-panel upload-preview">
           <div class="upload-panel__title">
             <h2>发布预检</h2>
             <span>{{ validation.ready ? "可排队" : "未完成" }}</span>

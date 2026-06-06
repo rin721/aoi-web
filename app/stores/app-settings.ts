@@ -1,3 +1,14 @@
+import type {
+  AoiRevealMotionEffect as AoiRevealMotionEffectValue,
+  AoiRevealMotionReplay as AoiRevealMotionReplayValue
+} from "~/utils/aoiReveal"
+import {
+  AOI_REVEAL_DEFAULTS,
+  clampAoiRevealSetting,
+  isAoiRevealMotionEffect,
+  isAoiRevealMotionReplay
+} from "~/utils/aoiReveal"
+
 export type AoiPreferredTheme = "system" | "light" | "dark"
 export type AoiAccentMode = "preset" | "custom"
 export type AoiDataMode = "economy" | "standard" | "turbo"
@@ -44,6 +55,13 @@ interface PersistedAppSettings {
   noSearchRecommendations: boolean
   openVideosInNewTab: boolean
   preferredTheme: AoiPreferredTheme
+  revealMotionDistancePx: number
+  revealMotionDurationMs: number
+  revealMotionEffect: AoiRevealMotionEffectValue
+  revealMotionEnabled: boolean
+  revealMotionMaxDelayMs: number
+  revealMotionReplay: AoiRevealMotionReplayValue
+  revealMotionStaggerMs: number
   selectedCategory: string
   useRelativeDates: boolean
 }
@@ -166,6 +184,13 @@ function emptyState(): PersistedAppSettings {
     noSearchRecommendations: false,
     openVideosInNewTab: false,
     preferredTheme: "system",
+    revealMotionDistancePx: AOI_REVEAL_DEFAULTS.distancePx,
+    revealMotionDurationMs: AOI_REVEAL_DEFAULTS.durationMs,
+    revealMotionEffect: AOI_REVEAL_DEFAULTS.effect,
+    revealMotionEnabled: AOI_REVEAL_DEFAULTS.enabled,
+    revealMotionMaxDelayMs: AOI_REVEAL_DEFAULTS.maxDelayMs,
+    revealMotionReplay: AOI_REVEAL_DEFAULTS.replay,
+    revealMotionStaggerMs: AOI_REVEAL_DEFAULTS.staggerMs,
     selectedCategory: "home",
     useRelativeDates: false
   }
@@ -203,6 +228,13 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     noSearchRecommendations: Boolean(candidate.noSearchRecommendations),
     openVideosInNewTab: Boolean(candidate.openVideosInNewTab),
     preferredTheme: isPreferredTheme(candidate.preferredTheme) ? candidate.preferredTheme : fallback.preferredTheme,
+    revealMotionDistancePx: clampAoiRevealSetting(candidate.revealMotionDistancePx, 0, 48, fallback.revealMotionDistancePx),
+    revealMotionDurationMs: clampAoiRevealSetting(candidate.revealMotionDurationMs, 120, 800, fallback.revealMotionDurationMs),
+    revealMotionEffect: isAoiRevealMotionEffect(candidate.revealMotionEffect) ? candidate.revealMotionEffect : fallback.revealMotionEffect,
+    revealMotionEnabled: typeof candidate.revealMotionEnabled === "boolean" ? candidate.revealMotionEnabled : fallback.revealMotionEnabled,
+    revealMotionMaxDelayMs: clampAoiRevealSetting(candidate.revealMotionMaxDelayMs, 0, 600, fallback.revealMotionMaxDelayMs),
+    revealMotionReplay: isAoiRevealMotionReplay(candidate.revealMotionReplay) ? candidate.revealMotionReplay : fallback.revealMotionReplay,
+    revealMotionStaggerMs: clampAoiRevealSetting(candidate.revealMotionStaggerMs, 0, 120, fallback.revealMotionStaggerMs),
     selectedCategory: typeof candidate.selectedCategory === "string" && candidate.selectedCategory ? candidate.selectedCategory : fallback.selectedCategory,
     useRelativeDates: Boolean(candidate.useRelativeDates)
   }
@@ -392,6 +424,13 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const disableWatchHistory = ref(false)
   const noSearchRecommendations = ref(false)
   const noRelatedVideos = ref(false)
+  const revealMotionEnabled = ref(AOI_REVEAL_DEFAULTS.enabled)
+  const revealMotionEffect = ref<AoiRevealMotionEffectValue>(AOI_REVEAL_DEFAULTS.effect)
+  const revealMotionReplay = ref<AoiRevealMotionReplayValue>(AOI_REVEAL_DEFAULTS.replay)
+  const revealMotionDurationMs = ref(AOI_REVEAL_DEFAULTS.durationMs)
+  const revealMotionDistancePx = ref(AOI_REVEAL_DEFAULTS.distancePx)
+  const revealMotionStaggerMs = ref(AOI_REVEAL_DEFAULTS.staggerMs)
+  const revealMotionMaxDelayMs = ref(AOI_REVEAL_DEFAULTS.maxDelayMs)
 
   const activePreset = computed(() => {
     return AOI_ACCENT_PRESETS.find((preset) => preset.value === accentPreset.value) || DEFAULT_ACCENT_PRESET_OPTION
@@ -435,6 +474,13 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       noSearchRecommendations: noSearchRecommendations.value,
       openVideosInNewTab: openVideosInNewTab.value,
       preferredTheme: preferredTheme.value,
+      revealMotionDistancePx: revealMotionDistancePx.value,
+      revealMotionDurationMs: revealMotionDurationMs.value,
+      revealMotionEffect: revealMotionEffect.value,
+      revealMotionEnabled: revealMotionEnabled.value,
+      revealMotionMaxDelayMs: revealMotionMaxDelayMs.value,
+      revealMotionReplay: revealMotionReplay.value,
+      revealMotionStaggerMs: revealMotionStaggerMs.value,
       selectedCategory: selectedCategory.value,
       useRelativeDates: useRelativeDates.value
     }
@@ -463,6 +509,13 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     noSearchRecommendations.value = state.noSearchRecommendations
     openVideosInNewTab.value = state.openVideosInNewTab
     preferredTheme.value = state.preferredTheme
+    revealMotionDistancePx.value = state.revealMotionDistancePx
+    revealMotionDurationMs.value = state.revealMotionDurationMs
+    revealMotionEffect.value = state.revealMotionEffect
+    revealMotionEnabled.value = state.revealMotionEnabled
+    revealMotionMaxDelayMs.value = state.revealMotionMaxDelayMs
+    revealMotionReplay.value = state.revealMotionReplay
+    revealMotionStaggerMs.value = state.revealMotionStaggerMs
     selectedCategory.value = state.selectedCategory
     useRelativeDates.value = state.useRelativeDates
   }
@@ -580,6 +633,24 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function setRevealMotionEffect(value: AoiRevealMotionEffectValue) {
+    if (!isAoiRevealMotionEffect(value)) {
+      return
+    }
+
+    revealMotionEffect.value = value
+    persist()
+  }
+
+  function setRevealMotionReplay(value: AoiRevealMotionReplayValue) {
+    if (!isAoiRevealMotionReplay(value)) {
+      return
+    }
+
+    revealMotionReplay.value = value
+    persist()
+  }
+
   function setAccentPreset(value: string) {
     if (!isAccentPreset(value)) {
       return
@@ -654,6 +725,13 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     backgroundBlur.value = next.backgroundBlur
     backgroundDim.value = next.backgroundDim
     colorfulNavigation.value = next.colorfulNavigation
+    revealMotionDistancePx.value = next.revealMotionDistancePx
+    revealMotionDurationMs.value = next.revealMotionDurationMs
+    revealMotionEffect.value = next.revealMotionEffect
+    revealMotionEnabled.value = next.revealMotionEnabled
+    revealMotionMaxDelayMs.value = next.revealMotionMaxDelayMs
+    revealMotionReplay.value = next.revealMotionReplay
+    revealMotionStaggerMs.value = next.revealMotionStaggerMs
     await clearBackground()
     persist()
   }
@@ -698,6 +776,13 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       disableWatchHistory,
       noSearchRecommendations,
       noRelatedVideos,
+      revealMotionEnabled,
+      revealMotionEffect,
+      revealMotionReplay,
+      revealMotionDurationMs,
+      revealMotionDistancePx,
+      revealMotionStaggerMs,
+      revealMotionMaxDelayMs,
       selectedCategory
     ], persist, { flush: "sync" })
   }
@@ -733,6 +818,13 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     openVideosInNewTab,
     persist,
     preferredTheme,
+    revealMotionDistancePx,
+    revealMotionDurationMs,
+    revealMotionEffect,
+    revealMotionEnabled,
+    revealMotionMaxDelayMs,
+    revealMotionReplay,
+    revealMotionStaggerMs,
     resetAllAppSettings,
     resetAppearance,
     restore,
@@ -746,6 +838,8 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     setCustomAccent,
     setLocalePreference,
     setPreferredTheme,
+    setRevealMotionEffect,
+    setRevealMotionReplay,
     setSelectedCategory,
     useRelativeDates
   }

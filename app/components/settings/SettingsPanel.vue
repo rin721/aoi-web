@@ -10,7 +10,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <section class="settings-panel">
+  <section v-aoi-reveal="'rise'" class="settings-panel">
     <header class="settings-panel__header">
       <span v-if="icon" class="settings-panel__icon" aria-hidden="true">
         <AoiIcon :name="icon" :size="18" decorative />

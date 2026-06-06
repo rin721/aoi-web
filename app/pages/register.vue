@@ -26,7 +26,7 @@ useHead({
 <template>
   <div class="aoi-page auth-page">
     <section class="auth-shell" aria-labelledby="register-title">
-      <form class="auth-panel" @submit.prevent="submitRegister">
+      <form v-aoi-reveal="'pop'" class="auth-panel" @submit.prevent="submitRegister">
         <p class="auth-panel__eyebrow">Aoi Account</p>
         <h1 id="register-title">创建账号</h1>
         <p class="auth-panel__description">

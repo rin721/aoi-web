@@ -58,12 +58,12 @@ useHead(() => ({
       @action="navigateTo('/search')"
     />
 
-    <div v-else-if="pending" class="creator-profile-state">
+    <div v-else-if="pending" v-aoi-reveal class="creator-profile-state">
       <AoiProgress indeterminate />
     </div>
 
     <article v-else-if="creator" class="creator-profile">
-      <section class="creator-profile__hero">
+      <section v-aoi-reveal="'rise'" class="creator-profile__hero">
         <div class="creator-profile__avatar" aria-hidden="true">
           {{ creator.displayName.slice(0, 1).toUpperCase() }}
         </div>
@@ -120,7 +120,7 @@ useHead(() => ({
         </dl>
       </section>
 
-      <section v-if="creator.categories.length" class="creator-profile__tags" aria-label="常见分区">
+      <section v-if="creator.categories.length" v-aoi-reveal="'fade'" class="creator-profile__tags" aria-label="常见分区">
         <AoiLink
           v-for="category in creator.categories"
           :key="category.id"
@@ -131,7 +131,7 @@ useHead(() => ({
         </AoiLink>
       </section>
 
-      <section class="creator-profile__videos" aria-labelledby="creator-videos-title">
+      <section v-aoi-reveal="'rise'" class="creator-profile__videos" aria-labelledby="creator-videos-title">
         <h2 id="creator-videos-title">最新投稿</h2>
         <VideoGrid v-if="creator.latest.items.length" :videos="creator.latest.items" />
         <PageState

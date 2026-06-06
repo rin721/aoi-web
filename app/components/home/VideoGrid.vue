@@ -8,12 +8,17 @@ defineProps<{
 
 <template>
   <div class="video-grid">
-    <VideoCard
+    <AoiReveal
       v-for="(video, index) in videos"
       :key="video.id"
-      :video="video"
+      class="video-grid__item"
       :index="index"
-    />
+    >
+      <VideoCard
+        :video="video"
+        :index="index"
+      />
+    </AoiReveal>
   </div>
 </template>
 
@@ -22,6 +27,10 @@ defineProps<{
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
   gap: 18px 16px;
+}
+
+.video-grid__item {
+  min-width: 0;
 }
 
 @media (max-width: 639px) {

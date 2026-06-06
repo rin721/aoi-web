@@ -85,7 +85,7 @@ useHead(() => ({
       @action="navigateTo('/')"
     />
 
-    <div v-else-if="pending" class="video-detail-state">
+    <div v-else-if="pending" v-aoi-reveal class="video-detail-state">
       <AoiProgress indeterminate />
     </div>
 
@@ -120,9 +120,11 @@ useHead(() => ({
             </template>
           </PageHeader>
 
-          <VideoMeta :video="video" link-uploader />
+          <AoiReveal variant="fade">
+            <VideoMeta :video="video" link-uploader />
+          </AoiReveal>
 
-          <div class="video-detail__actions" aria-label="本地互动操作">
+          <div v-aoi-reveal="'rise'" class="video-detail__actions" aria-label="本地互动操作">
             <AoiButton
               :variant="isFavorite ? 'tonal' : 'outlined'"
               icon="star"
@@ -143,7 +145,7 @@ useHead(() => ({
             </AoiButton>
           </div>
 
-          <div class="video-detail__tags" aria-label="标签">
+          <div v-aoi-reveal="'fade'" class="video-detail__tags" aria-label="标签">
             <AoiLink
               v-for="tag in video.tags"
               :key="tag"
@@ -154,7 +156,7 @@ useHead(() => ({
             </AoiLink>
           </div>
 
-          <section class="video-detail__comments" aria-label="本地讨论区">
+          <section v-aoi-reveal="'rise'" class="video-detail__comments" aria-label="本地讨论区">
             <CommentComposer
               v-model:author-name="commentAuthorName"
               :disabled="!comments.hydrated"
@@ -170,7 +172,7 @@ useHead(() => ({
           </section>
         </div>
 
-        <aside class="video-detail__side" aria-labelledby="related-title">
+        <aside v-aoi-reveal="'slide-left'" class="video-detail__side" aria-labelledby="related-title">
           <h2 id="related-title" class="video-detail__side-title">相关推荐</h2>
           <VideoGrid :videos="video.related" />
         </aside>

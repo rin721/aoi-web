@@ -94,6 +94,10 @@
   --aoi-z-cursor: 140;
   --aoi-motion-fast: 120ms;
   --aoi-motion-base: 220ms;
+  --aoi-motion-slow: 360ms;
+  --aoi-reveal-distance-sm: 10px;
+  --aoi-reveal-distance-md: 18px;
+  --aoi-reveal-distance-lg: 28px;
   --aoi-ease-out: cubic-bezier(.19, 1, .22, 1);
   --aoi-ease-press: cubic-bezier(.2, 0, .2, 1);
 

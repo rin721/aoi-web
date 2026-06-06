@@ -7,7 +7,7 @@ defineProps<{
 </script>
 
 <template>
-  <section v-if="announcement" class="notice" aria-labelledby="notice-title">
+  <section v-if="announcement" v-aoi-reveal="'rise'" class="notice" aria-labelledby="notice-title">
     <div class="notice__icon" aria-hidden="true">
       <AoiIcon name="info" :size="16" decorative />
     </div>

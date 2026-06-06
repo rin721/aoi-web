@@ -43,17 +43,22 @@ useHead({
       @action="refresh()"
     />
 
-    <div v-else-if="pending" class="category-loading">
+    <div v-else-if="pending" v-aoi-reveal class="category-loading">
       <AoiProgress indeterminate />
     </div>
 
     <div v-else class="category-grid">
-      <CategoryCard
-        v-for="category in data.categories"
+      <AoiReveal
+        v-for="(category, index) in data.categories"
         :key="category.id"
-        :category="category"
-        :count="countFor(category.slug)"
-      />
+        class="category-card-reveal"
+        :index="index"
+      >
+        <CategoryCard
+          :category="category"
+          :count="countFor(category.slug)"
+        />
+      </AoiReveal>
     </div>
   </div>
 </template>
@@ -63,6 +68,10 @@ useHead({
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 14px;
+}
+
+.category-card-reveal {
+  min-width: 0;
 }
 
 .category-loading {

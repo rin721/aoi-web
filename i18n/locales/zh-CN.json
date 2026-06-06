@@ -83,6 +83,97 @@
           "description": "强化辨识"
         }
       }
+    },
+    "preference": {
+      "reveal": {
+        "title": "弹入响应",
+        "description": "调节内容面板、卡片和列表进入视口时的弹入节奏。",
+        "enabledTitle": "启用弹入响应",
+        "enabledDescription": "关闭后，所有弹入内容会立即可见，不再执行入场动画。",
+        "effectTitle": "效果策略",
+        "effectDescription": "选择保留模块自身效果，或用统一效果覆盖全站弹入。",
+        "effectLabel": "弹入效果",
+        "effect": {
+          "contextual": "跟随场景",
+          "pop": "弹入",
+          "rise": "上浮",
+          "fade": "淡入",
+          "slideLeft": "左滑",
+          "slideRight": "右滑"
+        },
+        "replayTitle": "触发方式",
+        "replayDescription": "控制内容滚出后再次进入视口时是否重新播放。",
+        "replay": {
+          "repeat": {
+            "label": "重复",
+            "description": "再次进入时重播"
+          },
+          "once": {
+            "label": "一次",
+            "description": "首次进入后保持可见"
+          }
+        },
+        "durationTitle": "持续时间",
+        "durationLabel": "持续时间",
+        "distanceTitle": "位移距离",
+        "distanceLabel": "位移距离",
+        "staggerTitle": "列表错峰",
+        "staggerLabel": "错峰",
+        "maxDelayTitle": "最大延迟",
+        "maxDelayLabel": "最大延迟"
+      }
+    },
+    "experimental": {
+      "title": "实验",
+      "description": "在进入正式业务流前，先试用可复用的界面能力。",
+      "lightbox": {
+        "title": "灯箱画廊",
+        "description": "预览 Aoi 可复用灯箱：图片、视频控件、缩略图、键盘导航与触控手势都在这里验证。",
+        "items": {
+          "sunflower": {
+            "title": "向日葵界面稿",
+            "description": "用于检查缩放、拖拽、说明文字和缩略图焦点的暖色图片占位。",
+            "alt": "向日葵色调的抽象图片"
+          },
+          "sakura": {
+            "title": "樱色强调画面",
+            "description": "用于测试深色灯箱表面里的柔和色彩平衡。",
+            "alt": "樱色调的抽象图片"
+          },
+          "video": {
+            "title": "本地视频预览",
+            "description": "使用仓库自带示例视频验证播放、进度、音量、静音和全屏控制。",
+            "alt": "本地示例视频"
+          },
+          "night": {
+            "title": "夜间对比测试",
+            "description": "用于检查说明文字对比度和 reduced-motion 行为的深色图片占位。",
+            "alt": "深色抽象图片"
+          }
+        }
+      }
     }
+  },
+  "lightbox": {
+    "close": "关闭",
+    "counter": "{current} / {total}",
+    "empty": "没有可预览的媒体。",
+    "first": "第一项",
+    "fullscreen": "全屏",
+    "imageError": "图片加载失败。",
+    "last": "最后一项",
+    "loading": "正在加载媒体",
+    "media": "画廊媒体",
+    "mute": "静音",
+    "next": "下一项",
+    "pause": "暂停",
+    "play": "播放",
+    "previous": "上一项",
+    "resetZoom": "重置缩放",
+    "unmute": "取消静音",
+    "videoError": "视频加载失败。",
+    "volume": "音量",
+    "zoomIn": "放大",
+    "zoomOut": "缩小"
   }
 }

@@ -28,7 +28,7 @@ useHead({
       @action="refresh()"
     />
 
-    <div v-else-if="pending" class="following-state">
+    <div v-else-if="pending" v-aoi-reveal class="following-state">
       <AoiProgress indeterminate />
     </div>
 
@@ -45,6 +45,7 @@ useHead({
 
       <section
         v-if="following.hydrated && following.followedList.length"
+        v-aoi-reveal="'rise'"
         class="following-section"
         aria-labelledby="local-following-title"
       >
@@ -56,16 +57,20 @@ useHead({
           <AoiButton variant="outlined" size="sm" icon="settings" to="/settings">管理缓存</AoiButton>
         </div>
         <div class="following-creators">
-          <CreatorCard
-            v-for="creator in following.followedList"
+          <AoiReveal
+            v-for="(creator, index) in following.followedList"
             :key="creator.id"
-            :creator="creator"
-          />
+            class="following-card-reveal"
+            :index="index"
+          >
+            <CreatorCard :creator="creator" />
+          </AoiReveal>
         </div>
       </section>
 
       <section
         v-if="following.hydrated && following.latestVideos.length"
+        v-aoi-reveal="'rise'"
         class="following-section"
         aria-labelledby="local-following-latest-title"
       >
@@ -75,7 +80,7 @@ useHead({
         <VideoGrid :videos="following.latestVideos" />
       </section>
 
-      <section v-if="recommendedCreators.length" class="following-section" aria-labelledby="following-creators-title">
+      <section v-if="recommendedCreators.length" v-aoi-reveal="'rise'" class="following-section" aria-labelledby="following-creators-title">
         <div class="following-section__header">
           <div>
             <h2 id="following-creators-title">推荐创作者</h2>
@@ -84,15 +89,18 @@ useHead({
           <AoiButton variant="outlined" size="sm" icon="search" to="/search">探索更多</AoiButton>
         </div>
         <div class="following-creators">
-          <CreatorCard
-            v-for="creator in recommendedCreators"
+          <AoiReveal
+            v-for="(creator, index) in recommendedCreators"
             :key="creator.id"
-            :creator="creator"
-          />
+            class="following-card-reveal"
+            :index="index"
+          >
+            <CreatorCard :creator="creator" />
+          </AoiReveal>
         </div>
       </section>
 
-      <section v-if="feed.latest.items.length" class="following-section" aria-labelledby="following-latest-title">
+      <section v-if="feed.latest.items.length" v-aoi-reveal="'rise'" class="following-section" aria-labelledby="following-latest-title">
         <div class="following-section__header">
           <h2 id="following-latest-title">推荐更新</h2>
         </div>
@@ -149,6 +157,10 @@ useHead({
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 12px;
+}
+
+.following-card-reveal {
+  min-width: 0;
 }
 
 @media (max-width: 639px) {

@@ -3,7 +3,7 @@ const { t } = useI18n()
 </script>
 
 <template>
-  <section class="brand-band" aria-label="Aoi 品牌区域">
+  <section v-aoi-reveal="'rise'" class="brand-band" aria-label="Aoi 品牌区域">
     <div class="brand-band__inner">
       <div>
         <h1 class="brand-band__title">{{ t("app.name") }}</h1>

@@ -31,6 +31,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     root.dataset.aoiContrast = settings.appearanceContrast
     root.dataset.aoiDataMode = settings.dataMode
     root.dataset.aoiDensity = settings.appearanceDensity
+    root.dataset.aoiRevealEffect = settings.revealMotionEffect
+    root.dataset.aoiRevealMotion = settings.revealMotionEnabled ? "enabled" : "disabled"
+    root.dataset.aoiRevealReplay = settings.revealMotionReplay
     root.dataset.aoiShape = settings.appearanceShape
     root.dataset.aoiSize = settings.appearanceSize
 
@@ -43,6 +46,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     style.setProperty("--aoi-user-bg-opacity", settings.backgroundObjectUrl ? String(settings.backgroundOpacity) : "0")
     style.setProperty("--aoi-user-bg-blur", `${settings.backgroundBlur}px`)
     style.setProperty("--aoi-user-bg-dim", String(settings.backgroundObjectUrl ? settings.backgroundDim : 0))
+    style.setProperty("--aoi-reveal-duration-setting", `${settings.revealMotionDurationMs}ms`)
+    style.setProperty("--aoi-reveal-distance-setting", `${settings.revealMotionDistancePx}px`)
+    style.setProperty("--aoi-reveal-stagger-setting", `${settings.revealMotionStaggerMs}ms`)
+    style.setProperty("--aoi-reveal-max-delay-setting", `${settings.revealMotionMaxDelayMs}ms`)
   }
 
   onNuxtReady(async () => {
@@ -69,7 +76,14 @@ export default defineNuxtPlugin((nuxtApp) => {
       settings.backgroundObjectUrl,
       settings.backgroundOpacity,
       settings.backgroundBlur,
-      settings.backgroundDim
+      settings.backgroundDim,
+      settings.revealMotionEnabled,
+      settings.revealMotionEffect,
+      settings.revealMotionReplay,
+      settings.revealMotionDurationMs,
+      settings.revealMotionDistancePx,
+      settings.revealMotionStaggerMs,
+      settings.revealMotionMaxDelayMs
     ], applySettings)
     prefersDark.addEventListener("change", applySettings)
   })

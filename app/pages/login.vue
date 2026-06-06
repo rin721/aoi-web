@@ -23,7 +23,7 @@ useHead({
     <section class="auth-shell" aria-labelledby="login-title">
       <AuthMotionVisual title="Login" />
 
-      <form class="auth-panel" @submit.prevent="submitLogin">
+      <form v-aoi-reveal="'pop'" class="auth-panel" @submit.prevent="submitLogin">
         <p class="auth-panel__eyebrow">Aoi Account</p>
         <h1 id="login-title">登录 Aoi</h1>
         <p class="auth-panel__description">

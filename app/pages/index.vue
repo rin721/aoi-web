@@ -40,7 +40,7 @@ useHead({
 
       <AnnouncementStrip :announcement="announcement" />
 
-      <section aria-labelledby="latest-title">
+      <section v-aoi-reveal="'rise'" aria-labelledby="latest-title">
         <div class="home-section-head">
           <h2 id="latest-title" class="home-section-title">
             {{ t("home.latest") }}
@@ -52,16 +52,16 @@ useHead({
           </div>
         </div>
 
-        <div v-if="pending" class="home-state">
+        <div v-if="pending" v-aoi-reveal class="home-state">
           <AoiProgress type="linear" indeterminate />
         </div>
 
-        <div v-else-if="error" class="home-state home-state--error">
+        <div v-else-if="error" v-aoi-reveal class="home-state home-state--error">
           <p>内容加载失败。</p>
           <AoiButton variant="tonal" icon="refresh-cw" @click="refresh()">重试</AoiButton>
         </div>
 
-        <div v-else-if="videos.length === 0" class="home-state">
+        <div v-else-if="videos.length === 0" v-aoi-reveal class="home-state">
           <p>该分类暂时没有内容。</p>
           <AoiButton variant="tonal" icon="rotate-ccw" @click="selectCategory('home')">返回首页</AoiButton>
         </div>

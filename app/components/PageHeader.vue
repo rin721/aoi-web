@@ -12,7 +12,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <header class="page-header">
+  <header v-aoi-reveal="'rise'" class="page-header">
     <div v-if="icon" class="page-header__icon" aria-hidden="true">
       <AoiIcon :name="icon" :size="22" decorative />
     </div>

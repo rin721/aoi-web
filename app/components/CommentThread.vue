@@ -56,13 +56,19 @@ const sortOptions = [
     />
 
     <div v-else class="comment-thread__list">
-      <CommentItem
-        v-for="comment in comments"
+      <AoiReveal
+        v-for="(comment, index) in comments"
         :key="comment.id"
-        :comment="comment"
-        @delete="emit('delete', $event)"
-        @edit="(commentId, body) => emit('edit', commentId, body)"
-      />
+        class="comment-thread__item"
+        :index="index"
+        variant="rise"
+      >
+        <CommentItem
+          :comment="comment"
+          @delete="emit('delete', $event)"
+          @edit="(commentId, body) => emit('edit', commentId, body)"
+        />
+      </AoiReveal>
     </div>
   </section>
 </template>
@@ -106,6 +112,10 @@ const sortOptions = [
 .comment-thread__list {
   display: grid;
   gap: 10px;
+}
+
+.comment-thread__item {
+  min-width: 0;
 }
 
 @media (max-width: 620px) {

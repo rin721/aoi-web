@@ -83,6 +83,97 @@
           "description": "視認性強化"
         }
       }
+    },
+    "preference": {
+      "reveal": {
+        "title": "ポップイン反応",
+        "description": "コンテンツパネル、カード、リストが表示領域に入るときの動きを調整します。",
+        "enabledTitle": "ポップイン反応を有効化",
+        "enabledDescription": "オフにすると、対象コンテンツはアニメーションせずすぐに表示されます。",
+        "effectTitle": "効果",
+        "effectDescription": "各モジュールの効果を保つか、全体で同じ効果に統一します。",
+        "effectLabel": "ポップイン効果",
+        "effect": {
+          "contextual": "コンテキスト",
+          "pop": "ポップ",
+          "rise": "ライズ",
+          "fade": "フェード",
+          "slideLeft": "左スライド",
+          "slideRight": "右スライド"
+        },
+        "replayTitle": "再生方式",
+        "replayDescription": "スクロールで再び表示領域に入ったときに動きを再生するかを制御します。",
+        "replay": {
+          "repeat": {
+            "label": "繰り返し",
+            "description": "再表示時に再生"
+          },
+          "once": {
+            "label": "一度だけ",
+            "description": "初回表示後は維持"
+          }
+        },
+        "durationTitle": "継続時間",
+        "durationLabel": "継続時間",
+        "distanceTitle": "移動距離",
+        "distanceLabel": "移動距離",
+        "staggerTitle": "リスト間隔",
+        "staggerLabel": "間隔",
+        "maxDelayTitle": "最大遅延",
+        "maxDelayLabel": "最大遅延"
+      }
+    },
+    "experimental": {
+      "title": "実験",
+      "description": "正式なプロダクト導線へ入れる前に、再利用できる UI 機能を試します。",
+      "lightbox": {
+        "title": "ライトボックスギャラリー",
+        "description": "画像、動画コントロール、サムネイル、キーボード操作、タッチジェスチャーを備えた Aoi の再利用ライトボックスを確認します。",
+        "items": {
+          "sunflower": {
+            "title": "ひまわり UI スタディ",
+            "description": "ズーム、ドラッグ、キャプション、サムネイルのフォーカス確認に使う暖色の画像プレースホルダーです。",
+            "alt": "ひまわり色の抽象画像"
+          },
+          "sakura": {
+            "title": "桜色アクセントフレーム",
+            "description": "暗いライトボックス面で柔らかな色のバランスを確認する画像項目です。",
+            "alt": "桜色の抽象画像"
+          },
+          "video": {
+            "title": "ローカル動画プレビュー",
+            "description": "同梱サンプル動画で再生、シーク、音量、ミュート、全画面コントロールを確認します。",
+            "alt": "ローカルサンプル動画"
+          },
+          "night": {
+            "title": "夜間コントラスト確認",
+            "description": "キャプションのコントラストと reduced-motion の挙動を確認する暗色の画像プレースホルダーです。",
+            "alt": "暗色の抽象画像"
+          }
+        }
+      }
     }
+  },
+  "lightbox": {
+    "close": "閉じる",
+    "counter": "{current} / {total}",
+    "empty": "プレビューできるメディアがありません。",
+    "first": "最初の項目",
+    "fullscreen": "全画面",
+    "imageError": "画像を読み込めませんでした。",
+    "last": "最後の項目",
+    "loading": "メディアを読み込み中",
+    "media": "ギャラリーメディア",
+    "mute": "ミュート",
+    "next": "次の項目",
+    "pause": "一時停止",
+    "play": "再生",
+    "previous": "前の項目",
+    "resetZoom": "ズームをリセット",
+    "unmute": "ミュート解除",
+    "videoError": "動画を読み込めませんでした。",
+    "volume": "音量",
+    "zoomIn": "拡大",
+    "zoomOut": "縮小"
   }
 }

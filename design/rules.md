@@ -62,6 +62,14 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 - Prefer `transform` and opacity for motion. Horizontal and vertical movement should use `translate3d(...)` for card hover, fixed navigation feedback, and reusable motion scenes.
 - Apply `will-change: transform` only to elements that actually animate or move, and reset it under reduced-motion where practical.
 - Avoid creating persistent extra compositor layers for static decoration or large page sections.
+- Use `AoiReveal` or `v-aoi-reveal` for reusable viewport pop-in motion. Content must remain visible before client hydration and when `IntersectionObserver` is unavailable.
+- Prefer `AoiReveal` wrappers for cards or controls that already use `transform` for hover/press states. Use `v-aoi-reveal` on ordinary sections, panels, toolbars, and state blocks.
+- Do not mix reveal transforms and hover/press transforms on the same element. Keep fixed navigation, menus, dialogs, loading layers, and other overlays outside reveal motion unless a wrapper specifically handles stacking and transform side effects.
+- Repeated grids and lists should use reveal `index`/`stagger` sparingly so the UI feels responsive without delaying content access.
+- Reveal motion is globally configurable from Settings / Preference. Defaults are enabled, contextual effect, repeat replay, 360ms duration, 18px distance, 35ms stagger, and 280ms max delay.
+- Reveal setting ranges are duration 120-800ms, distance 0-48px, stagger 0-120ms, and max delay 0-600ms. Keep these bounds in the settings store and UI controls.
+- When global reveal effect is contextual, local component/directive variants decide the effect. When a concrete global effect is selected, it overrides local reveal variants across the app.
+- Disabling reveal motion must make reveal-enabled content immediately visible with no hidden state, transform offset, or visual transition. Do not expose engineering-only `rootMargin` or `threshold` controls in user settings.
 
 ## Data And API Rules
 

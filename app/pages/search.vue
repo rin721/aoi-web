@@ -107,7 +107,7 @@ useHead(() => ({
       description="搜索视频、创作者、标签或分类。当前结果来自 Nuxt mock API。"
     />
 
-    <div class="search-toolbar">
+    <div v-aoi-reveal="'rise'" class="search-toolbar">
       <AoiTextField
         v-model="query"
         label="搜索关键词"
@@ -135,7 +135,7 @@ useHead(() => ({
       @action="refresh()"
     />
 
-    <div v-else-if="pending" class="search-state">
+    <div v-else-if="pending" v-aoi-reveal class="search-state">
       <AoiProgress indeterminate />
     </div>
 
@@ -146,7 +146,7 @@ useHead(() => ({
       :description="`没有匹配「${submittedQuery}」的内容。`"
     />
 
-    <section v-else class="search-results" aria-labelledby="search-results-title">
+    <section v-else v-aoi-reveal="'rise'" class="search-results" aria-labelledby="search-results-title">
       <div class="search-results__header">
         <h2 id="search-results-title" class="result-title">
           搜索结果
@@ -181,11 +181,14 @@ useHead(() => ({
           <span>{{ creators.length }}</span>
         </div>
         <div class="creator-grid">
-          <CreatorCard
-            v-for="creator in creators"
+          <AoiReveal
+            v-for="(creator, index) in creators"
             :key="creator.id"
-            :creator="creator"
-          />
+            class="result-card-reveal"
+            :index="index"
+          >
+            <CreatorCard :creator="creator" />
+          </AoiReveal>
         </div>
       </section>
 
@@ -199,11 +202,14 @@ useHead(() => ({
           <span>{{ categories.length }}</span>
         </div>
         <div class="category-grid">
-          <CategoryCard
-            v-for="category in categories"
+          <AoiReveal
+            v-for="(category, index) in categories"
             :key="category.id"
-            :category="category"
-          />
+            class="result-card-reveal"
+            :index="index"
+          >
+            <CategoryCard :category="category" />
+          </AoiReveal>
         </div>
       </section>
     </section>
@@ -277,6 +283,10 @@ useHead(() => ({
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   gap: 12px;
+}
+
+.result-card-reveal {
+  min-width: 0;
 }
 
 .search-results__header :deep(.aoi-tabs) {

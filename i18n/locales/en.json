@@ -83,6 +83,97 @@
           "description": "Sharper states"
         }
       }
+    },
+    "preference": {
+      "reveal": {
+        "title": "Reveal motion",
+        "description": "Tune how content panels, cards, and lists pop into view while browsing.",
+        "enabledTitle": "Enable reveal motion",
+        "enabledDescription": "Turn off to keep reveal-enabled content immediately visible.",
+        "effectTitle": "Effect",
+        "effectDescription": "Choose whether each module keeps its local effect or uses one global style.",
+        "effectLabel": "Reveal effect",
+        "effect": {
+          "contextual": "Contextual",
+          "pop": "Pop",
+          "rise": "Rise",
+          "fade": "Fade",
+          "slideLeft": "Slide left",
+          "slideRight": "Slide right"
+        },
+        "replayTitle": "Replay",
+        "replayDescription": "Control whether reveal motion repeats when content re-enters the viewport.",
+        "replay": {
+          "repeat": {
+            "label": "Repeat",
+            "description": "Replay on re-entry"
+          },
+          "once": {
+            "label": "Once",
+            "description": "Keep visible after first entry"
+          }
+        },
+        "durationTitle": "Duration",
+        "durationLabel": "Duration",
+        "distanceTitle": "Distance",
+        "distanceLabel": "Distance",
+        "staggerTitle": "List stagger",
+        "staggerLabel": "Stagger",
+        "maxDelayTitle": "Max delay",
+        "maxDelayLabel": "Max delay"
+      }
+    },
+    "experimental": {
+      "title": "Experiments",
+      "description": "Try reusable interface patterns before they move into product flows.",
+      "lightbox": {
+        "title": "Lightbox gallery",
+        "description": "Preview the reusable Aoi lightbox with images, video controls, thumbnails, keyboard navigation, and touch gestures.",
+        "items": {
+          "sunflower": {
+            "title": "Sunflower interface study",
+            "description": "A warm image placeholder for checking zoom, pan, captions, and thumbnail focus.",
+            "alt": "Sunflower-toned abstract image"
+          },
+          "sakura": {
+            "title": "Sakura accent frame",
+            "description": "A softer image item for testing color balance inside the dark lightbox surface.",
+            "alt": "Sakura-toned abstract image"
+          },
+          "video": {
+            "title": "Local video preview",
+            "description": "The bundled sample video exercises custom playback, seek, volume, mute, and fullscreen controls.",
+            "alt": "Local sample video"
+          },
+          "night": {
+            "title": "Night mode contrast",
+            "description": "A darker image placeholder for checking caption contrast and reduced-motion behavior.",
+            "alt": "Dark abstract image"
+          }
+        }
+      }
     }
+  },
+  "lightbox": {
+    "close": "Close",
+    "counter": "{current} / {total}",
+    "empty": "No media available.",
+    "first": "First item",
+    "fullscreen": "Fullscreen",
+    "imageError": "Image failed to load.",
+    "last": "Last item",
+    "loading": "Loading media",
+    "media": "Gallery media",
+    "mute": "Mute",
+    "next": "Next item",
+    "pause": "Pause",
+    "play": "Play",
+    "previous": "Previous item",
+    "resetZoom": "Reset zoom",
+    "unmute": "Unmute",
+    "videoError": "Video failed to load.",
+    "volume": "Volume",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out"
   }
 }

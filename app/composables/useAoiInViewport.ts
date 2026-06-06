@@ -4,7 +4,7 @@ export interface AoiInViewportOptions {
   root?: AoiMaybeRef<Element | null | undefined>
   rootMargin?: string
   threshold?: number | number[]
-  once?: boolean
+  once?: AoiMaybeRef<boolean>
   disabled?: AoiMaybeRef<boolean>
 }
 
@@ -77,7 +77,7 @@ export function useAoiInViewport(
       if (nextEntry.isIntersecting) {
         hasIntersected.value = true
 
-        if (options.once !== false) {
+        if (readValue(options.once) !== false) {
           stop()
         }
       }
@@ -96,7 +96,7 @@ export function useAoiInViewport(
     readValue(options.disabled),
     options.rootMargin,
     JSON.stringify(options.threshold ?? 0),
-    options.once
+    readValue(options.once)
   ], () => {
     void nextTick(observe)
   }, {

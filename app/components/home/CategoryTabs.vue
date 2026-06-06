@@ -23,7 +23,7 @@ function change(value: string) {
 </script>
 
 <template>
-  <div class="category-tabs">
+  <div v-aoi-reveal="'fade'" class="category-tabs">
     <AoiTabs
       :model-value="modelValue"
       :items="tabItems"

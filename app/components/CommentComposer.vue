@@ -43,7 +43,7 @@ function submitComment() {
 </script>
 
 <template>
-  <form class="comment-composer" @submit.prevent="submitComment">
+  <form v-aoi-reveal="'rise'" class="comment-composer" @submit.prevent="submitComment">
     <div class="comment-composer__fields">
       <AoiTextField
         v-model="localAuthorName"

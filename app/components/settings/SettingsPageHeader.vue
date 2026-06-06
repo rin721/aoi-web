@@ -8,7 +8,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <header class="settings-page-header">
+  <header v-aoi-reveal="'rise'" class="settings-page-header">
     <h1>{{ title }}</h1>
     <p v-if="description">{{ description }}</p>
   </header>

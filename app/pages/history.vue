@@ -64,15 +64,18 @@ useHead({
       </template>
     </PageHeader>
 
-    <div v-if="!library.hydrated" class="history-state">
+    <div v-if="!library.hydrated" v-aoi-reveal class="history-state">
       <AoiProgress indeterminate />
     </div>
 
     <section v-else-if="hasHistory" class="history-grid" aria-label="最近观看">
-      <article
+      <AoiReveal
         v-for="(entry, index) in entries"
         :key="entry.video.id"
+        tag="article"
         class="history-entry"
+        :index="index"
+        variant="rise"
       >
         <div class="history-entry__meta">
           <span class="history-entry__time">
@@ -85,7 +88,7 @@ useHead({
           <span :style="{ width: `${progressPercent(entry)}%` }" />
         </div>
         <VideoCard :video="entry.video" :index="index" />
-      </article>
+      </AoiReveal>
     </section>
 
     <PageState
