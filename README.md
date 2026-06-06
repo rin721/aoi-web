@@ -1,18 +1,28 @@
-# Aoi Web
+# 项目代号 ｢<ruby>Aoi<rp>（</rp><rt>[深作葵](https://www.anisearch.com/character/43848,aoi-fukasaku)</rt><rp>）</rp></ruby>｣
 
 Aoi Web 是一个 Nuxt 4 前端优先的视频社区应用。项目使用 Vue 3、TypeScript、Pinia、`@nuxtjs/i18n`、`@nuxt/icon`，并通过本地 Aoi wrapper 统一封装 Material Web 组件。
 
 当前应用以 Nuxt mock API 和浏览器本地状态为主，覆盖首页发现、分类浏览、搜索、关注动态、视频播放、用户页、历史/收藏、上传草稿和设置中心等前端体验；共享 DTO 与 mock fixture 会尽量贴近未来 Go 后端契约。
 
-## 技术栈
+## IDE
 
-- Nuxt 4 / Vue 3 / TypeScript
-- Pinia 状态管理
-- `@nuxtjs/i18n` 国际化，默认语言为 `zh-CN`
-- `@nuxt/icon`，本地 Lucide 图标集合
-- Material Web，经 `app/components/aoi/` 中的 Aoi 组件封装后使用
-- Tiptap 富文本编辑器
-- Lenis 滚动体验与 NProgress 路由进度反馈
+建议使用以下任意平台进行开发：
+
+[![VSCode](https://img.shields.io/badge/-Visual%20Studio%20Code-007ACC?style=flat-square&logo=visual-studio-code&logoColor=white)](https://code.visualstudio.com/)
+
+## 使用技术
+
+前端开发中所使用了的技术栈有：
+
+[![Nuxt](https://img.shields.io/badge/-Nuxt-00DC82?style=flat-square&logo=nuxt&logoColor=white)](https://nuxt.com/)
+[![Vue](https://img.shields.io/badge/-Vue-4FC08D?style=flat-square&logo=vue.js&logoColor=white)](https://vuejs.org/)
+[![Vite](https://img.shields.io/badge/-Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Pinia](https://img.shields.io/badge/-Pinia-FFDD5F?style=flat-square&logo=vitest&logoColor=black)](https://pinia.vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Material Web](https://img.shields.io/badge/-Material%20Web-000000?style=flat-square&logo=material-design&logoColor=white)](https://github.com/material-components/material-web)
+[![I18n](https://img.shields.io/badge/-I18n-FF6F61?style=flat-square&logo=internationalization&logoColor=white)](https://www.i18next.com/)
+[![ESLint](https://img.shields.io/badge/-ESLint-4B32C3?style=flat-square&logo=eslint&logoColor=white)](https://eslint.org/)
+[![pnpm](https://img.shields.io/badge/-pnpm-F69220?style=flat-square&logo=pnpm&logoColor=white)](https://www.npmjs.com/)
 
 ## 快速开始
 
@@ -86,6 +96,19 @@ Nuxt public runtime config 支持以下环境变量：
 - 修改 Nuxt 配置、server route、runtime config 或构建敏感模块后，运行 `pnpm build`。
 - 可见 UI 变更应尽量在浏览器中检查桌面和移动端表现。
 - 除非后续新增脚本或明确提供命令，不要声称已经完成 lint 验证。
+
+## 测试用浏览器
+
+[![Google Chrome](https://img.shields.io/badge/-Google%20Chrome-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)](https://www.google.cn/chrome/index.html)
+[![Microsoft Edge](https://img.shields.io/badge/-Microsoft%20Edge-0078D7?style=for-the-badge&logo=microsoft-edge&logoColor=white)](https://www.microsoft.com/edge/download)
+
+## 格式规范
+
+* **缩进：** 2 Spaces (当前项目配置) / TAB (模板建议)
+* **行尾：** LF
+* **引号：** 双引号
+* **文件末尾**加空行
+* **Vue API 风格：** 组合式 (Composition API)
 
 ## 贡献者
 
