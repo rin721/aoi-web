@@ -157,6 +157,36 @@
       }
     },
     "preference": {
+      "routeProgress": {
+        "title": "Route progress bar",
+        "description": "Use NProgress for route navigation feedback while keeping Nuxt's built-in loading lifecycle.",
+        "enabledTitle": "Enable route progress",
+        "enabledDescription": "Show a slim loading bar during page navigation.",
+        "trickleTitle": "Automatic trickle",
+        "trickleDescription": "Let NProgress slowly advance while the next page is still loading.",
+        "spinnerTitle": "Show spinner",
+        "spinnerDescription": "Display the optional NProgress spinner in the top-right corner.",
+        "easingTitle": "Easing",
+        "easingDescription": "Choose the transition curve used by the progress bar.",
+        "easingLabel": "Progress easing",
+        "easing": {
+          "linear": "Linear",
+          "ease": "Ease",
+          "easeIn": "Ease in",
+          "easeOut": "Ease out",
+          "easeInOut": "Ease in-out"
+        },
+        "minimumTitle": "Initial progress",
+        "minimumLabel": "Initial progress",
+        "delayTitle": "Display delay",
+        "delayLabel": "Display delay",
+        "speedTitle": "Animation speed",
+        "speedLabel": "Animation speed",
+        "trickleSpeedTitle": "Trickle interval",
+        "trickleSpeedLabel": "Trickle interval",
+        "heightTitle": "Bar height",
+        "heightLabel": "Bar height"
+      },
       "reveal": {
         "title": "Reveal motion",
         "description": "Tune how content panels, cards, and lists pop into view while browsing.",

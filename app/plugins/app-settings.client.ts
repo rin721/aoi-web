@@ -37,6 +37,8 @@ export default defineNuxtPlugin((nuxtApp) => {
     root.dataset.aoiRevealEffect = settings.revealMotionEffect
     root.dataset.aoiRevealMotion = settings.revealMotionEnabled ? "enabled" : "disabled"
     root.dataset.aoiRevealReplay = settings.revealMotionReplay
+    root.dataset.aoiRouteProgress = settings.routeProgressEnabled ? "enabled" : "disabled"
+    root.dataset.aoiRouteProgressSpinner = settings.routeProgressShowSpinner ? "true" : "false"
     root.dataset.aoiRubberBand = root.dataset.aoiRubberBand || "idle"
     root.dataset.aoiRubberBandEdge = root.dataset.aoiRubberBandEdge || "none"
     root.dataset.aoiRubberBandMotion = settings.rubberBandEnabled ? "enabled" : "disabled"
@@ -71,6 +73,9 @@ export default defineNuxtPlugin((nuxtApp) => {
     style.setProperty("--aoi-reveal-distance-setting", `${settings.revealMotionDistancePx}px`)
     style.setProperty("--aoi-reveal-stagger-setting", `${settings.revealMotionStaggerMs}ms`)
     style.setProperty("--aoi-reveal-max-delay-setting", `${settings.revealMotionMaxDelayMs}ms`)
+    style.setProperty("--aoi-route-progress-height", `${settings.routeProgressHeightPx}px`)
+    style.setProperty("--aoi-route-progress-speed", `${settings.routeProgressSpeedMs}ms`)
+    style.setProperty("--aoi-route-progress-easing", settings.routeProgressEasing)
     style.setProperty("--aoi-page-rubber-band-max", `${settings.rubberBandMaxOffsetPx}px`)
     style.setProperty("--aoi-page-rubber-band-strength", String(settings.rubberBandStrength))
     style.setProperty("--aoi-scroll-hijack-threshold", `${settings.scrollHijackThresholdPx}px`)
@@ -111,6 +116,11 @@ export default defineNuxtPlugin((nuxtApp) => {
       settings.revealMotionDistancePx,
       settings.revealMotionStaggerMs,
       settings.revealMotionMaxDelayMs,
+      settings.routeProgressEnabled,
+      settings.routeProgressShowSpinner,
+      settings.routeProgressHeightPx,
+      settings.routeProgressSpeedMs,
+      settings.routeProgressEasing,
       settings.pageScrollbarStrategy,
       settings.smoothScrollEnabled,
       settings.smoothScrollDurationMs,

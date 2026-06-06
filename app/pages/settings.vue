@@ -9,7 +9,7 @@ const settingGroups = [
       { icon: "palette", label: "外观", keywords: "主题 色板 背景 DIY 自定义 规格 尺寸 单位 间距 圆角 导航宽度 卡片宽度", to: "/settings/appearance" },
       { icon: "play-circle", label: "播放器", keywords: "音量 静音 倍速 剧场", to: "/settings/player" },
       { icon: "message-square-text", label: "弹幕", keywords: "弹幕 占位", to: "/settings/danmaku" },
-      { icon: "sliders-horizontal", label: "偏好", keywords: "省流 隐私 新标签 日期 搜索", to: "/settings/preference" },
+      { icon: "sliders-horizontal", label: "偏好", keywords: "省流 隐私 新标签 日期 搜索 进度条 NProgress loading", to: "/settings/preference" },
       { icon: "languages", label: "语言", keywords: "中文 English 日本語 i18n", to: "/settings/language" },
       { icon: "flask-conical", label: "实验", keywords: "实验 功能预览", to: "/settings/experimental" },
       { icon: "keyboard", label: "快捷键", keywords: "键盘 播放 评论", to: "/settings/shortcut-key" }

@@ -269,6 +269,87 @@ a {
   --md-circular-progress-active-indicator-color: var(--aoi-accent-50);
 }
 
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: var(--aoi-z-loading);
+  width: 100%;
+  height: var(--aoi-route-progress-height, 3px);
+  background:
+    linear-gradient(
+      90deg,
+      var(--aoi-accent-60),
+      var(--aoi-sakura-50),
+      var(--aoi-sun-50)
+    );
+  box-shadow: 0 0 14px color-mix(in srgb, var(--aoi-accent-60) 42%, transparent);
+}
+
+#nprogress .peg {
+  position: absolute;
+  right: 0;
+  display: block;
+  width: 96px;
+  height: 100%;
+  box-shadow:
+    0 0 10px var(--aoi-accent-50),
+    0 0 5px var(--aoi-accent-50);
+  opacity: .88;
+  transform: rotate(3deg) translate3d(0, -4px, 0);
+}
+
+#nprogress .spinner {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 10px);
+  right: max(14px, env(safe-area-inset-right, 0px));
+  z-index: var(--aoi-z-loading);
+  display: block;
+}
+
+#nprogress .spinner-icon {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  border-top-color: var(--aoi-accent-60);
+  border-left-color: var(--aoi-accent-60);
+  border-radius: var(--aoi-radius-round);
+  animation: aoi-route-progress-spinner 420ms linear infinite;
+}
+
+:root[data-aoi-route-progress-spinner="false"] #nprogress .spinner {
+  display: none;
+}
+
+:root[data-aoi-route-progress-state="error"] #nprogress .bar {
+  background:
+    linear-gradient(
+      90deg,
+      var(--aoi-danger),
+      color-mix(in srgb, var(--aoi-danger) 62%, var(--aoi-sakura-50))
+    );
+}
+
+:root.dark #nprogress .bar {
+  background:
+    linear-gradient(
+      90deg,
+      var(--aoi-accent-40),
+      var(--aoi-sakura-40),
+      var(--aoi-sun-50)
+    );
+}
+
+:root.dark #nprogress .spinner-icon {
+  border-top-color: var(--aoi-accent-40);
+  border-left-color: var(--aoi-accent-40);
+}
+
 .aoi-field-control {
   display: inline-flex;
   align-items: center;
@@ -404,6 +485,16 @@ a {
   }
 }
 
+@keyframes aoi-route-progress-spinner {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 639px) {
   :root {
     --aoi-settings-anchor-offset: calc(var(--aoi-settings-mobile-sticky-top) + var(--aoi-control-height-lg) + var(--aoi-grid-gap));
@@ -467,5 +558,14 @@ a {
   .aoi-shell::before,
   .aoi-shell::after {
     opacity: 0 !important;
+  }
+
+  #nprogress .bar {
+    transition-duration: 1ms !important;
+  }
+
+  #nprogress .peg,
+  #nprogress .spinner {
+    display: none !important;
   }
 }

@@ -20,6 +20,12 @@ import {
   isAoiScrollHijackMode,
   isAoiScrollSnapMode
 } from "~/utils/aoiScroll"
+import type { AoiRouteProgressEasing } from "~/utils/aoiRouteProgress"
+import {
+  AOI_ROUTE_PROGRESS_DEFAULTS,
+  clampAoiRouteProgressSetting,
+  isAoiRouteProgressEasing
+} from "~/utils/aoiRouteProgress"
 import type {
   AoiSpecUnitKey,
   AoiSpecUnitSettings
@@ -90,6 +96,15 @@ interface PersistedAppSettings {
   revealMotionMaxDelayMs: number
   revealMotionReplay: AoiRevealMotionReplayValue
   revealMotionStaggerMs: number
+  routeProgressDelayMs: number
+  routeProgressEasing: AoiRouteProgressEasing
+  routeProgressEnabled: boolean
+  routeProgressHeightPx: number
+  routeProgressMinimum: number
+  routeProgressShowSpinner: boolean
+  routeProgressSpeedMs: number
+  routeProgressTrickle: boolean
+  routeProgressTrickleSpeedMs: number
   rubberBandEnabled: boolean
   rubberBandMaxOffsetPx: number
   rubberBandStrength: number
@@ -234,6 +249,15 @@ function emptyState(): PersistedAppSettings {
     revealMotionMaxDelayMs: AOI_REVEAL_DEFAULTS.maxDelayMs,
     revealMotionReplay: AOI_REVEAL_DEFAULTS.replay,
     revealMotionStaggerMs: AOI_REVEAL_DEFAULTS.staggerMs,
+    routeProgressDelayMs: AOI_ROUTE_PROGRESS_DEFAULTS.delayMs,
+    routeProgressEasing: AOI_ROUTE_PROGRESS_DEFAULTS.easing,
+    routeProgressEnabled: AOI_ROUTE_PROGRESS_DEFAULTS.enabled,
+    routeProgressHeightPx: AOI_ROUTE_PROGRESS_DEFAULTS.heightPx,
+    routeProgressMinimum: AOI_ROUTE_PROGRESS_DEFAULTS.minimum,
+    routeProgressShowSpinner: AOI_ROUTE_PROGRESS_DEFAULTS.showSpinner,
+    routeProgressSpeedMs: AOI_ROUTE_PROGRESS_DEFAULTS.speedMs,
+    routeProgressTrickle: AOI_ROUTE_PROGRESS_DEFAULTS.trickle,
+    routeProgressTrickleSpeedMs: AOI_ROUTE_PROGRESS_DEFAULTS.trickleSpeedMs,
     rubberBandEnabled: AOI_SCROLL_DEFAULTS.rubberBand.enabled,
     rubberBandMaxOffsetPx: AOI_SCROLL_DEFAULTS.rubberBand.maxOffsetPx,
     rubberBandStrength: AOI_SCROLL_DEFAULTS.rubberBand.strength,
@@ -292,6 +316,15 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     revealMotionMaxDelayMs: clampAoiRevealSetting(candidate.revealMotionMaxDelayMs, 0, 600, fallback.revealMotionMaxDelayMs),
     revealMotionReplay: isAoiRevealMotionReplay(candidate.revealMotionReplay) ? candidate.revealMotionReplay : fallback.revealMotionReplay,
     revealMotionStaggerMs: clampAoiRevealSetting(candidate.revealMotionStaggerMs, 0, 120, fallback.revealMotionStaggerMs),
+    routeProgressDelayMs: clampAoiRouteProgressSetting(candidate.routeProgressDelayMs, 0, 600, fallback.routeProgressDelayMs),
+    routeProgressEasing: isAoiRouteProgressEasing(candidate.routeProgressEasing) ? candidate.routeProgressEasing : fallback.routeProgressEasing,
+    routeProgressEnabled: typeof candidate.routeProgressEnabled === "boolean" ? candidate.routeProgressEnabled : fallback.routeProgressEnabled,
+    routeProgressHeightPx: clampAoiRouteProgressSetting(candidate.routeProgressHeightPx, 1, 8, fallback.routeProgressHeightPx),
+    routeProgressMinimum: clampAoiRouteProgressSetting(candidate.routeProgressMinimum, 0, 0.5, fallback.routeProgressMinimum),
+    routeProgressShowSpinner: typeof candidate.routeProgressShowSpinner === "boolean" ? candidate.routeProgressShowSpinner : fallback.routeProgressShowSpinner,
+    routeProgressSpeedMs: clampAoiRouteProgressSetting(candidate.routeProgressSpeedMs, 80, 800, fallback.routeProgressSpeedMs),
+    routeProgressTrickle: typeof candidate.routeProgressTrickle === "boolean" ? candidate.routeProgressTrickle : fallback.routeProgressTrickle,
+    routeProgressTrickleSpeedMs: clampAoiRouteProgressSetting(candidate.routeProgressTrickleSpeedMs, 80, 1000, fallback.routeProgressTrickleSpeedMs),
     rubberBandEnabled: typeof candidate.rubberBandEnabled === "boolean" ? candidate.rubberBandEnabled : fallback.rubberBandEnabled,
     rubberBandMaxOffsetPx: clampAoiScrollSetting(candidate.rubberBandMaxOffsetPx, 8, 36, fallback.rubberBandMaxOffsetPx),
     rubberBandStrength: clampAoiScrollSetting(candidate.rubberBandStrength, 0, 100, fallback.rubberBandStrength),
@@ -468,6 +501,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const revealMotionDistancePx = ref(AOI_REVEAL_DEFAULTS.distancePx)
   const revealMotionStaggerMs = ref(AOI_REVEAL_DEFAULTS.staggerMs)
   const revealMotionMaxDelayMs = ref(AOI_REVEAL_DEFAULTS.maxDelayMs)
+  const routeProgressDelayMs = ref(AOI_ROUTE_PROGRESS_DEFAULTS.delayMs)
+  const routeProgressEasing = ref<AoiRouteProgressEasing>(AOI_ROUTE_PROGRESS_DEFAULTS.easing)
+  const routeProgressEnabled = ref(AOI_ROUTE_PROGRESS_DEFAULTS.enabled)
+  const routeProgressHeightPx = ref(AOI_ROUTE_PROGRESS_DEFAULTS.heightPx)
+  const routeProgressMinimum = ref(AOI_ROUTE_PROGRESS_DEFAULTS.minimum)
+  const routeProgressShowSpinner = ref(AOI_ROUTE_PROGRESS_DEFAULTS.showSpinner)
+  const routeProgressSpeedMs = ref(AOI_ROUTE_PROGRESS_DEFAULTS.speedMs)
+  const routeProgressTrickle = ref(AOI_ROUTE_PROGRESS_DEFAULTS.trickle)
+  const routeProgressTrickleSpeedMs = ref(AOI_ROUTE_PROGRESS_DEFAULTS.trickleSpeedMs)
   const smoothScrollEnabled = ref(AOI_SCROLL_DEFAULTS.smooth.enabled)
   const smoothScrollDurationMs = ref(AOI_SCROLL_DEFAULTS.smooth.durationMs)
   const smoothScrollDamping = ref(AOI_SCROLL_DEFAULTS.smooth.damping)
@@ -532,6 +574,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       revealMotionMaxDelayMs: revealMotionMaxDelayMs.value,
       revealMotionReplay: revealMotionReplay.value,
       revealMotionStaggerMs: revealMotionStaggerMs.value,
+      routeProgressDelayMs: routeProgressDelayMs.value,
+      routeProgressEasing: routeProgressEasing.value,
+      routeProgressEnabled: routeProgressEnabled.value,
+      routeProgressHeightPx: routeProgressHeightPx.value,
+      routeProgressMinimum: routeProgressMinimum.value,
+      routeProgressShowSpinner: routeProgressShowSpinner.value,
+      routeProgressSpeedMs: routeProgressSpeedMs.value,
+      routeProgressTrickle: routeProgressTrickle.value,
+      routeProgressTrickleSpeedMs: routeProgressTrickleSpeedMs.value,
       rubberBandEnabled: rubberBandEnabled.value,
       rubberBandMaxOffsetPx: rubberBandMaxOffsetPx.value,
       rubberBandStrength: rubberBandStrength.value,
@@ -581,6 +632,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     revealMotionMaxDelayMs.value = state.revealMotionMaxDelayMs
     revealMotionReplay.value = state.revealMotionReplay
     revealMotionStaggerMs.value = state.revealMotionStaggerMs
+    routeProgressDelayMs.value = state.routeProgressDelayMs
+    routeProgressEasing.value = state.routeProgressEasing
+    routeProgressEnabled.value = state.routeProgressEnabled
+    routeProgressHeightPx.value = state.routeProgressHeightPx
+    routeProgressMinimum.value = state.routeProgressMinimum
+    routeProgressShowSpinner.value = state.routeProgressShowSpinner
+    routeProgressSpeedMs.value = state.routeProgressSpeedMs
+    routeProgressTrickle.value = state.routeProgressTrickle
+    routeProgressTrickleSpeedMs.value = state.routeProgressTrickleSpeedMs
     rubberBandEnabled.value = state.rubberBandEnabled
     rubberBandMaxOffsetPx.value = state.rubberBandMaxOffsetPx
     rubberBandStrength.value = state.rubberBandStrength
@@ -729,6 +789,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function setRouteProgressEasing(value: AoiRouteProgressEasing) {
+    if (!isAoiRouteProgressEasing(value)) {
+      return
+    }
+
+    routeProgressEasing.value = value
+    persist()
+  }
+
   function setScrollSnapMode(value: AoiScrollSnapMode) {
     if (!isAoiScrollSnapMode(value)) {
       return
@@ -848,6 +917,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     revealMotionMaxDelayMs.value = next.revealMotionMaxDelayMs
     revealMotionReplay.value = next.revealMotionReplay
     revealMotionStaggerMs.value = next.revealMotionStaggerMs
+    routeProgressDelayMs.value = next.routeProgressDelayMs
+    routeProgressEasing.value = next.routeProgressEasing
+    routeProgressEnabled.value = next.routeProgressEnabled
+    routeProgressHeightPx.value = next.routeProgressHeightPx
+    routeProgressMinimum.value = next.routeProgressMinimum
+    routeProgressShowSpinner.value = next.routeProgressShowSpinner
+    routeProgressSpeedMs.value = next.routeProgressSpeedMs
+    routeProgressTrickle.value = next.routeProgressTrickle
+    routeProgressTrickleSpeedMs.value = next.routeProgressTrickleSpeedMs
     rubberBandEnabled.value = next.rubberBandEnabled
     rubberBandMaxOffsetPx.value = next.rubberBandMaxOffsetPx
     rubberBandStrength.value = next.rubberBandStrength
@@ -913,6 +991,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       revealMotionDistancePx,
       revealMotionStaggerMs,
       revealMotionMaxDelayMs,
+      routeProgressEnabled,
+      routeProgressMinimum,
+      routeProgressTrickle,
+      routeProgressTrickleSpeedMs,
+      routeProgressSpeedMs,
+      routeProgressDelayMs,
+      routeProgressHeightPx,
+      routeProgressShowSpinner,
+      routeProgressEasing,
       smoothScrollEnabled,
       smoothScrollDurationMs,
       smoothScrollDamping,
@@ -969,6 +1056,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     revealMotionMaxDelayMs,
     revealMotionReplay,
     revealMotionStaggerMs,
+    routeProgressDelayMs,
+    routeProgressEasing,
+    routeProgressEnabled,
+    routeProgressHeightPx,
+    routeProgressMinimum,
+    routeProgressShowSpinner,
+    routeProgressSpeedMs,
+    routeProgressTrickle,
+    routeProgressTrickleSpeedMs,
     rubberBandEnabled,
     rubberBandMaxOffsetPx,
     rubberBandStrength,
@@ -994,6 +1090,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     setPreferredTheme,
     setRevealMotionEffect,
     setRevealMotionReplay,
+    setRouteProgressEasing,
     setScrollHijackMode,
     setScrollSnapMode,
     setSelectedCategory,

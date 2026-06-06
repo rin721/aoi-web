@@ -157,6 +157,36 @@
       }
     },
     "preference": {
+      "routeProgress": {
+        "title": "路由进度条",
+        "description": "使用 NProgress 提供页面跳转反馈，同时保留 Nuxt 内置加载生命周期。",
+        "enabledTitle": "启用路由进度",
+        "enabledDescription": "页面导航期间显示顶部细进度条。",
+        "trickleTitle": "自动递增",
+        "trickleDescription": "页面仍在加载时，让 NProgress 缓慢推进进度。",
+        "spinnerTitle": "显示 Spinner",
+        "spinnerDescription": "在右上角显示 NProgress 自带的旋转指示器。",
+        "easingTitle": "缓动曲线",
+        "easingDescription": "选择进度条过渡动画使用的曲线。",
+        "easingLabel": "进度缓动",
+        "easing": {
+          "linear": "线性",
+          "ease": "默认缓动",
+          "easeIn": "缓入",
+          "easeOut": "缓出",
+          "easeInOut": "缓入缓出"
+        },
+        "minimumTitle": "初始进度",
+        "minimumLabel": "初始进度",
+        "delayTitle": "显示延迟",
+        "delayLabel": "显示延迟",
+        "speedTitle": "动画速度",
+        "speedLabel": "动画速度",
+        "trickleSpeedTitle": "递增间隔",
+        "trickleSpeedLabel": "递增间隔",
+        "heightTitle": "进度条高度",
+        "heightLabel": "进度条高度"
+      },
       "reveal": {
         "title": "弹入响应",
         "description": "调节内容面板、卡片和列表进入视口时的弹入节奏。",

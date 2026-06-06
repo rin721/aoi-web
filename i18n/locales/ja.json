@@ -157,6 +157,36 @@
       }
     },
     "preference": {
+      "routeProgress": {
+        "title": "ルート進捗バー",
+        "description": "Nuxt の組み込み読み込みライフサイクルを保ちながら、NProgress でページ遷移のフィードバックを表示します。",
+        "enabledTitle": "ルート進捗を有効化",
+        "enabledDescription": "ページ移動中に上部の細い進捗バーを表示します。",
+        "trickleTitle": "自動進行",
+        "trickleDescription": "次のページの読み込み中に NProgress を少しずつ進めます。",
+        "spinnerTitle": "Spinner を表示",
+        "spinnerDescription": "右上に NProgress 標準の回転インジケーターを表示します。",
+        "easingTitle": "イージング",
+        "easingDescription": "進捗バーの遷移に使うカーブを選びます。",
+        "easingLabel": "進捗イージング",
+        "easing": {
+          "linear": "Linear",
+          "ease": "Ease",
+          "easeIn": "Ease in",
+          "easeOut": "Ease out",
+          "easeInOut": "Ease in-out"
+        },
+        "minimumTitle": "初期進捗",
+        "minimumLabel": "初期進捗",
+        "delayTitle": "表示遅延",
+        "delayLabel": "表示遅延",
+        "speedTitle": "アニメーション速度",
+        "speedLabel": "アニメーション速度",
+        "trickleSpeedTitle": "自動進行間隔",
+        "trickleSpeedLabel": "自動進行間隔",
+        "heightTitle": "バーの高さ",
+        "heightLabel": "バーの高さ"
+      },
       "reveal": {
         "title": "ポップイン反応",
         "description": "コンテンツパネル、カード、リストが表示領域に入るときの動きを調整します。",

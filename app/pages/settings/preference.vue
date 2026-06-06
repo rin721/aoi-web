@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { AoiDataMode } from "~/stores/app-settings"
 import type { AoiRevealMotionEffect, AoiRevealMotionReplay } from "~/utils/aoiReveal"
+import type { AoiRouteProgressEasing } from "~/utils/aoiRouteProgress"
+import { clampAoiRouteProgressSetting } from "~/utils/aoiRouteProgress"
 import type {
   AoiPageScrollbarStrategy,
   AoiScrollHijackMode,
@@ -119,6 +121,13 @@ const pageScrollbarStrategyOptions = computed(() => [
     value: "hidden"
   }
 ])
+const routeProgressEasingOptions = computed(() => [
+  { label: t("settings.preference.routeProgress.easing.linear"), value: "linear" },
+  { label: t("settings.preference.routeProgress.easing.ease"), value: "ease" },
+  { label: t("settings.preference.routeProgress.easing.easeIn"), value: "ease-in" },
+  { label: t("settings.preference.routeProgress.easing.easeOut"), value: "ease-out" },
+  { label: t("settings.preference.routeProgress.easing.easeInOut"), value: "ease-in-out" }
+])
 const revealEffectModel = computed({
   get: () => settings.revealMotionEffect,
   set: (value: string) => settings.setRevealMotionEffect(value as AoiRevealMotionEffect)
@@ -150,6 +159,40 @@ const revealMaxDelayModel = computed({
   set: (value: number) => {
     settings.revealMotionMaxDelayMs = clampRevealSetting(value, 0, 600)
   }
+})
+const routeProgressMinimumModel = computed({
+  get: () => Math.round(settings.routeProgressMinimum * 100),
+  set: (value: number) => {
+    settings.routeProgressMinimum = clampAoiRouteProgressSetting(value, 0, 50, settings.routeProgressMinimum * 100) / 100
+  }
+})
+const routeProgressDelayModel = computed({
+  get: () => settings.routeProgressDelayMs,
+  set: (value: number) => {
+    settings.routeProgressDelayMs = clampAoiRouteProgressSetting(value, 0, 600, settings.routeProgressDelayMs)
+  }
+})
+const routeProgressSpeedModel = computed({
+  get: () => settings.routeProgressSpeedMs,
+  set: (value: number) => {
+    settings.routeProgressSpeedMs = clampAoiRouteProgressSetting(value, 80, 800, settings.routeProgressSpeedMs)
+  }
+})
+const routeProgressTrickleSpeedModel = computed({
+  get: () => settings.routeProgressTrickleSpeedMs,
+  set: (value: number) => {
+    settings.routeProgressTrickleSpeedMs = clampAoiRouteProgressSetting(value, 80, 1000, settings.routeProgressTrickleSpeedMs)
+  }
+})
+const routeProgressHeightModel = computed({
+  get: () => settings.routeProgressHeightPx,
+  set: (value: number) => {
+    settings.routeProgressHeightPx = clampAoiRouteProgressSetting(value, 1, 8, settings.routeProgressHeightPx)
+  }
+})
+const routeProgressEasingModel = computed({
+  get: () => settings.routeProgressEasing,
+  set: (value: string) => settings.setRouteProgressEasing(value as AoiRouteProgressEasing)
 })
 const smoothDurationModel = computed({
   get: () => settings.smoothScrollDurationMs,
@@ -254,6 +297,125 @@ function clampRevealSetting(value: number, min: number, max: number) {
       >
         <AoiSwitch v-model="settings.useRelativeDates" />
       </SettingsRow>
+    </SettingsPanel>
+
+    <SettingsPanel
+      icon="loader"
+      :title="t('settings.preference.routeProgress.title')"
+      :description="t('settings.preference.routeProgress.description')"
+    >
+      <SettingsRow
+        :title="t('settings.preference.routeProgress.enabledTitle')"
+        :description="t('settings.preference.routeProgress.enabledDescription')"
+      >
+        <AoiSwitch v-model="settings.routeProgressEnabled" />
+      </SettingsRow>
+
+      <SettingsRow
+        :title="t('settings.preference.routeProgress.trickleTitle')"
+        :description="t('settings.preference.routeProgress.trickleDescription')"
+      >
+        <AoiSwitch
+          v-model="settings.routeProgressTrickle"
+          :disabled="!settings.routeProgressEnabled"
+        />
+      </SettingsRow>
+
+      <SettingsRow
+        :title="t('settings.preference.routeProgress.spinnerTitle')"
+        :description="t('settings.preference.routeProgress.spinnerDescription')"
+      >
+        <AoiSwitch
+          v-model="settings.routeProgressShowSpinner"
+          :disabled="!settings.routeProgressEnabled"
+        />
+      </SettingsRow>
+
+      <SettingsRow
+        :title="t('settings.preference.routeProgress.easingTitle')"
+        :description="t('settings.preference.routeProgress.easingDescription')"
+      >
+        <AoiSelect
+          v-model="routeProgressEasingModel"
+          class="settings-route-progress-control"
+          variant="outlined"
+          :label="t('settings.preference.routeProgress.easingLabel')"
+          :options="routeProgressEasingOptions"
+          :disabled="!settings.routeProgressEnabled"
+        />
+      </SettingsRow>
+
+      <div class="settings-reveal-slider-grid">
+        <SettingsRow
+          :title="t('settings.preference.routeProgress.minimumTitle')"
+          :description="`${Math.round(settings.routeProgressMinimum * 100)}%`"
+        >
+          <AoiSlider
+            v-model="routeProgressMinimumModel"
+            :label="t('settings.preference.routeProgress.minimumLabel')"
+            :min="0"
+            :max="50"
+            :step="1"
+            :disabled="!settings.routeProgressEnabled"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          :title="t('settings.preference.routeProgress.delayTitle')"
+          :description="`${settings.routeProgressDelayMs}ms`"
+        >
+          <AoiSlider
+            v-model="routeProgressDelayModel"
+            :label="t('settings.preference.routeProgress.delayLabel')"
+            :min="0"
+            :max="600"
+            :step="20"
+            :disabled="!settings.routeProgressEnabled"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          :title="t('settings.preference.routeProgress.speedTitle')"
+          :description="`${settings.routeProgressSpeedMs}ms`"
+        >
+          <AoiSlider
+            v-model="routeProgressSpeedModel"
+            :label="t('settings.preference.routeProgress.speedLabel')"
+            :min="80"
+            :max="800"
+            :step="20"
+            :disabled="!settings.routeProgressEnabled"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          :title="t('settings.preference.routeProgress.trickleSpeedTitle')"
+          :description="`${settings.routeProgressTrickleSpeedMs}ms`"
+        >
+          <AoiSlider
+            v-model="routeProgressTrickleSpeedModel"
+            :label="t('settings.preference.routeProgress.trickleSpeedLabel')"
+            :min="80"
+            :max="1000"
+            :step="20"
+            :disabled="!settings.routeProgressEnabled || !settings.routeProgressTrickle"
+          />
+        </SettingsRow>
+
+        <SettingsRow
+          :title="t('settings.preference.routeProgress.heightTitle')"
+          :description="`${settings.routeProgressHeightPx}px`"
+        >
+          <AoiSlider
+            v-model="routeProgressHeightModel"
+            :label="t('settings.preference.routeProgress.heightLabel')"
+            :min="1"
+            :max="8"
+            :step="1"
+            :disabled="!settings.routeProgressEnabled"
+          />
+        </SettingsRow>
+      </div>
     </SettingsPanel>
 
     <SettingsPanel
@@ -570,6 +732,10 @@ function clampRevealSetting(value: number, min: number, max: number) {
 .settings-scrollbar-control {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   width: 100%;
+}
+
+.settings-route-progress-control {
+  width: min(280px, 100%);
 }
 
 .settings-row.settings-scrollbar-row {
