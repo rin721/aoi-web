@@ -1,7 +1,10 @@
 export type AoiRouteProgressEasing = "linear" | "ease" | "ease-in" | "ease-out" | "ease-in-out"
 
+export const AOI_ROUTE_PROGRESS_SETTINGS_VERSION = 5
+export const AOI_ROUTE_PROGRESS_LEGACY_DELAY_MS = 120
+
 export const AOI_ROUTE_PROGRESS_DEFAULTS = {
-  delayMs: 120,
+  delayMs: 0,
   easing: "ease" as AoiRouteProgressEasing,
   enabled: true,
   heightPx: 3,

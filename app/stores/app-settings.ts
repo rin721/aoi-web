@@ -23,6 +23,8 @@ import {
 import type { AoiRouteProgressEasing } from "~/utils/aoiRouteProgress"
 import {
   AOI_ROUTE_PROGRESS_DEFAULTS,
+  AOI_ROUTE_PROGRESS_LEGACY_DELAY_MS,
+  AOI_ROUTE_PROGRESS_SETTINGS_VERSION,
   clampAoiRouteProgressSetting,
   isAoiRouteProgressEasing
 } from "~/utils/aoiRouteProgress"
@@ -97,10 +99,12 @@ interface PersistedAppSettings {
   revealMotionReplay: AoiRevealMotionReplayValue
   revealMotionStaggerMs: number
   routeProgressDelayMs: number
+  routeProgressDelayMigrated: boolean
   routeProgressEasing: AoiRouteProgressEasing
   routeProgressEnabled: boolean
   routeProgressHeightPx: number
   routeProgressMinimum: number
+  routeProgressSettingsVersion: number
   routeProgressShowSpinner: boolean
   routeProgressSpeedMs: number
   routeProgressTrickle: boolean
@@ -250,10 +254,12 @@ function emptyState(): PersistedAppSettings {
     revealMotionReplay: AOI_REVEAL_DEFAULTS.replay,
     revealMotionStaggerMs: AOI_REVEAL_DEFAULTS.staggerMs,
     routeProgressDelayMs: AOI_ROUTE_PROGRESS_DEFAULTS.delayMs,
+    routeProgressDelayMigrated: true,
     routeProgressEasing: AOI_ROUTE_PROGRESS_DEFAULTS.easing,
     routeProgressEnabled: AOI_ROUTE_PROGRESS_DEFAULTS.enabled,
     routeProgressHeightPx: AOI_ROUTE_PROGRESS_DEFAULTS.heightPx,
     routeProgressMinimum: AOI_ROUTE_PROGRESS_DEFAULTS.minimum,
+    routeProgressSettingsVersion: AOI_ROUTE_PROGRESS_SETTINGS_VERSION,
     routeProgressShowSpinner: AOI_ROUTE_PROGRESS_DEFAULTS.showSpinner,
     routeProgressSpeedMs: AOI_ROUTE_PROGRESS_DEFAULTS.speedMs,
     routeProgressTrickle: AOI_ROUTE_PROGRESS_DEFAULTS.trickle,
@@ -284,6 +290,12 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
   }
 
   const candidate = value as Partial<PersistedAppSettings>
+  const routeProgressSettingsVersion = typeof candidate.routeProgressSettingsVersion === "number" ? candidate.routeProgressSettingsVersion : 0
+  const shouldMigrateRouteProgressDelay = candidate.routeProgressDelayMs === AOI_ROUTE_PROGRESS_LEGACY_DELAY_MS
+    && (candidate.routeProgressDelayMigrated !== true || routeProgressSettingsVersion < AOI_ROUTE_PROGRESS_SETTINGS_VERSION)
+  const routeProgressDelayMs = shouldMigrateRouteProgressDelay
+    ? fallback.routeProgressDelayMs
+    : clampAoiRouteProgressSetting(candidate.routeProgressDelayMs, 0, 600, fallback.routeProgressDelayMs)
 
   return {
     accentMode: candidate.accentMode === "custom" ? "custom" : "preset",
@@ -316,11 +328,13 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     revealMotionMaxDelayMs: clampAoiRevealSetting(candidate.revealMotionMaxDelayMs, 0, 600, fallback.revealMotionMaxDelayMs),
     revealMotionReplay: isAoiRevealMotionReplay(candidate.revealMotionReplay) ? candidate.revealMotionReplay : fallback.revealMotionReplay,
     revealMotionStaggerMs: clampAoiRevealSetting(candidate.revealMotionStaggerMs, 0, 120, fallback.revealMotionStaggerMs),
-    routeProgressDelayMs: clampAoiRouteProgressSetting(candidate.routeProgressDelayMs, 0, 600, fallback.routeProgressDelayMs),
+    routeProgressDelayMs,
+    routeProgressDelayMigrated: true,
     routeProgressEasing: isAoiRouteProgressEasing(candidate.routeProgressEasing) ? candidate.routeProgressEasing : fallback.routeProgressEasing,
     routeProgressEnabled: typeof candidate.routeProgressEnabled === "boolean" ? candidate.routeProgressEnabled : fallback.routeProgressEnabled,
     routeProgressHeightPx: clampAoiRouteProgressSetting(candidate.routeProgressHeightPx, 1, 8, fallback.routeProgressHeightPx),
     routeProgressMinimum: clampAoiRouteProgressSetting(candidate.routeProgressMinimum, 0, 0.5, fallback.routeProgressMinimum),
+    routeProgressSettingsVersion: AOI_ROUTE_PROGRESS_SETTINGS_VERSION,
     routeProgressShowSpinner: typeof candidate.routeProgressShowSpinner === "boolean" ? candidate.routeProgressShowSpinner : fallback.routeProgressShowSpinner,
     routeProgressSpeedMs: clampAoiRouteProgressSetting(candidate.routeProgressSpeedMs, 80, 800, fallback.routeProgressSpeedMs),
     routeProgressTrickle: typeof candidate.routeProgressTrickle === "boolean" ? candidate.routeProgressTrickle : fallback.routeProgressTrickle,
@@ -502,6 +516,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const revealMotionStaggerMs = ref(AOI_REVEAL_DEFAULTS.staggerMs)
   const revealMotionMaxDelayMs = ref(AOI_REVEAL_DEFAULTS.maxDelayMs)
   const routeProgressDelayMs = ref(AOI_ROUTE_PROGRESS_DEFAULTS.delayMs)
+  const routeProgressDelayMigrated = ref(false)
   const routeProgressEasing = ref<AoiRouteProgressEasing>(AOI_ROUTE_PROGRESS_DEFAULTS.easing)
   const routeProgressEnabled = ref(AOI_ROUTE_PROGRESS_DEFAULTS.enabled)
   const routeProgressHeightPx = ref(AOI_ROUTE_PROGRESS_DEFAULTS.heightPx)
@@ -575,10 +590,12 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       revealMotionReplay: revealMotionReplay.value,
       revealMotionStaggerMs: revealMotionStaggerMs.value,
       routeProgressDelayMs: routeProgressDelayMs.value,
+      routeProgressDelayMigrated: routeProgressDelayMigrated.value,
       routeProgressEasing: routeProgressEasing.value,
       routeProgressEnabled: routeProgressEnabled.value,
       routeProgressHeightPx: routeProgressHeightPx.value,
       routeProgressMinimum: routeProgressMinimum.value,
+      routeProgressSettingsVersion: AOI_ROUTE_PROGRESS_SETTINGS_VERSION,
       routeProgressShowSpinner: routeProgressShowSpinner.value,
       routeProgressSpeedMs: routeProgressSpeedMs.value,
       routeProgressTrickle: routeProgressTrickle.value,
@@ -633,6 +650,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     revealMotionReplay.value = state.revealMotionReplay
     revealMotionStaggerMs.value = state.revealMotionStaggerMs
     routeProgressDelayMs.value = state.routeProgressDelayMs
+    routeProgressDelayMigrated.value = state.routeProgressDelayMigrated
     routeProgressEasing.value = state.routeProgressEasing
     routeProgressEnabled.value = state.routeProgressEnabled
     routeProgressHeightPx.value = state.routeProgressHeightPx
@@ -918,6 +936,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     revealMotionReplay.value = next.revealMotionReplay
     revealMotionStaggerMs.value = next.revealMotionStaggerMs
     routeProgressDelayMs.value = next.routeProgressDelayMs
+    routeProgressDelayMigrated.value = next.routeProgressDelayMigrated
     routeProgressEasing.value = next.routeProgressEasing
     routeProgressEnabled.value = next.routeProgressEnabled
     routeProgressHeightPx.value = next.routeProgressHeightPx
