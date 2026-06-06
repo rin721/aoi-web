@@ -93,7 +93,7 @@ useHead({
   align-items: center;
   justify-content: center;
   border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-sakura-50);
+  background: var(--aoi-accent-60);
   color: #fff;
   font-size: 12px;
   font-variant-numeric: tabular-nums;

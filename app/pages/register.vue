@@ -117,7 +117,7 @@ useHead({
 }
 
 .auth-panel__eyebrow {
-  color: var(--aoi-sakura-50);
+  color: var(--aoi-active-color);
   font-size: 12px;
   font-weight: 850;
   letter-spacing: 0;

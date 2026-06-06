@@ -56,6 +56,16 @@ export const AOI_BACKGROUND_TYPES = ["image/png", "image/jpeg", "image/webp"]
 
 export const AOI_ACCENT_PRESETS: AoiAccentPresetOption[] = [
   {
+    value: "sunflower-orange",
+    label: "葵花橙",
+    subtitle: "Sunflower Orange",
+    accent60: "#ff7d52",
+    accent50: "#ff9471",
+    accent40: "#ffb49b",
+    accent20: "#ffe0d5",
+    accent10: "#fff2ee"
+  },
+  {
     value: "cocoa-pink",
     label: "心爱粉",
     subtitle: "Cocoa Rose",
@@ -128,9 +138,9 @@ export const AOI_ACCENT_PRESETS: AoiAccentPresetOption[] = [
 ]
 
 const STORAGE_KEY = "aoi.appSettings.v1"
-const DEFAULT_ACCENT_PRESET = "chino-blue"
-const DEFAULT_ACCENT = "#0f9fb7"
-const DEFAULT_ACCENT_PRESET_OPTION = AOI_ACCENT_PRESETS[1]!
+const DEFAULT_ACCENT_PRESET = "sunflower-orange"
+const DEFAULT_ACCENT = "#ff7d52"
+const DEFAULT_ACCENT_PRESET_OPTION = AOI_ACCENT_PRESETS.find((preset) => preset.value === DEFAULT_ACCENT_PRESET) || AOI_ACCENT_PRESETS[0]!
 
 function emptyState(): PersistedAppSettings {
   return {

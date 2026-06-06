@@ -8,6 +8,7 @@ const props = withDefaults(defineProps<{
   placeholder?: string
   supportingText?: string
   errorText?: string
+  icon?: string
   type?: string
   disabled?: boolean
   maxLength?: number
@@ -20,6 +21,7 @@ const props = withDefaults(defineProps<{
   placeholder: undefined,
   supportingText: undefined,
   errorText: undefined,
+  icon: undefined,
   type: "text",
   disabled: false,
   maxLength: undefined,
@@ -120,5 +122,12 @@ onBeforeUnmount(() => {
     @input="onInput"
     @change="onInput"
     @keydown="onKeydown"
-  />
+  >
+    <AoiIcon
+      v-if="icon"
+      slot="leading-icon"
+      :name="icon"
+      decorative
+    />
+  </component>
 </template>

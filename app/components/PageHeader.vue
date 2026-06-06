@@ -54,7 +54,7 @@ withDefaults(defineProps<{
 
 .page-header__eyebrow {
   margin: 0 0 4px;
-  color: var(--aoi-sakura-50);
+  color: var(--aoi-active-color);
   font-size: 12px;
   font-weight: 800;
 }

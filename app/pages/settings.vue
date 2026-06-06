@@ -68,6 +68,8 @@ useHead(() => ({
 
       <AoiTextField
         v-model="query"
+        class="settings-shell__search-field"
+        icon="search"
         label="搜索设置"
         placeholder="主题、背景、播放器..."
         variant="outlined"
@@ -99,6 +101,28 @@ useHead(() => ({
       </nav>
     </aside>
 
+    <nav class="settings-shell__mobile-groups" aria-label="设置页面">
+      <template
+        v-for="group in visibleGroups"
+        :key="group.label"
+      >
+        <AoiLink
+          v-for="item in group.items"
+          :key="item.to"
+          class="settings-shell__nav-item"
+          :class="{ 'settings-shell__nav-item--active': route.path === item.to }"
+          :to="item.to"
+        >
+          <AoiIcon :name="item.icon" :size="17" decorative />
+          <span>{{ item.label }}</span>
+        </AoiLink>
+      </template>
+
+      <p v-if="visibleGroups.length === 0" class="settings-shell__empty">
+        没有匹配的设置项。
+      </p>
+    </nav>
+
     <main class="settings-shell__content">
       <NuxtPage />
     </main>
@@ -111,13 +135,16 @@ useHead(() => ({
   max-width: var(--aoi-content-wide-max-width);
   grid-template-columns: minmax(240px, 288px) minmax(0, 1fr);
   gap: 20px;
+  align-items: start;
+  animation: none;
 }
 
 .settings-shell__nav {
   position: sticky;
-  top: 18px;
+  top: var(--aoi-settings-sticky-top);
+  z-index: 20;
   display: grid;
-  max-height: calc(100vh - 36px);
+  max-height: calc(100dvh - var(--aoi-settings-sticky-top) * 2);
   align-self: start;
   gap: 14px;
   overflow: auto;
@@ -126,6 +153,11 @@ useHead(() => ({
   background: var(--aoi-panel-bg);
   box-shadow: var(--aoi-shadow-sm);
   padding: 16px;
+}
+
+.settings-shell__search-field {
+  --md-filled-text-field-container-height: var(--aoi-control-height-md);
+  --md-outlined-text-field-container-height: var(--aoi-control-height-md);
 }
 
 .settings-shell__intro {
@@ -165,6 +197,10 @@ useHead(() => ({
 .settings-shell__groups {
   display: grid;
   gap: 16px;
+}
+
+.settings-shell__mobile-groups {
+  display: none;
 }
 
 .settings-shell__group {
@@ -219,34 +255,39 @@ useHead(() => ({
   .settings-shell__nav {
     position: static;
     max-height: none;
+    overflow: visible;
     gap: 12px;
     padding: 14px;
   }
 
   .settings-shell__groups {
-    display: flex;
-    overflow-x: auto;
-    gap: 8px;
-    padding-bottom: 4px;
-    scrollbar-width: none;
-  }
-
-  .settings-shell__groups::-webkit-scrollbar {
     display: none;
   }
 
-  .settings-shell__group {
-    display: contents;
+  .settings-shell__mobile-groups {
+    position: sticky;
+    top: var(--aoi-settings-mobile-sticky-top);
+    z-index: 30;
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    border: 1px solid var(--aoi-border);
+    border-radius: var(--aoi-radius-card);
+    background: var(--aoi-panel-bg);
+    box-shadow: var(--aoi-shadow-sm);
+    padding: 8px;
+    scrollbar-width: none;
+    backdrop-filter: blur(18px);
   }
 
-  .settings-shell__group h2 {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
+  .settings-shell__mobile-groups::-webkit-scrollbar {
+    display: none;
+  }
+
+  .settings-shell__mobile-groups .settings-shell__empty {
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 0 6px;
   }
 
   .settings-shell__nav-item {

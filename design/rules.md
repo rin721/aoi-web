@@ -8,7 +8,7 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 - Aoi is a Nuxt 4 frontend-first video community app using Vue 3, TypeScript, Pinia, `@nuxtjs/i18n`, `@nuxt/icon`, and Material Web behind local Aoi wrappers.
 - Use pnpm only. The repository package manager is `pnpm@10.22.0`.
 - Current data is local mock API plus browser-local state. Keep contracts ready for a future Go backend, but do not build production backend behavior inside Nuxt mock routes.
-- KIRAKIRA is a structural reference, not a visual clone target. Borrow fixed navigation, category-first discovery, compact announcement, and dense video grids. Keep Aoi's aqua identity and use sakura mainly for selected/highlight states.
+- KIRAKIRA is a structural reference, not a visual clone target. Borrow fixed navigation, category-first discovery, compact announcement, and dense video grids. Keep Aoi's sunflower-orange identity and use sakura mainly as an auxiliary decorative color.
 
 ## Repository Boundaries
 
@@ -28,7 +28,7 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 - Button-style navigation uses `AoiButton` or `AoiIconButton` with `to`/`href`.
 - Use `app/assets/css/tokens.css` tokens and shared structure rules in `app/assets/css/main.css`.
 - Prefer semantic tokens such as panel/card/control/nav/state/danger variables over one-off color literals.
-- Use domain-specific radius tokens: `--aoi-radius-container`, `--aoi-radius-card`, `--aoi-radius-control`, `--aoi-radius-choice`, `--aoi-radius-nav-indicator`, and `--aoi-radius-round`. Reserve `999px` for navigation indicators, single-line pill controls, and true round/circular affordances; content containers must use container/card/choice radii.
+- Use domain-specific radius tokens: `--aoi-radius-container`, `--aoi-radius-card`, `--aoi-radius-control`, `--aoi-radius-field`, `--aoi-radius-choice`, `--aoi-radius-nav-indicator`, and `--aoi-radius-round`. Reserve `999px` for navigation indicators, single-line pill controls, and true round/circular affordances; wide input/select fields must use capped field radii instead of control radii.
 - Preserve responsive behavior, visible focus states, keyboard access, touch targets, text contrast, and `prefers-reduced-motion`.
 - Icons should come from the local Lucide collection through `@nuxt/icon`.
 
@@ -39,7 +39,7 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 - Content max width is around 1280px; wider settings-style workspaces may use the wide max-width token.
 - Category discovery should stay visible and horizontally scrollable on mobile.
 - Video grids use stable 16:9 covers, desktop `repeat(auto-fill, minmax(224px, 1fr))`, and mobile two columns with `minmax(0, 1fr)`.
-- Settings pages keep a grouped side rail on desktop; mobile flattens destinations into a compact horizontal strip so active content remains visible in the first viewport.
+- Settings pages keep a grouped sticky side rail on desktop; mobile flattens destinations into a compact sticky horizontal strip below the fixed header so active content remains reachable while scrolling.
 - Mobile player controls should stay compact: one timeline row plus one control row when possible. Hide verbose visible labels when accessible labels remain.
 
 ## Data And API Rules

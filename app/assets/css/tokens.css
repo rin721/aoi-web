@@ -1,11 +1,11 @@
 :root {
   color-scheme: light;
 
-  --aoi-accent-50: #22b8cf;
-  --aoi-accent-60: #0f9fb7;
-  --aoi-accent-40: #5ed3df;
-  --aoi-accent-20: #c9f3f7;
-  --aoi-accent-10: #e9fbfd;
+  --aoi-accent-50: #ff9471;
+  --aoi-accent-60: #ff7d52;
+  --aoi-accent-40: #ffb49b;
+  --aoi-accent-20: #ffe0d5;
+  --aoi-accent-10: #fff2ee;
   --aoi-secondary-50: #5b8def;
   --aoi-sakura-60: #dc4f86;
   --aoi-sakura-50: #f2709c;
@@ -22,7 +22,8 @@
   --aoi-text: #17262b;
   --aoi-text-muted: #60737b;
   --aoi-icon: #64757b;
-  --aoi-focus: rgba(34, 184, 207, 0.32);
+  --aoi-active-color: var(--aoi-accent-60);
+  --aoi-focus: color-mix(in srgb, var(--aoi-accent-60) 32%, transparent);
   --aoi-shadow-sm: 0 4px 12px rgba(19, 80, 96, 0.08);
   --aoi-shadow-md: 0 10px 28px rgba(19, 80, 96, 0.14);
   --aoi-danger: #ba1a1a;
@@ -60,6 +61,7 @@
   --aoi-radius-container: 12px;
   --aoi-radius-card: 8px;
   --aoi-radius-control: 6px;
+  --aoi-radius-field: 6px;
   --aoi-radius-choice: 10px;
   --aoi-radius-nav-indicator: 999px;
   --aoi-radius-round: 999px;
@@ -77,6 +79,8 @@
   --aoi-nav-group-gap: 10px;
   --aoi-nav-rail-padding-block: 12px;
   --aoi-bottom-nav-label-size: 11px;
+  --aoi-settings-sticky-top: 18px;
+  --aoi-settings-mobile-sticky-top: calc(var(--aoi-mobile-nav-height) + 8px);
   --aoi-rail-width: 56px;
   --aoi-mobile-nav-height: 56px;
   --aoi-motion-fast: 120ms;
@@ -89,10 +93,10 @@
   --md-sys-color-primary: var(--aoi-accent-60);
   --md-sys-color-on-primary: #ffffff;
   --md-sys-color-primary-container: var(--aoi-accent-10);
-  --md-sys-color-on-primary-container: #06363f;
+  --md-sys-color-on-primary-container: #3a1b00;
   --md-sys-color-secondary: var(--aoi-secondary-50);
   --md-sys-color-secondary-container: var(--aoi-accent-20);
-  --md-sys-color-on-secondary-container: #11333a;
+  --md-sys-color-on-secondary-container: #4b2800;
   --md-sys-color-surface: var(--aoi-surface-solid);
   --md-sys-color-on-surface: var(--aoi-text);
   --md-sys-color-surface-container-low: var(--aoi-surface-muted);
@@ -112,10 +116,10 @@
   --md-outlined-button-container-shape: var(--aoi-radius-control);
   --md-text-button-container-shape: var(--aoi-radius-control);
   --md-elevated-button-container-shape: var(--aoi-radius-control);
-  --md-filled-text-field-container-shape: var(--aoi-radius-control);
-  --md-outlined-text-field-container-shape: var(--aoi-radius-control);
-  --md-filled-select-text-field-container-shape: var(--aoi-radius-control);
-  --md-outlined-select-text-field-container-shape: var(--aoi-radius-control);
+  --md-filled-text-field-container-shape: var(--aoi-radius-field);
+  --md-outlined-text-field-container-shape: var(--aoi-radius-field);
+  --md-filled-select-text-field-container-shape: var(--aoi-radius-field);
+  --md-outlined-select-text-field-container-shape: var(--aoi-radius-field);
   --md-menu-container-shape: var(--aoi-radius-container);
 }
 
@@ -130,7 +134,8 @@
   --aoi-text: #eefcff;
   --aoi-text-muted: #a1bac2;
   --aoi-icon: #a3bac1;
-  --aoi-focus: rgba(94, 211, 223, 0.34);
+  --aoi-active-color: var(--aoi-accent-40);
+  --aoi-focus: color-mix(in srgb, var(--aoi-accent-40) 38%, transparent);
   --aoi-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.22);
   --aoi-shadow-md: 0 12px 32px rgba(0, 0, 0, 0.34);
   --aoi-card-bg: rgba(255, 255, 255, 0.06);
@@ -147,9 +152,9 @@
   --aoi-nav-border-colorful: color-mix(in srgb, var(--aoi-accent-40) 22%, transparent);
 
   --md-sys-color-primary: var(--aoi-accent-40);
-  --md-sys-color-on-primary: #00363f;
-  --md-sys-color-primary-container: #06363f;
-  --md-sys-color-on-primary-container: #c9f3f7;
+  --md-sys-color-on-primary: #2b1600;
+  --md-sys-color-primary-container: #5d2c00;
+  --md-sys-color-on-primary-container: #ffe2b8;
   --md-sys-color-secondary: #b9c9ff;
   --md-sys-color-secondary-container: #263b48;
   --md-sys-color-on-secondary-container: #d8f3f8;
@@ -213,6 +218,7 @@
   --aoi-radius-container: 4px;
   --aoi-radius-card: 3px;
   --aoi-radius-control: 2px;
+  --aoi-radius-field: 2px;
   --aoi-radius-choice: 4px;
   --aoi-radius-xs: 2px;
 }
@@ -221,6 +227,7 @@
   --aoi-radius-container: 20px;
   --aoi-radius-card: 14px;
   --aoi-radius-control: 999px;
+  --aoi-radius-field: 14px;
   --aoi-radius-choice: 16px;
   --aoi-radius-xs: 10px;
 }
@@ -232,7 +239,7 @@
   --aoi-text: #0a171b;
   --aoi-text-muted: #314d55;
   --aoi-icon: #23434b;
-  --aoi-focus: rgba(15, 159, 183, 0.58);
+  --aoi-focus: color-mix(in srgb, var(--aoi-accent-60) 58%, transparent);
   --aoi-card-bg: rgba(255, 255, 255, 0.86);
   --aoi-control-bg: rgba(255, 255, 255, 0.82);
   --aoi-state-hover: color-mix(in srgb, var(--aoi-accent-60) 12%, white);
@@ -254,7 +261,7 @@
   --aoi-text: #f6feff;
   --aoi-text-muted: #c5e4eb;
   --aoi-icon: #cfecf1;
-  --aoi-focus: rgba(94, 211, 223, 0.64);
+  --aoi-focus: color-mix(in srgb, var(--aoi-accent-40) 64%, transparent);
   --aoi-card-bg: rgba(255, 255, 255, 0.1);
   --aoi-control-bg: rgba(255, 255, 255, 0.09);
   --aoi-state-hover: color-mix(in srgb, var(--aoi-accent-40) 18%, var(--aoi-surface-solid));
