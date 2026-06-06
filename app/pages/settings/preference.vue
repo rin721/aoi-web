@@ -43,18 +43,17 @@ const dataModes: Array<{
       description="当前版本先保存为本地偏好，后续接入真实分页和预加载策略。"
     >
       <div class="settings-card-grid">
-        <button
+        <AoiChoiceCard
           v-for="mode in dataModes"
           :key="mode.value"
           class="settings-mode-card"
-          :class="{ 'settings-mode-card--active': settings.dataMode === mode.value }"
-          type="button"
-          @click="settings.dataMode = mode.value"
-        >
-          <AoiIcon :name="mode.icon" :size="22" decorative />
-          <strong>{{ mode.label }}</strong>
-          <span>{{ mode.description }}</span>
-        </button>
+          :value="mode.value"
+          :title="mode.label"
+          :description="mode.description"
+          :icon="mode.icon"
+          :selected="settings.dataMode === mode.value"
+          @select="settings.dataMode = mode.value"
+        />
       </div>
     </SettingsPanel>
 
@@ -122,45 +121,6 @@ const dataModes: Array<{
 
 <style scoped>
 .settings-mode-card {
-  display: grid;
   min-height: 136px;
-  gap: 8px;
-  justify-items: start;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-md);
-  background: var(--aoi-card-bg);
-  color: var(--aoi-text);
-  cursor: pointer;
-  font: inherit;
-  padding: 14px;
-  text-align: left;
-  transition:
-    background var(--aoi-motion-fast) var(--aoi-ease-out),
-    border-color var(--aoi-motion-fast) var(--aoi-ease-out),
-    color var(--aoi-motion-fast) var(--aoi-ease-out),
-    transform var(--aoi-motion-fast) var(--aoi-ease-press);
-}
-
-.settings-mode-card:hover {
-  background: var(--aoi-state-hover);
-}
-
-.settings-mode-card:active {
-  transform: scale(.98);
-}
-
-.settings-mode-card--active {
-  border-color: var(--aoi-state-border-active);
-  background: var(--aoi-state-active);
-  color: var(--aoi-accent-60);
-}
-
-.settings-mode-card strong {
-  font-weight: 820;
-}
-
-.settings-mode-card span {
-  color: var(--aoi-text-muted);
-  line-height: 1.55;
 }
 </style>

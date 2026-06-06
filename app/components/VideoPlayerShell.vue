@@ -35,14 +35,6 @@ const playbackRateModel = computed({
   set: (value: string) => playerSettings.setPlaybackRate(Number(value) as PlayerPlaybackRate)
 })
 
-const progressPercent = computed(() => {
-  if (duration.value <= 0) {
-    return 0
-  }
-
-  return Math.min(100, Math.max(0, currentTime.value / duration.value * 100))
-})
-
 const volumePercent = computed(() => Math.round(playerSettings.volume * 100))
 const canPlay = computed(() => Boolean(props.video.sourceUrl && !hasError.value))
 
@@ -195,12 +187,8 @@ function seekBy(delta: number) {
   seekTo(currentTime.value + delta)
 }
 
-function onSeekInput(event: Event) {
-  seekTo(Number((event.target as HTMLInputElement).value))
-}
-
-function onVolumeInput(event: Event) {
-  playerSettings.setVolume(Number((event.target as HTMLInputElement).value) / 100)
+function setVolumePercent(value: number) {
+  playerSettings.setVolume(value / 100)
 }
 
 function toggleMuted() {
@@ -317,33 +305,27 @@ onMounted(() => {
         </AoiButton>
       </div>
 
-      <button
+      <AoiMediaOverlayButton
         v-else
-        class="video-player-shell__play-surface"
-        type="button"
-        :aria-label="isPlaying ? '暂停视频' : '播放视频'"
+        :icon="isPlaying ? 'pause' : 'play'"
+        :label="isPlaying ? '暂停视频' : '播放视频'"
         @click="togglePlay"
-      >
-        <span class="video-player-shell__play">
-          <AoiIcon :name="isPlaying ? 'pause' : 'play'" :size="32" decorative />
-        </span>
-      </button>
+      />
     </div>
 
     <div class="video-player-shell__controls" aria-label="播放器控制">
       <div class="video-player-shell__timeline">
         <span>{{ formatTime(currentTime) }}</span>
-        <input
-          class="video-player-shell__range"
-          type="range"
-          min="0"
-          :max="duration"
-          step="0.1"
-          :value="currentTime"
+        <AoiSlider
+          :model-value="currentTime"
           aria-label="播放进度"
-          :style="{ '--aoi-range-progress': `${progressPercent}%` }"
-          @input="onSeekInput"
-        >
+          tone="inverse"
+          compact
+          :min="0"
+          :max="duration"
+          :step="0.1"
+          @update:model-value="seekTo"
+        />
         <span>{{ formatTime(duration) }}</span>
       </div>
 
@@ -362,20 +344,20 @@ onMounted(() => {
           @click="toggleMuted"
         />
 
-        <label class="video-player-shell__volume">
+        <div class="video-player-shell__volume">
           <span class="video-player-shell__volume-label">音量</span>
-          <input
-            class="video-player-shell__range"
-            type="range"
-            min="0"
-            max="100"
-            step="1"
-            :value="volumePercent"
+          <AoiSlider
+            class="video-player-shell__volume-slider"
+            :model-value="volumePercent"
             aria-label="音量"
-            :style="{ '--aoi-range-progress': `${volumePercent}%` }"
-            @input="onVolumeInput"
-          >
-        </label>
+            tone="inverse"
+            compact
+            :min="0"
+            :max="100"
+            :step="1"
+            @update:model-value="setVolumePercent"
+          />
+        </div>
 
         <AoiSelect
           v-model="playbackRateModel"
@@ -445,8 +427,7 @@ onMounted(() => {
   object-fit: cover;
 }
 
-.video-player-shell__overlay,
-.video-player-shell__play-surface {
+.video-player-shell__overlay {
   position: absolute;
   inset: 0;
   display: grid;
@@ -458,29 +439,6 @@ onMounted(() => {
   align-content: center;
   background: rgba(7, 24, 29, .62);
   color: rgba(255, 255, 255, .86);
-}
-
-.video-player-shell__play-surface {
-  border: 0;
-  background: transparent;
-  color: #fff;
-  cursor: pointer;
-}
-
-.video-player-shell__play {
-  display: grid;
-  width: 72px;
-  height: 72px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, .58);
-  border-radius: var(--aoi-radius-round);
-  background: rgba(255, 255, 255, .18);
-  backdrop-filter: blur(12px);
-  transition: transform var(--aoi-motion-fast) var(--aoi-ease-out);
-}
-
-.video-player-shell__play-surface:hover .video-player-shell__play {
-  transform: scale(1.06);
 }
 
 .video-player-shell__controls {
@@ -517,29 +475,12 @@ onMounted(() => {
   font-weight: 700;
 }
 
-.video-player-shell__volume input {
+.video-player-shell__volume-slider {
   width: 112px;
 }
 
 .video-player-shell__rate {
   width: 118px;
-}
-
-.video-player-shell__range {
-  --aoi-range-progress: 0%;
-  width: 100%;
-  accent-color: var(--aoi-accent-50);
-}
-
-.video-player-shell__range:focus-visible {
-  outline: 3px solid var(--aoi-focus);
-  outline-offset: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .video-player-shell__play {
-    transition: none;
-  }
 }
 
 @media (max-width: 639px) {
@@ -577,7 +518,7 @@ onMounted(() => {
     display: none;
   }
 
-  .video-player-shell__volume input {
+  .video-player-shell__volume-slider {
     min-width: 0;
     width: 100%;
   }

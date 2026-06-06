@@ -44,10 +44,24 @@ const replayKey = ref(0)
 const autoPlay = ref(true)
 const activeMode = computed<TransitionMode>(() => modes.find((mode) => mode.id === activeModeId.value) || modes[0])
 const activeModeIndex = computed(() => modes.findIndex((mode) => mode.id === activeMode.value.id))
+const modeItems = computed(() => modes.map((mode) => ({
+  accent: mode.accent,
+  icon: mode.icon,
+  label: mode.label,
+  value: mode.id
+})))
 
 function setActiveMode(id: TransitionMode["id"]) {
   activeModeId.value = id
   replayKey.value += 1
+}
+
+function selectMode(value: string) {
+  const mode = modes.find((item) => item.id === value)
+
+  if (mode) {
+    setActiveMode(mode.id)
+  }
 }
 
 function nextMode() {
@@ -85,32 +99,27 @@ onBeforeUnmount(() => {
         给视频社区首页准备的一版音游感 UI：清透圆环、轨道切线和轻量状态切换，可以复用到加载、分类和结算反馈。
       </p>
 
-      <div class="dx-showcase__modes" role="tablist" aria-label="转场状态">
-        <button
-          v-for="mode in modes"
-          :key="mode.id"
-          class="dx-showcase__mode"
-          :class="{ 'dx-showcase__mode--active': mode.id === activeMode.id }"
-          role="tab"
-          type="button"
-          :aria-selected="mode.id === activeMode.id"
-          :style="{ '--mode-accent': mode.accent }"
-          @click="setActiveMode(mode.id)"
-        >
-          <AoiIcon :name="mode.icon" :size="16" decorative />
-          <span>{{ mode.label }}</span>
-        </button>
-      </div>
+      <AoiSegmentedControl
+        class="dx-showcase__modes"
+        :model-value="activeMode.id"
+        :items="modeItems"
+        aria-label="转场状态"
+        :columns="3"
+        selection-role="tab"
+        @update:model-value="selectMode"
+      />
 
-      <button
-        class="dx-showcase__auto"
-        type="button"
-        :aria-pressed="autoPlay"
-        @click="toggleAutoPlay"
-      >
-        <AoiIcon :name="autoPlay ? 'pause' : 'play'" :size="15" decorative />
-        <span>{{ autoPlay ? "自动转场中" : "播放转场" }}</span>
-      </button>
+      <div class="dx-showcase__auto">
+        <AoiButton
+          variant="outlined"
+          size="sm"
+          :icon="autoPlay ? 'pause' : 'play'"
+          :aria-pressed="autoPlay"
+          @click="toggleAutoPlay"
+        >
+          {{ autoPlay ? "自动转场中" : "播放转场" }}
+        </AoiButton>
+      </div>
     </div>
 
     <div class="dx-stage" :class="`dx-stage--${activeMode.id}`" :style="{ '--stage-accent': activeMode.accent }">
@@ -209,57 +218,6 @@ onBeforeUnmount(() => {
 .dx-showcase__auto {
   display: inline-flex;
   width: fit-content;
-  min-height: 34px;
-  align-items: center;
-  gap: 7px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: rgba(255, 255, 255, 0.72);
-  color: var(--aoi-accent-60);
-  cursor: pointer;
-  font-weight: 850;
-  padding: 6px 10px;
-  transition:
-    background var(--aoi-motion-fast) var(--aoi-ease-out),
-    transform var(--aoi-motion-fast) var(--aoi-ease-out);
-}
-
-.dx-showcase__auto:hover {
-  background: var(--aoi-accent-10);
-}
-
-.dx-showcase__auto:active {
-  transform: scale(.96);
-}
-
-.dx-showcase__mode {
-  display: inline-flex;
-  min-width: 82px;
-  min-height: 34px;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border: 0;
-  border-radius: var(--aoi-radius-sm);
-  background: transparent;
-  color: var(--aoi-text-muted);
-  cursor: pointer;
-  font-weight: 800;
-  padding: 6px 10px;
-  transition:
-    background var(--aoi-motion-fast) var(--aoi-ease-out),
-    color var(--aoi-motion-fast) var(--aoi-ease-out),
-    transform var(--aoi-motion-fast) var(--aoi-ease-out);
-}
-
-.dx-showcase__mode:hover,
-.dx-showcase__mode--active {
-  background: color-mix(in srgb, var(--mode-accent) 18%, white);
-  color: var(--aoi-text);
-}
-
-.dx-showcase__mode:active {
-  transform: scale(.96);
 }
 
 .dx-stage {
@@ -649,11 +607,6 @@ onBeforeUnmount(() => {
 
   .dx-showcase__modes {
     width: 100%;
-  }
-
-  .dx-showcase__mode {
-    min-width: 0;
-    padding: 6px 8px;
   }
 
   .dx-stage__screen {

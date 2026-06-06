@@ -1,7 +1,6 @@
 <script setup lang="ts">
 const api = useAoiApi()
 const drafts = useUploadDraftStore()
-const fileInput = ref<HTMLInputElement>()
 const tagInput = ref("")
 
 const { data: categories, pending: categoriesPending } = useAsyncData(
@@ -82,13 +81,8 @@ watch(() => drafts.hydrated, (hydrated) => {
   }
 }, { immediate: true })
 
-function chooseFile() {
-  fileInput.value?.click()
-}
-
-function onFileSelected(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
+function onFileSelected(files: File[]) {
+  const file = files[0]
 
   if (!file) {
     return
@@ -99,7 +93,6 @@ function onFileSelected(event: Event) {
     size: file.size,
     type: file.type || "video/*"
   })
-  input.value = ""
 }
 
 function addTag(event?: KeyboardEvent) {
@@ -196,14 +189,6 @@ useHead({
               <span>{{ statusLabel }}</span>
             </div>
 
-            <input
-              ref="fileInput"
-              class="upload-file-input"
-              type="file"
-              accept="video/*"
-              @change="onFileSelected"
-            >
-
             <div class="upload-source__drop">
               <div class="upload-source__icon" aria-hidden="true">
                 <AoiIcon name="file-video" :size="28" decorative />
@@ -215,9 +200,13 @@ useHead({
                 </span>
                 <span v-else>这里只读取文件名、大小和 MIME 类型，不上传文件内容。</span>
               </div>
-              <AoiButton variant="outlined" icon="folder-open" @click="chooseFile">
-                {{ activeDraft.source ? "替换文件" : "选择文件" }}
-              </AoiButton>
+              <AoiFileInput accept="video/*" @change="onFileSelected">
+                <template #default="{ open }">
+                  <AoiButton variant="outlined" icon="folder-open" @click="open">
+                    {{ activeDraft.source ? "替换文件" : "选择文件" }}
+                  </AoiButton>
+                </template>
+              </AoiFileInput>
             </div>
           </section>
 
@@ -281,12 +270,14 @@ useHead({
                 <AoiButton variant="outlined" icon="plus" @click="addTag()">添加</AoiButton>
               </div>
               <div v-if="activeDraft.tags.length" class="upload-tags__list" aria-label="草稿标签">
-                <span v-for="tag in activeDraft.tags" :key="tag" class="upload-tag">
-                  # {{ tag }}
-                  <button type="button" :aria-label="`移除标签 ${tag}`" @click="removeTag(tag)">
-                    <AoiIcon name="x" :size="14" decorative />
-                  </button>
-                </span>
+                <AoiChip
+                  v-for="tag in activeDraft.tags"
+                  :key="tag"
+                  :label="`# ${tag}`"
+                  removable
+                  :remove-label="`移除标签 ${tag}`"
+                  @remove="removeTag(tag)"
+                />
               </div>
             </div>
           </section>
@@ -315,17 +306,16 @@ useHead({
           </div>
 
           <div class="draft-list" aria-label="投稿草稿列表">
-            <button
+            <AoiChoiceCard
               v-for="draft in drafts.draftList"
               :key="draft.id"
-              type="button"
-              class="draft-list__item"
-              :class="{ 'draft-list__item--active': draft.id === activeDraft?.id }"
-              @click="selectDraft(draft.id)"
-            >
-              <strong>{{ draft.title || "未命名草稿" }}</strong>
-              <span>{{ draft.status === "queued-local" ? "已本地排队" : "草稿" }} · {{ draft.tags.length }} 标签</span>
-            </button>
+              :value="draft.id"
+              :title="draft.title || '未命名草稿'"
+              :description="`${draft.status === 'queued-local' ? '已本地排队' : '草稿'} · ${draft.tags.length} 标签`"
+              variant="compact"
+              :selected="draft.id === activeDraft?.id"
+              @select="selectDraft"
+            />
           </div>
         </section>
 
@@ -423,20 +413,10 @@ useHead({
 
 .upload-panel__title span,
 .upload-source__copy span,
-.draft-list__item span,
 .upload-preview p,
 .upload-preview__meta dt,
 .upload-checklist p {
   color: var(--aoi-text-muted);
-}
-
-.upload-file-input {
-  position: fixed;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  opacity: 0;
-  pointer-events: none;
 }
 
 .upload-source__drop {
@@ -468,8 +448,7 @@ useHead({
   gap: 5px;
 }
 
-.upload-source__copy strong,
-.draft-list__item strong {
+.upload-source__copy strong {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -506,37 +485,6 @@ useHead({
   gap: 8px;
 }
 
-.upload-tag {
-  display: inline-flex;
-  min-height: 30px;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface-solid);
-  color: var(--aoi-accent-60);
-  font-size: 12px;
-  font-weight: 800;
-  padding: 4px 7px 4px 9px;
-}
-
-.upload-tag button {
-  display: inline-grid;
-  width: 22px;
-  height: 22px;
-  place-items: center;
-  border: 0;
-  border-radius: var(--aoi-radius-xs);
-  background: transparent;
-  color: currentColor;
-  cursor: pointer;
-  padding: 0;
-}
-
-.upload-tag button:hover {
-  background: var(--aoi-accent-10);
-}
-
 .upload-actions {
   display: flex;
   flex-wrap: wrap;
@@ -546,26 +494,6 @@ useHead({
 .draft-list {
   display: grid;
   gap: 8px;
-}
-
-.draft-list__item {
-  display: grid;
-  gap: 5px;
-  width: 100%;
-  min-width: 0;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface-solid);
-  color: var(--aoi-text);
-  cursor: pointer;
-  font: inherit;
-  padding: 10px;
-  text-align: left;
-}
-
-.draft-list__item--active {
-  border-color: rgba(34, 184, 207, 0.46);
-  background: var(--aoi-accent-10);
 }
 
 .upload-preview__cover {

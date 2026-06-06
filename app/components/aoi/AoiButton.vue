@@ -13,6 +13,7 @@ const props = withDefaults(defineProps<{
   loading?: boolean
   disabled?: boolean
   ariaLabel?: string
+  ariaPressed?: boolean
   external?: boolean
   href?: RouteLocationRaw
   noRel?: boolean
@@ -28,6 +29,7 @@ const props = withDefaults(defineProps<{
   loading: false,
   disabled: false,
   ariaLabel: undefined,
+  ariaPressed: undefined,
   external: undefined,
   href: undefined,
   noRel: false,
@@ -67,6 +69,7 @@ function onClick(event: MouseEvent) {
     v-if="hasLink && !disabled && !loading"
     class="aoi-button-link"
     :aria-label="ariaLabel"
+    :aria-pressed="ariaPressed"
     :external="external"
     :href="href"
     :no-rel="noRel"
@@ -106,6 +109,7 @@ function onClick(event: MouseEvent) {
     class="aoi-button"
     :class="`aoi-button--${size}`"
     :aria-label="ariaLabel"
+    :aria-pressed="ariaPressed"
     :disabled="disabled || loading || undefined"
     :type="type"
     :trailing-icon="hasTrailingIcon || undefined"

@@ -10,7 +10,6 @@ import type {
 
 const { t } = useI18n()
 const settings = useAppSettingsStore()
-const fileInput = ref<HTMLInputElement | null>(null)
 
 const themeCards: Array<{ icon: string, label: string, value: AoiPreferredTheme }> = [
   { icon: "sun", label: "浅色主题", value: "light" },
@@ -102,19 +101,28 @@ const customAccentModel = computed({
   set: (value: string) => settings.setCustomAccent(value)
 })
 
-function pickBackground() {
-  fileInput.value?.click()
+function setAppearanceDensity(value: string) {
+  settings.setAppearanceDensity(value as AoiAppearanceDensity)
 }
 
-async function onBackgroundChange(event: Event) {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
+function setAppearanceSize(value: string) {
+  settings.setAppearanceSize(value as AoiAppearanceSize)
+}
+
+function setAppearanceShape(value: string) {
+  settings.setAppearanceShape(value as AoiAppearanceShape)
+}
+
+function setAppearanceContrast(value: string) {
+  settings.setAppearanceContrast(value as AoiAppearanceContrast)
+}
+
+async function onBackgroundChange(files: File[]) {
+  const file = files[0]
 
   if (file) {
     await settings.setBackgroundFile(file)
   }
-
-  input.value = ""
 }
 
 function formatBytes(value: number) {
@@ -143,17 +151,15 @@ function formatBytes(value: number) {
       description="切换浅色、深色或跟随系统。"
     >
       <div class="settings-card-grid">
-        <button
+        <AoiChoiceCard
           v-for="item in themeCards"
           :key="item.value"
-          class="settings-choice-card"
-          :class="{ 'settings-choice-card--active': settings.preferredTheme === item.value }"
-          type="button"
-          @click="settings.setPreferredTheme(item.value)"
-        >
-          <AoiIcon :name="item.icon" :size="22" decorative />
-          <span>{{ item.label }}</span>
-        </button>
+          :value="item.value"
+          :title="item.label"
+          :icon="item.icon"
+          :selected="settings.preferredTheme === item.value"
+          @select="settings.setPreferredTheme(item.value)"
+        />
       </div>
     </SettingsPanel>
 
@@ -168,21 +174,13 @@ function formatBytes(value: number) {
             <strong>{{ t("settings.appearance.form.densityTitle") }}</strong>
             <span>{{ t("settings.appearance.form.densityDescription") }}</span>
           </div>
-          <div class="settings-segmented" role="group" :aria-label="t('settings.appearance.form.densityTitle')">
-            <button
-              v-for="item in densityOptions"
-              :key="item.value"
-              class="settings-segmented__item"
-              :class="{ 'settings-segmented__item--active': settings.appearanceDensity === item.value }"
-              type="button"
-              :aria-pressed="settings.appearanceDensity === item.value"
-              @click="settings.setAppearanceDensity(item.value)"
-            >
-              <AoiIcon :name="item.icon" :size="18" decorative />
-              <span>{{ item.label }}</span>
-              <small>{{ item.description }}</small>
-            </button>
-          </div>
+          <AoiSegmentedControl
+            :model-value="settings.appearanceDensity"
+            :items="densityOptions"
+            :aria-label="t('settings.appearance.form.densityTitle')"
+            :columns="2"
+            @update:model-value="setAppearanceDensity"
+          />
         </section>
 
         <section class="settings-form-group">
@@ -190,21 +188,13 @@ function formatBytes(value: number) {
             <strong>{{ t("settings.appearance.form.sizeTitle") }}</strong>
             <span>{{ t("settings.appearance.form.sizeDescription") }}</span>
           </div>
-          <div class="settings-segmented settings-segmented--three" role="group" :aria-label="t('settings.appearance.form.sizeTitle')">
-            <button
-              v-for="item in sizeOptions"
-              :key="item.value"
-              class="settings-segmented__item"
-              :class="{ 'settings-segmented__item--active': settings.appearanceSize === item.value }"
-              type="button"
-              :aria-pressed="settings.appearanceSize === item.value"
-              @click="settings.setAppearanceSize(item.value)"
-            >
-              <AoiIcon :name="item.icon" :size="18" decorative />
-              <span>{{ item.label }}</span>
-              <small>{{ item.description }}</small>
-            </button>
-          </div>
+          <AoiSegmentedControl
+            :model-value="settings.appearanceSize"
+            :items="sizeOptions"
+            :aria-label="t('settings.appearance.form.sizeTitle')"
+            :columns="3"
+            @update:model-value="setAppearanceSize"
+          />
         </section>
 
         <section class="settings-form-group">
@@ -212,21 +202,13 @@ function formatBytes(value: number) {
             <strong>{{ t("settings.appearance.form.shapeTitle") }}</strong>
             <span>{{ t("settings.appearance.form.shapeDescription") }}</span>
           </div>
-          <div class="settings-segmented settings-segmented--three" role="group" :aria-label="t('settings.appearance.form.shapeTitle')">
-            <button
-              v-for="item in shapeOptions"
-              :key="item.value"
-              class="settings-segmented__item"
-              :class="{ 'settings-segmented__item--active': settings.appearanceShape === item.value }"
-              type="button"
-              :aria-pressed="settings.appearanceShape === item.value"
-              @click="settings.setAppearanceShape(item.value)"
-            >
-              <AoiIcon :name="item.icon" :size="18" decorative />
-              <span>{{ item.label }}</span>
-              <small>{{ item.description }}</small>
-            </button>
-          </div>
+          <AoiSegmentedControl
+            :model-value="settings.appearanceShape"
+            :items="shapeOptions"
+            :aria-label="t('settings.appearance.form.shapeTitle')"
+            :columns="3"
+            @update:model-value="setAppearanceShape"
+          />
         </section>
 
         <section class="settings-form-group">
@@ -234,21 +216,13 @@ function formatBytes(value: number) {
             <strong>{{ t("settings.appearance.form.contrastTitle") }}</strong>
             <span>{{ t("settings.appearance.form.contrastDescription") }}</span>
           </div>
-          <div class="settings-segmented" role="group" :aria-label="t('settings.appearance.form.contrastTitle')">
-            <button
-              v-for="item in contrastOptions"
-              :key="item.value"
-              class="settings-segmented__item"
-              :class="{ 'settings-segmented__item--active': settings.appearanceContrast === item.value }"
-              type="button"
-              :aria-pressed="settings.appearanceContrast === item.value"
-              @click="settings.setAppearanceContrast(item.value)"
-            >
-              <AoiIcon :name="item.icon" :size="18" decorative />
-              <span>{{ item.label }}</span>
-              <small>{{ item.description }}</small>
-            </button>
-          </div>
+          <AoiSegmentedControl
+            :model-value="settings.appearanceContrast"
+            :items="contrastOptions"
+            :aria-label="t('settings.appearance.form.contrastTitle')"
+            :columns="2"
+            @update:model-value="setAppearanceContrast"
+          />
         </section>
       </div>
 
@@ -266,37 +240,32 @@ function formatBytes(value: number) {
       description="选择一套色板，或切到自定义色。"
     >
       <div class="settings-palette-grid">
-        <button
+        <AoiChoiceCard
           v-for="preset in AOI_ACCENT_PRESETS"
           :key="preset.value"
           class="settings-palette-card"
-          :class="{ 'settings-palette-card--active': settings.accentMode === 'preset' && settings.accentPreset === preset.value }"
-          type="button"
-          @click="settings.setAccentPreset(preset.value)"
+          :value="preset.value"
+          :title="preset.label"
+          :description="preset.subtitle"
+          :selected="settings.accentMode === 'preset' && settings.accentPreset === preset.value"
+          @select="settings.setAccentPreset(preset.value)"
         >
-          <span
-            class="settings-palette-card__preview"
-            :style="{
-              '--preview-10': preset.accent10,
-              '--preview-20': preset.accent20,
-              '--preview-50': preset.accent50,
-              '--preview-60': preset.accent60
-            }"
-          />
-          <strong>{{ preset.label }}</strong>
-          <span>{{ preset.subtitle }}</span>
-        </button>
+          <template #preview>
+            <span
+              class="settings-palette-card__preview"
+              :style="{
+                '--preview-10': preset.accent10,
+                '--preview-20': preset.accent20,
+                '--preview-50': preset.accent50,
+                '--preview-60': preset.accent60
+              }"
+            />
+          </template>
+        </AoiChoiceCard>
       </div>
 
       <div class="settings-custom-color">
-        <label class="settings-custom-color__picker">
-          <span :style="{ backgroundColor: customAccentModel }" />
-          <input
-            v-model="customAccentModel"
-            aria-label="自定义主题色"
-            type="color"
-          >
-        </label>
+        <AoiColorInput v-model="customAccentModel" label="自定义主题色" />
         <AoiTextField
           v-model="customAccentModel"
           label="自定义主题色"
@@ -313,9 +282,13 @@ function formatBytes(value: number) {
       description="背景图只保存在当前浏览器，不会上传。"
     >
       <template #actions>
-        <AoiButton variant="outlined" size="sm" icon="upload" @click="pickBackground">
-          选择文件
-        </AoiButton>
+        <AoiFileInput accept="image/png,image/jpeg,image/webp" @change="onBackgroundChange">
+          <template #default="{ open }">
+            <AoiButton variant="outlined" size="sm" icon="upload" @click="open">
+              选择文件
+            </AoiButton>
+          </template>
+        </AoiFileInput>
         <AoiButton
           variant="text"
           size="sm"
@@ -326,14 +299,6 @@ function formatBytes(value: number) {
           清除
         </AoiButton>
       </template>
-
-      <input
-        ref="fileInput"
-        class="settings-hidden-input"
-        accept="image/png,image/jpeg,image/webp"
-        type="file"
-        @change="onBackgroundChange"
-      >
 
       <div
         class="settings-background-preview"
@@ -372,49 +337,6 @@ function formatBytes(value: number) {
 </template>
 
 <style scoped>
-.settings-choice-card,
-.settings-palette-card {
-  display: grid;
-  min-height: 104px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-card);
-  background: var(--aoi-card-bg);
-  color: var(--aoi-text);
-  cursor: pointer;
-  font: inherit;
-  gap: 8px;
-  justify-items: start;
-  padding: var(--aoi-card-padding);
-  text-align: left;
-  transition:
-    background var(--aoi-motion-fast) var(--aoi-ease-out),
-    border-color var(--aoi-motion-fast) var(--aoi-ease-out),
-    color var(--aoi-motion-fast) var(--aoi-ease-out),
-    transform var(--aoi-motion-fast) var(--aoi-ease-press);
-}
-
-.settings-choice-card:hover,
-.settings-palette-card:hover {
-  background: var(--aoi-state-hover);
-}
-
-.settings-choice-card:active,
-.settings-palette-card:active {
-  transform: scale(.98);
-}
-
-.settings-choice-card--active,
-.settings-palette-card--active {
-  border-color: var(--aoi-state-border-active);
-  background: var(--aoi-state-active);
-  color: var(--aoi-accent-60);
-}
-
-.settings-choice-card span,
-.settings-palette-card strong {
-  font-weight: 820;
-}
-
 .settings-form-grid {
   display: grid;
   gap: var(--aoi-grid-gap-compact);
@@ -451,71 +373,6 @@ function formatBytes(value: number) {
   line-height: 1.7;
 }
 
-.settings-segmented {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 6px;
-}
-
-.settings-segmented--three {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.settings-segmented__item {
-  display: grid;
-  min-width: 0;
-  min-height: calc(var(--aoi-control-height-lg) + 30px);
-  align-content: center;
-  justify-items: start;
-  border: 1px solid transparent;
-  border-radius: var(--aoi-radius-choice);
-  background: transparent;
-  color: var(--aoi-text);
-  cursor: pointer;
-  font: inherit;
-  gap: 4px;
-  padding: 10px 12px;
-  text-align: left;
-  transition:
-    background var(--aoi-motion-fast) var(--aoi-ease-out),
-    border-color var(--aoi-motion-fast) var(--aoi-ease-out),
-    color var(--aoi-motion-fast) var(--aoi-ease-out),
-    transform var(--aoi-motion-fast) var(--aoi-ease-press);
-}
-
-.settings-segmented__item:hover {
-  background: var(--aoi-state-hover);
-}
-
-.settings-segmented__item:active {
-  transform: scale(.98);
-}
-
-.settings-segmented__item--active {
-  border-color: var(--aoi-state-border-active);
-  background: var(--aoi-state-active);
-  color: var(--aoi-accent-60);
-}
-
-.settings-segmented__item span {
-  overflow: hidden;
-  font-weight: 800;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.settings-segmented__item small {
-  display: block;
-  max-width: 100%;
-  overflow: hidden;
-  color: var(--aoi-text-muted);
-  font-size: .78rem;
-  font-weight: 640;
-  line-height: 1.35;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .settings-palette-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -537,44 +394,11 @@ function formatBytes(value: number) {
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .42);
 }
 
-.settings-palette-card span:not(.settings-palette-card__preview) {
-  color: var(--aoi-text-muted);
-}
-
 .settings-custom-color {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   gap: 12px;
   align-items: center;
-}
-
-.settings-custom-color__picker {
-  position: relative;
-  display: inline-grid;
-  width: 56px;
-  height: 56px;
-  place-items: center;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-round);
-  background: var(--aoi-surface-solid);
-  cursor: pointer;
-  overflow: hidden;
-}
-
-.settings-custom-color__picker span {
-  width: 42px;
-  height: 42px;
-  border-radius: inherit;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .48);
-}
-
-.settings-custom-color__picker input,
-.settings-hidden-input {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  opacity: 0;
-  pointer-events: none;
 }
 
 .settings-background-preview {
@@ -610,11 +434,6 @@ function formatBytes(value: number) {
   .settings-custom-color,
   .settings-form-group,
   .settings-slider-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .settings-segmented,
-  .settings-segmented--three {
     grid-template-columns: 1fr;
   }
 }

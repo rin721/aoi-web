@@ -49,18 +49,18 @@ async function chooseLocale(value: AoiLocale) {
       description="切换后会立即应用，并保存到当前浏览器。"
     >
       <div class="settings-card-grid">
-        <button
+        <AoiChoiceCard
           v-for="item in localeOptions"
           :key="item.value"
           class="settings-language-card"
-          :class="{ 'settings-language-card--active': locale === item.value }"
-          type="button"
-          @click="chooseLocale(item.value)"
+          :value="item.value"
+          :title="item.nativeName"
+          :description="item.label"
+          :selected="locale === item.value"
+          @select="chooseLocale(item.value)"
         >
-          <strong>{{ item.nativeName }}</strong>
-          <span>{{ item.label }}</span>
           <small>{{ item.description }}</small>
-        </button>
+        </AoiChoiceCard>
       </div>
     </SettingsPanel>
   </div>
@@ -68,45 +68,9 @@ async function chooseLocale(value: AoiLocale) {
 
 <style scoped>
 .settings-language-card {
-  display: grid;
   min-height: 132px;
-  gap: 6px;
-  justify-items: start;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-md);
-  background: var(--aoi-card-bg);
-  color: var(--aoi-text);
-  cursor: pointer;
-  font: inherit;
-  padding: 14px;
-  text-align: left;
-  transition:
-    background var(--aoi-motion-fast) var(--aoi-ease-out),
-    border-color var(--aoi-motion-fast) var(--aoi-ease-out),
-    color var(--aoi-motion-fast) var(--aoi-ease-out),
-    transform var(--aoi-motion-fast) var(--aoi-ease-press);
 }
 
-.settings-language-card:hover {
-  background: var(--aoi-state-hover);
-}
-
-.settings-language-card:active {
-  transform: scale(.98);
-}
-
-.settings-language-card--active {
-  border-color: var(--aoi-state-border-active);
-  background: var(--aoi-state-active);
-  color: var(--aoi-accent-60);
-}
-
-.settings-language-card strong {
-  font-size: 18px;
-  font-weight: 840;
-}
-
-.settings-language-card span,
 .settings-language-card small {
   color: var(--aoi-text-muted);
   line-height: 1.55;
