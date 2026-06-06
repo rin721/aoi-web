@@ -30,14 +30,16 @@ defineProps<{
   box-shadow: var(--aoi-shadow-sm);
   color: var(--aoi-text);
   padding: 14px;
+  transform: translate3d(0, 0, 0);
   transition:
     transform var(--aoi-motion-base) var(--aoi-ease-out),
     box-shadow var(--aoi-motion-base) var(--aoi-ease-out);
+  will-change: transform;
 }
 
 .category-card:hover {
   box-shadow: var(--aoi-shadow-md);
-  transform: translateY(-4px);
+  transform: translate3d(0, -4px, 0);
 }
 
 .category-card__swatch {
@@ -75,5 +77,11 @@ defineProps<{
   color: var(--aoi-accent-60);
   font-size: 12px;
   font-weight: 800;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .category-card {
+    will-change: auto;
+  }
 }
 </style>

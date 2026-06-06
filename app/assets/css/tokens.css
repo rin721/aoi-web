@@ -83,6 +83,15 @@
   --aoi-settings-mobile-sticky-top: calc(var(--aoi-mobile-nav-height) + 8px);
   --aoi-rail-width: 56px;
   --aoi-mobile-nav-height: 56px;
+  --aoi-z-background: 0;
+  --aoi-z-page: 1;
+  --aoi-z-sticky: 20;
+  --aoi-z-nav: 40;
+  --aoi-z-floating: 60;
+  --aoi-z-menu: 80;
+  --aoi-z-dialog: 100;
+  --aoi-z-loading: 120;
+  --aoi-z-cursor: 140;
   --aoi-motion-fast: 120ms;
   --aoi-motion-base: 220ms;
   --aoi-ease-out: cubic-bezier(.19, 1, .22, 1);
@@ -120,6 +129,7 @@
   --md-outlined-text-field-container-shape: var(--aoi-radius-field);
   --md-filled-select-text-field-container-shape: var(--aoi-radius-field);
   --md-outlined-select-text-field-container-shape: var(--aoi-radius-field);
+  --md-dialog-container-shape: var(--aoi-radius-container);
   --md-menu-container-shape: var(--aoi-radius-container);
 }
 

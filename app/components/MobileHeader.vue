@@ -35,7 +35,7 @@ const loginItem = computed(() => secondaryItems.value.find((item) => item.to ===
 .mobile-header {
   position: fixed;
   inset: 0 0 auto;
-  z-index: 40;
+  z-index: var(--aoi-z-nav);
   display: none;
   height: var(--aoi-mobile-nav-height);
   align-items: center;

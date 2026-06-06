@@ -7,7 +7,6 @@ const props = defineProps<{
 }>()
 
 const settings = useAppSettingsStore()
-const coverClass = computed(() => `video-card__cover--${(props.index % 6) + 1}`)
 const detailPath = computed(() => `/video/${props.video.slug}`)
 const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undefined)
 </script>
@@ -21,7 +20,11 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
         :aria-label="video.title"
         :target="linkTarget"
       >
-        <span class="video-card__cover" :class="coverClass" />
+        <AoiLazyImage
+          class="video-card__cover"
+          :src="video.thumbnailUrl"
+          alt=""
+        />
       </AoiLink>
     </div>
 
@@ -38,20 +41,22 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
   color: var(--aoi-text);
   gap: 8px;
   padding: 8px;
+  transform: translate3d(0, 0, 0);
   transition:
     transform var(--aoi-motion-base) var(--aoi-ease-out),
     box-shadow var(--aoi-motion-base) var(--aoi-ease-out),
     background var(--aoi-motion-base) var(--aoi-ease-out);
+  will-change: transform;
 }
 
 .video-card:hover {
   background: var(--aoi-surface);
   box-shadow: var(--aoi-shadow-md);
-  transform: translateY(-6px);
+  transform: translate3d(0, -6px, 0);
 }
 
 .video-card:active {
-  transform: scale(.972);
+  transform: translate3d(0, 0, 0) scale(.972);
 }
 
 .video-card__media {
@@ -70,9 +75,6 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: var(--aoi-radius-card);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 45%),
-    var(--cover);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.32);
 }
 
@@ -100,13 +102,6 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 12px 0 rgba(255, 255, 255, 0.42);
 }
-
-.video-card__cover--1 { --cover: linear-gradient(135deg, #6de5e5, #5b8def 48%, #f2709c); }
-.video-card__cover--2 { --cover: linear-gradient(135deg, #f7b955, #d9f7cc 48%, #65d5e4); }
-.video-card__cover--3 { --cover: linear-gradient(135deg, #7a68f0, #22b8cf 48%, #151c33); }
-.video-card__cover--4 { --cover: linear-gradient(135deg, #c9f3f7, #8fc7ff 45%, #f7d3df); }
-.video-card__cover--5 { --cover: linear-gradient(135deg, #17262b, #216d7d 48%, #f2709c); }
-.video-card__cover--6 { --cover: linear-gradient(135deg, #fff6fb, #f2709c 45%, #22b8cf); }
 
 .video-card__title {
   display: -webkit-box;
@@ -146,5 +141,11 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
     overflow-wrap: anywhere;
   }
 
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .video-card {
+    will-change: auto;
+  }
 }
 </style>

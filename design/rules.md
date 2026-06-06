@@ -42,6 +42,27 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 - Settings pages keep a grouped sticky side rail on desktop; mobile flattens destinations into a compact sticky horizontal strip below the fixed header so active content remains reachable while scrolling.
 - Mobile player controls should stay compact: one timeline row plus one control row when possible. Hide verbose visible labels when accessible labels remain.
 
+## Viewport And Lazy Loading Rules
+
+- Use `useAoiInViewport()` for browser viewport detection. Keep it SSR safe and fall back to visible when `IntersectionObserver` is unavailable.
+- Media-heavy surfaces should use a small preload margin around the viewport, currently `200px 0px`, so scrolling remains smooth without eager loading the whole page.
+- Video cards should render covers through `AoiLazyImage`; do not set real image URLs before the card enters the preload margin.
+- Video players should avoid binding media `src` or calling `load()` until the player enters the preload margin.
+- Long-running visual demos and decorative motion should pause when outside the viewport and respect `prefers-reduced-motion`.
+
+## Layer Stack Rules
+
+- Use semantic z-index tokens instead of ad hoc large numbers: background, page, sticky, nav, floating, menu, dialog, loading, and cursor.
+- Dynamic overlays should register with `useAoiLayer()` through Aoi wrappers. Business pages should not manually compete with menu, dialog, loading, or cursor z-index values.
+- Material Web overlay behavior must stay behind Aoi wrappers. Expose needed menu/dialog/select positioning through `app/components/aoi/` instead of reaching into `md-*` internals.
+- Menus and selects should prefer a top-level positioning mode when they need to escape transformed, fixed, sticky, or overflow-hidden ancestors.
+
+## Motion Performance Rules
+
+- Prefer `transform` and opacity for motion. Horizontal and vertical movement should use `translate3d(...)` for card hover, fixed navigation feedback, and reusable motion scenes.
+- Apply `will-change: transform` only to elements that actually animate or move, and reset it under reduced-motion where practical.
+- Avoid creating persistent extra compositor layers for static decoration or large page sections.
+
 ## Data And API Rules
 
 - API access goes through `useAoiApi()` and remains compatible with `useAoiApiTelemetry()`.

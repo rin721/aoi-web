@@ -5,18 +5,22 @@ export interface AoiSelectOption {
   disabled?: boolean
 }
 
+type AoiSelectMenuPositioning = "absolute" | "fixed" | "popover"
+
 const props = withDefaults(defineProps<{
   modelValue?: string
   options?: AoiSelectOption[]
   label?: string
   variant?: "filled" | "outlined"
   disabled?: boolean
+  menuPositioning?: AoiSelectMenuPositioning
 }>(), {
   modelValue: "",
   options: () => [],
   label: undefined,
   variant: "filled",
-  disabled: false
+  disabled: false,
+  menuPositioning: "popover"
 })
 
 const emit = defineEmits<{
@@ -24,9 +28,19 @@ const emit = defineEmits<{
 }>()
 
 const tagName = computed(() => props.variant === "outlined" ? "md-outlined-select" : "md-filled-select")
+const menuOpen = ref(false)
+const layer = useAoiLayer("menu", menuOpen)
 
 function onChange(event: Event) {
   emit("update:modelValue", (event.target as HTMLSelectElement).value)
+}
+
+function onOpening() {
+  menuOpen.value = true
+}
+
+function onClosed() {
+  menuOpen.value = false
 }
 </script>
 
@@ -37,7 +51,13 @@ function onChange(event: Event) {
     :value="modelValue"
     :label="label"
     :disabled="disabled || undefined"
+    :menu-positioning="menuPositioning"
+    :style="layer.style.value"
     @change="onChange"
+    @opening="onOpening"
+    @opened="onOpening"
+    @closed="onClosed"
+    @closing="onClosed"
   >
     <md-select-option
       v-for="option in options"

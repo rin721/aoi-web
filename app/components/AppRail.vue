@@ -40,7 +40,7 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 .app-rail {
   position: fixed;
   inset: 0 auto 0 0;
-  z-index: 30;
+  z-index: var(--aoi-z-nav);
   display: flex;
   width: var(--aoi-rail-width);
   flex-direction: column;
@@ -67,10 +67,12 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   place-items: center;
   border-radius: var(--aoi-radius-nav-indicator);
   color: var(--aoi-icon);
+  transform: translate3d(0, 0, 0);
   transition:
     background var(--aoi-motion-fast) var(--aoi-ease-out),
     color var(--aoi-motion-fast) var(--aoi-ease-out),
     transform var(--aoi-motion-fast) var(--aoi-ease-press);
+  will-change: transform;
 }
 
 .app-rail__link:hover,
@@ -84,7 +86,7 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   border-radius: var(--aoi-radius-nav-indicator);
   background: var(--aoi-nav-pressed-bg);
   color: var(--aoi-nav-active-color);
-  transform: scale(.94);
+  transform: translate3d(0, 0, 0) scale(.94);
 }
 
 .app-rail__link--active {
@@ -106,7 +108,7 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   position: absolute;
   left: calc(100% + 10px);
   top: 50%;
-  z-index: 1;
+  z-index: var(--aoi-z-floating);
   display: inline-flex;
   min-height: 28px;
   align-items: center;
@@ -121,7 +123,7 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   opacity: 0;
   padding: 0 10px;
   pointer-events: none;
-  transform: translate(-6px, -50%) scale(.96);
+  transform: translate3d(-6px, -50%, 0) scale(.96);
   transform-origin: left center;
   transition:
     opacity 180ms var(--aoi-ease-out),
@@ -132,7 +134,7 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 .app-rail__link:hover .app-rail__label,
 .app-rail__link:focus-visible .app-rail__label {
   opacity: 1;
-  transform: translate(0, -50%) scale(1);
+  transform: translate3d(0, -50%, 0) scale(1);
 }
 
 @media (max-width: 639px) {
@@ -145,6 +147,10 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   .app-rail__link,
   .app-rail__label {
     transition-duration: 1ms;
+  }
+
+  .app-rail__link {
+    will-change: auto;
   }
 }
 </style>

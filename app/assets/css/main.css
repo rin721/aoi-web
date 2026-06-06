@@ -38,7 +38,7 @@ body::after {
 }
 
 body::before {
-  z-index: 0;
+  z-index: var(--aoi-z-background);
   inset: calc(var(--aoi-user-bg-blur, 0px) * -2);
   background-image: var(--aoi-user-bg-image, none);
   background-position: center;
@@ -50,7 +50,7 @@ body::before {
 }
 
 body::after {
-  z-index: 0;
+  z-index: var(--aoi-z-background);
   background: rgba(251, 253, 255, var(--aoi-user-bg-dim, 0));
 }
 
@@ -60,7 +60,7 @@ body::after {
 
 #__nuxt {
   position: relative;
-  z-index: 1;
+  z-index: var(--aoi-z-page);
 }
 
 button,
@@ -200,6 +200,15 @@ a {
   min-height: var(--aoi-control-height-md);
 }
 
+.aoi-gpu-layer {
+  backface-visibility: hidden;
+  transform: translate3d(0, 0, 0);
+}
+
+.aoi-will-change-transform {
+  will-change: transform;
+}
+
 .settings-page {
   display: grid;
   gap: var(--aoi-grid-gap);
@@ -262,7 +271,7 @@ a {
 
 @keyframes aoi-enter {
   from {
-    transform: translateY(-8px);
+    transform: translate3d(0, -8px, 0);
   }
 }
 

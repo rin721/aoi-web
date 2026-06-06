@@ -6,20 +6,26 @@ export interface AoiMenuItem {
   disabled?: boolean
 }
 
+type AoiMenuPositioning = "absolute" | "fixed" | "document" | "popover"
+
 const props = withDefaults(defineProps<{
   open?: boolean
   anchor?: string
   items?: AoiMenuItem[]
+  positioning?: AoiMenuPositioning
 }>(), {
   open: false,
   anchor: undefined,
-  items: () => []
+  items: () => [],
+  positioning: "popover"
 })
 
 const emit = defineEmits<{
   "update:open": [value: boolean]
   select: [value: string]
 }>()
+
+const layer = useAoiLayer("menu", computed(() => props.open))
 
 function select(item: AoiMenuItem) {
   if (item.disabled) {
@@ -35,6 +41,8 @@ function select(item: AoiMenuItem) {
   <md-menu
     :open="open || undefined"
     :anchor="anchor"
+    :positioning="positioning"
+    :style="layer.style.value"
     @closed="emit('update:open', false)"
   >
     <md-menu-item

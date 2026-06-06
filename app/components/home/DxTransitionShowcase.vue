@@ -42,8 +42,15 @@ const modes: [TransitionMode, ...TransitionMode[]] = [
 const activeModeId = ref<TransitionMode["id"]>("entry")
 const replayKey = ref(0)
 const autoPlay = ref(true)
+const rootRef = ref<HTMLElement | null>(null)
+const viewport = useAoiInViewport(rootRef, {
+  once: false,
+  rootMargin: "0px",
+  threshold: 0.12
+})
 const activeMode = computed<TransitionMode>(() => modes.find((mode) => mode.id === activeModeId.value) || modes[0])
 const activeModeIndex = computed(() => modes.findIndex((mode) => mode.id === activeMode.value.id))
+const isMotionVisible = computed(() => viewport.isIntersecting.value)
 const modeItems = computed(() => modes.map((mode) => ({
   accent: mode.accent,
   icon: mode.icon,
@@ -75,23 +82,48 @@ function toggleAutoPlay() {
 
 let autoPlayTimer: number | undefined
 
-onMounted(() => {
+function startAutoPlayTimer() {
+  if (!import.meta.client || autoPlayTimer) {
+    return
+  }
+
   autoPlayTimer = window.setInterval(() => {
-    if (autoPlay.value) {
+    if (autoPlay.value && isMotionVisible.value) {
       nextMode()
     }
   }, 2800)
+}
+
+function stopAutoPlayTimer() {
+  if (autoPlayTimer) {
+    window.clearInterval(autoPlayTimer)
+    autoPlayTimer = undefined
+  }
+}
+
+watch([autoPlay, isMotionVisible], ([canAutoPlay, isVisible]) => {
+  if (canAutoPlay && isVisible) {
+    startAutoPlayTimer()
+    return
+  }
+
+  stopAutoPlayTimer()
+}, {
+  immediate: true
 })
 
 onBeforeUnmount(() => {
-  if (autoPlayTimer) {
-    window.clearInterval(autoPlayTimer)
-  }
+  stopAutoPlayTimer()
 })
 </script>
 
 <template>
-  <section class="dx-showcase" aria-labelledby="dx-showcase-title">
+  <section
+    ref="rootRef"
+    class="dx-showcase"
+    :class="{ 'dx-showcase--paused': !isMotionVisible }"
+    aria-labelledby="dx-showcase-title"
+  >
     <div class="dx-showcase__copy">
       <p class="dx-showcase__eyebrow">Motion Component</p>
       <h2 id="dx-showcase-title">Aoi DX 转场组件</h2>
@@ -237,6 +269,8 @@ onBeforeUnmount(() => {
     linear-gradient(135deg, var(--aoi-accent-50), var(--aoi-secondary-50) 48%, var(--aoi-sakura-50));
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
   animation: dx-screen-pop 760ms var(--aoi-ease-out) both;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
 }
 
 .dx-stage__ring,
@@ -261,6 +295,7 @@ onBeforeUnmount(() => {
     color-mix(in srgb, var(--stage-accent) 70%, white);
   opacity: .88;
   animation: dx-curtain 940ms var(--aoi-ease-out) both;
+  will-change: transform;
 }
 
 .dx-stage__curtain--left {
@@ -315,9 +350,10 @@ onBeforeUnmount(() => {
   width: 118px;
   height: 180%;
   background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.58), transparent);
-  transform: rotate(26deg);
+  transform: translate3d(-220px, 0, 0) rotate(26deg);
   transform-origin: center;
   animation: dx-sweep 1.9s var(--aoi-ease-out) infinite;
+  will-change: transform;
 }
 
 .dx-stage__track {
@@ -338,7 +374,7 @@ onBeforeUnmount(() => {
   top: 84px;
   width: 196px;
   background: rgba(255, 255, 255, 0.42);
-  transform: translateX(34px);
+  transform: translate3d(34px, 0, 0);
   animation-delay: 90ms;
 }
 
@@ -346,7 +382,7 @@ onBeforeUnmount(() => {
   top: 144px;
   width: 118px;
   background: rgba(255, 255, 255, 0.36);
-  transform: translateX(12px);
+  transform: translate3d(12px, 0, 0);
   animation-delay: 170ms;
 }
 
@@ -361,6 +397,7 @@ onBeforeUnmount(() => {
     color-mix(in srgb, var(--stage-accent) 42%, white);
   box-shadow: 0 14px 26px rgba(23, 38, 43, 0.18);
   animation: dx-card 1.25s var(--aoi-ease-out) both;
+  will-change: transform;
 }
 
 .dx-stage__card--one {
@@ -422,6 +459,13 @@ onBeforeUnmount(() => {
   box-shadow: 0 0 18px rgba(255, 255, 255, 0.8);
   content: "";
   animation: dx-progress 1.7s linear infinite;
+  will-change: transform;
+}
+
+.dx-showcase--paused .dx-stage__screen,
+.dx-showcase--paused .dx-stage__screen *,
+.dx-showcase--paused .dx-stage__progress::after {
+  animation-play-state: paused;
 }
 
 .dx-stage__readout {
@@ -494,34 +538,34 @@ onBeforeUnmount(() => {
 @keyframes dx-screen-pop {
   from {
     filter: saturate(.72);
-    transform: translateY(10px) scale(.965);
+    transform: translate3d(0, 10px, 0) scale(.965);
   }
 
   to {
     filter: saturate(1);
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
   }
 }
 
 @keyframes dx-curtain {
   0% {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 
   100% {
-    transform: translateX(-120%);
+    transform: translate3d(-120%, 0, 0);
   }
 }
 
 @keyframes dx-sweep {
   0%,
   8% {
-    translate: -220px 0;
+    transform: translate3d(-220px, 0, 0) rotate(26deg);
   }
 
   72%,
   100% {
-    translate: 340px 0;
+    transform: translate3d(340px, 0, 0) rotate(26deg);
   }
 }
 
@@ -540,12 +584,12 @@ onBeforeUnmount(() => {
 @keyframes dx-card {
   from {
     opacity: 0;
-    transform: translateX(120px) rotate(10deg) scale(.84);
+    transform: translate3d(120px, 0, 0) rotate(10deg) scale(.84);
   }
 
   to {
     opacity: .94;
-    transform: translateX(0) rotate(-3deg) scale(1);
+    transform: translate3d(0, 0, 0) rotate(-3deg) scale(1);
   }
 }
 
@@ -577,11 +621,11 @@ onBeforeUnmount(() => {
 
 @keyframes dx-progress {
   from {
-    transform: translateX(-120%);
+    transform: translate3d(-120%, 0, 0);
   }
 
   to {
-    transform: translateX(260%);
+    transform: translate3d(260%, 0, 0);
   }
 }
 
@@ -617,6 +661,16 @@ onBeforeUnmount(() => {
     right: 14px;
     left: 14px;
     min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dx-stage__screen,
+  .dx-stage__curtain,
+  .dx-stage__sweep,
+  .dx-stage__card,
+  .dx-stage__progress::after {
+    will-change: auto;
   }
 }
 </style>

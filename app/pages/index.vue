@@ -24,7 +24,12 @@ useHead({
 
     <div class="aoi-page">
       <ClientOnly>
-        <DxTransitionShowcase />
+        <AoiLazyMount class="home-dx-lazy">
+          <DxTransitionShowcase />
+          <template #placeholder>
+            <div class="home-dx-placeholder" aria-hidden="true" />
+          </template>
+        </AoiLazyMount>
       </ClientOnly>
 
       <CategoryTabs
@@ -109,6 +114,21 @@ useHead({
   padding: 3px;
 }
 
+.home-dx-lazy {
+  min-height: 258px;
+  margin-bottom: 18px;
+}
+
+.home-dx-placeholder {
+  min-height: 258px;
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-md);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, .72), rgba(233, 251, 253, .5)),
+    linear-gradient(110deg, rgba(34, 184, 207, .08), transparent 48%, rgba(242, 112, 156, .08));
+  box-shadow: var(--aoi-shadow-sm);
+}
+
 .home-state {
   display: grid;
   gap: 12px;
@@ -132,6 +152,11 @@ useHead({
 @media (max-width: 639px) {
   .home-view-toggle {
     display: none;
+  }
+
+  .home-dx-lazy,
+  .home-dx-placeholder {
+    min-height: 360px;
   }
 }
 </style>

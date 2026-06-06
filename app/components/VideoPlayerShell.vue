@@ -21,9 +21,14 @@ const videoRef = ref<HTMLVideoElement | null>(null)
 const currentTime = ref(0)
 const duration = ref(props.video.durationSeconds)
 const hasError = ref(false)
-const isLoading = ref(true)
+const isLoading = ref(false)
 const isPlaying = ref(false)
 let lastProgressEmit = -1
+const viewport = useAoiInViewport(rootRef, {
+  once: true,
+  rootMargin: "200px 0px",
+  threshold: 0
+})
 
 const playbackRateOptions = computed(() => playerSettings.playbackRates.map((rate) => ({
   label: `${rate}x`,
@@ -36,7 +41,9 @@ const playbackRateModel = computed({
 })
 
 const volumePercent = computed(() => Math.round(playerSettings.volume * 100))
-const canPlay = computed(() => Boolean(props.video.sourceUrl && !hasError.value))
+const shouldLoadMedia = computed(() => viewport.hasIntersected.value && Boolean(props.video.sourceUrl))
+const mediaSource = computed(() => shouldLoadMedia.value ? props.video.sourceUrl : undefined)
+const canPlay = computed(() => Boolean(shouldLoadMedia.value && !hasError.value))
 
 function formatTime(seconds: number) {
   const safeSeconds = Math.max(0, Math.floor(seconds))
@@ -49,7 +56,7 @@ function formatTime(seconds: number) {
 function applyMediaSettings() {
   const video = videoRef.value
 
-  if (!video) {
+  if (!video || !shouldLoadMedia.value) {
     return
   }
 
@@ -256,15 +263,23 @@ watch([
 
 watch(() => props.video.sourceUrl, () => {
   hasError.value = false
-  isLoading.value = true
+  isLoading.value = false
   currentTime.value = 0
   duration.value = props.video.durationSeconds
   lastProgressEmit = -1
-  void nextTick(loadMedia)
+
+  if (shouldLoadMedia.value) {
+    void nextTick(loadMedia)
+  }
 })
 
-onMounted(() => {
-  requestAnimationFrame(loadMedia)
+watch(shouldLoadMedia, (ready) => {
+  if (ready) {
+    isLoading.value = Boolean(props.video.sourceUrl)
+    void nextTick(loadMedia)
+  }
+}, {
+  immediate: true
 })
 </script>
 
@@ -281,7 +296,7 @@ onMounted(() => {
       <video
         ref="videoRef"
         class="video-player-shell__video"
-        :src="video.sourceUrl"
+        :src="mediaSource"
         preload="metadata"
         playsinline
         @loadedmetadata="onLoadedMetadata"

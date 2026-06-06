@@ -25,7 +25,7 @@ const { mobilePrimaryItems } = useAoiNavigation()
 .bottom-nav {
   position: fixed;
   inset: auto 0 0;
-  z-index: 40;
+  z-index: var(--aoi-z-nav);
   display: none;
   height: var(--aoi-mobile-nav-height);
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -45,10 +45,12 @@ const { mobilePrimaryItems } = useAoiNavigation()
   font-weight: 700;
   gap: 2px;
   line-height: 1;
+  transform: translate3d(0, 0, 0);
   transition:
     background var(--aoi-motion-fast) var(--aoi-ease-out),
     color var(--aoi-motion-fast) var(--aoi-ease-out),
     transform var(--aoi-motion-fast) var(--aoi-ease-press);
+  will-change: transform;
 }
 
 .bottom-nav__item:hover,
@@ -60,7 +62,7 @@ const { mobilePrimaryItems } = useAoiNavigation()
 .bottom-nav__item:active {
   background: var(--aoi-nav-pressed-bg);
   color: var(--aoi-nav-active-color);
-  transform: scale(.96);
+  transform: translate3d(0, 0, 0) scale(.96);
 }
 
 .bottom-nav__item--active {
@@ -93,6 +95,7 @@ const { mobilePrimaryItems } = useAoiNavigation()
 @media (prefers-reduced-motion: reduce) {
   .bottom-nav__item {
     transition-duration: 1ms;
+    will-change: auto;
   }
 }
 </style>

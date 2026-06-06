@@ -10,6 +10,8 @@ const emit = defineEmits<{
   closed: []
 }>()
 
+const layer = useAoiLayer("dialog", computed(() => props.open))
+
 function onClosed() {
   emit("update:open", false)
   emit("closed")
@@ -17,7 +19,7 @@ function onClosed() {
 </script>
 
 <template>
-  <md-dialog :open="props.open || undefined" @closed="onClosed">
+  <md-dialog :open="props.open || undefined" :style="layer.style.value" @closed="onClosed">
     <div slot="headline">
       <slot name="headline" />
     </div>

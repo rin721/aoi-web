@@ -70,9 +70,11 @@ function formatCount(value: number) {
   background: var(--aoi-surface);
   box-shadow: var(--aoi-shadow-sm);
   padding: 14px;
+  transform: translate3d(0, 0, 0);
   transition:
     transform var(--aoi-motion-base) var(--aoi-ease-out),
     box-shadow var(--aoi-motion-base) var(--aoi-ease-out);
+  will-change: transform;
 }
 
 .creator-card__link {
@@ -86,7 +88,7 @@ function formatCount(value: number) {
 
 .creator-card:hover {
   box-shadow: var(--aoi-shadow-md);
-  transform: translateY(-4px);
+  transform: translate3d(0, -4px, 0);
 }
 
 .creator-card__avatar {
@@ -166,6 +168,12 @@ function formatCount(value: number) {
 
   .creator-card__actions {
     justify-content: flex-end;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .creator-card {
+    will-change: auto;
   }
 }
 </style>

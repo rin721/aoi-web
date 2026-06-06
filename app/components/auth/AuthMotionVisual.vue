@@ -7,10 +7,23 @@ withDefaults(defineProps<{
   metric: "ready",
   variant: "login"
 })
+
+const rootRef = ref<HTMLElement | null>(null)
+const viewport = useAoiInViewport(rootRef, {
+  once: false,
+  rootMargin: "0px",
+  threshold: 0.12
+})
+const isMotionVisible = computed(() => viewport.isIntersecting.value)
 </script>
 
 <template>
-  <div class="auth-visual" :class="`auth-visual--${variant}`" aria-hidden="true">
+  <div
+    ref="rootRef"
+    class="auth-visual"
+    :class="[`auth-visual--${variant}`, { 'auth-visual--paused': !isMotionVisible }]"
+    aria-hidden="true"
+  >
     <span class="auth-visual__ring auth-visual__ring--outer" />
     <span class="auth-visual__ring auth-visual__ring--inner" />
     <span class="auth-visual__sweep" />
@@ -68,6 +81,7 @@ withDefaults(defineProps<{
   width: 168px;
   height: 168px;
   animation: auth-spin 2.2s linear infinite;
+  will-change: transform;
 }
 
 .auth-visual__ring--inner {
@@ -77,6 +91,7 @@ withDefaults(defineProps<{
   height: 68px;
   border-color: rgba(255, 255, 255, 0.58);
   animation: auth-spin 1.7s linear infinite reverse;
+  will-change: transform;
 }
 
 .auth-visual__sweep {
@@ -85,8 +100,9 @@ withDefaults(defineProps<{
   width: 110px;
   height: 160%;
   background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.58), transparent);
-  transform: rotate(27deg);
+  transform: translate3d(-260px, 0, 0) rotate(27deg);
   animation: auth-sweep-panel 2.1s var(--aoi-ease-out) infinite;
+  will-change: transform;
 }
 
 .auth-visual__lane {
@@ -121,6 +137,7 @@ withDefaults(defineProps<{
     color-mix(in srgb, var(--aoi-sun-50) 46%, white);
   box-shadow: 0 18px 34px rgba(23, 38, 43, 0.18);
   animation: auth-tile-panel 1.25s var(--aoi-ease-out) both;
+  will-change: transform;
 }
 
 .auth-visual__tile--one {
@@ -161,6 +178,12 @@ withDefaults(defineProps<{
   line-height: 1.1;
 }
 
+.auth-visual--paused *,
+.auth-visual--paused *::before,
+.auth-visual--paused *::after {
+  animation-play-state: paused;
+}
+
 @keyframes auth-spin {
   to {
     rotate: 360deg;
@@ -170,12 +193,12 @@ withDefaults(defineProps<{
 @keyframes auth-sweep-panel {
   0%,
   8% {
-    translate: -260px 0;
+    transform: translate3d(-260px, 0, 0) rotate(27deg);
   }
 
   72%,
   100% {
-    translate: 360px 0;
+    transform: translate3d(360px, 0, 0) rotate(27deg);
   }
 }
 
@@ -194,12 +217,12 @@ withDefaults(defineProps<{
 @keyframes auth-tile-panel {
   from {
     opacity: 0;
-    transform: translateX(140px) rotate(8deg) scale(.84);
+    transform: translate3d(140px, 0, 0) rotate(8deg) scale(.84);
   }
 
   to {
     opacity: .94;
-    transform: translateX(0) rotate(-3deg) scale(1);
+    transform: translate3d(0, 0, 0) rotate(-3deg) scale(1);
   }
 }
 
@@ -212,6 +235,14 @@ withDefaults(defineProps<{
 @media (max-width: 639px) {
   .auth-visual__tile--two {
     display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-visual__ring,
+  .auth-visual__sweep,
+  .auth-visual__tile {
+    will-change: auto;
   }
 }
 </style>

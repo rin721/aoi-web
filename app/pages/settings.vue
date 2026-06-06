@@ -142,7 +142,7 @@ useHead(() => ({
 .settings-shell__nav {
   position: sticky;
   top: var(--aoi-settings-sticky-top);
-  z-index: 20;
+  z-index: var(--aoi-z-sticky);
   display: grid;
   max-height: calc(100dvh - var(--aoi-settings-sticky-top) * 2);
   align-self: start;
@@ -267,7 +267,7 @@ useHead(() => ({
   .settings-shell__mobile-groups {
     position: sticky;
     top: var(--aoi-settings-mobile-sticky-top);
-    z-index: 30;
+    z-index: var(--aoi-z-sticky);
     display: flex;
     overflow-x: auto;
     gap: 8px;
