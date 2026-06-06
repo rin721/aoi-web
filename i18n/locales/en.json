@@ -364,6 +364,31 @@
         "download": "Download failed. Try copying instead.",
         "write": "Write failed. Make sure this is the local dev server.",
         "restore": "Restore failed. Make sure this is the local dev server."
+      },
+      "profiles": {
+        "buildTitle": "Build preset profiles",
+        "runtimeTitle": "Runtime setting profiles",
+        "fieldPicker": "Field picker",
+        "diffPreview": "Diff preview",
+        "confirmBeforeApply": "Profile writes and applies must show a diff preview and confirmation.",
+        "buildDescription": "Build presets use one JSON file per profile and keep a matching original backup.",
+        "runtimeDescription": "Runtime profiles are stored only in the current browser and can be imported or exported.",
+        "backgroundReferenceNote": "Background profiles save references only, never image bytes.",
+        "actions": {
+          "create": "Create",
+          "copy": "Copy",
+          "rename": "Rename",
+          "delete": "Delete",
+          "setActive": "Set active",
+          "writeCurrent": "Write current settings",
+          "restoreOriginal": "Restore original",
+          "apply": "Preview and apply",
+          "updateFromCurrent": "Update from current",
+          "import": "Import",
+          "export": "Export",
+          "selectAll": "Select all",
+          "clear": "Clear"
+        }
       }
     },
     "experimental": {

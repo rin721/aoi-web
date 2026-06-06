@@ -1139,6 +1139,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     resetAllAppSettings,
     resetAppearance,
     restore,
+    restoreBackgroundObjectUrl,
     selectedCategory,
     setAccentPreset,
     setAppearanceContrast,

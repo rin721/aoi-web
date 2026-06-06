@@ -1,74 +1,39 @@
-import type { AoiBuildDefaultAppSettings } from "../utils/aoiBuildDefaults"
+import manifest from "./aoi-build-default-profiles/manifest.json"
+import {
+  normalizeAoiBuildDefaultAppSettings
+} from "../lib/aoiBuildDefaultSerialization"
+import type { AoiBuildDefaultAppSettings } from "../lib/aoiBuildDefaultSerialization"
+import type {
+  AoiBuildProfileManifest,
+  AoiSettingsProfile
+} from "../lib/aoiSettingsProfiles"
 
-export const AOI_BUILD_DEFAULT_APP_SETTINGS = {
-  "accentMode": "preset",
-  "accentPreset": "sunflower-orange",
-  "appearanceContrast": "normal",
-  "appearanceDensity": "comfortable",
-  "appearanceShape": "soft",
-  "appearanceSize": "default",
-  "backgroundBlur": 0,
-  "backgroundDim": 0.18,
-  "backgroundOpacity": 0.56,
-  "colorfulNavigation": false,
-  "customAccent": {
-    "r": 255,
-    "g": 125,
-    "b": 82,
-    "a": 1
-  },
-  "dataMode": "standard",
-  "disableWatchHistory": false,
-  "hideRecentSearches": false,
-  "locale": "zh-CN",
-  "noRelatedVideos": false,
-  "noSearchRecommendations": false,
-  "openVideosInNewTab": false,
-  "pageScrollbarStrategy": "stable",
-  "preferredTheme": "system",
-  "revealMotionDistancePx": 18,
-  "revealMotionDurationMs": 360,
-  "revealMotionEffect": "contextual",
-  "revealMotionEnabled": true,
-  "revealMotionMaxDelayMs": 280,
-  "revealMotionReplay": "repeat",
-  "revealMotionStaggerMs": 35,
-  "routeProgressDelayMs": 0,
-  "routeProgressEasing": "ease",
-  "routeProgressEnabled": true,
-  "routeProgressHeightPx": 3,
-  "routeProgressMinimum": 0.08,
-  "routeProgressShowSpinner": false,
-  "routeProgressSpeedMs": 220,
-  "routeProgressTrickle": true,
-  "routeProgressTrickleSpeedMs": 200,
-  "rubberBandEnabled": true,
-  "rubberBandMaxOffsetPx": 28,
-  "rubberBandStrength": 42,
-  "scrollHijackEnabled": false,
-  "scrollHijackMode": "section",
-  "scrollHijackThresholdPx": 64,
-  "scrollSnapEnabled": true,
-  "scrollSnapMode": "proximity",
-  "scrollSnapStrength": 58,
-  "smoothScrollDamping": 0.1,
-  "smoothScrollDurationMs": 1100,
-  "smoothScrollEnabled": true,
-  "specUnits": {
-    "baseFontPx": 14,
-    "spaceUnitPx": 8,
-    "radiusUnitPx": 4,
-    "controlHeightPx": 40,
-    "contentWidthMode": "percent",
-    "contentWidthPercent": 100,
-    "contentMaxWidthPx": 1280,
-    "contentWideWidthMode": "percent",
-    "contentWideWidthPercent": 88,
-    "contentWideMaxWidthPx": 1360,
-    "railWidthPx": 56,
-    "mobileNavHeightPx": 56,
-    "videoGridMinCardWidthPx": 224,
-    "settingsCardMinWidthPx": 170
-  },
-  "useRelativeDates": false
-} satisfies AoiBuildDefaultAppSettings
+const profiles = import.meta.glob("./aoi-build-default-profiles/profiles/*.json", {
+  eager: true,
+  import: "default"
+}) as Record<string, AoiSettingsProfile>
+
+const originals = import.meta.glob("./aoi-build-default-profiles/original/*.json", {
+  eager: true,
+  import: "default"
+}) as Record<string, AoiSettingsProfile>
+
+const profileManifest = manifest as AoiBuildProfileManifest
+
+function getProfile(collection: Record<string, AoiSettingsProfile>, id: string) {
+  return collection[`./aoi-build-default-profiles/profiles/${id}.json`]
+    || collection[`./aoi-build-default-profiles/original/${id}.json`]
+}
+
+function getOriginalProfile(id: string) {
+  return originals[`./aoi-build-default-profiles/original/${id}.json`]
+}
+
+const originalDefaultProfile = getOriginalProfile("default")
+const activeProfile = getProfile(profiles, profileManifest.activeProfileId)
+const baseDefaults = normalizeAoiBuildDefaultAppSettings(originalDefaultProfile?.settings)
+
+export const AOI_BUILD_DEFAULT_APP_SETTINGS = normalizeAoiBuildDefaultAppSettings(
+  activeProfile?.settings,
+  baseDefaults
+) satisfies AoiBuildDefaultAppSettings

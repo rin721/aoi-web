@@ -41,21 +41,17 @@ useHead({
           </div>
         </div>
 
-        <div v-if="pending" v-aoi-reveal class="home-state">
-          <AoiProgress type="linear" indeterminate />
-        </div>
-
-        <div v-else-if="error" v-aoi-reveal class="home-state home-state--error">
+        <div v-if="!pending && error" v-aoi-reveal class="home-state home-state--error">
           <p>内容加载失败。</p>
           <AoiButton variant="tonal" icon="refresh-cw" @click="refresh()">重试</AoiButton>
         </div>
 
-        <div v-else-if="videos.length === 0" v-aoi-reveal class="home-state">
+        <div v-else-if="!pending && videos.length === 0" v-aoi-reveal class="home-state">
           <p>该分类暂时没有内容。</p>
           <AoiButton variant="tonal" icon="rotate-ccw" @click="selectCategory('home')">返回首页</AoiButton>
         </div>
 
-        <VideoGrid v-else :videos="videos" />
+        <VideoGrid v-else-if="videos.length > 0" :videos="videos" />
       </section>
     </div>
   </div>

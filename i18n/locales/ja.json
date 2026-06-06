@@ -364,6 +364,31 @@
         "download": "ダウンロードに失敗しました。コピーを試してください。",
         "write": "書き込みに失敗しました。ローカル dev サーバーで実行しているか確認してください。",
         "restore": "復元に失敗しました。ローカル dev サーバーで実行しているか確認してください。"
+      },
+      "profiles": {
+        "buildTitle": "ビルドプリセット profiles",
+        "runtimeTitle": "実行時設定 profiles",
+        "fieldPicker": "フィールド選択",
+        "diffPreview": "差分プレビュー",
+        "confirmBeforeApply": "profile の書き込みや適用前には差分プレビューと確認が必要です。",
+        "buildDescription": "ビルドプリセットは profile ごとに 1 つの JSON と対応する original バックアップを持ちます。",
+        "runtimeDescription": "実行時 profile は現在のブラウザだけに保存され、インポートとエクスポートができます。",
+        "backgroundReferenceNote": "背景は参照情報だけを保存し、画像バイトは保存しません。",
+        "actions": {
+          "create": "新規作成",
+          "copy": "コピー",
+          "rename": "名前変更",
+          "delete": "削除",
+          "setActive": "active に設定",
+          "writeCurrent": "現在の設定を書き込み",
+          "restoreOriginal": "original を復元",
+          "apply": "プレビューして適用",
+          "updateFromCurrent": "現在の設定から更新",
+          "import": "インポート",
+          "export": "エクスポート",
+          "selectAll": "すべて選択",
+          "clear": "クリア"
+        }
       }
     },
     "experimental": {

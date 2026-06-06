@@ -83,6 +83,8 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 
 ## Local State Rules
 
+- Developer configuration management has two separate profile systems. Build-default profiles live in `app/config/aoi-build-default-profiles/` as one JSON file per profile plus a matching immutable original backup; runtime profiles live only in browser `localStorage`.
+- Profiles can include only fields from the fixed settings profile registry. Applying a runtime profile or writing a build profile must show a field-level diff preview and require confirmation.
 - Library state stores history, favorites, watch-later, and liked IDs under `aoi.library.v1`.
 - Upload drafts store metadata under `aoi.uploadDrafts.v1`.
 - Following state stores creator snapshots under `aoi.following.v1`.

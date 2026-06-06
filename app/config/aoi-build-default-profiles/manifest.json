@@ -1,0 +1,13 @@
+{
+  "activeProfileId": "default",
+  "profiles": [
+    {
+      "id": "default",
+      "name": "Aoi Default",
+      "description": "Original Aoi application defaults.",
+      "builtin": true,
+      "createdAt": "2026-06-07T00:00:00.000Z",
+      "updatedAt": "2026-06-07T00:00:00.000Z"
+    }
+  ]
+}

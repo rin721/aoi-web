@@ -92,7 +92,10 @@ const DEFAULT_CUSTOM_ACCENT: AoiRgbaColor = { r: 255, g: 125, b: 82, a: 1 }
 
 export const AOI_BUILD_DEFAULT_CONFIG_PATHS = {
   active: "app/config/aoi-build-defaults.ts",
-  original: "app/config/aoi-build-defaults.original.ts"
+  manifest: "app/config/aoi-build-default-profiles/manifest.json",
+  original: "app/config/aoi-build-defaults.original.ts",
+  originalsDir: "app/config/aoi-build-default-profiles/original",
+  profilesDir: "app/config/aoi-build-default-profiles/profiles"
 } as const
 
 export const AOI_FALLBACK_BUILD_DEFAULT_APP_SETTINGS: AoiBuildDefaultAppSettings = {

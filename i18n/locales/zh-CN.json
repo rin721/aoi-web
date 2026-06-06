@@ -364,6 +364,31 @@
         "download": "下载失败，请改用复制。",
         "write": "写入失败，请确认当前运行的是本地 dev 服务。",
         "restore": "恢复失败，请确认当前运行的是本地 dev 服务。"
+      },
+      "profiles": {
+        "buildTitle": "构建预设 profiles",
+        "runtimeTitle": "运行时档案 profiles",
+        "fieldPicker": "字段选择器",
+        "diffPreview": "差异预览",
+        "confirmBeforeApply": "应用或写入 profile 前必须预览差异并确认。",
+        "buildDescription": "构建预设一档一 JSON，并保留对应 original 备份。",
+        "runtimeDescription": "运行时档案仅保存在浏览器本地，可导入导出。",
+        "backgroundReferenceNote": "背景只保存引用信息，不保存图片字节。",
+        "actions": {
+          "create": "新建",
+          "copy": "复制",
+          "rename": "重命名",
+          "delete": "删除",
+          "setActive": "设为 active",
+          "writeCurrent": "从当前设置写入",
+          "restoreOriginal": "恢复 original",
+          "apply": "预览后应用",
+          "updateFromCurrent": "从当前设置更新",
+          "import": "导入",
+          "export": "导出",
+          "selectAll": "全选",
+          "clear": "清空"
+        }
       }
     },
     "experimental": {

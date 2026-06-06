@@ -31,7 +31,7 @@ const settingGroups = computed(() => {
     groups[1]?.items.push({
       icon: "code-2",
       label: "开发者",
-      keywords: "开发者 developer defaults build config restore 构建 默认 配置 恢复",
+      keywords: "开发者 developer defaults build config restore profiles runtime profile 构建 默认 配置 恢复 多配置 运行时 档案 字段选择 差异预览",
       to: "/settings/developer"
     })
   }
