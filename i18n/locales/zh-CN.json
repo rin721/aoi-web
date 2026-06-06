@@ -51,6 +51,10 @@
         "description": "统一管理派生间距、控件、导航、网格和圆角的源尺寸。",
         "jump": "调整主规格单位",
         "reset": "重置单位",
+        "widthMode": {
+          "px": "像素",
+          "percent": "百分比"
+        },
         "baseFont": {
           "title": "基础字号",
           "description": "派生正文和标题比例。",
@@ -73,13 +77,13 @@
         },
         "contentMaxWidth": {
           "title": "内容宽度",
-          "description": "限制普通页面最大宽度。",
-          "label": "内容最大宽度"
+          "description": "用流式百分比或固定像素上限控制普通页面宽度。",
+          "label": "内容宽度"
         },
         "contentWideMaxWidth": {
           "title": "宽内容宽度",
-          "description": "限制设置等宽版工具页面宽度。",
-          "label": "宽内容最大宽度"
+          "description": "用流式百分比或固定像素上限控制设置、工作台类页面宽度。",
+          "label": "宽内容宽度"
         },
         "railWidth": {
           "title": "桌面侧栏",
@@ -301,6 +305,65 @@
           "maxOffsetTitle": "最大位移",
           "maxOffsetLabel": "最大位移"
         }
+      }
+    },
+    "about": {
+      "developerUnlock": {
+        "hint": "连续点击 Aoi 标识 4 次可开启开发者模式。",
+        "remaining": "再点击 {count} 次进入开发者模式。",
+        "enabled": "开发者模式已开启，设置导航中已新增开发者页面。",
+        "logoLabel": "Aoi 产品标识，连续点击四次开启开发者模式"
+      }
+    },
+    "developer": {
+      "title": "开发者",
+      "description": "生成构建前默认应用设置，并在本地开发环境写入受控源配置。",
+      "locked": {
+        "title": "开发者模式未开启",
+        "description": "前往关于页，用隐藏的 Aoi 标识交互开启开发者模式后即可访问这里。",
+        "action": "前往关于"
+      },
+      "status": {
+        "title": "构建默认配置",
+        "description": "当前页面只会写入活动默认配置，原始备份配置不会被修改。",
+        "runtimeMode": "运行模式",
+        "development": "本地开发",
+        "production": "生产构建",
+        "activePath": "活动配置",
+        "originalPath": "原始备份",
+        "generatedSize": "生成大小",
+        "updatedAt": "上次写入：{time}"
+      },
+      "generated": {
+        "title": "生成预览",
+        "description": "从当前应用设置生成 TypeScript 配置；不包含开发者模式、背景文件和本地内容数据。"
+      },
+      "source": {
+        "title": "源配置操作",
+        "description": "写入会覆盖活动默认配置；恢复会从原始备份重新生成活动配置。",
+        "devNote": "写入接口仅在本地 dev 服务可用，并且只接受固定 allowlist 设置对象。",
+        "productionNote": "当前不是本地 dev 服务，源文件写入和恢复已禁用。"
+      },
+      "actions": {
+        "refresh": "刷新",
+        "copy": "复制",
+        "download": "下载",
+        "write": "写入源配置",
+        "restore": "恢复原始默认",
+        "disable": "关闭开发者模式"
+      },
+      "messages": {
+        "refreshed": "已按当前应用设置重新生成预览。",
+        "copied": "已复制 TypeScript 配置。",
+        "downloaded": "已下载 TypeScript 配置。",
+        "written": "已写入活动构建默认配置。",
+        "restored": "已从原始备份恢复活动配置。"
+      },
+      "errors": {
+        "copy": "复制失败，请直接选择预览内容。",
+        "download": "下载失败，请改用复制。",
+        "write": "写入失败，请确认当前运行的是本地 dev 服务。",
+        "restore": "恢复失败，请确认当前运行的是本地 dev 服务。"
       }
     },
     "experimental": {

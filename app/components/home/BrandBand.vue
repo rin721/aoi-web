@@ -55,7 +55,8 @@ const { t } = useI18n()
   position: relative;
   z-index: 1;
   display: flex;
-  max-width: 1280px;
+  width: 100%;
+  max-width: var(--aoi-content-max-width);
   min-height: 150px;
   align-items: center;
   justify-content: space-between;

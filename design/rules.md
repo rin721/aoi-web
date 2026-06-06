@@ -36,7 +36,7 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 
 - Desktop uses a fixed 56px left rail.
 - Mobile uses a fixed 56px top header and 56px bottom nav with four primary destinations.
-- Content max width is around 1280px; wider settings-style workspaces may use the wide max-width token.
+- Video and community content surfaces are fluid by default and should use the available page width for stronger visual presence. Users can choose percentage or fixed-pixel width modes; settings-style workspaces may use the narrower wide-width profile by default.
 - Category discovery should stay visible and horizontally scrollable on mobile.
 - Video grids use stable 16:9 covers, desktop `repeat(auto-fill, minmax(224px, 1fr))`, and mobile two columns with `minmax(0, 1fr)`.
 - Settings pages keep a grouped sticky side rail on desktop; mobile flattens destinations into a compact sticky horizontal strip below the fixed header so active content remains reachable while scrolling.

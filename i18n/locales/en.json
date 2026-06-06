@@ -51,6 +51,10 @@
         "description": "Manage the source dimensions used to derive spacing, controls, navigation, grids, and rounded corners.",
         "jump": "Adjust primary units",
         "reset": "Reset units",
+        "widthMode": {
+          "px": "px",
+          "percent": "%"
+        },
         "baseFont": {
           "title": "Base type",
           "description": "Feeds body text and heading scale.",
@@ -73,13 +77,13 @@
         },
         "contentMaxWidth": {
           "title": "Content width",
-          "description": "Caps normal pages.",
-          "label": "Content max width"
+          "description": "Sets normal page width with either a fluid percentage or a fixed pixel cap.",
+          "label": "Content width"
         },
         "contentWideMaxWidth": {
           "title": "Wide content width",
-          "description": "Caps wide utility pages such as settings.",
-          "label": "Wide content max width"
+          "description": "Sets settings and workspace page width with either a fluid percentage or a fixed pixel cap.",
+          "label": "Wide content width"
         },
         "railWidth": {
           "title": "Desktop rail",
@@ -301,6 +305,65 @@
           "maxOffsetTitle": "Max offset",
           "maxOffsetLabel": "Max offset"
         }
+      }
+    },
+    "about": {
+      "developerUnlock": {
+        "hint": "Click the Aoi mark 4 times to enable Developer Mode.",
+        "remaining": "{count} more clicks to enter Developer Mode.",
+        "enabled": "Developer Mode is enabled. The Developer page is now available in Settings.",
+        "logoLabel": "Aoi product mark, click four times to enable Developer Mode"
+      }
+    },
+    "developer": {
+      "title": "Developer",
+      "description": "Generate build-time default app settings and write the controlled source config in local development.",
+      "locked": {
+        "title": "Developer Mode is locked",
+        "description": "Open the About page and use the hidden Aoi mark interaction to enable Developer Mode.",
+        "action": "Open About"
+      },
+      "status": {
+        "title": "Build defaults",
+        "description": "This page only writes the active default config. The original backup config is never modified.",
+        "runtimeMode": "Runtime mode",
+        "development": "Local development",
+        "production": "Production build",
+        "activePath": "Active config",
+        "originalPath": "Original backup",
+        "generatedSize": "Generated size",
+        "updatedAt": "Last write: {time}"
+      },
+      "generated": {
+        "title": "Generated preview",
+        "description": "Generate TypeScript config from the current app settings. Developer Mode, background files, and local content data are excluded."
+      },
+      "source": {
+        "title": "Source config actions",
+        "description": "Write overwrites the active default config. Restore regenerates it from the original backup.",
+        "devNote": "The write API is available only on the local dev server and accepts only a fixed allowlist settings object.",
+        "productionNote": "This is not the local dev server, so source writes and restores are disabled."
+      },
+      "actions": {
+        "refresh": "Refresh",
+        "copy": "Copy",
+        "download": "Download",
+        "write": "Write source config",
+        "restore": "Restore original defaults",
+        "disable": "Disable Developer Mode"
+      },
+      "messages": {
+        "refreshed": "Preview regenerated from the current app settings.",
+        "copied": "TypeScript config copied.",
+        "downloaded": "TypeScript config downloaded.",
+        "written": "Active build defaults were written.",
+        "restored": "Active defaults were restored from the original backup."
+      },
+      "errors": {
+        "copy": "Copy failed. Select the preview text directly instead.",
+        "download": "Download failed. Try copying instead.",
+        "write": "Write failed. Make sure this is the local dev server.",
+        "restore": "Restore failed. Make sure this is the local dev server."
       }
     },
     "experimental": {

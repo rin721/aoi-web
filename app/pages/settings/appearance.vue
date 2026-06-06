@@ -7,8 +7,14 @@ import type {
   AoiAppearanceSize,
   AoiPreferredTheme
 } from "~/stores/app-settings"
-import type { AoiSpecUnitKey } from "~/utils/aoiSpecUnits"
+import type {
+  AoiContentWidthMode,
+  AoiContentWidthPercentKey,
+  AoiContentWidthScope,
+  AoiSpecUnitKey
+} from "~/utils/aoiSpecUnits"
 import {
+  AOI_CONTENT_WIDTH_PERCENT_RANGES,
   AOI_SPEC_UNIT_RANGES
 } from "~/utils/aoiSpecUnits"
 import type { AoiRgbaColor } from "~/utils/aoiColor"
@@ -132,18 +138,6 @@ const specUnitControls: Array<{
     labelKey: "settings.appearance.specUnits.controlHeight.label"
   },
   {
-    key: "contentMaxWidthPx",
-    titleKey: "settings.appearance.specUnits.contentMaxWidth.title",
-    descriptionKey: "settings.appearance.specUnits.contentMaxWidth.description",
-    labelKey: "settings.appearance.specUnits.contentMaxWidth.label"
-  },
-  {
-    key: "contentWideMaxWidthPx",
-    titleKey: "settings.appearance.specUnits.contentWideMaxWidth.title",
-    descriptionKey: "settings.appearance.specUnits.contentWideMaxWidth.description",
-    labelKey: "settings.appearance.specUnits.contentWideMaxWidth.label"
-  },
-  {
     key: "railWidthPx",
     titleKey: "settings.appearance.specUnits.railWidth.title",
     descriptionKey: "settings.appearance.specUnits.railWidth.description",
@@ -169,6 +163,48 @@ const specUnitControls: Array<{
   }
 ]
 
+const contentWidthControls: Array<{
+  descriptionKey: string
+  labelKey: string
+  modeKey: "contentWidthMode" | "contentWideWidthMode"
+  percentKey: AoiContentWidthPercentKey
+  pxKey: "contentMaxWidthPx" | "contentWideMaxWidthPx"
+  scope: AoiContentWidthScope
+  titleKey: string
+}> = [
+  {
+    scope: "content",
+    modeKey: "contentWidthMode",
+    percentKey: "contentWidthPercent",
+    pxKey: "contentMaxWidthPx",
+    titleKey: "settings.appearance.specUnits.contentMaxWidth.title",
+    descriptionKey: "settings.appearance.specUnits.contentMaxWidth.description",
+    labelKey: "settings.appearance.specUnits.contentMaxWidth.label"
+  },
+  {
+    scope: "wide",
+    modeKey: "contentWideWidthMode",
+    percentKey: "contentWideWidthPercent",
+    pxKey: "contentWideMaxWidthPx",
+    titleKey: "settings.appearance.specUnits.contentWideMaxWidth.title",
+    descriptionKey: "settings.appearance.specUnits.contentWideMaxWidth.description",
+    labelKey: "settings.appearance.specUnits.contentWideMaxWidth.label"
+  }
+]
+
+const widthModeOptions = computed(() => [
+  {
+    icon: "ruler",
+    label: t("settings.appearance.specUnits.widthMode.px"),
+    value: "px"
+  },
+  {
+    icon: "percent",
+    label: t("settings.appearance.specUnits.widthMode.percent"),
+    value: "percent"
+  }
+])
+
 const customAccentModel = computed<AoiRgbaColor>({
   get: () => settings.customAccent,
   set: (value) => settings.setCustomAccent(value)
@@ -176,6 +212,48 @@ const customAccentModel = computed<AoiRgbaColor>({
 
 function setSpecUnit(key: AoiSpecUnitKey, value: number) {
   settings.setSpecUnit(key, value)
+}
+
+function setContentWidthMode(scope: AoiContentWidthScope, value: string) {
+  settings.setContentWidthMode(scope, value as AoiContentWidthMode)
+}
+
+function setContentWidthValue(control: typeof contentWidthControls[number], value: number) {
+  if (settings.specUnits[control.modeKey] === "percent") {
+    settings.setContentWidthPercent(control.scope, value)
+    return
+  }
+
+  settings.setSpecUnit(control.pxKey, value)
+}
+
+function contentWidthDescription(control: typeof contentWidthControls[number]) {
+  const mode = settings.specUnits[control.modeKey]
+  const value = mode === "percent"
+    ? `${settings.specUnits[control.percentKey]}%`
+    : `${settings.specUnits[control.pxKey]}px`
+
+  return `${value} · ${t(control.descriptionKey)}`
+}
+
+function contentWidthSliderValue(control: typeof contentWidthControls[number]) {
+  return settings.specUnits[control.modeKey] === "percent"
+    ? settings.specUnits[control.percentKey]
+    : settings.specUnits[control.pxKey]
+}
+
+function contentWidthSliderRange(control: typeof contentWidthControls[number]) {
+  return settings.specUnits[control.modeKey] === "percent"
+    ? AOI_CONTENT_WIDTH_PERCENT_RANGES[control.percentKey]
+    : AOI_SPEC_UNIT_RANGES[control.pxKey]
+}
+
+function contentWidthSliderLabel(control: typeof contentWidthControls[number]) {
+  const suffix = settings.specUnits[control.modeKey] === "percent"
+    ? t("settings.appearance.specUnits.widthMode.percent")
+    : t("settings.appearance.specUnits.widthMode.px")
+
+  return `${t(control.labelKey)} (${suffix})`
 }
 
 function setAppearanceDensity(value: string) {
@@ -341,6 +419,33 @@ function formatBytes(value: number) {
       </template>
 
       <div class="settings-spec-grid">
+        <SettingsRow
+          v-for="control in contentWidthControls"
+          :key="control.scope"
+          :title="t(control.titleKey)"
+          :description="contentWidthDescription(control)"
+        >
+          <div class="settings-width-control">
+            <AoiSegmentedControl
+              class="settings-width-mode"
+              :model-value="settings.specUnits[control.modeKey]"
+              :items="widthModeOptions"
+              :aria-label="t(control.titleKey)"
+              :columns="2"
+              @update:model-value="(value) => setContentWidthMode(control.scope, value)"
+            />
+            <AoiSlider
+              class="settings-spec-slider"
+              :model-value="contentWidthSliderValue(control)"
+              :label="contentWidthSliderLabel(control)"
+              :min="contentWidthSliderRange(control).min"
+              :max="contentWidthSliderRange(control).max"
+              :step="contentWidthSliderRange(control).step"
+              @update:model-value="(value) => setContentWidthValue(control, value)"
+            />
+          </div>
+        </SettingsRow>
+
         <SettingsRow
           v-for="control in specUnitControls"
           :key="control.key"
@@ -555,6 +660,19 @@ function formatBytes(value: number) {
 .settings-spec-grid {
   display: grid;
   gap: var(--aoi-grid-gap-compact);
+}
+
+.settings-width-control {
+  display: grid;
+  width: min(calc(var(--aoi-settings-card-min-width) * 2.18), 100%);
+  gap: var(--aoi-grid-gap-compact);
+}
+
+.settings-width-mode :deep(.aoi-segmented__item) {
+  min-height: var(--aoi-control-height-md);
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  padding: 0 var(--aoi-row-padding);
 }
 
 .settings-spec-slider {

@@ -1,13 +1,19 @@
 export type AoiSpecDensity = "comfortable" | "compact"
 export type AoiSpecSize = "small" | "default" | "large"
 export type AoiSpecShape = "square" | "soft" | "pill"
+export type AoiContentWidthMode = "px" | "percent"
+export type AoiContentWidthScope = "content" | "wide"
 
 export interface AoiSpecUnitSettings {
   baseFontPx: number
   spaceUnitPx: number
   radiusUnitPx: number
   controlHeightPx: number
+  contentWidthMode: AoiContentWidthMode
+  contentWidthPercent: number
   contentMaxWidthPx: number
+  contentWideWidthMode: AoiContentWidthMode
+  contentWideWidthPercent: number
   contentWideMaxWidthPx: number
   railWidthPx: number
   mobileNavHeightPx: number
@@ -15,7 +21,21 @@ export interface AoiSpecUnitSettings {
   settingsCardMinWidthPx: number
 }
 
-export type AoiSpecUnitKey = keyof AoiSpecUnitSettings
+export const AOI_SPEC_UNIT_KEYS = [
+  "baseFontPx",
+  "spaceUnitPx",
+  "radiusUnitPx",
+  "controlHeightPx",
+  "contentMaxWidthPx",
+  "contentWideMaxWidthPx",
+  "railWidthPx",
+  "mobileNavHeightPx",
+  "videoGridMinCardWidthPx",
+  "settingsCardMinWidthPx"
+] as const
+
+export type AoiSpecUnitKey = typeof AOI_SPEC_UNIT_KEYS[number]
+export type AoiContentWidthPercentKey = "contentWidthPercent" | "contentWideWidthPercent"
 
 export interface AoiSpecDeriveOptions {
   density: AoiSpecDensity
@@ -23,7 +43,7 @@ export interface AoiSpecDeriveOptions {
   size: AoiSpecSize
 }
 
-interface AoiSpecUnitRange {
+export interface AoiSpecUnitRange {
   max: number
   min: number
   step: number
@@ -34,7 +54,11 @@ export const AOI_SPEC_UNIT_DEFAULTS: AoiSpecUnitSettings = {
   spaceUnitPx: 8,
   radiusUnitPx: 4,
   controlHeightPx: 40,
+  contentWidthMode: "percent",
+  contentWidthPercent: 100,
   contentMaxWidthPx: 1280,
+  contentWideWidthMode: "percent",
+  contentWideWidthPercent: 88,
   contentWideMaxWidthPx: 1360,
   railWidthPx: 56,
   mobileNavHeightPx: 56,
@@ -47,18 +71,25 @@ export const AOI_SPEC_UNIT_RANGES: Record<AoiSpecUnitKey, AoiSpecUnitRange> = {
   spaceUnitPx: { min: 6, max: 12, step: 1 },
   radiusUnitPx: { min: 2, max: 8, step: 1 },
   controlHeightPx: { min: 34, max: 52, step: 1 },
-  contentMaxWidthPx: { min: 1080, max: 1600, step: 20 },
-  contentWideMaxWidthPx: { min: 1160, max: 1760, step: 20 },
+  contentMaxWidthPx: { min: 960, max: 2400, step: 20 },
+  contentWideMaxWidthPx: { min: 960, max: 2560, step: 20 },
   railWidthPx: { min: 48, max: 72, step: 1 },
   mobileNavHeightPx: { min: 52, max: 72, step: 1 },
   videoGridMinCardWidthPx: { min: 184, max: 320, step: 4 },
   settingsCardMinWidthPx: { min: 140, max: 240, step: 4 }
 }
 
-export const AOI_SPEC_UNIT_KEYS = Object.keys(AOI_SPEC_UNIT_DEFAULTS) as AoiSpecUnitKey[]
+export const AOI_CONTENT_WIDTH_PERCENT_RANGES: Record<AoiContentWidthPercentKey, AoiSpecUnitRange> = {
+  contentWidthPercent: { min: 72, max: 100, step: 1 },
+  contentWideWidthPercent: { min: 70, max: 100, step: 1 }
+}
 
 export function isAoiSpecUnitKey(value: unknown): value is AoiSpecUnitKey {
   return typeof value === "string" && AOI_SPEC_UNIT_KEYS.includes(value as AoiSpecUnitKey)
+}
+
+export function isAoiContentWidthMode(value: unknown): value is AoiContentWidthMode {
+  return value === "px" || value === "percent"
 }
 
 export function clampAoiSpecUnit(key: AoiSpecUnitKey, value: unknown) {
@@ -72,15 +103,37 @@ export function clampAoiSpecUnit(key: AoiSpecUnitKey, value: unknown) {
   return Math.min(range.max, Math.max(range.min, value))
 }
 
+export function clampAoiContentWidthPercent(key: AoiContentWidthPercentKey, value: unknown) {
+  const range = AOI_CONTENT_WIDTH_PERCENT_RANGES[key]
+  const fallback = AOI_SPEC_UNIT_DEFAULTS[key]
+
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return fallback
+  }
+
+  return Math.min(range.max, Math.max(range.min, value))
+}
+
 export function normalizeAoiSpecUnits(value: unknown): AoiSpecUnitSettings {
   const candidate = value && typeof value === "object" && !Array.isArray(value)
     ? value as Partial<AoiSpecUnitSettings>
     : {}
+  const units = { ...AOI_SPEC_UNIT_DEFAULTS }
 
-  return AOI_SPEC_UNIT_KEYS.reduce((units, key) => {
+  AOI_SPEC_UNIT_KEYS.forEach((key) => {
     units[key] = clampAoiSpecUnit(key, candidate[key])
-    return units
-  }, { ...AOI_SPEC_UNIT_DEFAULTS })
+  })
+
+  units.contentWidthMode = isAoiContentWidthMode(candidate.contentWidthMode)
+    ? candidate.contentWidthMode
+    : AOI_SPEC_UNIT_DEFAULTS.contentWidthMode
+  units.contentWidthPercent = clampAoiContentWidthPercent("contentWidthPercent", candidate.contentWidthPercent)
+  units.contentWideWidthMode = isAoiContentWidthMode(candidate.contentWideWidthMode)
+    ? candidate.contentWideWidthMode
+    : AOI_SPEC_UNIT_DEFAULTS.contentWideWidthMode
+  units.contentWideWidthPercent = clampAoiContentWidthPercent("contentWideWidthPercent", candidate.contentWideWidthPercent)
+
+  return units
 }
 
 function round(value: number) {
@@ -89,6 +142,22 @@ function round(value: number) {
 
 function px(value: number) {
   return `${round(value)}px`
+}
+
+function pct(value: number) {
+  return `${round(value)}%`
+}
+
+function contentWidthValue(units: AoiSpecUnitSettings, scope: AoiContentWidthScope) {
+  if (scope === "wide") {
+    return units.contentWideWidthMode === "percent"
+      ? pct(units.contentWideWidthPercent)
+      : px(units.contentWideMaxWidthPx)
+  }
+
+  return units.contentWidthMode === "percent"
+    ? pct(units.contentWidthPercent)
+    : px(units.contentMaxWidthPx)
 }
 
 function deriveControlVars(units: AoiSpecUnitSettings, size: AoiSpecSize) {
@@ -187,8 +256,8 @@ export function createAoiSpecCssVars(input: AoiSpecUnitSettings, options: AoiSpe
   const baseFont = units.baseFontPx + (options.size === "small" ? -1 : options.size === "large" ? 1 : 0)
 
   return {
-    "--aoi-content-max-width": px(units.contentMaxWidthPx),
-    "--aoi-content-wide-max-width": px(units.contentWideMaxWidthPx),
+    "--aoi-content-max-width": contentWidthValue(units, "content"),
+    "--aoi-content-wide-max-width": contentWidthValue(units, "wide"),
     "--aoi-base-font-size": px(baseFont),
     "--aoi-page-padding-block-start": px(spacing.pageStart),
     "--aoi-page-padding-block-end": px(spacing.pageEnd),

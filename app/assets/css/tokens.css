@@ -27,8 +27,8 @@
   --aoi-shadow-sm: 0 4px 12px rgba(19, 80, 96, 0.08);
   --aoi-shadow-md: 0 10px 28px rgba(19, 80, 96, 0.14);
   --aoi-danger: #ba1a1a;
-  --aoi-content-max-width: 1280px;
-  --aoi-content-wide-max-width: 1360px;
+  --aoi-content-max-width: 100%;
+  --aoi-content-wide-max-width: 88%;
   --aoi-base-font-size: 14px;
   --aoi-page-padding-block-start: 18px;
   --aoi-page-padding-block-end: 56px;

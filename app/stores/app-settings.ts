@@ -3,7 +3,6 @@ import type {
   AoiRevealMotionReplay as AoiRevealMotionReplayValue
 } from "~/utils/aoiReveal"
 import {
-  AOI_REVEAL_DEFAULTS,
   clampAoiRevealSetting,
   isAoiRevealMotionEffect,
   isAoiRevealMotionReplay
@@ -14,7 +13,6 @@ import type {
   AoiScrollSnapMode
 } from "~/utils/aoiScroll"
 import {
-  AOI_SCROLL_DEFAULTS,
   clampAoiScrollSetting,
   isAoiPageScrollbarStrategy,
   isAoiScrollHijackMode,
@@ -22,21 +20,26 @@ import {
 } from "~/utils/aoiScroll"
 import type { AoiRouteProgressEasing } from "~/utils/aoiRouteProgress"
 import {
-  AOI_ROUTE_PROGRESS_DEFAULTS,
   AOI_ROUTE_PROGRESS_LEGACY_DELAY_MS,
   AOI_ROUTE_PROGRESS_SETTINGS_VERSION,
   clampAoiRouteProgressSetting,
   isAoiRouteProgressEasing
 } from "~/utils/aoiRouteProgress"
 import type {
+  AoiContentWidthMode,
+  AoiContentWidthScope,
   AoiSpecUnitKey,
   AoiSpecUnitSettings
 } from "~/utils/aoiSpecUnits"
 import {
-  AOI_SPEC_UNIT_DEFAULTS,
+  clampAoiContentWidthPercent,
   clampAoiSpecUnit,
+  isAoiContentWidthMode,
   normalizeAoiSpecUnits
 } from "~/utils/aoiSpecUnits"
+import {
+  createAoiActiveBuildDefaultAppSettings
+} from "~/utils/aoiBuildDefaults"
 import type { AoiRgbaColor } from "~/utils/aoiColor"
 import {
   aoiRgbaToCss,
@@ -83,6 +86,7 @@ interface PersistedAppSettings {
   colorfulNavigation: boolean
   customAccent: AoiRgbaColor
   dataMode: AoiDataMode
+  developerModeEnabled: boolean
   disableWatchHistory: boolean
   hideRecentSearches: boolean
   locale: AoiLocale
@@ -222,63 +226,66 @@ const DEFAULT_ACCENT = AOI_DEFAULT_CUSTOM_ACCENT
 const DEFAULT_ACCENT_PRESET_OPTION = AOI_ACCENT_PRESETS.find((preset) => preset.value === DEFAULT_ACCENT_PRESET) || AOI_ACCENT_PRESETS[0]!
 
 function emptyState(): PersistedAppSettings {
+  const defaults = createAoiActiveBuildDefaultAppSettings()
+
   return {
-    accentMode: "preset",
-    accentPreset: DEFAULT_ACCENT_PRESET,
-    appearanceContrast: "normal",
-    appearanceDensity: "comfortable",
-    appearanceShape: "soft",
-    appearanceSize: "default",
-    backgroundBlur: 0,
-    backgroundDim: 0.18,
+    accentMode: defaults.accentMode,
+    accentPreset: defaults.accentPreset,
+    appearanceContrast: defaults.appearanceContrast,
+    appearanceDensity: defaults.appearanceDensity,
+    appearanceShape: defaults.appearanceShape,
+    appearanceSize: defaults.appearanceSize,
+    backgroundBlur: defaults.backgroundBlur,
+    backgroundDim: defaults.backgroundDim,
     backgroundFileName: "",
     backgroundFileSize: 0,
     backgroundImageId: null,
-    backgroundOpacity: 0.56,
-    colorfulNavigation: false,
-    customAccent: { ...DEFAULT_ACCENT },
-    dataMode: "standard",
-    disableWatchHistory: false,
-    hideRecentSearches: false,
-    locale: "zh-CN",
-    noRelatedVideos: false,
-    noSearchRecommendations: false,
-    openVideosInNewTab: false,
-    pageScrollbarStrategy: AOI_SCROLL_DEFAULTS.pageScrollbar.strategy,
-    preferredTheme: "system",
-    revealMotionDistancePx: AOI_REVEAL_DEFAULTS.distancePx,
-    revealMotionDurationMs: AOI_REVEAL_DEFAULTS.durationMs,
-    revealMotionEffect: AOI_REVEAL_DEFAULTS.effect,
-    revealMotionEnabled: AOI_REVEAL_DEFAULTS.enabled,
-    revealMotionMaxDelayMs: AOI_REVEAL_DEFAULTS.maxDelayMs,
-    revealMotionReplay: AOI_REVEAL_DEFAULTS.replay,
-    revealMotionStaggerMs: AOI_REVEAL_DEFAULTS.staggerMs,
-    routeProgressDelayMs: AOI_ROUTE_PROGRESS_DEFAULTS.delayMs,
+    backgroundOpacity: defaults.backgroundOpacity,
+    colorfulNavigation: defaults.colorfulNavigation,
+    customAccent: { ...defaults.customAccent },
+    dataMode: defaults.dataMode,
+    developerModeEnabled: false,
+    disableWatchHistory: defaults.disableWatchHistory,
+    hideRecentSearches: defaults.hideRecentSearches,
+    locale: defaults.locale,
+    noRelatedVideos: defaults.noRelatedVideos,
+    noSearchRecommendations: defaults.noSearchRecommendations,
+    openVideosInNewTab: defaults.openVideosInNewTab,
+    pageScrollbarStrategy: defaults.pageScrollbarStrategy as AoiPageScrollbarStrategy,
+    preferredTheme: defaults.preferredTheme,
+    revealMotionDistancePx: defaults.revealMotionDistancePx,
+    revealMotionDurationMs: defaults.revealMotionDurationMs,
+    revealMotionEffect: defaults.revealMotionEffect as AoiRevealMotionEffectValue,
+    revealMotionEnabled: defaults.revealMotionEnabled,
+    revealMotionMaxDelayMs: defaults.revealMotionMaxDelayMs,
+    revealMotionReplay: defaults.revealMotionReplay as AoiRevealMotionReplayValue,
+    revealMotionStaggerMs: defaults.revealMotionStaggerMs,
+    routeProgressDelayMs: defaults.routeProgressDelayMs,
     routeProgressDelayMigrated: true,
-    routeProgressEasing: AOI_ROUTE_PROGRESS_DEFAULTS.easing,
-    routeProgressEnabled: AOI_ROUTE_PROGRESS_DEFAULTS.enabled,
-    routeProgressHeightPx: AOI_ROUTE_PROGRESS_DEFAULTS.heightPx,
-    routeProgressMinimum: AOI_ROUTE_PROGRESS_DEFAULTS.minimum,
+    routeProgressEasing: defaults.routeProgressEasing as AoiRouteProgressEasing,
+    routeProgressEnabled: defaults.routeProgressEnabled,
+    routeProgressHeightPx: defaults.routeProgressHeightPx,
+    routeProgressMinimum: defaults.routeProgressMinimum,
     routeProgressSettingsVersion: AOI_ROUTE_PROGRESS_SETTINGS_VERSION,
-    routeProgressShowSpinner: AOI_ROUTE_PROGRESS_DEFAULTS.showSpinner,
-    routeProgressSpeedMs: AOI_ROUTE_PROGRESS_DEFAULTS.speedMs,
-    routeProgressTrickle: AOI_ROUTE_PROGRESS_DEFAULTS.trickle,
-    routeProgressTrickleSpeedMs: AOI_ROUTE_PROGRESS_DEFAULTS.trickleSpeedMs,
-    rubberBandEnabled: AOI_SCROLL_DEFAULTS.rubberBand.enabled,
-    rubberBandMaxOffsetPx: AOI_SCROLL_DEFAULTS.rubberBand.maxOffsetPx,
-    rubberBandStrength: AOI_SCROLL_DEFAULTS.rubberBand.strength,
-    scrollHijackEnabled: AOI_SCROLL_DEFAULTS.hijack.enabled,
-    scrollHijackMode: AOI_SCROLL_DEFAULTS.hijack.mode,
-    scrollHijackThresholdPx: AOI_SCROLL_DEFAULTS.hijack.thresholdPx,
-    scrollSnapEnabled: AOI_SCROLL_DEFAULTS.snap.enabled,
-    scrollSnapMode: AOI_SCROLL_DEFAULTS.snap.mode,
-    scrollSnapStrength: AOI_SCROLL_DEFAULTS.snap.strength,
+    routeProgressShowSpinner: defaults.routeProgressShowSpinner,
+    routeProgressSpeedMs: defaults.routeProgressSpeedMs,
+    routeProgressTrickle: defaults.routeProgressTrickle,
+    routeProgressTrickleSpeedMs: defaults.routeProgressTrickleSpeedMs,
+    rubberBandEnabled: defaults.rubberBandEnabled,
+    rubberBandMaxOffsetPx: defaults.rubberBandMaxOffsetPx,
+    rubberBandStrength: defaults.rubberBandStrength,
+    scrollHijackEnabled: defaults.scrollHijackEnabled,
+    scrollHijackMode: defaults.scrollHijackMode as AoiScrollHijackMode,
+    scrollHijackThresholdPx: defaults.scrollHijackThresholdPx,
+    scrollSnapEnabled: defaults.scrollSnapEnabled,
+    scrollSnapMode: defaults.scrollSnapMode as AoiScrollSnapMode,
+    scrollSnapStrength: defaults.scrollSnapStrength,
     selectedCategory: "home",
-    smoothScrollDamping: AOI_SCROLL_DEFAULTS.smooth.damping,
-    smoothScrollDurationMs: AOI_SCROLL_DEFAULTS.smooth.durationMs,
-    smoothScrollEnabled: AOI_SCROLL_DEFAULTS.smooth.enabled,
-    specUnits: { ...AOI_SPEC_UNIT_DEFAULTS },
-    useRelativeDates: false
+    smoothScrollDamping: defaults.smoothScrollDamping,
+    smoothScrollDurationMs: defaults.smoothScrollDurationMs,
+    smoothScrollEnabled: defaults.smoothScrollEnabled,
+    specUnits: { ...defaults.specUnits },
+    useRelativeDates: defaults.useRelativeDates
   }
 }
 
@@ -313,6 +320,7 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     colorfulNavigation: Boolean(candidate.colorfulNavigation),
     customAccent: normalizeAoiRgbaColor(candidate.customAccent, fallback.customAccent),
     dataMode: isDataMode(candidate.dataMode) ? candidate.dataMode : fallback.dataMode,
+    developerModeEnabled: Boolean(candidate.developerModeEnabled),
     disableWatchHistory: Boolean(candidate.disableWatchHistory),
     hideRecentSearches: Boolean(candidate.hideRecentSearches),
     locale: isLocale(candidate.locale) ? candidate.locale : fallback.locale,
@@ -480,64 +488,66 @@ async function deleteBackgroundBlob() {
 }
 
 export const useAppSettingsStore = defineStore("app-settings", () => {
+  const initialState = emptyState()
   const hydrated = ref(false)
   const backgroundError = ref("")
   const backgroundObjectUrl = ref("")
-  const selectedCategory = ref("home")
-  const preferredTheme = ref<AoiPreferredTheme>("system")
-  const locale = ref<AoiLocale>("zh-CN")
-  const appearanceContrast = ref<AoiAppearanceContrast>("normal")
-  const appearanceDensity = ref<AoiAppearanceDensity>("comfortable")
-  const appearanceShape = ref<AoiAppearanceShape>("soft")
-  const appearanceSize = ref<AoiAppearanceSize>("default")
-  const accentMode = ref<AoiAccentMode>("preset")
-  const accentPreset = ref(DEFAULT_ACCENT_PRESET)
-  const customAccent = ref<AoiRgbaColor>({ ...DEFAULT_ACCENT })
-  const backgroundImageId = ref<string | null>(null)
-  const backgroundFileName = ref("")
-  const backgroundFileSize = ref(0)
-  const backgroundOpacity = ref(0.56)
-  const backgroundBlur = ref(0)
-  const backgroundDim = ref(0.18)
-  const colorfulNavigation = ref(false)
-  const openVideosInNewTab = ref(false)
-  const useRelativeDates = ref(false)
-  const dataMode = ref<AoiDataMode>("standard")
-  const hideRecentSearches = ref(false)
-  const disableWatchHistory = ref(false)
-  const noSearchRecommendations = ref(false)
-  const noRelatedVideos = ref(false)
-  const pageScrollbarStrategy = ref<AoiPageScrollbarStrategy>(AOI_SCROLL_DEFAULTS.pageScrollbar.strategy)
-  const revealMotionEnabled = ref(AOI_REVEAL_DEFAULTS.enabled)
-  const revealMotionEffect = ref<AoiRevealMotionEffectValue>(AOI_REVEAL_DEFAULTS.effect)
-  const revealMotionReplay = ref<AoiRevealMotionReplayValue>(AOI_REVEAL_DEFAULTS.replay)
-  const revealMotionDurationMs = ref(AOI_REVEAL_DEFAULTS.durationMs)
-  const revealMotionDistancePx = ref(AOI_REVEAL_DEFAULTS.distancePx)
-  const revealMotionStaggerMs = ref(AOI_REVEAL_DEFAULTS.staggerMs)
-  const revealMotionMaxDelayMs = ref(AOI_REVEAL_DEFAULTS.maxDelayMs)
-  const routeProgressDelayMs = ref(AOI_ROUTE_PROGRESS_DEFAULTS.delayMs)
-  const routeProgressDelayMigrated = ref(false)
-  const routeProgressEasing = ref<AoiRouteProgressEasing>(AOI_ROUTE_PROGRESS_DEFAULTS.easing)
-  const routeProgressEnabled = ref(AOI_ROUTE_PROGRESS_DEFAULTS.enabled)
-  const routeProgressHeightPx = ref(AOI_ROUTE_PROGRESS_DEFAULTS.heightPx)
-  const routeProgressMinimum = ref(AOI_ROUTE_PROGRESS_DEFAULTS.minimum)
-  const routeProgressShowSpinner = ref(AOI_ROUTE_PROGRESS_DEFAULTS.showSpinner)
-  const routeProgressSpeedMs = ref(AOI_ROUTE_PROGRESS_DEFAULTS.speedMs)
-  const routeProgressTrickle = ref(AOI_ROUTE_PROGRESS_DEFAULTS.trickle)
-  const routeProgressTrickleSpeedMs = ref(AOI_ROUTE_PROGRESS_DEFAULTS.trickleSpeedMs)
-  const smoothScrollEnabled = ref(AOI_SCROLL_DEFAULTS.smooth.enabled)
-  const smoothScrollDurationMs = ref(AOI_SCROLL_DEFAULTS.smooth.durationMs)
-  const smoothScrollDamping = ref(AOI_SCROLL_DEFAULTS.smooth.damping)
-  const scrollSnapEnabled = ref(AOI_SCROLL_DEFAULTS.snap.enabled)
-  const scrollSnapMode = ref<AoiScrollSnapMode>(AOI_SCROLL_DEFAULTS.snap.mode)
-  const scrollSnapStrength = ref(AOI_SCROLL_DEFAULTS.snap.strength)
-  const scrollHijackEnabled = ref(AOI_SCROLL_DEFAULTS.hijack.enabled)
-  const scrollHijackMode = ref<AoiScrollHijackMode>(AOI_SCROLL_DEFAULTS.hijack.mode)
-  const scrollHijackThresholdPx = ref(AOI_SCROLL_DEFAULTS.hijack.thresholdPx)
-  const rubberBandEnabled = ref(AOI_SCROLL_DEFAULTS.rubberBand.enabled)
-  const rubberBandStrength = ref(AOI_SCROLL_DEFAULTS.rubberBand.strength)
-  const rubberBandMaxOffsetPx = ref(AOI_SCROLL_DEFAULTS.rubberBand.maxOffsetPx)
-  const specUnits = reactive<AoiSpecUnitSettings>({ ...AOI_SPEC_UNIT_DEFAULTS })
+  const selectedCategory = ref(initialState.selectedCategory)
+  const preferredTheme = ref<AoiPreferredTheme>(initialState.preferredTheme)
+  const locale = ref<AoiLocale>(initialState.locale)
+  const appearanceContrast = ref<AoiAppearanceContrast>(initialState.appearanceContrast)
+  const appearanceDensity = ref<AoiAppearanceDensity>(initialState.appearanceDensity)
+  const appearanceShape = ref<AoiAppearanceShape>(initialState.appearanceShape)
+  const appearanceSize = ref<AoiAppearanceSize>(initialState.appearanceSize)
+  const accentMode = ref<AoiAccentMode>(initialState.accentMode)
+  const accentPreset = ref(initialState.accentPreset)
+  const customAccent = ref<AoiRgbaColor>({ ...initialState.customAccent })
+  const backgroundImageId = ref<string | null>(initialState.backgroundImageId)
+  const backgroundFileName = ref(initialState.backgroundFileName)
+  const backgroundFileSize = ref(initialState.backgroundFileSize)
+  const backgroundOpacity = ref(initialState.backgroundOpacity)
+  const backgroundBlur = ref(initialState.backgroundBlur)
+  const backgroundDim = ref(initialState.backgroundDim)
+  const colorfulNavigation = ref(initialState.colorfulNavigation)
+  const openVideosInNewTab = ref(initialState.openVideosInNewTab)
+  const useRelativeDates = ref(initialState.useRelativeDates)
+  const dataMode = ref<AoiDataMode>(initialState.dataMode)
+  const developerModeEnabled = ref(initialState.developerModeEnabled)
+  const hideRecentSearches = ref(initialState.hideRecentSearches)
+  const disableWatchHistory = ref(initialState.disableWatchHistory)
+  const noSearchRecommendations = ref(initialState.noSearchRecommendations)
+  const noRelatedVideos = ref(initialState.noRelatedVideos)
+  const pageScrollbarStrategy = ref<AoiPageScrollbarStrategy>(initialState.pageScrollbarStrategy)
+  const revealMotionEnabled = ref(initialState.revealMotionEnabled)
+  const revealMotionEffect = ref<AoiRevealMotionEffectValue>(initialState.revealMotionEffect)
+  const revealMotionReplay = ref<AoiRevealMotionReplayValue>(initialState.revealMotionReplay)
+  const revealMotionDurationMs = ref(initialState.revealMotionDurationMs)
+  const revealMotionDistancePx = ref(initialState.revealMotionDistancePx)
+  const revealMotionStaggerMs = ref(initialState.revealMotionStaggerMs)
+  const revealMotionMaxDelayMs = ref(initialState.revealMotionMaxDelayMs)
+  const routeProgressDelayMs = ref(initialState.routeProgressDelayMs)
+  const routeProgressDelayMigrated = ref(initialState.routeProgressDelayMigrated)
+  const routeProgressEasing = ref<AoiRouteProgressEasing>(initialState.routeProgressEasing)
+  const routeProgressEnabled = ref(initialState.routeProgressEnabled)
+  const routeProgressHeightPx = ref(initialState.routeProgressHeightPx)
+  const routeProgressMinimum = ref(initialState.routeProgressMinimum)
+  const routeProgressShowSpinner = ref(initialState.routeProgressShowSpinner)
+  const routeProgressSpeedMs = ref(initialState.routeProgressSpeedMs)
+  const routeProgressTrickle = ref(initialState.routeProgressTrickle)
+  const routeProgressTrickleSpeedMs = ref(initialState.routeProgressTrickleSpeedMs)
+  const smoothScrollEnabled = ref(initialState.smoothScrollEnabled)
+  const smoothScrollDurationMs = ref(initialState.smoothScrollDurationMs)
+  const smoothScrollDamping = ref(initialState.smoothScrollDamping)
+  const scrollSnapEnabled = ref(initialState.scrollSnapEnabled)
+  const scrollSnapMode = ref<AoiScrollSnapMode>(initialState.scrollSnapMode)
+  const scrollSnapStrength = ref(initialState.scrollSnapStrength)
+  const scrollHijackEnabled = ref(initialState.scrollHijackEnabled)
+  const scrollHijackMode = ref<AoiScrollHijackMode>(initialState.scrollHijackMode)
+  const scrollHijackThresholdPx = ref(initialState.scrollHijackThresholdPx)
+  const rubberBandEnabled = ref(initialState.rubberBandEnabled)
+  const rubberBandStrength = ref(initialState.rubberBandStrength)
+  const rubberBandMaxOffsetPx = ref(initialState.rubberBandMaxOffsetPx)
+  const specUnits = reactive<AoiSpecUnitSettings>({ ...initialState.specUnits })
 
   const activePreset = computed(() => {
     return AOI_ACCENT_PRESETS.find((preset) => preset.value === accentPreset.value) || DEFAULT_ACCENT_PRESET_OPTION
@@ -574,6 +584,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       colorfulNavigation: colorfulNavigation.value,
       customAccent: { ...customAccent.value },
       dataMode: dataMode.value,
+      developerModeEnabled: developerModeEnabled.value,
       disableWatchHistory: disableWatchHistory.value,
       hideRecentSearches: hideRecentSearches.value,
       locale: locale.value,
@@ -634,6 +645,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     colorfulNavigation.value = state.colorfulNavigation
     customAccent.value = normalizeAoiRgbaColor(state.customAccent, DEFAULT_ACCENT)
     dataMode.value = state.dataMode
+    developerModeEnabled.value = state.developerModeEnabled
     disableWatchHistory.value = state.disableWatchHistory
     hideRecentSearches.value = state.hideRecentSearches
     locale.value = state.locale
@@ -753,6 +765,11 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function setDeveloperModeEnabled(value: boolean) {
+    developerModeEnabled.value = value
+    persist()
+  }
+
   function setAppearanceDensity(value: AoiAppearanceDensity) {
     if (!isAppearanceDensity(value)) {
       return
@@ -848,8 +865,32 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function setContentWidthMode(scope: AoiContentWidthScope, value: AoiContentWidthMode) {
+    if (!isAoiContentWidthMode(value)) {
+      return
+    }
+
+    if (scope === "wide") {
+      specUnits.contentWideWidthMode = value
+    } else {
+      specUnits.contentWidthMode = value
+    }
+
+    persist()
+  }
+
+  function setContentWidthPercent(scope: AoiContentWidthScope, value: number) {
+    if (scope === "wide") {
+      specUnits.contentWideWidthPercent = clampAoiContentWidthPercent("contentWideWidthPercent", value)
+    } else {
+      specUnits.contentWidthPercent = clampAoiContentWidthPercent("contentWidthPercent", value)
+    }
+
+    persist()
+  }
+
   function resetSpecUnits() {
-    Object.assign(specUnits, AOI_SPEC_UNIT_DEFAULTS)
+    Object.assign(specUnits, emptyState().specUnits)
     persist()
   }
 
@@ -998,6 +1039,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       openVideosInNewTab,
       useRelativeDates,
       dataMode,
+      developerModeEnabled,
       hideRecentSearches,
       disableWatchHistory,
       noSearchRecommendations,
@@ -1058,6 +1100,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     colorfulNavigation,
     customAccent,
     dataMode,
+    developerModeEnabled,
     disableWatchHistory,
     hideRecentSearches,
     hydrated,
@@ -1103,7 +1146,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     setAppearanceShape,
     setAppearanceSize,
     setBackgroundFile,
+    setContentWidthMode,
+    setContentWidthPercent,
     setCustomAccent,
+    setDeveloperModeEnabled,
     setLocalePreference,
     setPageScrollbarStrategy,
     setPreferredTheme,

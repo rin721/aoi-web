@@ -51,6 +51,10 @@
         "description": "余白、操作部、ナビゲーション、グリッド、角丸を派生する元の寸法をまとめて管理します。",
         "jump": "主単位を調整",
         "reset": "単位をリセット",
+        "widthMode": {
+          "px": "px",
+          "percent": "%"
+        },
         "baseFont": {
           "title": "基本文字サイズ",
           "description": "本文と見出しの比率に反映されます。",
@@ -73,13 +77,13 @@
         },
         "contentMaxWidth": {
           "title": "コンテンツ幅",
-          "description": "通常ページの最大幅を制限します。",
-          "label": "コンテンツ最大幅"
+          "description": "通常ページの幅を流動的な割合または固定ピクセル上限で設定します。",
+          "label": "コンテンツ幅"
         },
         "contentWideMaxWidth": {
           "title": "ワイド幅",
-          "description": "設定などの広いツールページの最大幅を制限します。",
-          "label": "ワイド最大幅"
+          "description": "設定やワークスペース系ページの幅を流動的な割合または固定ピクセル上限で設定します。",
+          "label": "ワイド幅"
         },
         "railWidth": {
           "title": "デスクトップレール",
@@ -301,6 +305,65 @@
           "maxOffsetTitle": "最大変位",
           "maxOffsetLabel": "最大変位"
         }
+      }
+    },
+    "about": {
+      "developerUnlock": {
+        "hint": "Aoi マークを 4 回クリックすると開発者モードを有効化できます。",
+        "remaining": "あと {count} 回クリックすると開発者モードに入ります。",
+        "enabled": "開発者モードが有効になりました。設定に開発者ページが追加されています。",
+        "logoLabel": "Aoi のプロダクトマーク、4 回クリックすると開発者モードを有効化"
+      }
+    },
+    "developer": {
+      "title": "開発者",
+      "description": "ビルド時の既定アプリ設定を生成し、ローカル開発環境で管理対象のソース設定へ書き込みます。",
+      "locked": {
+        "title": "開発者モードはロックされています",
+        "description": "About ページで隠し Aoi マークの操作を使うと、開発者モードを有効化できます。",
+        "action": "About へ"
+      },
+      "status": {
+        "title": "ビルド既定設定",
+        "description": "このページはアクティブな既定設定だけを書き込みます。元のバックアップ設定は変更しません。",
+        "runtimeMode": "実行モード",
+        "development": "ローカル開発",
+        "production": "本番ビルド",
+        "activePath": "アクティブ設定",
+        "originalPath": "元のバックアップ",
+        "generatedSize": "生成サイズ",
+        "updatedAt": "最終書き込み：{time}"
+      },
+      "generated": {
+        "title": "生成プレビュー",
+        "description": "現在のアプリ設定から TypeScript 設定を生成します。開発者モード、背景ファイル、ローカルコンテンツデータは含みません。"
+      },
+      "source": {
+        "title": "ソース設定操作",
+        "description": "書き込みはアクティブな既定設定を上書きします。復元は元のバックアップから再生成します。",
+        "devNote": "書き込み API はローカル dev サーバーでのみ利用でき、固定 allowlist の設定オブジェクトだけを受け付けます。",
+        "productionNote": "現在はローカル dev サーバーではないため、ソース書き込みと復元は無効です。"
+      },
+      "actions": {
+        "refresh": "更新",
+        "copy": "コピー",
+        "download": "ダウンロード",
+        "write": "ソース設定へ書き込み",
+        "restore": "元の既定へ復元",
+        "disable": "開発者モードを無効化"
+      },
+      "messages": {
+        "refreshed": "現在のアプリ設定からプレビューを再生成しました。",
+        "copied": "TypeScript 設定をコピーしました。",
+        "downloaded": "TypeScript 設定をダウンロードしました。",
+        "written": "アクティブなビルド既定設定を書き込みました。",
+        "restored": "元のバックアップからアクティブ設定を復元しました。"
+      },
+      "errors": {
+        "copy": "コピーに失敗しました。プレビュー本文を直接選択してください。",
+        "download": "ダウンロードに失敗しました。コピーを試してください。",
+        "write": "書き込みに失敗しました。ローカル dev サーバーで実行しているか確認してください。",
+        "restore": "復元に失敗しました。ローカル dev サーバーで実行しているか確認してください。"
       }
     },
     "experimental": {
