@@ -28,10 +28,14 @@
   --aoi-danger: #ba1a1a;
   --aoi-content-max-width: 1280px;
   --aoi-content-wide-max-width: 1360px;
+  --aoi-base-font-size: 14px;
   --aoi-page-padding-block-start: 18px;
   --aoi-page-padding-block-end: 56px;
   --aoi-page-padding-inline: 5vw;
   --aoi-page-padding-mobile: 16px 12px 78px;
+  --aoi-panel-padding: 18px;
+  --aoi-row-padding: 12px;
+  --aoi-card-padding: 14px;
   --aoi-panel-bg: var(--aoi-surface);
   --aoi-card-bg: rgba(255, 255, 255, 0.52);
   --aoi-control-bg: rgba(255, 255, 255, 0.48);
@@ -44,7 +48,8 @@
   --aoi-nav-hover-bg: var(--aoi-state-hover);
   --aoi-nav-pressed-bg: color-mix(in srgb, var(--aoi-accent-60) 8%, white);
   --aoi-nav-active-bg: var(--aoi-accent-10);
-  --aoi-nav-active-color: var(--aoi-sakura-50);
+  --aoi-nav-active-color: var(--aoi-accent-60);
+  --aoi-nav-active-radius: var(--aoi-radius-nav-indicator);
   --aoi-nav-bg-colorful: linear-gradient(135deg, color-mix(in srgb, var(--aoi-accent-60) 12%, white), rgba(255, 255, 255, 0.9));
   --aoi-nav-border-colorful: color-mix(in srgb, var(--aoi-accent-60) 18%, transparent);
   --aoi-user-bg-image: none;
@@ -52,9 +57,26 @@
   --aoi-user-bg-blur: 0px;
   --aoi-user-bg-dim: 0;
 
+  --aoi-radius-container: 12px;
+  --aoi-radius-card: 8px;
+  --aoi-radius-control: 6px;
+  --aoi-radius-choice: 10px;
+  --aoi-radius-nav-indicator: 999px;
+  --aoi-radius-round: 999px;
   --aoi-radius-xs: 4px;
-  --aoi-radius-sm: 6px;
-  --aoi-radius-md: 8px;
+  --aoi-radius-sm: var(--aoi-radius-card);
+  --aoi-radius-md: var(--aoi-radius-container);
+  --aoi-control-radius: var(--aoi-radius-control);
+  --aoi-nav-item-radius: var(--aoi-radius-control);
+  --aoi-control-height-sm: 32px;
+  --aoi-control-height-md: 40px;
+  --aoi-control-height-lg: 44px;
+  --aoi-icon-button-size: 40px;
+  --aoi-nav-action-size: 44px;
+  --aoi-nav-icon-size: 22px;
+  --aoi-nav-group-gap: 10px;
+  --aoi-nav-rail-padding-block: 12px;
+  --aoi-bottom-nav-label-size: 11px;
   --aoi-rail-width: 56px;
   --aoi-mobile-nav-height: 56px;
   --aoi-motion-fast: 120ms;
@@ -83,15 +105,18 @@
   --md-sys-shape-corner-small: var(--aoi-radius-sm);
   --md-sys-shape-corner-medium: var(--aoi-radius-md);
   --md-sys-shape-corner-large: var(--aoi-radius-md);
-  --md-sys-shape-corner-full: var(--aoi-radius-sm);
+  --md-sys-shape-corner-full: var(--aoi-radius-control);
 
-  --md-filled-button-container-shape: var(--aoi-radius-sm);
-  --md-filled-tonal-button-container-shape: var(--aoi-radius-sm);
-  --md-outlined-button-container-shape: var(--aoi-radius-sm);
-  --md-text-button-container-shape: var(--aoi-radius-sm);
-  --md-elevated-button-container-shape: var(--aoi-radius-sm);
-  --md-filled-text-field-container-shape: var(--aoi-radius-sm);
-  --md-outlined-text-field-container-shape: var(--aoi-radius-sm);
+  --md-filled-button-container-shape: var(--aoi-radius-control);
+  --md-filled-tonal-button-container-shape: var(--aoi-radius-control);
+  --md-outlined-button-container-shape: var(--aoi-radius-control);
+  --md-text-button-container-shape: var(--aoi-radius-control);
+  --md-elevated-button-container-shape: var(--aoi-radius-control);
+  --md-filled-text-field-container-shape: var(--aoi-radius-control);
+  --md-outlined-text-field-container-shape: var(--aoi-radius-control);
+  --md-filled-select-text-field-container-shape: var(--aoi-radius-control);
+  --md-outlined-select-text-field-container-shape: var(--aoi-radius-control);
+  --md-menu-container-shape: var(--aoi-radius-container);
 }
 
 :root.dark {
@@ -117,7 +142,7 @@
   --aoi-nav-hover-bg: var(--aoi-state-hover);
   --aoi-nav-pressed-bg: color-mix(in srgb, var(--aoi-accent-40) 14%, var(--aoi-surface-solid));
   --aoi-nav-active-bg: color-mix(in srgb, var(--aoi-accent-40) 12%, var(--aoi-surface-solid));
-  --aoi-nav-active-color: var(--aoi-sakura-40);
+  --aoi-nav-active-color: var(--aoi-accent-40);
   --aoi-nav-bg-colorful: linear-gradient(135deg, color-mix(in srgb, var(--aoi-accent-60) 18%, var(--aoi-surface-solid)), var(--aoi-surface));
   --aoi-nav-border-colorful: color-mix(in srgb, var(--aoi-accent-40) 22%, transparent);
 
@@ -134,4 +159,110 @@
   --md-sys-color-surface-container: #1a272a;
   --md-sys-color-surface-container-high: #243235;
   --md-sys-color-outline: rgba(192, 241, 248, 0.26);
+}
+
+:root[data-aoi-size="small"] {
+  --aoi-base-font-size: 13px;
+  --aoi-control-height-sm: 30px;
+  --aoi-control-height-md: 36px;
+  --aoi-control-height-lg: 40px;
+  --aoi-icon-button-size: 36px;
+  --aoi-nav-action-size: 40px;
+  --aoi-nav-icon-size: 20px;
+  --aoi-bottom-nav-label-size: 10px;
+}
+
+:root[data-aoi-size="large"] {
+  --aoi-base-font-size: 15px;
+  --aoi-control-height-sm: 34px;
+  --aoi-control-height-md: 44px;
+  --aoi-control-height-lg: 50px;
+  --aoi-icon-button-size: 44px;
+  --aoi-nav-action-size: 46px;
+  --aoi-nav-icon-size: 24px;
+  --aoi-bottom-nav-label-size: 12px;
+}
+
+:root[data-aoi-density="compact"] {
+  --aoi-page-padding-block-start: 14px;
+  --aoi-page-padding-block-end: 44px;
+  --aoi-page-padding-mobile: 12px 10px 72px;
+  --aoi-panel-padding: 14px;
+  --aoi-row-padding: 10px;
+  --aoi-card-padding: 12px;
+  --aoi-grid-gap: 12px;
+  --aoi-grid-gap-compact: 8px;
+  --aoi-nav-group-gap: 8px;
+  --aoi-nav-rail-padding-block: 10px;
+}
+
+:root[data-aoi-size="large"][data-aoi-density="comfortable"] {
+  --aoi-page-padding-block-start: 22px;
+  --aoi-page-padding-block-end: 64px;
+  --aoi-page-padding-mobile: 18px 14px 84px;
+  --aoi-panel-padding: 22px;
+  --aoi-row-padding: 14px;
+  --aoi-card-padding: 16px;
+  --aoi-grid-gap: 18px;
+  --aoi-grid-gap-compact: 14px;
+  --aoi-nav-group-gap: 11px;
+  --aoi-nav-rail-padding-block: 14px;
+}
+
+:root[data-aoi-shape="square"] {
+  --aoi-radius-container: 4px;
+  --aoi-radius-card: 3px;
+  --aoi-radius-control: 2px;
+  --aoi-radius-choice: 4px;
+  --aoi-radius-xs: 2px;
+}
+
+:root[data-aoi-shape="pill"] {
+  --aoi-radius-container: 20px;
+  --aoi-radius-card: 14px;
+  --aoi-radius-control: 999px;
+  --aoi-radius-choice: 16px;
+  --aoi-radius-xs: 10px;
+}
+
+:root[data-aoi-contrast="high"] {
+  --aoi-surface: rgba(255, 255, 255, 0.98);
+  --aoi-surface-muted: #e8f4f7;
+  --aoi-border: rgba(9, 46, 56, 0.34);
+  --aoi-text: #0a171b;
+  --aoi-text-muted: #314d55;
+  --aoi-icon: #23434b;
+  --aoi-focus: rgba(15, 159, 183, 0.58);
+  --aoi-card-bg: rgba(255, 255, 255, 0.86);
+  --aoi-control-bg: rgba(255, 255, 255, 0.82);
+  --aoi-state-hover: color-mix(in srgb, var(--aoi-accent-60) 12%, white);
+  --aoi-state-active: color-mix(in srgb, var(--aoi-accent-60) 18%, white);
+  --aoi-state-border-active: color-mix(in srgb, var(--aoi-accent-60) 58%, var(--aoi-border));
+  --aoi-nav-bg: rgba(255, 255, 255, 0.98);
+  --aoi-nav-hover-bg: color-mix(in srgb, var(--aoi-accent-60) 14%, white);
+  --aoi-nav-pressed-bg: color-mix(in srgb, var(--aoi-accent-60) 22%, white);
+  --aoi-nav-active-bg: color-mix(in srgb, var(--aoi-accent-60) 18%, white);
+  --aoi-nav-active-color: var(--aoi-accent-60);
+}
+
+:root.dark[data-aoi-contrast="high"] {
+  --aoi-bg: #081113;
+  --aoi-surface: rgba(17, 29, 33, 0.98);
+  --aoi-surface-solid: #111d21;
+  --aoi-surface-muted: #1a2d33;
+  --aoi-border: rgba(203, 249, 255, 0.34);
+  --aoi-text: #f6feff;
+  --aoi-text-muted: #c5e4eb;
+  --aoi-icon: #cfecf1;
+  --aoi-focus: rgba(94, 211, 223, 0.64);
+  --aoi-card-bg: rgba(255, 255, 255, 0.1);
+  --aoi-control-bg: rgba(255, 255, 255, 0.09);
+  --aoi-state-hover: color-mix(in srgb, var(--aoi-accent-40) 18%, var(--aoi-surface-solid));
+  --aoi-state-active: color-mix(in srgb, var(--aoi-accent-40) 28%, var(--aoi-surface-solid));
+  --aoi-state-border-active: color-mix(in srgb, var(--aoi-accent-40) 62%, var(--aoi-border));
+  --aoi-nav-bg: rgba(17, 29, 33, 0.98);
+  --aoi-nav-hover-bg: color-mix(in srgb, var(--aoi-accent-40) 18%, var(--aoi-surface-solid));
+  --aoi-nav-pressed-bg: color-mix(in srgb, var(--aoi-accent-40) 28%, var(--aoi-surface-solid));
+  --aoi-nav-active-bg: color-mix(in srgb, var(--aoi-accent-40) 24%, var(--aoi-surface-solid));
+  --aoi-nav-active-color: var(--aoi-accent-40);
 }

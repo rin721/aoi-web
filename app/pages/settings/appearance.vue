@@ -1,7 +1,14 @@
 <script setup lang="ts">
 import { AOI_ACCENT_PRESETS } from "~/stores/app-settings"
-import type { AoiPreferredTheme } from "~/stores/app-settings"
+import type {
+  AoiAppearanceContrast,
+  AoiAppearanceDensity,
+  AoiAppearanceShape,
+  AoiAppearanceSize,
+  AoiPreferredTheme
+} from "~/stores/app-settings"
 
+const { t } = useI18n()
 const settings = useAppSettingsStore()
 const fileInput = ref<HTMLInputElement | null>(null)
 
@@ -10,6 +17,85 @@ const themeCards: Array<{ icon: string, label: string, value: AoiPreferredTheme 
   { icon: "moon", label: "深色主题", value: "dark" },
   { icon: "monitor-cog", label: "跟随系统", value: "system" }
 ]
+
+interface AppearanceOption<T extends string> {
+  description: string
+  icon: string
+  label: string
+  value: T
+}
+
+const densityOptions = computed<Array<AppearanceOption<AoiAppearanceDensity>>>(() => [
+  {
+    icon: "panel-top-open",
+    label: t("settings.appearance.density.comfortable.label"),
+    description: t("settings.appearance.density.comfortable.description"),
+    value: "comfortable"
+  },
+  {
+    icon: "rows-3",
+    label: t("settings.appearance.density.compact.label"),
+    description: t("settings.appearance.density.compact.description"),
+    value: "compact"
+  }
+])
+
+const sizeOptions = computed<Array<AppearanceOption<AoiAppearanceSize>>>(() => [
+  {
+    icon: "minimize-2",
+    label: t("settings.appearance.size.small.label"),
+    description: t("settings.appearance.size.small.description"),
+    value: "small"
+  },
+  {
+    icon: "scan",
+    label: t("settings.appearance.size.default.label"),
+    description: t("settings.appearance.size.default.description"),
+    value: "default"
+  },
+  {
+    icon: "maximize-2",
+    label: t("settings.appearance.size.large.label"),
+    description: t("settings.appearance.size.large.description"),
+    value: "large"
+  }
+])
+
+const shapeOptions = computed<Array<AppearanceOption<AoiAppearanceShape>>>(() => [
+  {
+    icon: "square",
+    label: t("settings.appearance.shape.square.label"),
+    description: t("settings.appearance.shape.square.description"),
+    value: "square"
+  },
+  {
+    icon: "squircle",
+    label: t("settings.appearance.shape.soft.label"),
+    description: t("settings.appearance.shape.soft.description"),
+    value: "soft"
+  },
+  {
+    icon: "circle",
+    label: t("settings.appearance.shape.pill.label"),
+    description: t("settings.appearance.shape.pill.description"),
+    value: "pill"
+  }
+])
+
+const contrastOptions = computed<Array<AppearanceOption<AoiAppearanceContrast>>>(() => [
+  {
+    icon: "contrast",
+    label: t("settings.appearance.contrast.normal.label"),
+    description: t("settings.appearance.contrast.normal.description"),
+    value: "normal"
+  },
+  {
+    icon: "badge-alert",
+    label: t("settings.appearance.contrast.high.label"),
+    description: t("settings.appearance.contrast.high.description"),
+    value: "high"
+  }
+])
 
 const customAccentModel = computed({
   get: () => settings.customAccent,
@@ -69,6 +155,109 @@ function formatBytes(value: number) {
           <span>{{ item.label }}</span>
         </button>
       </div>
+    </SettingsPanel>
+
+    <SettingsPanel
+      icon="sliders-horizontal"
+      :title="t('settings.appearance.form.title')"
+      :description="t('settings.appearance.form.description')"
+    >
+      <div class="settings-form-grid">
+        <section class="settings-form-group">
+          <div class="settings-form-group__copy">
+            <strong>{{ t("settings.appearance.form.densityTitle") }}</strong>
+            <span>{{ t("settings.appearance.form.densityDescription") }}</span>
+          </div>
+          <div class="settings-segmented" role="group" :aria-label="t('settings.appearance.form.densityTitle')">
+            <button
+              v-for="item in densityOptions"
+              :key="item.value"
+              class="settings-segmented__item"
+              :class="{ 'settings-segmented__item--active': settings.appearanceDensity === item.value }"
+              type="button"
+              :aria-pressed="settings.appearanceDensity === item.value"
+              @click="settings.setAppearanceDensity(item.value)"
+            >
+              <AoiIcon :name="item.icon" :size="18" decorative />
+              <span>{{ item.label }}</span>
+              <small>{{ item.description }}</small>
+            </button>
+          </div>
+        </section>
+
+        <section class="settings-form-group">
+          <div class="settings-form-group__copy">
+            <strong>{{ t("settings.appearance.form.sizeTitle") }}</strong>
+            <span>{{ t("settings.appearance.form.sizeDescription") }}</span>
+          </div>
+          <div class="settings-segmented settings-segmented--three" role="group" :aria-label="t('settings.appearance.form.sizeTitle')">
+            <button
+              v-for="item in sizeOptions"
+              :key="item.value"
+              class="settings-segmented__item"
+              :class="{ 'settings-segmented__item--active': settings.appearanceSize === item.value }"
+              type="button"
+              :aria-pressed="settings.appearanceSize === item.value"
+              @click="settings.setAppearanceSize(item.value)"
+            >
+              <AoiIcon :name="item.icon" :size="18" decorative />
+              <span>{{ item.label }}</span>
+              <small>{{ item.description }}</small>
+            </button>
+          </div>
+        </section>
+
+        <section class="settings-form-group">
+          <div class="settings-form-group__copy">
+            <strong>{{ t("settings.appearance.form.shapeTitle") }}</strong>
+            <span>{{ t("settings.appearance.form.shapeDescription") }}</span>
+          </div>
+          <div class="settings-segmented settings-segmented--three" role="group" :aria-label="t('settings.appearance.form.shapeTitle')">
+            <button
+              v-for="item in shapeOptions"
+              :key="item.value"
+              class="settings-segmented__item"
+              :class="{ 'settings-segmented__item--active': settings.appearanceShape === item.value }"
+              type="button"
+              :aria-pressed="settings.appearanceShape === item.value"
+              @click="settings.setAppearanceShape(item.value)"
+            >
+              <AoiIcon :name="item.icon" :size="18" decorative />
+              <span>{{ item.label }}</span>
+              <small>{{ item.description }}</small>
+            </button>
+          </div>
+        </section>
+
+        <section class="settings-form-group">
+          <div class="settings-form-group__copy">
+            <strong>{{ t("settings.appearance.form.contrastTitle") }}</strong>
+            <span>{{ t("settings.appearance.form.contrastDescription") }}</span>
+          </div>
+          <div class="settings-segmented" role="group" :aria-label="t('settings.appearance.form.contrastTitle')">
+            <button
+              v-for="item in contrastOptions"
+              :key="item.value"
+              class="settings-segmented__item"
+              :class="{ 'settings-segmented__item--active': settings.appearanceContrast === item.value }"
+              type="button"
+              :aria-pressed="settings.appearanceContrast === item.value"
+              @click="settings.setAppearanceContrast(item.value)"
+            >
+              <AoiIcon :name="item.icon" :size="18" decorative />
+              <span>{{ item.label }}</span>
+              <small>{{ item.description }}</small>
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <SettingsRow
+        :title="t('settings.appearance.form.colorfulNavTitle')"
+        :description="t('settings.appearance.form.colorfulNavDescription')"
+      >
+        <AoiSwitch v-model="settings.colorfulNavigation" />
+      </SettingsRow>
     </SettingsPanel>
 
     <SettingsPanel
@@ -171,19 +360,6 @@ function formatBytes(value: number) {
     </SettingsPanel>
 
     <SettingsPanel
-      icon="navigation"
-      title="导航"
-      description="让侧栏和移动导航带一点个性色。"
-    >
-      <SettingsRow
-        title="彩色导航栏"
-        description="使用当前主题色轻微染色导航栏背景。"
-      >
-        <AoiSwitch v-model="settings.colorfulNavigation" />
-      </SettingsRow>
-    </SettingsPanel>
-
-    <SettingsPanel
       icon="rotate-ccw"
       title="恢复默认"
       description="只重置外观、色板和背景，不影响播放器、本地互动和高级数据。"
@@ -201,14 +377,14 @@ function formatBytes(value: number) {
   display: grid;
   min-height: 104px;
   border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-md);
+  border-radius: var(--aoi-radius-card);
   background: var(--aoi-card-bg);
   color: var(--aoi-text);
   cursor: pointer;
   font: inherit;
   gap: 8px;
   justify-items: start;
-  padding: 14px;
+  padding: var(--aoi-card-padding);
   text-align: left;
   transition:
     background var(--aoi-motion-fast) var(--aoi-ease-out),
@@ -239,6 +415,107 @@ function formatBytes(value: number) {
   font-weight: 820;
 }
 
+.settings-form-grid {
+  display: grid;
+  gap: var(--aoi-grid-gap-compact);
+}
+
+.settings-form-group {
+  display: grid;
+  grid-template-columns: minmax(0, .42fr) minmax(0, 1fr);
+  gap: var(--aoi-grid-gap);
+  align-items: stretch;
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-card);
+  background: var(--aoi-control-bg);
+  padding: var(--aoi-row-padding);
+}
+
+.settings-form-group__copy {
+  display: grid;
+  align-content: center;
+  gap: 4px;
+}
+
+.settings-form-group__copy strong,
+.settings-form-group__copy span {
+  margin: 0;
+}
+
+.settings-form-group__copy strong {
+  color: var(--aoi-text);
+}
+
+.settings-form-group__copy span {
+  color: var(--aoi-text-muted);
+  line-height: 1.7;
+}
+
+.settings-segmented {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.settings-segmented--three {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.settings-segmented__item {
+  display: grid;
+  min-width: 0;
+  min-height: calc(var(--aoi-control-height-lg) + 30px);
+  align-content: center;
+  justify-items: start;
+  border: 1px solid transparent;
+  border-radius: var(--aoi-radius-choice);
+  background: transparent;
+  color: var(--aoi-text);
+  cursor: pointer;
+  font: inherit;
+  gap: 4px;
+  padding: 10px 12px;
+  text-align: left;
+  transition:
+    background var(--aoi-motion-fast) var(--aoi-ease-out),
+    border-color var(--aoi-motion-fast) var(--aoi-ease-out),
+    color var(--aoi-motion-fast) var(--aoi-ease-out),
+    transform var(--aoi-motion-fast) var(--aoi-ease-press);
+}
+
+.settings-segmented__item:hover {
+  background: var(--aoi-state-hover);
+}
+
+.settings-segmented__item:active {
+  transform: scale(.98);
+}
+
+.settings-segmented__item--active {
+  border-color: var(--aoi-state-border-active);
+  background: var(--aoi-state-active);
+  color: var(--aoi-accent-60);
+}
+
+.settings-segmented__item span {
+  overflow: hidden;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.settings-segmented__item small {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--aoi-text-muted);
+  font-size: .78rem;
+  font-weight: 640;
+  line-height: 1.35;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .settings-palette-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
@@ -253,7 +530,7 @@ function formatBytes(value: number) {
   display: block;
   width: 100%;
   height: 66px;
-  border-radius: var(--aoi-radius-sm);
+  border-radius: var(--aoi-radius-card);
   background:
     radial-gradient(circle at 78% 72%, var(--preview-10) 0 18%, transparent 19%),
     linear-gradient(135deg, var(--preview-20), var(--preview-50) 52%, var(--preview-60));
@@ -278,7 +555,7 @@ function formatBytes(value: number) {
   height: 56px;
   place-items: center;
   border: 1px solid var(--aoi-border);
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
   background: var(--aoi-surface-solid);
   cursor: pointer;
   overflow: hidden;
@@ -306,7 +583,7 @@ function formatBytes(value: number) {
   place-items: center;
   overflow: hidden;
   border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-md);
+  border-radius: var(--aoi-radius-container);
   background:
     linear-gradient(135deg, rgba(34, 184, 207, .16), transparent 42%),
     linear-gradient(315deg, rgba(242, 112, 156, .18), transparent 40%),
@@ -331,7 +608,13 @@ function formatBytes(value: number) {
 
 @media (max-width: 760px) {
   .settings-custom-color,
+  .settings-form-group,
   .settings-slider-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .settings-segmented,
+  .settings-segmented--three {
     grid-template-columns: 1fr;
   }
 }

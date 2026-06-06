@@ -2,6 +2,10 @@ export type AoiPreferredTheme = "system" | "light" | "dark"
 export type AoiAccentMode = "preset" | "custom"
 export type AoiDataMode = "economy" | "standard" | "turbo"
 export type AoiLocale = "zh-CN" | "en" | "ja"
+export type AoiAppearanceDensity = "comfortable" | "compact"
+export type AoiAppearanceSize = "small" | "default" | "large"
+export type AoiAppearanceShape = "square" | "soft" | "pill"
+export type AoiAppearanceContrast = "normal" | "high"
 
 export interface AoiAccentScale {
   accent10: string
@@ -20,6 +24,10 @@ export interface AoiAccentPresetOption extends AoiAccentScale {
 interface PersistedAppSettings {
   accentMode: AoiAccentMode
   accentPreset: string
+  appearanceContrast: AoiAppearanceContrast
+  appearanceDensity: AoiAppearanceDensity
+  appearanceShape: AoiAppearanceShape
+  appearanceSize: AoiAppearanceSize
   backgroundBlur: number
   backgroundDim: number
   backgroundFileName: string
@@ -128,6 +136,10 @@ function emptyState(): PersistedAppSettings {
   return {
     accentMode: "preset",
     accentPreset: DEFAULT_ACCENT_PRESET,
+    appearanceContrast: "normal",
+    appearanceDensity: "comfortable",
+    appearanceShape: "soft",
+    appearanceSize: "default",
     backgroundBlur: 0,
     backgroundDim: 0.18,
     backgroundFileName: "",
@@ -161,6 +173,10 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
   return {
     accentMode: candidate.accentMode === "custom" ? "custom" : "preset",
     accentPreset: isAccentPreset(candidate.accentPreset) ? candidate.accentPreset : fallback.accentPreset,
+    appearanceContrast: isAppearanceContrast(candidate.appearanceContrast) ? candidate.appearanceContrast : fallback.appearanceContrast,
+    appearanceDensity: isAppearanceDensity(candidate.appearanceDensity) ? candidate.appearanceDensity : fallback.appearanceDensity,
+    appearanceShape: isAppearanceShape(candidate.appearanceShape) ? candidate.appearanceShape : fallback.appearanceShape,
+    appearanceSize: isAppearanceSize(candidate.appearanceSize) ? candidate.appearanceSize : fallback.appearanceSize,
     backgroundBlur: clampNumber(candidate.backgroundBlur, 0, 24, fallback.backgroundBlur),
     backgroundDim: clampNumber(candidate.backgroundDim, 0, 0.9, fallback.backgroundDim),
     backgroundFileName: typeof candidate.backgroundFileName === "string" ? candidate.backgroundFileName : "",
@@ -192,6 +208,22 @@ function isDataMode(value: unknown): value is AoiDataMode {
 
 function isLocale(value: unknown): value is AoiLocale {
   return value === "zh-CN" || value === "en" || value === "ja"
+}
+
+function isAppearanceDensity(value: unknown): value is AoiAppearanceDensity {
+  return value === "comfortable" || value === "compact"
+}
+
+function isAppearanceSize(value: unknown): value is AoiAppearanceSize {
+  return value === "small" || value === "default" || value === "large"
+}
+
+function isAppearanceShape(value: unknown): value is AoiAppearanceShape {
+  return value === "square" || value === "soft" || value === "pill"
+}
+
+function isAppearanceContrast(value: unknown): value is AoiAppearanceContrast {
+  return value === "normal" || value === "high"
 }
 
 function isAccentPreset(value: unknown): value is string {
@@ -329,6 +361,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const selectedCategory = ref("home")
   const preferredTheme = ref<AoiPreferredTheme>("system")
   const locale = ref<AoiLocale>("zh-CN")
+  const appearanceContrast = ref<AoiAppearanceContrast>("normal")
+  const appearanceDensity = ref<AoiAppearanceDensity>("comfortable")
+  const appearanceShape = ref<AoiAppearanceShape>("soft")
+  const appearanceSize = ref<AoiAppearanceSize>("default")
   const accentMode = ref<AoiAccentMode>("preset")
   const accentPreset = ref(DEFAULT_ACCENT_PRESET)
   const customAccent = ref(DEFAULT_ACCENT)
@@ -369,6 +405,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     return {
       accentMode: accentMode.value,
       accentPreset: accentPreset.value,
+      appearanceContrast: appearanceContrast.value,
+      appearanceDensity: appearanceDensity.value,
+      appearanceShape: appearanceShape.value,
+      appearanceSize: appearanceSize.value,
       backgroundBlur: backgroundBlur.value,
       backgroundDim: backgroundDim.value,
       backgroundFileName: backgroundFileName.value,
@@ -393,6 +433,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   function assignState(state: PersistedAppSettings) {
     accentMode.value = state.accentMode
     accentPreset.value = state.accentPreset
+    appearanceContrast.value = state.appearanceContrast
+    appearanceDensity.value = state.appearanceDensity
+    appearanceShape.value = state.appearanceShape
+    appearanceSize.value = state.appearanceSize
     backgroundBlur.value = state.backgroundBlur
     backgroundDim.value = state.backgroundDim
     backgroundFileName.value = state.backgroundFileName
@@ -490,6 +534,42 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function setAppearanceDensity(value: AoiAppearanceDensity) {
+    if (!isAppearanceDensity(value)) {
+      return
+    }
+
+    appearanceDensity.value = value
+    persist()
+  }
+
+  function setAppearanceSize(value: AoiAppearanceSize) {
+    if (!isAppearanceSize(value)) {
+      return
+    }
+
+    appearanceSize.value = value
+    persist()
+  }
+
+  function setAppearanceShape(value: AoiAppearanceShape) {
+    if (!isAppearanceShape(value)) {
+      return
+    }
+
+    appearanceShape.value = value
+    persist()
+  }
+
+  function setAppearanceContrast(value: AoiAppearanceContrast) {
+    if (!isAppearanceContrast(value)) {
+      return
+    }
+
+    appearanceContrast.value = value
+    persist()
+  }
+
   function setAccentPreset(value: string) {
     if (!isAccentPreset(value)) {
       return
@@ -555,6 +635,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     preferredTheme.value = next.preferredTheme
     accentMode.value = next.accentMode
     accentPreset.value = next.accentPreset
+    appearanceContrast.value = next.appearanceContrast
+    appearanceDensity.value = next.appearanceDensity
+    appearanceShape.value = next.appearanceShape
+    appearanceSize.value = next.appearanceSize
     customAccent.value = next.customAccent
     backgroundOpacity.value = next.backgroundOpacity
     backgroundBlur.value = next.backgroundBlur
@@ -583,6 +667,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     watch([
       preferredTheme,
       locale,
+      appearanceContrast,
+      appearanceDensity,
+      appearanceShape,
+      appearanceSize,
       accentMode,
       accentPreset,
       customAccent,
@@ -610,6 +698,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     accentScale,
     activeAccent,
     activePreset,
+    appearanceContrast,
+    appearanceDensity,
+    appearanceShape,
+    appearanceSize,
     backgroundBlur,
     backgroundDim,
     backgroundError,
@@ -636,6 +728,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     restore,
     selectedCategory,
     setAccentPreset,
+    setAppearanceContrast,
+    setAppearanceDensity,
+    setAppearanceShape,
+    setAppearanceSize,
     setBackgroundFile,
     setCustomAccent,
     setLocalePreference,

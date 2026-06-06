@@ -473,7 +473,7 @@ onMounted(() => {
   height: 72px;
   place-items: center;
   border: 1px solid rgba(255, 255, 255, .58);
-  border-radius: 50%;
+  border-radius: var(--aoi-radius-round);
   background: rgba(255, 255, 255, .18);
   backdrop-filter: blur(12px);
   transition: transform var(--aoi-motion-fast) var(--aoi-ease-out);

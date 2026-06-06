@@ -26,9 +26,9 @@ withDefaults(defineProps<{
   gap: var(--aoi-grid-gap);
   align-items: center;
   border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
+  border-radius: var(--aoi-radius-card);
   background: var(--aoi-control-bg);
-  padding: 12px;
+  padding: var(--aoi-row-padding);
 }
 
 .settings-row__copy {

@@ -122,7 +122,7 @@ useHead(() => ({
   gap: 14px;
   overflow: auto;
   border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-md);
+  border-radius: var(--aoi-radius-container);
   background: var(--aoi-panel-bg);
   box-shadow: var(--aoi-shadow-sm);
   padding: 16px;
@@ -140,7 +140,7 @@ useHead(() => ({
   width: 38px;
   height: 38px;
   place-items: center;
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
   background: var(--aoi-accent-10);
   color: var(--aoi-accent-60);
 }
@@ -184,7 +184,7 @@ useHead(() => ({
   min-height: 40px;
   align-items: center;
   gap: 10px;
-  border-radius: var(--aoi-radius-sm);
+  border-radius: var(--aoi-radius-choice);
   color: var(--aoi-text);
   font-weight: 720;
   padding: 0 11px;
@@ -260,7 +260,7 @@ useHead(() => ({
 
 @media (max-width: 639px) {
   .settings-shell__nav {
-    border-radius: var(--aoi-radius-sm);
+    border-radius: var(--aoi-radius-card);
   }
 
   .settings-shell__intro {

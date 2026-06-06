@@ -149,7 +149,7 @@ useHead({
 .history-entry__progress {
   overflow: hidden;
   height: 5px;
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
   background: var(--aoi-border);
 }
 

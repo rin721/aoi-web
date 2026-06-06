@@ -33,10 +33,10 @@ withDefaults(defineProps<{
   display: grid;
   gap: var(--aoi-grid-gap);
   border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-md);
+  border-radius: var(--aoi-radius-container);
   background: var(--aoi-panel-bg);
   box-shadow: var(--aoi-shadow-sm);
-  padding: 18px;
+  padding: var(--aoi-panel-padding);
 }
 
 .settings-panel__header {
@@ -51,7 +51,7 @@ withDefaults(defineProps<{
   width: 34px;
   height: 34px;
   place-items: center;
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
   background: var(--aoi-accent-10);
   color: var(--aoi-accent-60);
 }

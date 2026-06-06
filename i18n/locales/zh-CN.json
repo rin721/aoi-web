@@ -10,12 +10,79 @@
     "history": "历史",
     "collections": "收藏",
     "upload": "投稿",
-    "settings": "设置"
+    "settings": "设置",
+    "login": "登录"
   },
   "home": {
     "subtitle": "清透、快速、面向创作者的视频社区前端。当前为 Nuxt 4 前端设计原型，使用 mock 数据预演未来 Go API。",
     "latest": "最新",
     "gridView": "网格视图",
     "listView": "列表视图"
+  },
+  "settings": {
+    "appearance": {
+      "form": {
+        "title": "形态",
+        "description": "统一调整全站密度、尺寸、圆角、对比度和导航强调。",
+        "densityTitle": "密度",
+        "densityDescription": "控制页面留白和设置项间距。",
+        "sizeTitle": "尺寸",
+        "sizeDescription": "调整基础字号、控件高度和导航图标比例。",
+        "shapeTitle": "圆角",
+        "shapeDescription": "分层控制控件、选项和内容容器的圆角。",
+        "contrastTitle": "对比度",
+        "contrastDescription": "提高文本、边框和选中状态的辨识度。",
+        "colorfulNavTitle": "彩色导航栏",
+        "colorfulNavDescription": "使用当前主题色轻微染色侧栏和移动导航背景。"
+      },
+      "density": {
+        "comfortable": {
+          "label": "Comfortable",
+          "description": "舒适留白"
+        },
+        "compact": {
+          "label": "紧凑密度",
+          "description": "更高信息密度"
+        }
+      },
+      "size": {
+        "small": {
+          "label": "Small",
+          "description": "小尺寸"
+        },
+        "default": {
+          "label": "Default",
+          "description": "默认比例"
+        },
+        "large": {
+          "label": "Large",
+          "description": "大尺寸"
+        }
+      },
+      "shape": {
+        "square": {
+          "label": "直角",
+          "description": "2px 边角"
+        },
+        "soft": {
+          "label": "柔和",
+          "description": "Aoi 默认"
+        },
+        "pill": {
+          "label": "圆角",
+          "description": "控件胶囊，容器保形"
+        }
+      },
+      "contrast": {
+        "normal": {
+          "label": "Normal",
+          "description": "标准层级"
+        },
+        "high": {
+          "label": "高对比度",
+          "description": "强化辨识"
+        }
+      }
+    }
   }
 }

@@ -34,7 +34,7 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
 .video-card {
   display: grid;
   min-width: 0;
-  border-radius: var(--aoi-radius-sm);
+  border-radius: var(--aoi-radius-card);
   color: var(--aoi-text);
   gap: 8px;
   padding: 8px;
@@ -61,7 +61,7 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
 
 .video-card__cover-link {
   display: block;
-  border-radius: var(--aoi-radius-sm);
+  border-radius: var(--aoi-radius-card);
 }
 
 .video-card__cover {
@@ -69,7 +69,7 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
   position: relative;
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: var(--aoi-radius-sm);
+  border-radius: var(--aoi-radius-card);
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent 45%),
     var(--cover);
@@ -88,7 +88,7 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
   width: 42px;
   height: 42px;
   border: 2px solid rgba(255, 255, 255, 0.72);
-  border-radius: 50%;
+  border-radius: var(--aoi-radius-round);
 }
 
 .video-card__cover::after {
@@ -96,7 +96,7 @@ const linkTarget = computed(() => settings.openVideosInNewTab ? "_blank" : undef
   left: 14px;
   width: 78px;
   height: 3px;
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
   background: rgba(255, 255, 255, 0.72);
   box-shadow: 0 12px 0 rgba(255, 255, 255, 0.42);
 }

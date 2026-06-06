@@ -28,7 +28,7 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 - Button-style navigation uses `AoiButton` or `AoiIconButton` with `to`/`href`.
 - Use `app/assets/css/tokens.css` tokens and shared structure rules in `app/assets/css/main.css`.
 - Prefer semantic tokens such as panel/card/control/nav/state/danger variables over one-off color literals.
-- Keep cards and controls compact: 4px to 6px radius by default, 8px only for larger grouped surfaces.
+- Use domain-specific radius tokens: `--aoi-radius-container`, `--aoi-radius-card`, `--aoi-radius-control`, `--aoi-radius-choice`, `--aoi-radius-nav-indicator`, and `--aoi-radius-round`. Reserve `999px` for navigation indicators, single-line pill controls, and true round/circular affordances; content containers must use container/card/choice radii.
 - Preserve responsive behavior, visible focus states, keyboard access, touch targets, text contrast, and `prefers-reduced-motion`.
 - Icons should come from the local Lucide collection through `@nuxt/icon`.
 

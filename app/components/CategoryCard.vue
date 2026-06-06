@@ -25,7 +25,7 @@ defineProps<{
   gap: 12px;
   align-items: center;
   border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
+  border-radius: var(--aoi-radius-card);
   background: var(--aoi-surface);
   box-shadow: var(--aoi-shadow-sm);
   color: var(--aoi-text);
@@ -43,7 +43,7 @@ defineProps<{
 .category-card__swatch {
   width: 10px;
   height: 42px;
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
 }
 
 .category-card__body {
@@ -70,7 +70,7 @@ defineProps<{
   height: 24px;
   align-items: center;
   justify-content: center;
-  border-radius: var(--aoi-radius-sm);
+  border-radius: var(--aoi-radius-control);
   background: var(--aoi-accent-10);
   color: var(--aoi-accent-60);
   font-size: 12px;

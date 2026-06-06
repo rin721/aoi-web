@@ -10,12 +10,79 @@
     "history": "履歴",
     "collections": "コレクション",
     "upload": "投稿",
-    "settings": "設定"
+    "settings": "設定",
+    "login": "ログイン"
   },
   "home": {
     "subtitle": "クリエイター向けの澄んだ高速な動画コミュニティフロントエンド。Nuxt 4 と mock データで将来の Go API を先取りします。",
     "latest": "最新",
     "gridView": "グリッド表示",
     "listView": "リスト表示"
+  },
+  "settings": {
+    "appearance": {
+      "form": {
+        "title": "形態",
+        "description": "Aoi 全体の密度、サイズ、角丸、コントラスト、ナビゲーションの強調を調整します。",
+        "densityTitle": "密度",
+        "densityDescription": "ページ余白と設定項目の間隔を調整します。",
+        "sizeTitle": "サイズ",
+        "sizeDescription": "基本文字サイズ、コントロール高、ナビゲーションアイコンの比率を調整します。",
+        "shapeTitle": "角丸",
+        "shapeDescription": "操作部、選択項目、コンテンツ面の角丸を階層的に調整します。",
+        "contrastTitle": "コントラスト",
+        "contrastDescription": "テキスト、境界線、選択状態の視認性を高めます。",
+        "colorfulNavTitle": "カラーナビゲーション",
+        "colorfulNavDescription": "現在のアクセントカラーでサイドバーとモバイルナビを軽く色付けします。"
+      },
+      "density": {
+        "comfortable": {
+          "label": "Comfortable",
+          "description": "余白多め"
+        },
+        "compact": {
+          "label": "コンパクト",
+          "description": "高密度"
+        }
+      },
+      "size": {
+        "small": {
+          "label": "Small",
+          "description": "小さめ"
+        },
+        "default": {
+          "label": "Default",
+          "description": "標準"
+        },
+        "large": {
+          "label": "Large",
+          "description": "大きめ"
+        }
+      },
+      "shape": {
+        "square": {
+          "label": "直角",
+          "description": "2px 角"
+        },
+        "soft": {
+          "label": "柔らか",
+          "description": "Aoi 標準"
+        },
+        "pill": {
+          "label": "丸角",
+          "description": "操作部はピル型、面は構造を保持"
+        }
+      },
+      "contrast": {
+        "normal": {
+          "label": "Normal",
+          "description": "標準階層"
+        },
+        "high": {
+          "label": "高コントラスト",
+          "description": "視認性強化"
+        }
+      }
+    }
   }
 }

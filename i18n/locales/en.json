@@ -10,12 +10,79 @@
     "history": "History",
     "collections": "Collections",
     "upload": "Upload",
-    "settings": "Settings"
+    "settings": "Settings",
+    "login": "Log in"
   },
   "home": {
     "subtitle": "A clear, fast video community frontend for creators. This Nuxt 4 prototype uses mock data for the future Go API.",
     "latest": "Latest",
     "gridView": "Grid view",
     "listView": "List view"
+  },
+  "settings": {
+    "appearance": {
+      "form": {
+        "title": "Form",
+        "description": "Tune density, size, corners, contrast, and navigation emphasis across Aoi.",
+        "densityTitle": "Density",
+        "densityDescription": "Controls page spacing and settings row rhythm.",
+        "sizeTitle": "Size",
+        "sizeDescription": "Adjusts base type, control height, and navigation icon scale.",
+        "shapeTitle": "Corners",
+        "shapeDescription": "Layers corner radius across controls, choices, and content surfaces.",
+        "contrastTitle": "Contrast",
+        "contrastDescription": "Raises legibility for text, borders, and selected states.",
+        "colorfulNavTitle": "Colorful navigation",
+        "colorfulNavDescription": "Lightly tints side and mobile navigation with the current accent color."
+      },
+      "density": {
+        "comfortable": {
+          "label": "Comfortable",
+          "description": "Open spacing"
+        },
+        "compact": {
+          "label": "Compact",
+          "description": "Higher density"
+        }
+      },
+      "size": {
+        "small": {
+          "label": "Small",
+          "description": "Smaller scale"
+        },
+        "default": {
+          "label": "Default",
+          "description": "Balanced scale"
+        },
+        "large": {
+          "label": "Large",
+          "description": "Larger scale"
+        }
+      },
+      "shape": {
+        "square": {
+          "label": "Square",
+          "description": "2px corners"
+        },
+        "soft": {
+          "label": "Soft",
+          "description": "Aoi default"
+        },
+        "pill": {
+          "label": "Rounded",
+          "description": "Pill controls, structured surfaces"
+        }
+      },
+      "contrast": {
+        "normal": {
+          "label": "Normal",
+          "description": "Standard layers"
+        },
+        "high": {
+          "label": "High contrast",
+          "description": "Sharper states"
+        }
+      }
+    }
   }
 }

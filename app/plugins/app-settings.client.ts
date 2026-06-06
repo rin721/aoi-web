@@ -28,7 +28,11 @@ export default defineNuxtPlugin((nuxtApp) => {
 
     root.classList.toggle("dark", shouldDark)
     root.dataset.aoiColorfulNav = settings.colorfulNavigation ? "true" : "false"
+    root.dataset.aoiContrast = settings.appearanceContrast
     root.dataset.aoiDataMode = settings.dataMode
+    root.dataset.aoiDensity = settings.appearanceDensity
+    root.dataset.aoiShape = settings.appearanceShape
+    root.dataset.aoiSize = settings.appearanceSize
 
     style.setProperty("--aoi-accent-60", settings.accentScale.accent60)
     style.setProperty("--aoi-accent-50", settings.accentScale.accent50)
@@ -51,6 +55,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     })
     watch(() => [
       settings.preferredTheme,
+      settings.appearanceContrast,
+      settings.appearanceDensity,
+      settings.appearanceShape,
+      settings.appearanceSize,
       settings.colorfulNavigation,
       settings.dataMode,
       settings.accentScale.accent10,

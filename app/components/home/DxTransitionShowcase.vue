@@ -318,7 +318,7 @@ onBeforeUnmount(() => {
 
 .dx-stage__ring {
   border: 2px solid rgba(255, 255, 255, 0.78);
-  border-radius: 50%;
+  border-radius: var(--aoi-radius-round);
 }
 
 .dx-stage__ring--outer {
@@ -346,7 +346,7 @@ onBeforeUnmount(() => {
   bottom: 10px;
   width: 134px;
   height: 134px;
-  border-radius: 50%;
+  border-radius: var(--aoi-radius-round);
   background: radial-gradient(circle, rgba(255, 255, 255, 0.36), transparent 64%);
   animation: dx-halo 1.4s var(--aoi-ease-out) infinite;
 }
@@ -366,7 +366,7 @@ onBeforeUnmount(() => {
   left: 28px;
   width: 144px;
   height: 4px;
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
   background: rgba(255, 255, 255, 0.78);
   box-shadow: 0 14px 0 rgba(255, 255, 255, 0.48);
   animation: dx-track 1.4s var(--aoi-ease-out) both;
@@ -451,7 +451,7 @@ onBeforeUnmount(() => {
   left: 18px;
   height: 5px;
   overflow: hidden;
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
   background: rgba(255, 255, 255, 0.24);
 }
 
@@ -510,7 +510,7 @@ onBeforeUnmount(() => {
 .dx-stage__pulse {
   width: 10px;
   height: 34px;
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
   background: var(--stage-accent);
   box-shadow: 0 0 0 4px color-mix(in srgb, var(--stage-accent) 18%, transparent);
 }

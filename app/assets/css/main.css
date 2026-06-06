@@ -19,7 +19,7 @@ body {
     var(--aoi-bg);
   color: var(--aoi-text);
   font-family: Inter, "Noto Sans SC", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
-  font-size: 14px;
+  font-size: var(--aoi-base-font-size);
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -121,37 +121,44 @@ a {
 }
 
 .aoi-button {
-  --md-filled-button-container-shape: var(--aoi-radius-sm);
-  --md-filled-tonal-button-container-shape: var(--aoi-radius-sm);
-  --md-outlined-button-container-shape: var(--aoi-radius-sm);
-  --md-text-button-container-shape: var(--aoi-radius-sm);
-  --md-elevated-button-container-shape: var(--aoi-radius-sm);
+  --md-filled-button-container-height: var(--aoi-control-height-md);
+  --md-filled-tonal-button-container-height: var(--aoi-control-height-md);
+  --md-outlined-button-container-height: var(--aoi-control-height-md);
+  --md-text-button-container-height: var(--aoi-control-height-md);
+  --md-elevated-button-container-height: var(--aoi-control-height-md);
+  --md-filled-button-container-shape: var(--aoi-radius-control);
+  --md-filled-tonal-button-container-shape: var(--aoi-radius-control);
+  --md-outlined-button-container-shape: var(--aoi-radius-control);
+  --md-text-button-container-shape: var(--aoi-radius-control);
+  --md-elevated-button-container-shape: var(--aoi-radius-control);
   font-weight: 700;
 }
 
 .aoi-button--sm {
-  --md-filled-button-container-height: 32px;
-  --md-filled-tonal-button-container-height: 32px;
-  --md-outlined-button-container-height: 32px;
-  --md-text-button-container-height: 32px;
-  --md-elevated-button-container-height: 32px;
+  --md-filled-button-container-height: var(--aoi-control-height-sm);
+  --md-filled-tonal-button-container-height: var(--aoi-control-height-sm);
+  --md-outlined-button-container-height: var(--aoi-control-height-sm);
+  --md-text-button-container-height: var(--aoi-control-height-sm);
+  --md-elevated-button-container-height: var(--aoi-control-height-sm);
 }
 
 .aoi-button--lg {
-  --md-filled-button-container-height: 44px;
-  --md-filled-tonal-button-container-height: 44px;
-  --md-outlined-button-container-height: 44px;
-  --md-text-button-container-height: 44px;
-  --md-elevated-button-container-height: 44px;
+  --md-filled-button-container-height: var(--aoi-control-height-lg);
+  --md-filled-tonal-button-container-height: var(--aoi-control-height-lg);
+  --md-outlined-button-container-height: var(--aoi-control-height-lg);
+  --md-text-button-container-height: var(--aoi-control-height-lg);
+  --md-elevated-button-container-height: var(--aoi-control-height-lg);
 }
 
 .aoi-icon-button {
   --md-icon-button-icon-color: var(--aoi-icon);
   --md-icon-button-hover-icon-color: var(--aoi-accent-60);
   --md-icon-button-pressed-icon-color: var(--aoi-sakura-50);
-  --md-filled-icon-button-container-shape: var(--aoi-radius-sm);
-  --md-filled-tonal-icon-button-container-shape: var(--aoi-radius-sm);
-  --md-outlined-icon-button-container-shape: var(--aoi-radius-sm);
+  --md-filled-icon-button-container-shape: var(--aoi-radius-control);
+  --md-filled-tonal-icon-button-container-shape: var(--aoi-radius-control);
+  --md-outlined-icon-button-container-shape: var(--aoi-radius-control);
+  width: var(--aoi-icon-button-size);
+  height: var(--aoi-icon-button-size);
   color: var(--aoi-icon);
 }
 
@@ -163,8 +170,12 @@ a {
 
 .aoi-text-field {
   width: 100%;
-  --md-filled-text-field-container-shape: var(--aoi-radius-sm);
-  --md-outlined-text-field-container-shape: var(--aoi-radius-sm);
+  --md-filled-select-text-field-container-shape: var(--aoi-radius-control);
+  --md-filled-text-field-container-height: var(--aoi-control-height-lg);
+  --md-filled-text-field-container-shape: var(--aoi-radius-control);
+  --md-outlined-select-text-field-container-shape: var(--aoi-radius-control);
+  --md-outlined-text-field-container-height: var(--aoi-control-height-lg);
+  --md-outlined-text-field-container-shape: var(--aoi-radius-control);
 }
 
 .aoi-tabs {
@@ -186,7 +197,7 @@ a {
   align-items: center;
   gap: 10px;
   color: var(--aoi-text);
-  min-height: 40px;
+  min-height: var(--aoi-control-height-md);
 }
 
 .settings-page {
@@ -210,9 +221,9 @@ a {
   display: grid;
   gap: 4px;
   border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
+  border-radius: var(--aoi-radius-card);
   background: var(--aoi-card-bg);
-  padding: 11px;
+  padding: var(--aoi-row-padding);
 }
 
 .settings-stat span {

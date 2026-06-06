@@ -58,7 +58,7 @@ withDefaults(defineProps<{
   right: 40px;
   bottom: 44px;
   border: 2px solid rgba(255, 255, 255, 0.82);
-  border-radius: 50%;
+  border-radius: var(--aoi-radius-round);
   box-shadow:
     0 0 0 12px rgba(255, 255, 255, 0.14),
     0 0 28px rgba(255, 255, 255, 0.32);
@@ -92,7 +92,7 @@ withDefaults(defineProps<{
 .auth-visual__lane {
   left: 34px;
   height: 5px;
-  border-radius: 999px;
+  border-radius: var(--aoi-radius-round);
   background: rgba(255, 255, 255, 0.78);
   box-shadow: 0 18px 0 rgba(255, 255, 255, 0.46);
   animation: auth-lane-panel 1.4s var(--aoi-ease-out) both;

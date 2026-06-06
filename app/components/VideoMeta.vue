@@ -152,7 +152,7 @@ function formatRelativeDate(date: Date) {
 .video-meta__dot {
   width: 4px;
   height: 4px;
-  border-radius: 50%;
+  border-radius: var(--aoi-radius-round);
   background: currentColor;
   flex: 0 0 auto;
 }
