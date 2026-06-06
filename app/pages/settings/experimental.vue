@@ -155,9 +155,24 @@ function updateRichTextPayload(payload: AoiRichTextChangePayload) {
             />
           </div>
 
-          <pre v-if="richTextPreviewTab === 'markdown'" class="rich-text-demo__output">{{ richTextMarkdown }}</pre>
-          <pre v-else-if="richTextPreviewTab === 'text'" class="rich-text-demo__output">{{ richTextPlainText }}</pre>
-          <pre v-else class="rich-text-demo__output">{{ richTextDocumentPreview }}</pre>
+          <pre
+            v-if="richTextPreviewTab === 'markdown'"
+            class="rich-text-demo__output"
+            data-aoi-scroll-native="true"
+            data-lenis-prevent
+          >{{ richTextMarkdown }}</pre>
+          <pre
+            v-else-if="richTextPreviewTab === 'text'"
+            class="rich-text-demo__output"
+            data-aoi-scroll-native="true"
+            data-lenis-prevent
+          >{{ richTextPlainText }}</pre>
+          <pre
+            v-else
+            class="rich-text-demo__output"
+            data-aoi-scroll-native="true"
+            data-lenis-prevent
+          >{{ richTextDocumentPreview }}</pre>
         </div>
       </div>
     </SettingsPanel>

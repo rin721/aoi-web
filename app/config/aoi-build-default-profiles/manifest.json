@@ -8,6 +8,22 @@
       "builtin": true,
       "createdAt": "2026-06-07T00:00:00.000Z",
       "updatedAt": "2026-06-07T00:00:00.000Z"
+    },
+    {
+      "builtin": false,
+      "createdAt": "2026-06-06T21:46:41.341Z",
+      "description": "Original Aoi application defaults.",
+      "id": "default-copy",
+      "name": "Aoi Default Copy",
+      "updatedAt": "2026-06-06T21:46:41.341Z"
+    },
+    {
+      "builtin": false,
+      "createdAt": "2026-06-06T21:47:07.384Z",
+      "description": "",
+      "id": "build-profile",
+      "name": "build-profile",
+      "updatedAt": "2026-06-06T21:47:07.384Z"
     }
   ]
 }

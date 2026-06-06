@@ -909,6 +909,8 @@ function disableDeveloperMode() {
       <AoiTabs
         v-model="activeTab"
         class="settings-developer-tabs"
+        data-aoi-scroll-native="true"
+        data-lenis-prevent
         :items="tabs"
         aria-label="开发者配置管理"
       />
@@ -1014,7 +1016,11 @@ function disableDeveloperMode() {
               </div>
             </div>
 
-            <div class="settings-developer-field-grid">
+            <div
+              class="settings-developer-field-grid"
+              data-aoi-scroll-native="true"
+              data-lenis-prevent
+            >
               <section
                 v-for="group in groupedFields('build')"
                 :key="group.name"
@@ -1086,7 +1092,12 @@ function disableDeveloperMode() {
             <p class="settings-note">
               当前字段写入预览中有 {{ selectedBuildChangedFields.length }} 项会变化。写入只覆盖 active profile JSON，不会修改 original 备份。
             </p>
-            <pre class="settings-developer-code" tabindex="0"><code>{{ buildPreviewJson || "未选择构建预设" }}</code></pre>
+            <pre
+              class="settings-developer-code"
+              data-aoi-scroll-native="true"
+              data-lenis-prevent
+              tabindex="0"
+            ><code>{{ buildPreviewJson || "未选择构建预设" }}</code></pre>
           </div>
         </div>
       </SettingsPanel>
@@ -1180,7 +1191,11 @@ function disableDeveloperMode() {
               </div>
             </div>
 
-            <div class="settings-developer-field-grid">
+            <div
+              class="settings-developer-field-grid"
+              data-aoi-scroll-native="true"
+              data-lenis-prevent
+            >
               <section
                 v-for="group in groupedFields('runtime')"
                 :key="group.name"
@@ -1269,7 +1284,12 @@ function disableDeveloperMode() {
             <p class="settings-note">
               应用当前档案会有 {{ selectedRuntimeApplyDiffs.length }} 项变化。若背景引用缺少 IndexedDB 图片字节，会提示并恢复默认背景。
             </p>
-            <pre class="settings-developer-code" tabindex="0"><code>{{ runtimePreviewJson || "未选择运行时档案" }}</code></pre>
+            <pre
+              class="settings-developer-code"
+              data-aoi-scroll-native="true"
+              data-lenis-prevent
+              tabindex="0"
+            ><code>{{ runtimePreviewJson || "未选择运行时档案" }}</code></pre>
           </div>
         </div>
       </SettingsPanel>
@@ -1284,6 +1304,8 @@ function disableDeveloperMode() {
           <div
             v-if="pendingConfirm?.diffs.length"
             class="settings-developer-diff-list"
+            data-aoi-scroll-native="true"
+            data-lenis-prevent
           >
             <div
               v-for="item in pendingConfirm.diffs"

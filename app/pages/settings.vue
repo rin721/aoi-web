@@ -69,7 +69,12 @@ useHead(() => ({
 
 <template>
   <div class="aoi-page settings-shell">
-    <aside class="settings-shell__nav" aria-label="设置分类">
+    <aside
+      class="settings-shell__nav"
+      aria-label="设置分类"
+      data-aoi-scroll-native="true"
+      data-lenis-prevent
+    >
       <div class="settings-shell__intro">
         <span class="settings-shell__mark" aria-hidden="true">
           <AoiIcon name="settings" :size="22" decorative />
