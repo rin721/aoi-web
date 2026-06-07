@@ -48,23 +48,23 @@ function formatTime(seconds: number) {
   display: grid;
   grid-template-columns: minmax(42px, auto) minmax(0, 1fr) minmax(42px, auto);
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   color: rgba(255, 255, 255, .88);
-  font-size: 12px;
+  font-size: 11px;
   font-variant-numeric: tabular-nums;
-  font-weight: 800;
+  font-weight: 700;
 }
 
 .aoi-video-timeline__time {
   white-space: nowrap;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, .7);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, .72);
 }
 
 .aoi-video-timeline__slider {
-  --md-slider-active-track-color: var(--aoi-accent-60);
+  --md-slider-active-track-color: var(--aoi-player-accent, #00aeec);
   --md-slider-handle-color: #fff;
-  --md-slider-inactive-track-color: rgba(255, 255, 255, .28);
-  --md-slider-with-tick-marks-active-container-color: var(--aoi-accent-60);
+  --md-slider-inactive-track-color: rgba(255, 255, 255, .32);
+  --md-slider-with-tick-marks-active-container-color: var(--aoi-player-accent, #00aeec);
 }
 
 @media (max-width: 639px) {

@@ -346,14 +346,14 @@ export function getMockVideoDetail(idOrSlug: string): VideoDetail | null {
     ...video,
     likeCount: Math.max(24, Math.round(video.viewCount / 12)),
     related: mockVideos.filter((item) => item.id !== video.id).slice(0, 4),
-    sourceUrl: "/media/aoi-sample.webm",
+    sourceUrl: "/media/taffty.mp4",
     sources: [
       {
         id: "sample-native",
-        src: "/media/aoi-sample.webm",
+        src: "/media/taffty.mp4",
         kind: "native",
         label: "本地示例",
-        mimeType: "video/webm",
+        mimeType: "video/mp4",
         qualityLabel: "Auto",
         isDefault: true
       }

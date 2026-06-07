@@ -49,12 +49,14 @@ function formatCount(value: number) {
         :class="{ 'aoi-video-queue__item--active': video.id === currentVideoId }"
         :to="`/video/${video.slug}`"
       >
-        <AoiLazyImage
-          class="aoi-video-queue__thumb"
-          :src="video.thumbnailUrl"
-          alt=""
-        />
-        <span class="aoi-video-queue__duration">{{ formatDuration(video.durationSeconds) }}</span>
+        <span class="aoi-video-queue__media">
+          <AoiLazyImage
+            class="aoi-video-queue__thumb"
+            :src="video.thumbnailUrl"
+            alt=""
+          />
+          <span class="aoi-video-queue__duration">{{ formatDuration(video.durationSeconds) }}</span>
+        </span>
         <span class="aoi-video-queue__copy">
           <strong>{{ video.title }}</strong>
           <span>{{ video.uploader.displayName }}</span>
@@ -73,12 +75,13 @@ function formatCount(value: number) {
 <style scoped>
 .aoi-video-queue {
   display: grid;
-  gap: 8px;
-  border: 1px solid color-mix(in srgb, var(--aoi-border) 70%, rgba(255, 148, 113, .2));
+  gap: 7px;
+  border: 1px solid #e3e5e7;
   border-radius: var(--aoi-radius-card);
-  background: rgba(255, 255, 255, .74);
-  box-shadow: 0 10px 32px rgba(19, 80, 96, .08);
-  padding: 10px;
+  background: #fff;
+  box-shadow: none;
+  padding: 9px;
+  --aoi-player-accent: #00aeec;
 }
 
 .aoi-video-queue__header {
@@ -90,55 +93,62 @@ function formatCount(value: number) {
 
 .aoi-video-queue__header h2 {
   margin: 0;
-  color: var(--aoi-text);
-  font-size: 14px;
+  color: #18191c;
+  font-size: 13px;
+  font-weight: 760;
 }
 
 .aoi-video-queue__list {
   display: grid;
-  gap: 6px;
+  gap: 4px;
 }
 
 .aoi-video-queue__item {
   position: relative;
   display: grid;
   min-width: 0;
-  grid-template-columns: 108px minmax(0, 1fr);
-  gap: 9px;
-  align-items: center;
-  border-radius: var(--aoi-radius-control);
-  color: var(--aoi-text);
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+  border-radius: var(--aoi-radius-field);
+  color: #18191c;
   padding: 5px;
   transition:
     background var(--aoi-motion-fast) var(--aoi-ease-out),
-    transform var(--aoi-motion-fast) var(--aoi-ease-press);
+    color var(--aoi-motion-fast) var(--aoi-ease-out);
 }
 
 .aoi-video-queue__item:hover,
 .aoi-video-queue__item--active {
-  background: color-mix(in srgb, var(--aoi-accent-10) 72%, white);
+  background: #f6f7f8;
 }
 
-.aoi-video-queue__item:active {
-  transform: scale(.98);
+.aoi-video-queue__item--active strong {
+  color: var(--aoi-player-accent);
+}
+
+.aoi-video-queue__media {
+  position: relative;
+  display: block;
+  min-width: 0;
 }
 
 .aoi-video-queue__thumb {
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  border-radius: var(--aoi-radius-control);
-  background: color-mix(in srgb, var(--aoi-accent-10) 62%, white);
+  border-radius: var(--aoi-radius-field);
+  background: #f1f2f3;
 }
 
 .aoi-video-queue__duration {
   position: absolute;
-  bottom: 9px;
-  left: 76px;
-  border-radius: var(--aoi-radius-xs);
+  right: 4px;
+  bottom: 4px;
+  border-radius: 2px;
   background: rgba(0, 0, 0, .62);
   color: #fff;
   font-size: 10px;
-  font-weight: 820;
+  font-weight: 760;
   line-height: 1;
   padding: 3px 4px;
 }
@@ -146,14 +156,15 @@ function formatCount(value: number) {
 .aoi-video-queue__copy {
   display: grid;
   min-width: 0;
-  gap: 4px;
+  gap: 3px;
 }
 
 .aoi-video-queue__copy strong {
   display: -webkit-box;
   overflow: hidden;
   font-size: 12px;
-  line-height: 1.42;
+  font-weight: 700;
+  line-height: 1.45;
   text-overflow: ellipsis;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
@@ -161,7 +172,7 @@ function formatCount(value: number) {
 
 .aoi-video-queue__copy span {
   overflow: hidden;
-  color: var(--aoi-text-muted);
+  color: #9499a0;
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -174,20 +185,12 @@ function formatCount(value: number) {
 }
 
 .aoi-video-queue--compact .aoi-video-queue__item {
-  grid-template-columns: 96px minmax(0, 1fr);
-}
-
-.aoi-video-queue--compact .aoi-video-queue__duration {
-  left: 64px;
+  grid-template-columns: 104px minmax(0, 1fr);
 }
 
 @media (max-width: 639px) {
   .aoi-video-queue__item {
     grid-template-columns: 96px minmax(0, 1fr);
-  }
-
-  .aoi-video-queue__duration {
-    left: 64px;
   }
 }
 </style>

@@ -9,6 +9,10 @@ interface AoiDanmakuVideoPlayerError extends Omit<AoiVideoSourceEngineError, "so
   source?: VideoSourceOption
 }
 
+type AoiDanmakuComposerExpose = {
+  focus: () => void
+}
+
 const props = withDefaults(defineProps<{
   danmakuEnabled?: boolean
   danmakuItems?: VideoDanmakuItem[]
@@ -24,7 +28,7 @@ const props = withDefaults(defineProps<{
   danmakuEnabled: true,
   danmakuItems: () => [],
   initialProgressSeconds: 0,
-  panelDefaultOpen: true,
+  panelDefaultOpen: false,
   poster: undefined,
   showDanmakuPanel: true,
   sources: () => [],
@@ -44,6 +48,7 @@ const emit = defineEmits<{
 const { t } = useI18n()
 const appSettings = useAppSettingsStore()
 const playerSettings = usePlayerSettingsStore()
+const composerRef = ref<AoiDanmakuComposerExpose | null>(null)
 const rootRef = ref<HTMLElement | null>(null)
 const videoRef = ref<HTMLVideoElement | null>(null)
 const currentTime = ref(0)
@@ -107,8 +112,9 @@ const selectedSource = computed(() => {
 const shouldLoadMedia = computed(() => (viewport.hasIntersected.value || hasViewportFallback.value) && Boolean(selectedSource.value))
 const canPlay = computed(() => Boolean(shouldLoadMedia.value && selectedSource.value && !hasError.value))
 const volumePercent = computed(() => Math.round(playerSettings.volume * 100))
+const danmakuAvailable = computed(() => props.danmakuEnabled && appSettings.danmakuEnabled)
 const effectiveDanmakuEnabled = computed(() => {
-  return props.danmakuEnabled && localDanmakuEnabled.value && appSettings.danmakuEnabled
+  return danmakuAvailable.value && localDanmakuEnabled.value
 })
 const sourceMenuItems = computed(() => normalizedSources.value.map((source) => ({
   icon: selectedSource.value?.id === source.id ? "check" : sourceIcon(source.kind),
@@ -424,6 +430,10 @@ function toggleTheaterMode() {
 }
 
 function toggleDanmaku() {
+  if (!danmakuAvailable.value) {
+    return
+  }
+
   localDanmakuEnabled.value = !localDanmakuEnabled.value
 }
 
@@ -490,7 +500,10 @@ function onKeydown(event: KeyboardEvent) {
 
   const key = event.key.toLowerCase()
 
-  if (key === " ") {
+  if (key === "enter") {
+    event.preventDefault()
+    composerRef.value?.focus()
+  } else if (key === " ") {
     event.preventDefault()
     void togglePlay()
   } else if (key === "arrowright") {
@@ -625,7 +638,7 @@ defineExpose({
       </div>
 
       <AoiMediaOverlayButton
-        v-else
+        v-else-if="!isPlaying"
         :icon="isPlaying ? 'pause' : 'play'"
         :label="isPlaying ? t('player.pause') : t('player.play')"
       />
@@ -669,7 +682,7 @@ defineExpose({
 
           <span class="aoi-danmaku-video-player__spacer" aria-hidden="true" />
 
-          <span :id="sourceMenuAnchor" class="aoi-danmaku-video-player__anchor">
+          <span :id="sourceMenuAnchor" class="aoi-danmaku-video-player__anchor aoi-danmaku-video-player__anchor--source">
             <AoiButton
               class="aoi-danmaku-video-player__menu-button"
               variant="tonal"
@@ -683,7 +696,7 @@ defineExpose({
             </AoiButton>
           </span>
 
-          <span :id="rateMenuAnchor" class="aoi-danmaku-video-player__anchor">
+          <span :id="rateMenuAnchor" class="aoi-danmaku-video-player__anchor aoi-danmaku-video-player__anchor--rate">
             <AoiButton
               class="aoi-danmaku-video-player__menu-button aoi-danmaku-video-player__rate-button"
               variant="tonal"
@@ -735,9 +748,14 @@ defineExpose({
     </div>
 
     <AoiDanmakuComposer
+      ref="composerRef"
       class="aoi-danmaku-video-player__composer"
-      :disabled="!effectiveDanmakuEnabled"
+      :count="danmakuItems.length"
+      :disabled="!danmakuAvailable"
+      :enabled="effectiveDanmakuEnabled"
+      :playing="isPlaying"
       @submit="sendDanmaku"
+      @toggle-enabled="toggleDanmaku"
     />
 
     <AoiDanmakuPanel
@@ -769,16 +787,14 @@ defineExpose({
 <style scoped>
 .aoi-danmaku-video-player {
   container-type: inline-size;
+  --aoi-player-accent: #00aeec;
+  --aoi-player-accent-soft: #e3f6ff;
   display: grid;
   overflow: clip;
-  border: 1px solid rgba(255, 255, 255, .1);
+  border: 1px solid #e3e5e7;
   border-radius: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .08), transparent 18%),
-    #07090c;
-  box-shadow:
-    0 22px 70px rgba(11, 20, 24, .28),
-    0 2px 0 rgba(255, 255, 255, .08) inset;
+  background: #fff;
+  box-shadow: none;
   color: #fff;
   isolation: isolate;
 }
@@ -789,9 +805,8 @@ defineExpose({
 }
 
 .aoi-danmaku-video-player--theater {
-  box-shadow:
-    0 30px 90px rgba(11, 20, 24, .36),
-    0 2px 0 rgba(255, 255, 255, .08) inset;
+  border-color: #d7dce0;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .08);
 }
 
 .aoi-danmaku-video-player__screen {
@@ -800,9 +815,7 @@ defineExpose({
   aspect-ratio: 16 / 9;
   min-height: 304px;
   place-items: center;
-  background:
-    linear-gradient(180deg, rgba(255, 180, 155, .12), transparent 26%),
-    linear-gradient(135deg, #080b10, #11171c 52%, #07191e);
+  background: #000;
   overflow: hidden;
 }
 
@@ -813,12 +826,20 @@ defineExpose({
 .aoi-danmaku-video-player__video {
   width: 100%;
   height: 100%;
-  background: #050608;
+  background: #000;
   object-fit: contain;
 }
 
 .aoi-danmaku-video-player__screen :deep(.aoi-media-overlay-button) {
   z-index: 4;
+}
+
+.aoi-danmaku-video-player__screen :deep(.aoi-media-overlay-button__control) {
+  width: 62px;
+  height: 62px;
+  border-color: rgba(255, 255, 255, .48);
+  background: rgba(0, 0, 0, .42);
+  backdrop-filter: blur(8px);
 }
 
 .aoi-danmaku-video-player__overlay {
@@ -829,12 +850,10 @@ defineExpose({
   place-items: center;
   gap: 12px;
   align-content: center;
-  background:
-    linear-gradient(180deg, rgba(5, 6, 8, .44), rgba(5, 6, 8, .74)),
-    rgba(5, 6, 8, .52);
+  background: rgba(0, 0, 0, .72);
   color: rgba(255, 255, 255, .9);
   text-align: center;
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(6px);
 }
 
 .aoi-danmaku-video-player__controls {
@@ -843,14 +862,12 @@ defineExpose({
   bottom: 0;
   z-index: 5;
   display: grid;
-  gap: 6px;
-  background:
-    linear-gradient(180deg, transparent, rgba(0, 0, 0, .68) 28%, rgba(0, 0, 0, .9)),
-    linear-gradient(90deg, rgba(255, 148, 113, .16), transparent 36%, rgba(247, 112, 156, .12));
-  opacity: .84;
-  padding: 30px 14px 10px;
-  pointer-events: auto;
-  transform: translate3d(0, 6px, 0);
+  gap: 5px;
+  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .66) 34%, rgba(0, 0, 0, .88));
+  opacity: 0;
+  padding: 34px 12px 8px;
+  pointer-events: none;
+  transform: translate3d(0, 8px, 0);
   transition:
     opacity var(--aoi-motion-base) var(--aoi-ease-out),
     transform var(--aoi-motion-base) var(--aoi-ease-out);
@@ -860,6 +877,7 @@ defineExpose({
 .aoi-danmaku-video-player:focus-within .aoi-danmaku-video-player__controls,
 .aoi-danmaku-video-player__controls--visible {
   opacity: 1;
+  pointer-events: auto;
   transform: translate3d(0, 0, 0);
 }
 
@@ -867,14 +885,14 @@ defineExpose({
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 6px;
+  gap: 5px;
 }
 
 .aoi-danmaku-video-player__toolbar :deep(.aoi-icon-button) {
-  --md-icon-button-icon-color: rgba(255, 255, 255, .9);
+  --md-icon-button-icon-color: rgba(255, 255, 255, .92);
   --md-icon-button-hover-icon-color: #fff;
-  --md-icon-button-pressed-icon-color: var(--aoi-accent-40);
-  --md-filled-tonal-icon-button-container-color: rgba(255, 148, 113, .22);
+  --md-icon-button-pressed-icon-color: var(--aoi-player-accent);
+  --md-filled-tonal-icon-button-container-color: rgba(0, 174, 236, .2);
   --md-filled-tonal-icon-button-icon-color: #fff;
 }
 
@@ -883,7 +901,7 @@ defineExpose({
 }
 
 .aoi-danmaku-video-player__volume :deep(.aoi-slider) {
-  --md-slider-active-track-color: rgba(255, 255, 255, .92);
+  --md-slider-active-track-color: var(--aoi-player-accent);
   --md-slider-handle-color: #fff;
   --md-slider-inactive-track-color: rgba(255, 255, 255, .24);
 }
@@ -900,7 +918,8 @@ defineExpose({
 
 .aoi-danmaku-video-player__menu-button {
   max-width: 150px;
-  --md-filled-tonal-button-container-color: rgba(255, 255, 255, .12);
+  --md-filled-tonal-button-container-color: rgba(255, 255, 255, .14);
+  --md-filled-tonal-button-hover-state-layer-color: #fff;
   --md-filled-tonal-button-label-text-color: #fff;
   --md-filled-tonal-button-icon-color: #fff;
 }
@@ -918,6 +937,10 @@ defineExpose({
   border-inline: 0;
   border-bottom: 0;
   box-shadow: none;
+}
+
+.aoi-danmaku-video-player__composer {
+  color: #18191c;
 }
 
 .aoi-danmaku-video-player:fullscreen {
@@ -954,6 +977,10 @@ defineExpose({
   .aoi-danmaku-video-player__menu-button {
     max-width: 96px;
   }
+
+  .aoi-danmaku-video-player__anchor--source {
+    display: none;
+  }
 }
 
 @media (max-width: 639px) {
@@ -964,7 +991,8 @@ defineExpose({
   .aoi-danmaku-video-player__controls {
     gap: 5px;
     opacity: 1;
-    padding: 24px 8px 8px;
+    padding: 26px 8px 8px;
+    pointer-events: auto;
     transform: none;
   }
 
@@ -976,8 +1004,8 @@ defineExpose({
     min-width: 0;
   }
 
-  .aoi-danmaku-video-player__anchor:first-of-type {
-    display: none;
+  .aoi-danmaku-video-player__rate-button {
+    min-width: 52px;
   }
 }
 

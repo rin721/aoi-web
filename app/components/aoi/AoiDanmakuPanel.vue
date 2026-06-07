@@ -14,6 +14,7 @@ const emit = defineEmits<{
   seek: [seconds: number]
 }>()
 
+const { t } = useI18n()
 const settings = useAppSettingsStore()
 const sortMode = ref<"time" | "newest">("time")
 const collapsed = ref(false)
@@ -56,28 +57,28 @@ function formatDate(value: string) {
   <section class="aoi-danmaku-panel" :class="{ 'aoi-danmaku-panel--collapsed': collapsed }">
     <header class="aoi-danmaku-panel__header">
       <div>
-        <h2>弹幕列表</h2>
-        <p>{{ visibleItems.length }} 条同步弹幕</p>
+        <h2>{{ t("player.danmakuList") }}</h2>
+        <p>{{ t("player.danmakuListCount", { count: visibleItems.length }) }}</p>
       </div>
       <div class="aoi-danmaku-panel__actions">
         <AoiIconButton
           icon="arrow-up-down"
-          label="切换弹幕排序"
+          :label="t('player.danmakuSort')"
           @click="sortMode = sortMode === 'time' ? 'newest' : 'time'"
         />
         <AoiIconButton
           :icon="collapsed ? 'chevron-down' : 'chevron-up'"
-          :label="collapsed ? '展开弹幕列表' : '折叠弹幕列表'"
+          :label="collapsed ? t('player.showPanel') : t('player.hidePanel')"
           @click="collapsed = !collapsed"
         />
       </div>
     </header>
 
-    <div v-if="!collapsed" class="aoi-danmaku-panel__table" role="table" aria-label="弹幕列表">
+    <div v-if="!collapsed" class="aoi-danmaku-panel__table" role="table" :aria-label="t('player.danmakuListAria')">
       <div class="aoi-danmaku-panel__row aoi-danmaku-panel__row--head" role="row">
-        <span role="columnheader">时间</span>
-        <span role="columnheader">内容</span>
-        <span role="columnheader">发送日期</span>
+        <span role="columnheader">{{ t("player.danmakuTime") }}</span>
+        <span role="columnheader">{{ t("player.danmakuContent") }}</span>
+        <span role="columnheader">{{ t("player.danmakuSentAt") }}</span>
       </div>
       <button
         v-for="item in visibleItems"
@@ -93,7 +94,7 @@ function formatDate(value: string) {
         <span role="cell">{{ formatDate(item.createdAt) }}</span>
       </button>
       <p v-if="visibleItems.length === 0" class="aoi-danmaku-panel__empty">
-        暂无可显示弹幕
+        {{ t("player.danmakuEmpty") }}
       </p>
     </div>
   </section>
@@ -103,13 +104,12 @@ function formatDate(value: string) {
 .aoi-danmaku-panel {
   display: grid;
   min-height: 0;
-  border: 1px solid color-mix(in srgb, var(--aoi-border) 72%, rgba(255, 148, 113, .26));
-  border-radius: var(--aoi-radius-card);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, .92), rgba(255, 255, 255, .78)),
-    var(--aoi-panel-bg);
-  box-shadow: 0 10px 32px rgba(19, 80, 96, .1);
+  border: 1px solid #e3e5e7;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
   overflow: hidden;
+  --aoi-player-accent: #00aeec;
 }
 
 .aoi-danmaku-panel__header {
@@ -117,10 +117,9 @@ function formatDate(value: string) {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  border-bottom: 1px solid var(--aoi-border);
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--aoi-accent-10) 72%, white), rgba(255, 255, 255, .86));
-  padding: 9px 10px;
+  border-bottom: 1px solid #e3e5e7;
+  background: #f6f7f8;
+  padding: 8px 10px;
 }
 
 .aoi-danmaku-panel__header h2,
@@ -129,15 +128,15 @@ function formatDate(value: string) {
 }
 
 .aoi-danmaku-panel__header h2 {
-  color: #141f23;
-  font-size: 14px;
+  color: #18191c;
+  font-size: 13px;
   letter-spacing: 0;
 }
 
 .aoi-danmaku-panel__header p {
-  color: var(--aoi-text-muted);
+  color: #9499a0;
   font-size: 11px;
-  font-weight: 720;
+  font-weight: 680;
 }
 
 .aoi-danmaku-panel__actions {
@@ -146,13 +145,13 @@ function formatDate(value: string) {
 }
 
 .aoi-danmaku-panel__actions :deep(.aoi-icon-button) {
-  --md-icon-button-icon-color: var(--aoi-text-muted);
-  --md-icon-button-hover-icon-color: var(--aoi-accent-60);
+  --md-icon-button-icon-color: #9499a0;
+  --md-icon-button-hover-icon-color: var(--aoi-player-accent);
 }
 
 .aoi-danmaku-panel__table {
   display: grid;
-  max-height: 338px;
+  max-height: 320px;
   overflow: auto;
   scrollbar-width: thin;
 }
@@ -161,11 +160,11 @@ function formatDate(value: string) {
   display: grid;
   grid-template-columns: 48px minmax(0, 1fr) 76px;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   border: 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--aoi-border) 72%, transparent);
+  border-bottom: 1px solid #edf0f2;
   background: transparent;
-  color: var(--aoi-text-muted);
+  color: #9499a0;
   cursor: pointer;
   font: inherit;
   font-size: 11px;
@@ -179,34 +178,34 @@ function formatDate(value: string) {
 .aoi-danmaku-panel__row strong {
   min-width: 0;
   overflow: hidden;
-  color: var(--aoi-text);
-  font-weight: 760;
+  color: #18191c;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .aoi-danmaku-panel__row:hover {
-  background: color-mix(in srgb, var(--aoi-accent-10) 62%, transparent);
+  background: #f6f7f8;
 }
 
 .aoi-danmaku-panel__row--head {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: rgba(255, 255, 255, .94);
+  background: #fff;
   cursor: default;
-  font-weight: 800;
-  color: color-mix(in srgb, var(--aoi-text-muted) 84%, var(--aoi-accent-60));
+  font-weight: 760;
+  color: #61666d;
 }
 
 .aoi-danmaku-panel__row--active {
-  background: color-mix(in srgb, var(--aoi-sakura-20) 52%, transparent);
-  color: var(--aoi-accent-60);
+  background: #e3f6ff;
+  color: var(--aoi-player-accent);
 }
 
 .aoi-danmaku-panel__empty {
   margin: 0;
-  color: var(--aoi-text-muted);
+  color: #9499a0;
   padding: 14px 12px;
 }
 

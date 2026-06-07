@@ -168,7 +168,6 @@ useHead(() => ({
             :danmaku-items="mergedDanmakuItems"
             :danmaku-enabled="settings.danmakuEnabled"
             show-danmaku-panel
-            panel-default-open
             @ended="onPlayerEnded"
             @progress="onPlayerProgress"
             @send-danmaku="submitDanmaku"
@@ -277,6 +276,7 @@ useHead(() => ({
 <style scoped>
 .video-watch-page {
   position: relative;
+  background: #f6f7f8;
   isolation: isolate;
 }
 
@@ -285,11 +285,7 @@ useHead(() => ({
   inset: 0;
   z-index: -1;
   content: "";
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--aoi-accent-10) 82%, white) 0 220px, transparent 520px),
-    linear-gradient(90deg, color-mix(in srgb, var(--aoi-sakura-20) 48%, transparent), transparent 22%),
-    radial-gradient(circle at 82% 8%, color-mix(in srgb, var(--aoi-accent-40) 22%, transparent), transparent 32%),
-    linear-gradient(180deg, rgba(255, 255, 255, .68), transparent);
+  background: #f6f7f8;
   pointer-events: none;
 }
 
@@ -305,21 +301,21 @@ useHead(() => ({
 
 .video-watch :deep(.page-header__eyebrow) {
   margin-bottom: 2px;
-  color: var(--aoi-sakura-50);
+  color: #00aeec;
   font-size: 11px;
-  letter-spacing: .08em;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 
 .video-watch :deep(.page-header__title) {
-  font-size: clamp(22px, 2vw, 30px);
-  line-height: 1.18;
+  font-size: clamp(20px, 1.7vw, 26px);
+  line-height: 1.24;
 }
 
 .video-watch :deep(.page-header__description) {
   max-width: 860px;
-  margin-top: 6px;
-  color: color-mix(in srgb, var(--aoi-text-muted) 88%, var(--aoi-accent-60));
+  margin-top: 4px;
+  color: #61666d;
   font-size: 13px;
   line-height: 1.55;
 }
@@ -338,18 +334,16 @@ useHead(() => ({
 }
 
 .video-watch :deep(.creator-card) {
-  border-color: color-mix(in srgb, var(--aoi-border) 72%, rgba(247, 112, 156, .28));
+  border-color: #e3e5e7;
   border-radius: var(--aoi-radius-card);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, .9), rgba(255, 241, 247, .72)),
-    var(--aoi-panel-bg);
-  box-shadow: 0 10px 32px rgba(19, 80, 96, .08);
-  padding: 10px;
+  background: #fff;
+  box-shadow: none;
+  padding: 9px;
 }
 
 .video-watch :deep(.creator-card:hover) {
-  box-shadow: 0 14px 34px rgba(19, 80, 96, .12);
-  transform: translate3d(0, -2px, 0);
+  box-shadow: none;
+  transform: none;
 }
 
 .video-watch :deep(.creator-card__link) {
@@ -368,9 +362,9 @@ useHead(() => ({
 }
 
 .video-watch :deep(.creator-card__actions .aoi-button) {
-  --md-outlined-button-outline-color: color-mix(in srgb, var(--aoi-sakura-50) 54%, transparent);
-  --md-outlined-button-label-text-color: var(--aoi-sakura-60);
-  --md-outlined-button-icon-color: var(--aoi-sakura-60);
+  --md-outlined-button-outline-color: #00aeec;
+  --md-outlined-button-label-text-color: #00aeec;
+  --md-outlined-button-icon-color: #00aeec;
 }
 
 .video-watch__below {
@@ -381,9 +375,9 @@ useHead(() => ({
 }
 
 .video-watch__meta {
-  border: 1px solid color-mix(in srgb, var(--aoi-border) 78%, transparent);
+  border: 1px solid #e3e5e7;
   border-radius: var(--aoi-radius-card);
-  background: rgba(255, 255, 255, .68);
+  background: #fff;
   padding: 10px 12px;
 }
 
@@ -397,9 +391,9 @@ useHead(() => ({
 .video-watch__description {
   display: grid;
   gap: 8px;
-  border: 1px solid color-mix(in srgb, var(--aoi-border) 78%, transparent);
+  border: 1px solid #e3e5e7;
   border-radius: var(--aoi-radius-card);
-  background: rgba(255, 255, 255, .7);
+  background: #fff;
   padding: 14px;
 }
 
@@ -410,7 +404,7 @@ useHead(() => ({
 
 .video-watch__description h2 {
   color: var(--aoi-text);
-  font-size: 16px;
+  font-size: 15px;
 }
 
 .video-watch__description p {
@@ -422,10 +416,10 @@ useHead(() => ({
   display: inline-flex;
   min-height: 30px;
   align-items: center;
-  border: 1px solid color-mix(in srgb, var(--aoi-accent-40) 34%, var(--aoi-border));
+  border: 1px solid #e3e5e7;
   border-radius: var(--aoi-radius-control);
-  background: color-mix(in srgb, var(--aoi-accent-10) 72%, white);
-  color: var(--aoi-accent-60);
+  background: #fff;
+  color: #00aeec;
   font-size: 12px;
   font-weight: 800;
   padding: 5px 9px;
