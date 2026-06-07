@@ -231,6 +231,104 @@ export function isAoiScrollableElement(element: HTMLElement, axis: AoiScrollAxis
     : element.scrollHeight > element.clientHeight + 1
 }
 
+export function getAoiWheelScrollIntent(event: Pick<WheelEvent, "deltaX" | "deltaY" | "shiftKey">): {
+  axis: AoiScrollAxis
+  delta: number
+} | null {
+  const absX = Math.abs(event.deltaX)
+  const absY = Math.abs(event.deltaY)
+
+  if (absX === 0 && absY === 0) {
+    return null
+  }
+
+  if (event.shiftKey && absY > absX) {
+    return {
+      axis: "x",
+      delta: event.deltaY
+    }
+  }
+
+  if (absX > absY) {
+    return {
+      axis: "x",
+      delta: event.deltaX
+    }
+  }
+
+  if (absY > 0) {
+    return {
+      axis: "y",
+      delta: event.deltaY
+    }
+  }
+
+  return {
+    axis: "x",
+    delta: event.deltaX
+  }
+}
+
+export function canAoiScrollElementContinue(
+  element: HTMLElement,
+  axis: AoiScrollAxis,
+  delta: number
+) {
+  if (!isAoiScrollableElement(element, axis) || delta === 0) {
+    return false
+  }
+
+  const current = axis === "x" ? element.scrollLeft : element.scrollTop
+  const max = axis === "x"
+    ? element.scrollWidth - element.clientWidth
+    : element.scrollHeight - element.clientHeight
+
+  if (max <= 1) {
+    return false
+  }
+
+  return delta < 0
+    ? current > 1
+    : current < max - 1
+}
+
+export function findAoiScrollableAncestor(
+  target: EventTarget | null,
+  axis: AoiScrollAxis,
+  boundary: HTMLElement | null = null
+) {
+  const scrollBoundary = boundary || (import.meta.client ? document.documentElement : null)
+  let node: HTMLElement | null = null
+
+  if (target instanceof HTMLElement) {
+    node = target
+  } else if (target instanceof Element) {
+    node = target.parentElement
+  }
+
+  while (node && node !== scrollBoundary) {
+    if (isAoiScrollableElement(node, axis)) {
+      return node
+    }
+
+    node = node.parentElement
+  }
+
+  return null
+}
+
+export function shouldAllowAoiNativeWheelScroll(event: Pick<WheelEvent, "deltaX" | "deltaY" | "shiftKey" | "target">) {
+  const intent = getAoiWheelScrollIntent(event)
+
+  if (!intent) {
+    return false
+  }
+
+  const scrollable = findAoiScrollableAncestor(event.target, intent.axis)
+
+  return Boolean(scrollable && canAoiScrollElementContinue(scrollable, intent.axis, intent.delta))
+}
+
 export function hasAoiScrollableAncestor(
   target: EventTarget | null,
   boundary: HTMLElement,

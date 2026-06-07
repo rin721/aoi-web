@@ -1,6 +1,7 @@
 import Lenis, { type ScrollToOptions } from "lenis"
 import type { AoiScrollRuntime, AoiScrollTarget } from "~/utils/aoiScroll"
 import {
+  shouldAllowAoiNativeWheelScroll,
   shouldSkipAoiPageScrollEnhancement,
   toAoiRubberBandRatio,
   toAoiScrollDurationSeconds
@@ -82,6 +83,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       || !settings.rubberBandEnabled
       || isReducedMotion.value
       || event.defaultPrevented
+      || shouldAllowAoiNativeWheelScroll(event)
       || Math.abs(event.deltaY) <= Math.abs(event.deltaX)
       || shouldSkipAoiPageScrollEnhancement(event.target)
     ) {
@@ -145,7 +147,19 @@ export default defineNuxtPlugin((nuxtApp) => {
       prevent: (node) => shouldSkipAoiPageScrollEnhancement(node),
       smoothWheel: true,
       stopInertiaOnNavigate: true,
-      syncTouch: false
+      syncTouch: false,
+      virtualScroll: ({ deltaX, deltaY, event }) => {
+        if (!(event instanceof WheelEvent)) {
+          return true
+        }
+
+        return !shouldAllowAoiNativeWheelScroll({
+          deltaX,
+          deltaY,
+          shiftKey: event.shiftKey,
+          target: event.target
+        })
+      }
     })
     lenisKey = nextKey
     isSmoothEnabled.value = true
