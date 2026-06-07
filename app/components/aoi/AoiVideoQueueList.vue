@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { VideoSummary } from "~/types/api"
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   compact?: boolean
   currentVideoId?: string
   title?: string
@@ -9,9 +9,12 @@ withDefaults(defineProps<{
 }>(), {
   compact: false,
   currentVideoId: undefined,
-  title: "接下来播放",
+  title: undefined,
   videos: () => []
 })
+
+const { t } = useI18n()
+const resolvedTitle = computed(() => props.title || t("player.upNext"))
 
 function formatDuration(seconds: number) {
   const safeSeconds = Math.max(0, Math.floor(seconds))
@@ -35,18 +38,18 @@ function formatCount(value: number) {
 </script>
 
 <template>
-  <section class="aoi-video-queue" :class="{ 'aoi-video-queue--compact': compact }">
+  <section class="aoi-video-queue" :class="{ 'aoi-video-queue--compact': props.compact }">
     <header class="aoi-video-queue__header">
-      <h2>{{ title }}</h2>
+      <h2>{{ resolvedTitle }}</h2>
       <AoiIcon name="list-video" :size="18" decorative />
     </header>
 
     <div class="aoi-video-queue__list">
       <AoiLink
-        v-for="video in videos"
+        v-for="video in props.videos"
         :key="video.id"
         class="aoi-video-queue__item"
-        :class="{ 'aoi-video-queue__item--active': video.id === currentVideoId }"
+        :class="{ 'aoi-video-queue__item--active': video.id === props.currentVideoId }"
         :to="`/video/${video.slug}`"
       >
         <span class="aoi-video-queue__media">
@@ -76,12 +79,11 @@ function formatCount(value: number) {
 .aoi-video-queue {
   display: grid;
   gap: 7px;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--aoi-player-border);
   border-radius: var(--aoi-radius-card);
-  background: #fff;
+  background: var(--aoi-player-surface);
   box-shadow: none;
   padding: 9px;
-  --aoi-player-accent: #00aeec;
 }
 
 .aoi-video-queue__header {
@@ -93,7 +95,7 @@ function formatCount(value: number) {
 
 .aoi-video-queue__header h2 {
   margin: 0;
-  color: #18191c;
+  color: var(--aoi-player-text);
   font-size: 13px;
   font-weight: 760;
 }
@@ -111,7 +113,7 @@ function formatCount(value: number) {
   gap: 8px;
   align-items: start;
   border-radius: var(--aoi-radius-field);
-  color: #18191c;
+  color: var(--aoi-player-text);
   padding: 5px;
   transition:
     background var(--aoi-motion-fast) var(--aoi-ease-out),
@@ -120,7 +122,7 @@ function formatCount(value: number) {
 
 .aoi-video-queue__item:hover,
 .aoi-video-queue__item--active {
-  background: #f6f7f8;
+  background: var(--aoi-player-surface-muted);
 }
 
 .aoi-video-queue__item--active strong {
@@ -137,7 +139,7 @@ function formatCount(value: number) {
   aspect-ratio: 16 / 9;
   overflow: hidden;
   border-radius: var(--aoi-radius-field);
-  background: #f1f2f3;
+  background: var(--aoi-player-surface-muted);
 }
 
 .aoi-video-queue__duration {
@@ -172,7 +174,7 @@ function formatCount(value: number) {
 
 .aoi-video-queue__copy span {
   overflow: hidden;
-  color: #9499a0;
+  color: var(--aoi-player-text-muted);
   font-size: 11px;
   text-overflow: ellipsis;
   white-space: nowrap;

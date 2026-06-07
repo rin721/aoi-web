@@ -15,14 +15,14 @@
 <style scoped>
 .aoi-watch-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(304px, 356px);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 372px);
+  gap: 16px;
   align-items: start;
 }
 
 .aoi-watch-layout:has(.aoi-video-player--theater),
 .aoi-watch-layout:has(.aoi-danmaku-video-player--theater) {
-  grid-template-columns: minmax(0, 1fr) minmax(292px, 320px);
+  grid-template-columns: minmax(0, 1fr) minmax(304px, 336px);
 }
 
 .aoi-watch-layout__primary,

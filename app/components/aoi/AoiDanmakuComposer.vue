@@ -4,13 +4,17 @@ import { AOI_DANMAKU_COLORS } from "~/utils/aoiDanmaku"
 
 const props = withDefaults(defineProps<{
   count?: number
+  compact?: boolean
   disabled?: boolean
   enabled?: boolean
+  overlay?: boolean
   playing?: boolean
 }>(), {
   count: 0,
+  compact: false,
   disabled: false,
   enabled: true,
+  overlay: false,
   playing: false
 })
 
@@ -87,7 +91,8 @@ function focusInput() {
 }
 
 defineExpose({
-  focus: focusInput
+  focus: focusInput,
+  toggleSettings
 })
 </script>
 
@@ -95,8 +100,10 @@ defineExpose({
   <form
     class="aoi-danmaku-composer"
     :class="{
+      'aoi-danmaku-composer--compact': compact,
       'aoi-danmaku-composer--disabled': disabled,
       'aoi-danmaku-composer--off': !enabled,
+      'aoi-danmaku-composer--overlay': overlay,
       'aoi-danmaku-composer--playing': playing
     }"
     @submit.prevent="submit"
@@ -147,7 +154,7 @@ defineExpose({
       size="sm"
       :disabled="!canSend || !body.trim()"
     >
-      {{ t("player.danmakuSend") }}
+      <span class="aoi-danmaku-composer__submit-label">{{ t("player.danmakuSend") }}</span>
     </AoiButton>
 
     <div
@@ -169,7 +176,7 @@ defineExpose({
             :disabled="disabled || undefined"
             @click="selectMode(item.value)"
           >
-            <AoiIcon :name="item.icon" :size="14" decorative />
+            <AoiIcon :name="item.value === modeModel ? 'check' : item.icon" :size="14" decorative />
             {{ item.label }}
           </button>
         </div>
@@ -204,12 +211,11 @@ defineExpose({
   grid-template-columns: auto minmax(0, 1fr) auto auto;
   gap: 8px;
   align-items: center;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--aoi-player-border);
   border-top: 0;
-  background: #f6f7f8;
-  color: #18191c;
+  background: var(--aoi-player-surface-muted);
+  color: var(--aoi-player-text);
   padding: 8px 10px;
-  --aoi-player-accent: #00aeec;
 }
 
 .aoi-danmaku-composer__status {
@@ -229,18 +235,18 @@ defineExpose({
 }
 
 .aoi-danmaku-composer__status small {
-  color: #9499a0;
+  color: var(--aoi-player-text-muted);
   font-size: 11px;
   font-weight: 620;
 }
 
 .aoi-danmaku-composer__status:hover {
-  background: #e3f6ff;
+  color: var(--aoi-player-accent);
 }
 
 .aoi-danmaku-composer--off .aoi-danmaku-composer__status,
 .aoi-danmaku-composer--disabled .aoi-danmaku-composer__status {
-  color: #9499a0;
+  color: var(--aoi-player-text-muted);
 }
 
 .aoi-danmaku-composer__field {
@@ -249,10 +255,10 @@ defineExpose({
   grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   overflow: hidden;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--aoi-player-border);
   border-radius: var(--aoi-radius-field);
-  background: #fff;
-  color: #61666d;
+  background: var(--aoi-player-surface);
+  color: var(--aoi-player-text-muted);
   font-size: 12px;
   transition:
     border-color var(--aoi-motion-fast) var(--aoi-ease-out),
@@ -261,7 +267,7 @@ defineExpose({
 
 .aoi-danmaku-composer__field:focus-within {
   border-color: var(--aoi-player-accent);
-  box-shadow: 0 0 0 2px rgba(0, 174, 236, .12);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--aoi-player-accent) 16%, transparent);
 }
 
 .aoi-danmaku-composer__field-label {
@@ -274,14 +280,14 @@ defineExpose({
   height: 30px;
   border: 0;
   background: transparent;
-  color: #18191c;
+  color: var(--aoi-player-text);
   font: inherit;
   outline: 0;
   padding: 0 10px 0 0;
 }
 
 .aoi-danmaku-composer__field input::placeholder {
-  color: #9499a0;
+  color: var(--aoi-player-text-muted);
 }
 
 .aoi-danmaku-composer__settings-button {
@@ -292,22 +298,55 @@ defineExpose({
   border: 0;
   border-radius: var(--aoi-radius-field);
   background: transparent;
-  color: #61666d;
+  color: var(--aoi-player-text-muted);
   cursor: pointer;
+  outline: 0;
   padding: 0;
+  transition: color var(--aoi-motion-fast) var(--aoi-ease-out);
 }
 
 .aoi-danmaku-composer__settings-button:hover,
 .aoi-danmaku-composer__settings-button[aria-expanded="true"] {
-  background: #e3f6ff;
   color: var(--aoi-player-accent);
+  box-shadow: none;
+}
+
+.aoi-danmaku-composer__settings-button:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--aoi-player-accent) 58%, transparent);
+  outline-offset: 2px;
 }
 
 .aoi-danmaku-composer__submit {
   --md-filled-button-container-color: var(--aoi-player-accent);
+  --md-filled-button-focus-container-color: var(--aoi-player-accent);
+  --md-filled-button-hover-container-color: var(--aoi-player-accent);
+  --md-filled-button-pressed-container-color: var(--aoi-player-accent);
+  --md-filled-button-focus-state-layer-color: transparent;
+  --md-filled-button-focus-state-layer-opacity: 0;
+  --md-filled-button-hover-state-layer-color: transparent;
+  --md-filled-button-hover-state-layer-opacity: 0;
+  --md-filled-button-pressed-state-layer-color: transparent;
+  --md-filled-button-pressed-state-layer-opacity: 0;
   --md-filled-button-label-text-color: #fff;
+  --md-filled-button-focus-label-text-color: #fff;
+  --md-filled-button-hover-label-text-color: #fff;
+  --md-filled-button-pressed-label-text-color: #fff;
   --md-filled-button-icon-color: #fff;
+  --md-filled-button-focus-icon-color: #fff;
+  --md-filled-button-hover-icon-color: #fff;
+  --md-filled-button-pressed-icon-color: #fff;
   --md-filled-button-container-height: 32px;
+  --md-focus-ring-color: transparent;
+  --md-ripple-hover-color: transparent;
+  --md-ripple-hover-opacity: 0;
+  --md-ripple-pressed-color: transparent;
+  --md-ripple-pressed-opacity: 0;
+  outline: 0;
+}
+
+.aoi-danmaku-composer__submit:focus-visible {
+  outline: 1px solid color-mix(in srgb, var(--aoi-player-accent) 58%, transparent);
+  outline-offset: 2px;
 }
 
 .aoi-danmaku-composer__settings {
@@ -318,10 +357,10 @@ defineExpose({
   display: grid;
   width: min(328px, calc(100vw - 28px));
   gap: 12px;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--aoi-player-border);
   border-radius: var(--aoi-radius-card);
-  background: #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .14);
+  background: var(--aoi-player-surface);
+  box-shadow: var(--aoi-shadow-md);
   padding: 12px;
 }
 
@@ -331,7 +370,7 @@ defineExpose({
 }
 
 .aoi-danmaku-composer__settings-group > span {
-  color: #61666d;
+  color: var(--aoi-player-text-muted);
   font-size: 12px;
   font-weight: 760;
 }
@@ -348,10 +387,10 @@ defineExpose({
   min-height: 28px;
   align-items: center;
   gap: 5px;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--aoi-player-border);
   border-radius: var(--aoi-radius-field);
-  background: #fff;
-  color: #61666d;
+  background: var(--aoi-player-surface);
+  color: var(--aoi-player-text-muted);
   cursor: pointer;
   font: inherit;
   font-size: 12px;
@@ -361,30 +400,128 @@ defineExpose({
 
 .aoi-danmaku-composer__choice--active {
   border-color: var(--aoi-player-accent);
-  background: #e3f6ff;
+  background: transparent;
   color: var(--aoi-player-accent);
+  box-shadow: none;
 }
 
 .aoi-danmaku-composer__color {
   width: 20px;
   height: 20px;
-  border: 2px solid #fff;
+  border: 2px solid var(--aoi-player-surface);
   border-radius: var(--aoi-radius-round);
-  box-shadow: 0 0 0 1px #c9ccd0;
+  box-shadow: 0 0 0 1px var(--aoi-player-border);
   cursor: pointer;
   padding: 0;
 }
 
 .aoi-danmaku-composer__color--active {
   box-shadow:
-    0 0 0 2px var(--aoi-player-accent),
-    0 0 0 4px rgba(0, 174, 236, .14);
+    0 0 0 2px var(--aoi-player-surface),
+    0 0 0 4px var(--aoi-player-accent);
 }
 
 .aoi-danmaku-composer button:disabled,
 .aoi-danmaku-composer input:disabled {
   cursor: not-allowed;
   opacity: .58;
+}
+
+.aoi-danmaku-composer--overlay {
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--aoi-radius-round);
+  background: rgba(255, 255, 255, .94);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .12);
+  color: rgba(23, 38, 43, .72);
+  padding: 2px;
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__status {
+  display: none;
+  min-height: 32px;
+  border-radius: var(--aoi-radius-round);
+  color: rgba(23, 38, 43, .66);
+  padding-inline: 8px 6px;
+  white-space: nowrap;
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__status span {
+  color: var(--aoi-player-accent);
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__status small {
+  color: rgba(23, 38, 43, .5);
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__status:hover {
+  color: var(--aoi-player-accent);
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__field {
+  min-height: 32px;
+  border: 0;
+  border-radius: var(--aoi-radius-round);
+  background: transparent;
+  box-shadow: none;
+  color: rgba(23, 38, 43, .62);
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__field:focus-within {
+  box-shadow: none;
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__field-label {
+  color: rgba(23, 38, 43, .68);
+  font-weight: 760;
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__field input {
+  height: 30px;
+  color: rgba(23, 38, 43, .92);
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__field input::placeholder {
+  color: rgba(23, 38, 43, .58);
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__settings-button {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--aoi-radius-round);
+  color: rgba(23, 38, 43, .58);
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__settings-button:hover,
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__settings-button[aria-expanded="true"] {
+  color: var(--aoi-player-accent);
+  box-shadow: none;
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__submit {
+  width: 76px;
+  min-width: 76px;
+  --md-filled-button-container-height: 30px;
+  --md-filled-button-container-shape: 999px;
+}
+
+.aoi-danmaku-composer--overlay .aoi-danmaku-composer__submit[disabled] {
+  border: 0;
+  background: color-mix(in srgb, var(--aoi-player-text-muted) 18%, white);
+  color: rgba(23, 38, 43, .58);
+  opacity: 1;
+}
+
+.aoi-danmaku-composer--compact {
+  grid-template-columns: minmax(0, 1fr) auto auto;
+}
+
+.aoi-danmaku-composer--compact .aoi-danmaku-composer__status,
+.aoi-danmaku-composer--compact .aoi-danmaku-composer__field-label {
+  display: none;
 }
 
 @container (max-width: 760px) {
@@ -395,6 +532,10 @@ defineExpose({
 
   .aoi-danmaku-composer__status {
     display: none;
+  }
+
+  .aoi-danmaku-composer--overlay .aoi-danmaku-composer__field-label {
+    display: inline;
   }
 }
 
@@ -408,6 +549,20 @@ defineExpose({
   }
 
   .aoi-danmaku-composer__settings-button {
+    display: none;
+  }
+
+  .aoi-danmaku-composer--overlay .aoi-danmaku-composer__submit {
+    width: 36px;
+    min-width: 36px;
+    max-width: 36px;
+    --md-filled-button-leading-space: 8px;
+    --md-filled-button-trailing-space: 8px;
+    --md-filled-button-with-leading-icon-leading-space: 8px;
+    --md-filled-button-with-leading-icon-trailing-space: 8px;
+  }
+
+  .aoi-danmaku-composer--overlay .aoi-danmaku-composer__submit-label {
     display: none;
   }
 }

@@ -103,12 +103,11 @@ function formatDate(value?: string) {
 .aoi-danmaku-panel {
   display: grid;
   min-height: 0;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--aoi-player-border);
   border-radius: 0;
-  background: #fff;
+  background: var(--aoi-player-surface);
   box-shadow: none;
   overflow: hidden;
-  --aoi-player-accent: #00aeec;
 }
 
 .aoi-danmaku-panel__header {
@@ -116,8 +115,8 @@ function formatDate(value?: string) {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  border-bottom: 1px solid #e3e5e7;
-  background: #f6f7f8;
+  border-bottom: 1px solid var(--aoi-player-border);
+  background: var(--aoi-player-surface-muted);
   padding: 8px 10px;
 }
 
@@ -127,13 +126,13 @@ function formatDate(value?: string) {
 }
 
 .aoi-danmaku-panel__header h2 {
-  color: #18191c;
+  color: var(--aoi-player-text);
   font-size: 13px;
   letter-spacing: 0;
 }
 
 .aoi-danmaku-panel__header p {
-  color: #9499a0;
+  color: var(--aoi-player-text-muted);
   font-size: 11px;
   font-weight: 680;
 }
@@ -144,7 +143,7 @@ function formatDate(value?: string) {
 }
 
 .aoi-danmaku-panel__actions :deep(.aoi-icon-button) {
-  --md-icon-button-icon-color: #9499a0;
+  --md-icon-button-icon-color: var(--aoi-player-text-muted);
   --md-icon-button-hover-icon-color: var(--aoi-player-accent);
 }
 
@@ -161,9 +160,9 @@ function formatDate(value?: string) {
   align-items: center;
   gap: 8px;
   border: 0;
-  border-bottom: 1px solid #edf0f2;
+  border-bottom: 1px solid color-mix(in srgb, var(--aoi-player-border) 72%, transparent);
   background: transparent;
-  color: #9499a0;
+  color: var(--aoi-player-text-muted);
   cursor: pointer;
   font: inherit;
   font-size: 11px;
@@ -177,34 +176,34 @@ function formatDate(value?: string) {
 .aoi-danmaku-panel__row strong {
   min-width: 0;
   overflow: hidden;
-  color: #18191c;
+  color: var(--aoi-player-text);
   font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .aoi-danmaku-panel__row:hover {
-  background: #f6f7f8;
+  background: var(--aoi-player-surface-muted);
 }
 
 .aoi-danmaku-panel__row--head {
   position: sticky;
   top: 0;
   z-index: 1;
-  background: #fff;
+  background: var(--aoi-player-surface);
   cursor: default;
   font-weight: 760;
-  color: #61666d;
+  color: var(--aoi-player-text-muted);
 }
 
 .aoi-danmaku-panel__row--active {
-  background: #e3f6ff;
+  background: var(--aoi-player-accent-soft);
   color: var(--aoi-player-accent);
 }
 
 .aoi-danmaku-panel__empty {
   margin: 0;
-  color: #9499a0;
+  color: var(--aoi-player-text-muted);
   padding: 14px 12px;
 }
 

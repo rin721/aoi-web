@@ -31,6 +31,7 @@ const emit = defineEmits<{
   "update:volumePercent": [value: number]
 }>()
 
+const { t } = useI18n()
 const playbackRateOptions = computed(() => props.playbackRates.map((rate) => ({
   label: `${rate}x`,
   value: String(rate)
@@ -42,29 +43,28 @@ const playbackRateModel = computed({
 </script>
 
 <template>
-  <div class="aoi-video-toolbar" aria-label="播放器控制">
+  <div class="aoi-video-toolbar" :aria-label="t('player.controls')">
     <AoiIconButton
       :icon="isPlaying ? 'pause' : 'play'"
-      :label="isPlaying ? '暂停视频' : '播放视频'"
+      :label="isPlaying ? t('player.pause') : t('player.play')"
       size="sm"
-      variant="tonal"
       @click="emit('toggle-play')"
     />
 
     <AoiIconButton
+      :class="{ 'aoi-video-toolbar__button--state-on': muted }"
       :icon="muted || volumePercent === 0 ? 'volume-x' : 'volume-2'"
-      :label="muted ? '取消静音' : '静音'"
-      :active="muted"
+      :label="muted ? t('player.unmute') : t('player.mute')"
       size="sm"
       @click="emit('toggle-muted')"
     />
 
     <div class="aoi-video-toolbar__volume">
-      <span class="aoi-video-toolbar__volume-label">音量</span>
+      <span class="aoi-video-toolbar__volume-label">{{ t("player.volume") }}</span>
       <AoiSlider
         class="aoi-video-toolbar__volume-slider"
         :model-value="volumePercent"
-        aria-label="音量"
+        :aria-label="t('player.volume')"
         tone="inverse"
         compact
         :min="0"
@@ -77,8 +77,8 @@ const playbackRateModel = computed({
     <span class="aoi-video-toolbar__spacer" aria-hidden="true" />
 
     <label class="aoi-video-toolbar__rate">
-      <span>倍速</span>
-      <select v-model="playbackRateModel" aria-label="倍速">
+      <span>{{ t("player.rateShort") }}</span>
+      <select v-model="playbackRateModel" :aria-label="t('player.rate')">
         <option
           v-for="option in playbackRateOptions"
           :key="option.value"
@@ -90,26 +90,24 @@ const playbackRateModel = computed({
     </label>
 
     <AoiIconButton
+      :class="{ 'aoi-video-toolbar__button--state-on': danmakuEnabled }"
       icon="message-square-text"
-      label="显示弹幕"
-      :active="danmakuEnabled"
-      :variant="danmakuEnabled ? 'tonal' : 'standard'"
+      :label="danmakuEnabled ? t('player.hideDanmaku') : t('player.showDanmaku')"
       size="sm"
       @click="emit('toggle-danmaku')"
     />
 
     <AoiIconButton
+      :class="{ 'aoi-video-toolbar__button--state-on': theaterMode }"
       icon="panel-top"
-      label="剧场模式"
-      :active="theaterMode"
-      :variant="theaterMode ? 'tonal' : 'standard'"
+      :label="t('player.theater')"
       size="sm"
       @click="emit('toggle-theater')"
     />
 
     <AoiIconButton
       :icon="fullscreen ? 'minimize' : 'maximize'"
-      :label="fullscreen ? '退出全屏' : '全屏'"
+      :label="fullscreen ? t('player.exitFullscreen') : t('player.fullscreen')"
       size="sm"
       @click="emit('toggle-fullscreen')"
     />
@@ -120,16 +118,28 @@ const playbackRateModel = computed({
 .aoi-video-toolbar {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 3px;
   min-width: 0;
 }
 
 .aoi-video-toolbar :deep(.aoi-icon-button) {
   --md-icon-button-icon-color: rgba(255, 255, 255, .9);
   --md-icon-button-hover-icon-color: #fff;
-  --md-icon-button-pressed-icon-color: var(--aoi-accent-40);
-  --md-filled-tonal-icon-button-container-color: rgba(255, 148, 113, .22);
-  --md-filled-tonal-icon-button-icon-color: #fff;
+  --md-icon-button-pressed-icon-color: var(--aoi-player-accent);
+  --md-icon-button-state-layer-color: #fff;
+  color: rgba(255, 255, 255, .9);
+  box-shadow: none;
+}
+
+.aoi-video-toolbar :deep(.aoi-video-toolbar__button--state-on) {
+  --md-icon-button-icon-color: var(--aoi-player-accent);
+  --md-icon-button-hover-icon-color: var(--aoi-player-accent);
+  color: var(--aoi-player-accent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--aoi-player-accent) 54%, transparent);
+}
+
+.aoi-video-toolbar :deep(.aoi-video-toolbar__button--state-on:hover) {
+  box-shadow: inset 0 0 0 1px var(--aoi-player-accent);
 }
 
 .aoi-video-toolbar__spacer {
@@ -152,7 +162,7 @@ const playbackRateModel = computed({
 }
 
 .aoi-video-toolbar__volume-slider {
-  width: 104px;
+  width: 94px;
   --md-slider-active-track-color: rgba(255, 255, 255, .92);
   --md-slider-handle-color: #fff;
   --md-slider-inactive-track-color: rgba(255, 255, 255, .24);
@@ -160,7 +170,7 @@ const playbackRateModel = computed({
 
 .aoi-video-toolbar__rate {
   display: inline-flex;
-  min-height: 32px;
+  min-height: 30px;
   align-items: center;
   gap: 5px;
   border: 1px solid rgba(255, 255, 255, .14);
@@ -184,14 +194,14 @@ const playbackRateModel = computed({
 }
 
 .aoi-video-toolbar__rate option {
-  color: var(--aoi-text);
-  background: var(--aoi-surface-solid);
+  color: var(--aoi-player-text);
+  background: var(--aoi-player-surface);
 }
 
 @media (max-width: 639px) {
   .aoi-video-toolbar {
     display: flex;
-    gap: 4px;
+    gap: 3px;
   }
 
   .aoi-video-toolbar__volume {

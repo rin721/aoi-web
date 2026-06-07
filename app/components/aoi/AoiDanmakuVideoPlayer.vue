@@ -33,6 +33,7 @@ interface AoiDanmakuVideoPlayerState {
   isFullscreen: boolean
   isLoading: boolean
   isPlaying: boolean
+  isWebFullscreen: boolean
   canPlay: boolean
   danmakuEnabled: boolean
   muted: boolean
@@ -56,8 +57,10 @@ interface AoiDanmakuVideoPlayerControls {
   setPlaybackRate: (value: number) => void
   setTheaterMode: (value: boolean) => void
   setVolume: (value: number) => void
+  setWebFullscreen: (value: boolean) => Promise<void> | void
   toggleFullscreen: () => Promise<void> | void
   togglePlay: () => Promise<void> | void
+  toggleWebFullscreen: () => Promise<void> | void
 }
 
 interface AoiDanmakuVideoPlayerSlotContext<TItem> {
@@ -116,6 +119,7 @@ const emit = defineEmits<{
   ended: []
   error: [error: AoiDanmakuVideoPlayerError]
   "compose-request": []
+  "context-menu": [event: MouseEvent, context: AoiDanmakuVideoPlayerSlotContext<T>]
   "duration-change": [seconds: number]
   progress: [seconds: number]
   "play-state-change": [playing: boolean]
@@ -148,9 +152,12 @@ const hasViewportFallback = ref(false)
 const isFullscreen = ref(false)
 const isLoading = ref(false)
 const isPlaying = ref(false)
+const isWebFullscreen = ref(false)
 const pendingResumeTime = ref(0)
 const attachedSourceId = ref("")
 let lastProgressEmit = -1
+let screenClickTimer: ReturnType<typeof setTimeout> | null = null
+const webFullscreenBodyClass = "aoi-player-web-fullscreen-active"
 
 const viewport = useAoiInViewport(rootRef, {
   once: true,
@@ -208,6 +215,7 @@ const state = computed<AoiDanmakuVideoPlayerState>(() => ({
   isFullscreen: isFullscreen.value,
   isLoading: isLoading.value,
   isPlaying: isPlaying.value,
+  isWebFullscreen: isWebFullscreen.value,
   canPlay: canPlay.value,
   danmakuEnabled: props.danmakuEnabled,
   muted: props.muted,
@@ -230,8 +238,10 @@ const controls: AoiDanmakuVideoPlayerControls = {
   setPlaybackRate,
   setTheaterMode,
   setVolume,
+  setWebFullscreen,
   toggleFullscreen,
-  togglePlay
+  togglePlay,
+  toggleWebFullscreen
 }
 const slotContext = computed<AoiDanmakuVideoPlayerSlotContext<T>>(() => ({
   controls,
@@ -559,6 +569,8 @@ async function requestFullscreen() {
     return
   }
 
+  isWebFullscreen.value = false
+  applyWebFullscreenDocumentState(false)
   await root.requestFullscreen?.()
 }
 
@@ -581,6 +593,23 @@ async function toggleFullscreen() {
   await requestFullscreen()
 }
 
+async function setWebFullscreen(value: boolean) {
+  if (!import.meta.client) {
+    return
+  }
+
+  if (value && document.fullscreenElement) {
+    await exitFullscreen()
+  }
+
+  isWebFullscreen.value = value
+  applyWebFullscreenDocumentState(value)
+}
+
+async function toggleWebFullscreen() {
+  await setWebFullscreen(!isWebFullscreen.value)
+}
+
 function selectSource(id: string) {
   if (selectedSource.value?.id === id) {
     return
@@ -600,6 +629,46 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
 
 function onFullscreenChange() {
   isFullscreen.value = Boolean(document.fullscreenElement && rootRef.value?.contains(document.fullscreenElement))
+
+  if (isFullscreen.value) {
+    isWebFullscreen.value = false
+    applyWebFullscreenDocumentState(false)
+  }
+}
+
+function applyWebFullscreenDocumentState(value: boolean) {
+  if (!import.meta.client) {
+    return
+  }
+
+  document.documentElement.classList.toggle(webFullscreenBodyClass, value)
+  document.body.classList.toggle(webFullscreenBodyClass, value)
+}
+
+function clearScreenClickTimer() {
+  if (screenClickTimer) {
+    clearTimeout(screenClickTimer)
+    screenClickTimer = null
+  }
+}
+
+function onScreenClick() {
+  clearScreenClickTimer()
+  screenClickTimer = setTimeout(() => {
+    screenClickTimer = null
+    void togglePlay()
+  }, 180)
+}
+
+function onScreenDoubleClick() {
+  clearScreenClickTimer()
+  void toggleFullscreen()
+}
+
+function onContextMenu(event: MouseEvent) {
+  event.preventDefault()
+  event.stopPropagation()
+  emit("context-menu", event, slotContext.value)
 }
 
 function onKeydown(event: KeyboardEvent) {
@@ -607,7 +676,18 @@ function onKeydown(event: KeyboardEvent) {
     return
   }
 
+  if (event.defaultPrevented) {
+    return
+  }
+
   const target = event.target
+  const key = event.key.toLowerCase()
+
+  if (key === "escape" && isWebFullscreen.value) {
+    event.preventDefault()
+    void setWebFullscreen(false)
+    return
+  }
 
   if (target instanceof HTMLElement && target.closest(".aoi-danmaku-composer")) {
     return
@@ -616,8 +696,6 @@ function onKeydown(event: KeyboardEvent) {
   if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) {
     return
   }
-
-  const key = event.key.toLowerCase()
 
   if (key === "enter") {
     event.preventDefault()
@@ -643,6 +721,9 @@ function onKeydown(event: KeyboardEvent) {
   } else if (key === "f") {
     event.preventDefault()
     void toggleFullscreen()
+  } else if (key === "w") {
+    event.preventDefault()
+    void toggleWebFullscreen()
   } else if (key === "d") {
     event.preventDefault()
     setDanmakuEnabled(!props.danmakuEnabled)
@@ -699,6 +780,7 @@ watch(() => props.durationSeconds, (value) => {
 
 onMounted(() => {
   document.addEventListener("fullscreenchange", onFullscreenChange)
+  document.addEventListener("keydown", onKeydown, true)
   void nextTick(() => {
     refreshViewportFallback()
     requestAnimationFrame(refreshViewportFallback)
@@ -707,6 +789,9 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   document.removeEventListener("fullscreenchange", onFullscreenChange)
+  document.removeEventListener("keydown", onKeydown, true)
+  applyWebFullscreenDocumentState(false)
+  clearScreenClickTimer()
 })
 
 defineExpose({
@@ -718,8 +803,10 @@ defineExpose({
   seekBy,
   seekTo,
   selectSource,
+  setWebFullscreen,
   toggleFullscreen,
-  togglePlay
+  togglePlay,
+  toggleWebFullscreen
 })
 </script>
 
@@ -727,12 +814,19 @@ defineExpose({
   <section
     ref="rootRef"
     class="aoi-danmaku-video-player"
-    :class="{ 'aoi-danmaku-video-player--theater': theaterMode }"
+    :class="{
+      'aoi-danmaku-video-player--theater': theaterMode,
+      'aoi-danmaku-video-player--web-fullscreen': isWebFullscreen
+    }"
     :aria-label="resolvedAriaLabel"
     tabindex="0"
-    @keydown="onKeydown"
   >
-    <div class="aoi-danmaku-video-player__screen" @click="togglePlay">
+    <div
+      class="aoi-danmaku-video-player__screen"
+      @click="onScreenClick"
+      @contextmenu="onContextMenu"
+      @dblclick="onScreenDoubleClick"
+    >
       <video
         ref="videoRef"
         class="aoi-danmaku-video-player__video"
@@ -763,30 +857,33 @@ defineExpose({
       <slot name="overlay" v-bind="slotContext" />
 
       <div
-        v-if="$slots.controls"
+        v-if="$slots.controls || $slots.composer"
         class="aoi-danmaku-video-player__controls"
-        :class="{ 'aoi-danmaku-video-player__controls--visible': !isPlaying }"
         @click.stop
       >
-        <slot name="controls" v-bind="slotContext" />
+        <slot v-if="$slots.controls" name="controls" v-bind="slotContext" />
+        <slot v-if="$slots.composer" name="composer" v-bind="slotContext" />
+      </div>
+
+      <div
+        v-if="$slots.panel"
+        class="aoi-danmaku-video-player__panel-shell"
+        @click.stop
+      >
+        <slot name="panel" v-bind="slotContext" />
       </div>
     </div>
-
-    <slot name="composer" v-bind="slotContext" />
-    <slot name="panel" v-bind="slotContext" />
   </section>
 </template>
 
 <style scoped>
 .aoi-danmaku-video-player {
   container-type: inline-size;
-  --aoi-player-accent: #00aeec;
-  --aoi-player-accent-soft: #e3f6ff;
   display: grid;
   overflow: clip;
-  border: 1px solid #e3e5e7;
+  border: 1px solid var(--aoi-player-border);
   border-radius: 0;
-  background: #fff;
+  background: var(--aoi-player-surface);
   box-shadow: none;
   color: #fff;
   isolation: isolate;
@@ -798,8 +895,41 @@ defineExpose({
 }
 
 .aoi-danmaku-video-player--theater {
-  border-color: #d7dce0;
-  box-shadow: 0 8px 28px rgba(0, 0, 0, .08);
+  border-color: color-mix(in srgb, var(--aoi-player-accent) 22%, var(--aoi-player-border));
+  box-shadow: 0 10px 30px color-mix(in srgb, var(--aoi-shadow-md) 54%, transparent);
+}
+
+.aoi-danmaku-video-player--web-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: var(--aoi-z-dialog);
+  width: 100vw;
+  height: 100vh;
+  border: 0;
+  border-radius: 0;
+  background: #050608;
+}
+
+:global(html.aoi-player-web-fullscreen-active),
+:global(body.aoi-player-web-fullscreen-active) {
+  overflow: hidden;
+}
+
+:global(body.aoi-player-web-fullscreen-active .aoi-shell),
+:global(body.aoi-player-web-fullscreen-active .aoi-page) {
+  transform: none !important;
+}
+
+:global(body.aoi-player-web-fullscreen-active .aoi-shell) {
+  width: 100vw !important;
+  max-width: none !important;
+  margin-inline-start: 0 !important;
+}
+
+:global(body.aoi-player-web-fullscreen-active .aoi-page) {
+  width: 100vw !important;
+  max-width: none !important;
+  padding-inline: 0 !important;
 }
 
 .aoi-danmaku-video-player__screen {
@@ -817,10 +947,14 @@ defineExpose({
 }
 
 .aoi-danmaku-video-player__video {
+  position: absolute;
+  inset: 0;
+  display: block;
   width: 100%;
   height: 100%;
   background: #000;
   object-fit: contain;
+  object-position: center center;
 }
 
 .aoi-danmaku-video-player__screen :deep(.aoi-media-overlay-button) {
@@ -853,14 +987,14 @@ defineExpose({
   position: absolute;
   inset-inline: 0;
   bottom: 0;
-  z-index: 5;
+  z-index: 8;
   display: grid;
-  gap: 5px;
-  background: linear-gradient(180deg, transparent, rgba(0, 0, 0, .66) 34%, rgba(0, 0, 0, .88));
+  gap: 4px;
+  background: var(--aoi-player-control-overlay);
   opacity: 0;
-  padding: 34px 12px 8px;
+  padding: 20px 12px 8px;
   pointer-events: none;
-  transform: translate3d(0, 8px, 0);
+  transform: translate3d(0, 6px, 0);
   transition:
     opacity var(--aoi-motion-base) var(--aoi-ease-out),
     transform var(--aoi-motion-base) var(--aoi-ease-out);
@@ -874,29 +1008,181 @@ defineExpose({
   transform: translate3d(0, 0, 0);
 }
 
-.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar) {
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  min-width: 0;
+  min-height: 36px;
+  align-items: center;
+  gap: 8px;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__timeline) {
+  min-height: 18px;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__timeline .aoi-slider-field),
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__timeline .aoi-slider) {
+  height: 18px;
+  min-height: 18px;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-group) {
   display: flex;
   min-width: 0;
   align-items: center;
   gap: 4px;
 }
 
-.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar .aoi-icon-button) {
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-group--right) {
+  justify-self: end;
+  justify-content: flex-end;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-group--left) {
+  justify-self: start;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar .aoi-icon-button),
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar .aoi-icon-button) {
   --md-icon-button-icon-color: rgba(255, 255, 255, .92);
   --md-icon-button-hover-icon-color: #fff;
+  --md-icon-button-focus-icon-color: #fff;
+  --md-icon-button-pressed-icon-color: #fff;
+  --md-icon-button-focus-state-layer-color: transparent;
+  --md-icon-button-focus-state-layer-opacity: 0;
+  --md-icon-button-hover-state-layer-color: transparent;
+  --md-icon-button-hover-state-layer-opacity: 0;
+  --md-icon-button-pressed-state-layer-color: transparent;
+  --md-icon-button-pressed-state-layer-opacity: 0;
+  --md-icon-button-state-layer-size: 32px;
+  --md-focus-ring-color: transparent;
+  --md-ripple-hover-color: transparent;
+  --md-ripple-hover-opacity: 0;
+  --md-ripple-pressed-color: transparent;
+  --md-ripple-pressed-opacity: 0;
+  border-radius: var(--aoi-radius-round);
+  outline: 0;
+  color: rgba(255, 255, 255, .92);
+  width: 34px;
+  height: 34px;
+  transition: color var(--aoi-motion-fast) var(--aoi-ease-out);
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar .aoi-icon-button:focus-visible),
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar .aoi-icon-button:focus-visible) {
+  outline: 1px solid color-mix(in srgb, var(--aoi-player-accent) 64%, transparent);
+  outline-offset: 2px;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--state-on) {
+  --md-icon-button-icon-color: var(--aoi-player-accent);
+  --md-icon-button-hover-icon-color: var(--aoi-player-accent);
+  --md-icon-button-focus-icon-color: var(--aoi-player-accent);
   --md-icon-button-pressed-icon-color: var(--aoi-player-accent);
-  --md-filled-tonal-icon-button-container-color: rgba(0, 174, 236, .2);
-  --md-filled-tonal-icon-button-icon-color: #fff;
+  color: var(--aoi-player-accent);
+  box-shadow: none;
 }
 
-.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume) {
-  width: 96px;
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-control) {
+  position: relative;
+  z-index: 12;
+  display: grid;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  place-items: center;
 }
 
-.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume .aoi-slider) {
-  --md-slider-active-track-color: var(--aoi-player-accent);
-  --md-slider-handle-color: #fff;
-  --md-slider-inactive-track-color: rgba(255, 255, 255, .24);
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-control)::before {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  width: 236px;
+  height: 12px;
+  content: "";
+  transform: translateX(-50%);
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-popover) {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  display: grid;
+  width: 236px;
+  height: 32px;
+  align-items: center;
+  border: 0;
+  border-radius: 5px;
+  background: rgba(223, 226, 228, .92);
+  box-shadow: 0 8px 18px rgba(0, 0, 0, .2);
+  opacity: 0;
+  overflow: hidden;
+  padding: 0;
+  pointer-events: none;
+  transform: translate3d(-50%, 4px, 0);
+  transition:
+    opacity var(--aoi-motion-fast) var(--aoi-ease-out),
+    transform var(--aoi-motion-fast) var(--aoi-ease-out);
+  backdrop-filter: blur(10px);
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-control:hover .aoi-danmaku-video-player__volume-popover),
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-control:has(.aoi-icon-button:focus-visible) .aoi-danmaku-video-player__volume-popover),
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-control:has(.aoi-danmaku-video-player__volume-range:focus-visible) .aoi-danmaku-video-player__volume-popover) {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate3d(-50%, 0, 0);
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-track),
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-fill) {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-track) {
+  right: 0;
+  background: rgba(232, 234, 236, .92);
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-fill) {
+  display: grid;
+  width: max(52px, var(--aoi-player-volume-percent, 0%));
+  max-width: 100%;
+  align-items: center;
+  background: color-mix(in srgb, #f08bae 86%, var(--aoi-player-accent));
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-value) {
+  color: #fff;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  padding-inline-start: 17px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, .14);
+  white-space: nowrap;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-range) {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+  opacity: 0;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-range:focus-visible) {
+  outline: 0;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-popover:has(.aoi-danmaku-video-player__volume-range:focus-visible)) {
+  box-shadow:
+    0 8px 18px rgba(0, 0, 0, .2),
+    0 0 0 1px color-mix(in srgb, var(--aoi-player-accent) 62%, transparent);
 }
 
 .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__spacer) {
@@ -905,47 +1191,127 @@ defineExpose({
 }
 
 .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__anchor) {
-  display: inline-flex;
+  display: inline-grid;
+  flex: 0 0 auto;
   min-width: 0;
 }
 
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__anchor--rate) {
+  width: 64px;
+}
+
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--subtitle) {
+  width: 82px;
+}
+
 .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__menu-button) {
-  max-width: 132px;
-  --md-filled-tonal-button-container-color: rgba(255, 255, 255, .14);
-  --md-filled-tonal-button-hover-state-layer-color: #fff;
+  width: 100%;
+  min-width: 0;
+  max-width: 128px;
+  --md-filled-tonal-button-container-color: rgba(255, 255, 255, .12);
+  --md-filled-tonal-button-focus-container-color: rgba(255, 255, 255, .12);
+  --md-filled-tonal-button-hover-container-color: rgba(255, 255, 255, .12);
+  --md-filled-tonal-button-pressed-container-color: rgba(255, 255, 255, .12);
+  --md-filled-tonal-button-focus-state-layer-color: transparent;
+  --md-filled-tonal-button-focus-state-layer-opacity: 0;
+  --md-filled-tonal-button-hover-state-layer-color: transparent;
+  --md-filled-tonal-button-hover-state-layer-opacity: 0;
+  --md-filled-tonal-button-pressed-state-layer-color: transparent;
+  --md-filled-tonal-button-pressed-state-layer-opacity: 0;
   --md-filled-tonal-button-label-text-color: #fff;
+  --md-filled-tonal-button-focus-label-text-color: #fff;
+  --md-filled-tonal-button-hover-label-text-color: #fff;
+  --md-filled-tonal-button-pressed-label-text-color: #fff;
   --md-filled-tonal-button-icon-color: #fff;
+  --md-filled-tonal-button-focus-icon-color: #fff;
+  --md-filled-tonal-button-hover-icon-color: #fff;
+  --md-filled-tonal-button-pressed-icon-color: #fff;
+  --md-filled-tonal-button-container-height: 30px;
+  --md-filled-tonal-button-label-text-size: 12px;
+  --md-focus-ring-color: transparent;
+  --md-ripple-hover-color: transparent;
+  --md-ripple-hover-opacity: 0;
+  --md-ripple-pressed-color: transparent;
+  --md-ripple-pressed-opacity: 0;
+  outline: 0;
 }
 
 .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__menu-button .aoi-button) {
   max-width: 100%;
 }
 
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__menu-button:focus-visible) {
+  outline: 1px solid color-mix(in srgb, var(--aoi-player-accent) 64%, transparent);
+  outline-offset: 2px;
+}
+
 .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__rate-button) {
   min-width: 64px;
 }
 
-.aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__panel) {
+.aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__floating-menu) {
+  --md-focus-ring-color: var(--aoi-player-accent);
+  --md-menu-container-color: color-mix(in srgb, var(--aoi-player-surface) 96%, transparent);
+  --md-menu-container-shape: 8px;
+  --md-menu-item-container-color: transparent;
+  --md-menu-item-disabled-label-text-color: var(--aoi-player-text-muted);
+  --md-menu-item-disabled-leading-icon-color: var(--aoi-player-text-muted);
+  --md-menu-item-focus-state-layer-color: transparent;
+  --md-menu-item-hover-state-layer-color: color-mix(in srgb, var(--aoi-player-text) 8%, transparent);
+  --md-menu-item-label-text-color: var(--aoi-player-text);
+  --md-menu-item-leading-icon-color: var(--aoi-player-text-muted);
+  --md-menu-item-pressed-state-layer-color: transparent;
+  --md-menu-item-selected-container-color: transparent;
+  --md-menu-item-selected-label-text-color: var(--aoi-player-accent);
+  --md-menu-item-selected-leading-icon-color: var(--aoi-player-accent);
+}
+
+.aoi-danmaku-video-player__panel-shell {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 96px;
+  z-index: 7;
+  display: grid;
+  width: min(360px, calc(100% - 24px));
+  min-width: 0;
+  pointer-events: none;
+}
+
+.aoi-danmaku-video-player__panel-shell :deep(*) {
+  pointer-events: auto;
+}
+
+.aoi-danmaku-video-player__panel-shell :deep(.aoi-danmaku-video-player__panel) {
+  min-height: 0;
   border-radius: 0;
-  border-inline: 0;
-  border-bottom: 0;
-  box-shadow: none;
+  box-shadow: 0 14px 38px rgba(0, 0, 0, .24);
+}
+
+.aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__panel) {
+  border-inline: 1px solid var(--aoi-player-border);
+  border-bottom: 1px solid var(--aoi-player-border);
 }
 
 .aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__composer) {
-  color: #18191c;
+  width: clamp(300px, 38cqw, 520px);
+  max-width: 100%;
+  justify-self: center;
+  color: var(--aoi-player-text);
 }
 
 .aoi-danmaku-video-player:fullscreen {
-  display: grid;
   width: 100vw;
   height: 100vh;
-  grid-template-rows: minmax(0, 1fr) auto auto;
+  border: 0;
+  border-radius: 0;
   background: #050608;
 }
 
-.aoi-danmaku-video-player:fullscreen .aoi-danmaku-video-player__screen {
+.aoi-danmaku-video-player:fullscreen .aoi-danmaku-video-player__screen,
+.aoi-danmaku-video-player--web-fullscreen .aoi-danmaku-video-player__screen {
   aspect-ratio: auto;
+  height: 100%;
   min-height: 0;
 }
 
@@ -953,17 +1319,25 @@ defineExpose({
   position: absolute;
 }
 
-.aoi-danmaku-video-player:fullscreen :deep(.aoi-danmaku-video-player__panel) {
-  max-height: 34vh;
-  overflow: auto;
+.aoi-danmaku-video-player:fullscreen .aoi-danmaku-video-player__panel-shell,
+.aoi-danmaku-video-player--web-fullscreen .aoi-danmaku-video-player__panel-shell {
+  bottom: 104px;
 }
 
 @container (max-width: 760px) {
-  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar) {
-    gap: 4px;
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar) {
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 5px;
   }
 
-  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume) {
+  .aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__composer) {
+    width: 100%;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--subtitle),
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--settings),
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--panel),
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--theater) {
     display: none;
   }
 
@@ -971,8 +1345,59 @@ defineExpose({
     max-width: 96px;
   }
 
-  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__anchor--source) {
+}
+
+@container (min-width: 761px) and (max-width: 960px) {
+  .aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__composer) {
+    width: clamp(300px, 36cqw, 360px);
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-group--right) {
+    gap: 2px;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-group--right .aoi-icon-button) {
+    --aoi-icon-button-size: 28px;
+    --md-icon-button-state-layer-size: 28px;
+    width: 28px;
+    height: 34px;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__anchor--rate) {
+    width: 50px;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__rate-button) {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    --md-filled-tonal-button-leading-space: 8px;
+    --md-filled-tonal-button-trailing-space: 8px;
+    --md-filled-tonal-button-with-leading-icon-leading-space: 8px;
+    --md-filled-tonal-button-with-leading-icon-trailing-space: 8px;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__rate-button .aoi-icon) {
     display: none;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--subtitle) {
+    width: 38px;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__subtitle-button) {
+    width: 38px;
+    min-width: 38px;
+    max-width: 38px;
+    font-size: 0;
+    --md-filled-tonal-button-leading-space: 8px;
+    --md-filled-tonal-button-trailing-space: 8px;
+    --md-filled-tonal-button-with-leading-icon-leading-space: 8px;
+    --md-filled-tonal-button-with-leading-icon-trailing-space: 8px;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__subtitle-button .aoi-icon) {
+    font-size: 15px !important;
   }
 }
 
@@ -984,20 +1409,28 @@ defineExpose({
   .aoi-danmaku-video-player__controls {
     gap: 5px;
     opacity: 1;
-    padding: 26px 6px 8px;
+    padding: 34px 6px 8px;
     pointer-events: auto;
     transform: none;
   }
 
-  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar) {
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar) {
     gap: 2px;
-    overflow: hidden;
+    grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
-  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar .aoi-icon-button) {
+  .aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__composer) {
+    width: 100%;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar .aoi-icon-button) {
     --aoi-icon-button-size: 36px;
     width: 36px;
     height: 36px;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-control) {
+    display: none;
   }
 
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__spacer) {
@@ -1005,7 +1438,22 @@ defineExpose({
   }
 
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__rate-button) {
+    width: 48px;
     min-width: 48px;
+    max-width: 48px;
+    --md-filled-tonal-button-leading-space: 8px;
+    --md-filled-tonal-button-trailing-space: 8px;
+    --md-filled-tonal-button-with-leading-icon-leading-space: 8px;
+    --md-filled-tonal-button-with-leading-icon-trailing-space: 8px;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__rate-button .aoi-icon) {
+    display: none;
+  }
+
+  .aoi-danmaku-video-player__panel-shell {
+    inset: 8px 8px 92px;
+    width: auto;
   }
 }
 

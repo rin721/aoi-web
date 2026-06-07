@@ -67,11 +67,9 @@ const emit = defineEmits<{
 <style scoped>
 .aoi-video-controls {
   display: grid;
-  gap: 6px;
-  background:
-    linear-gradient(180deg, transparent, rgba(0, 0, 0, .62) 24%, rgba(0, 0, 0, .86)),
-    linear-gradient(90deg, rgba(255, 148, 113, .14), transparent 34%, rgba(247, 112, 156, .12));
-  padding: 30px 14px 10px;
+  gap: 4px;
+  background: var(--aoi-player-control-overlay);
+  padding: 42px 12px 9px;
   pointer-events: auto;
 }
 

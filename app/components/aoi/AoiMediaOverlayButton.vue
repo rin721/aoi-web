@@ -11,7 +11,35 @@ withDefaults(defineProps<{
 
 const emit = defineEmits<{
   click: [event: MouseEvent]
+  dblclick: [event: MouseEvent]
 }>()
+
+let clickTimer: ReturnType<typeof setTimeout> | null = null
+
+function clearClickTimer() {
+  if (clickTimer) {
+    clearTimeout(clickTimer)
+    clickTimer = null
+  }
+}
+
+function onClick(event: MouseEvent) {
+  event.stopPropagation()
+  clearClickTimer()
+  clickTimer = setTimeout(() => {
+    clickTimer = null
+    emit("click", event)
+  }, 180)
+}
+
+function onDoubleClick(event: MouseEvent) {
+  event.preventDefault()
+  event.stopPropagation()
+  clearClickTimer()
+  emit("dblclick", event)
+}
+
+onBeforeUnmount(clearClickTimer)
 </script>
 
 <template>
@@ -21,7 +49,8 @@ const emit = defineEmits<{
     type="button"
     :aria-label="label"
     :disabled="disabled || undefined"
-    @click="emit('click', $event)"
+    @click="onClick"
+    @dblclick="onDoubleClick"
   >
     <span class="aoi-media-overlay-button__control">
       <AoiIcon :name="icon" :size="32" decorative />

@@ -50,7 +50,7 @@ function formatTime(seconds: number) {
   display: grid;
   grid-template-columns: minmax(42px, auto) minmax(0, 1fr) minmax(42px, auto);
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   color: rgba(255, 255, 255, .88);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
@@ -63,10 +63,15 @@ function formatTime(seconds: number) {
 }
 
 .aoi-video-timeline__slider {
-  --md-slider-active-track-color: var(--aoi-player-accent, #00aeec);
+  --md-slider-active-track-color: var(--aoi-player-accent);
   --md-slider-handle-color: #fff;
-  --md-slider-inactive-track-color: rgba(255, 255, 255, .32);
-  --md-slider-with-tick-marks-active-container-color: var(--aoi-player-accent, #00aeec);
+  --md-slider-hover-handle-color: #fff;
+  --md-slider-inactive-track-color: rgba(255, 255, 255, .28);
+  --md-slider-with-tick-marks-active-container-color: var(--aoi-player-accent);
+  --md-slider-active-track-height: 3px;
+  --md-slider-inactive-track-height: 3px;
+  --md-slider-handle-height: 10px;
+  --md-slider-handle-width: 10px;
 }
 
 @media (max-width: 639px) {

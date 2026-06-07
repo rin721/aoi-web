@@ -12,9 +12,11 @@ type AoiDanmakuVideoPlayerExpose = {
   requestFullscreen: () => Promise<void> | void
   seekBy: (delta: number) => void
   seekTo: (seconds: number) => void
+  setWebFullscreen: (value: boolean) => Promise<void> | void
   selectSource: (id: string) => void
   toggleFullscreen: () => Promise<void> | void
   togglePlay: () => Promise<void> | void
+  toggleWebFullscreen: () => Promise<void> | void
 }
 
 defineOptions({
@@ -91,9 +93,11 @@ defineExpose({
   requestFullscreen: () => playerRef.value?.requestFullscreen(),
   seekBy: (delta: number) => playerRef.value?.seekBy(delta),
   seekTo: (seconds: number) => playerRef.value?.seekTo(seconds),
+  setWebFullscreen: (value: boolean) => playerRef.value?.setWebFullscreen(value),
   selectSource: (id: string) => playerRef.value?.selectSource(id),
   toggleFullscreen: () => playerRef.value?.toggleFullscreen(),
-  togglePlay: () => playerRef.value?.togglePlay()
+  togglePlay: () => playerRef.value?.togglePlay(),
+  toggleWebFullscreen: () => playerRef.value?.toggleWebFullscreen()
 })
 </script>
 
