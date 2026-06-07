@@ -1,8 +1,10 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
+  ariaLabel?: string
   currentTime?: number
   duration?: number
 }>(), {
+  ariaLabel: "Playback progress",
   currentTime: 0,
   duration: 0
 })
@@ -31,7 +33,7 @@ function formatTime(seconds: number) {
     <AoiSlider
       class="aoi-video-timeline__slider"
       :model-value="currentTime"
-      aria-label="播放进度"
+      :aria-label="ariaLabel"
       tone="inverse"
       compact
       :min="0"

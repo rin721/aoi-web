@@ -1,84 +1,169 @@
-<script setup lang="ts">
-import { useId } from "vue"
-import type { VideoDanmakuItem, VideoDanmakuMode, VideoSourceKind, VideoSourceOption } from "~/types/api"
+<script setup lang="ts" generic="T">
+import type { AoiDanmakuItem, AoiDanmakuMapper, AoiDanmakuMode } from "~/types/danmaku"
 import type { PlayerPlaybackRate } from "~/types/player"
+import type { VideoSourceKind, VideoSourceOption } from "~/types/api"
 import type { AoiVideoSourceEngineError } from "~/composables/useAoiVideoSourceEngine"
+import type { AoiDanmakuRuntimeSettings } from "~/utils/aoiDanmaku"
 import { inferAoiVideoSourceKind } from "~/composables/useAoiVideoSourceEngine"
+import { normalizeAoiDanmakuItems } from "~/utils/aoiDanmaku"
+
+type AoiDanmakuVideoPlayerErrorCode =
+  | "dash"
+  | "hls"
+  | "load"
+  | "noSource"
+  | "play"
+  | "sourceInit"
+  | "unsupportedFormat"
+  | "unsupportedHls"
 
 interface AoiDanmakuVideoPlayerError extends Omit<AoiVideoSourceEngineError, "source"> {
+  code: AoiDanmakuVideoPlayerErrorCode
   source?: VideoSourceOption
 }
 
-type AoiDanmakuComposerExpose = {
-  focus: () => void
+interface AoiDanmakuVideoPlayerState {
+  currentTime: number
+  duration: number
+  engineAttaching: boolean
+  error: AoiDanmakuVideoPlayerError | null
+  errorCode: AoiDanmakuVideoPlayerErrorCode | null
+  hasError: boolean
+  hasLoadedMetadata: boolean
+  isFullscreen: boolean
+  isLoading: boolean
+  isPlaying: boolean
+  canPlay: boolean
+  danmakuEnabled: boolean
+  muted: boolean
+  playbackRate: number
+  theaterMode: boolean
+  volume: number
+}
+
+interface AoiDanmakuVideoPlayerControls {
+  exitFullscreen: () => Promise<void> | void
+  pause: () => void
+  play: () => Promise<void> | void
+  reload: () => Promise<boolean> | void
+  requestFullscreen: () => Promise<void> | void
+  seekBy: (delta: number) => void
+  seekTo: (seconds: number) => void
+  selectSource: (id: string) => void
+  sendDanmaku: (payload: { body: string, color: string, mode: AoiDanmakuMode }) => void
+  setDanmakuEnabled: (value: boolean) => void
+  setMuted: (value: boolean) => void
+  setPlaybackRate: (value: number) => void
+  setTheaterMode: (value: boolean) => void
+  setVolume: (value: number) => void
+  toggleFullscreen: () => Promise<void> | void
+  togglePlay: () => Promise<void> | void
+}
+
+interface AoiDanmakuVideoPlayerSlotContext<TItem> {
+  controls: AoiDanmakuVideoPlayerControls
+  danmakuItems: AoiDanmakuItem[]
+  rawDanmakuItems: TItem[]
+  renderDanmakuItems: AoiDanmakuItem[]
+  selectedSource: VideoSourceOption | null
+  sources: VideoSourceOption[]
+  state: AoiDanmakuVideoPlayerState
 }
 
 const props = withDefaults(defineProps<{
+  ariaLabel?: string
   danmakuEnabled?: boolean
-  danmakuItems?: VideoDanmakuItem[]
-  durationSeconds: number
+  danmakuItems?: T[]
+  danmakuMapper?: AoiDanmakuMapper<T>
+  danmakuSettings?: Partial<AoiDanmakuRuntimeSettings>
+  durationSeconds?: number
   initialProgressSeconds?: number
-  panelDefaultOpen?: boolean
+  initialTimeSeconds?: number
+  keyboardShortcuts?: boolean
+  muted?: boolean
+  playbackRate?: PlayerPlaybackRate | number
   poster?: string
-  showDanmakuPanel?: boolean
+  preloadMargin?: string
+  selectedSourceId?: string
   sources?: VideoSourceOption[]
   src?: string
-  title: string
+  theaterMode?: boolean
+  title?: string
+  volume?: number
 }>(), {
+  ariaLabel: undefined,
   danmakuEnabled: true,
   danmakuItems: () => [],
-  initialProgressSeconds: 0,
-  panelDefaultOpen: false,
+  danmakuMapper: undefined,
+  danmakuSettings: () => ({}),
+  durationSeconds: 0,
+  initialProgressSeconds: undefined,
+  initialTimeSeconds: 0,
+  keyboardShortcuts: true,
+  muted: false,
+  playbackRate: 1,
   poster: undefined,
-  showDanmakuPanel: true,
+  preloadMargin: "200px 0px",
+  selectedSourceId: "",
   sources: () => [],
-  src: undefined
+  src: undefined,
+  theaterMode: false,
+  title: undefined,
+  volume: 0.8
 })
 
 const emit = defineEmits<{
   ended: []
   error: [error: AoiDanmakuVideoPlayerError]
+  "compose-request": []
+  "duration-change": [seconds: number]
   progress: [seconds: number]
   "play-state-change": [playing: boolean]
-  "send-danmaku": [payload: { body: string, color: string, mode: VideoDanmakuMode, timeSeconds: number }]
+  "send-danmaku": [payload: { body: string, color: string, mode: AoiDanmakuMode, timeSeconds: number }]
   "source-change": [source: VideoSourceOption]
   "time-change": [seconds: number]
+  "update:danmakuEnabled": [value: boolean]
+  "update:muted": [value: boolean]
+  "update:playbackRate": [value: number]
+  "update:selectedSourceId": [value: string]
+  "update:theaterMode": [value: boolean]
+  "update:volume": [value: number]
 }>()
 
-const { t } = useI18n()
-const appSettings = useAppSettingsStore()
-const playerSettings = usePlayerSettingsStore()
-const composerRef = ref<AoiDanmakuComposerExpose | null>(null)
+defineSlots<{
+  default?: (props: AoiDanmakuVideoPlayerSlotContext<T>) => unknown
+  composer?: (props: AoiDanmakuVideoPlayerSlotContext<T>) => unknown
+  controls?: (props: AoiDanmakuVideoPlayerSlotContext<T>) => unknown
+  overlay?: (props: AoiDanmakuVideoPlayerSlotContext<T>) => unknown
+  panel?: (props: AoiDanmakuVideoPlayerSlotContext<T>) => unknown
+}>()
+
 const rootRef = ref<HTMLElement | null>(null)
 const videoRef = ref<HTMLVideoElement | null>(null)
 const currentTime = ref(0)
 const duration = ref(props.durationSeconds)
-const errorKey = ref("")
-const hasError = ref(false)
+const errorState = shallowRef<AoiDanmakuVideoPlayerError | null>(null)
 const hasLoadedMetadata = ref(false)
 const hasViewportFallback = ref(false)
 const isFullscreen = ref(false)
 const isLoading = ref(false)
 const isPlaying = ref(false)
-const localDanmakuEnabled = ref(true)
-const panelOpen = ref(props.panelDefaultOpen)
 const pendingResumeTime = ref(0)
-const rateMenuOpen = ref(false)
-const selectedSourceId = ref("")
-const sourceMenuOpen = ref(false)
 const attachedSourceId = ref("")
 let lastProgressEmit = -1
 
-const sourceMenuAnchor = `${useId()}-source`
-const rateMenuAnchor = `${useId()}-rate`
 const viewport = useAoiInViewport(rootRef, {
   once: true,
-  rootMargin: "200px 0px",
+  rootMargin: props.preloadMargin,
   threshold: 0
 })
 const sourceEngine = useAoiVideoSourceEngine(videoRef)
 const engineAttaching = sourceEngine.attaching
-
+const initialTime = computed(() => Math.max(0, props.initialProgressSeconds ?? props.initialTimeSeconds ?? 0))
+const safeVolume = computed(() => clampNumber(props.volume, 0, 1, 0.8))
+const safePlaybackRate = computed(() => clampNumber(props.playbackRate, 0.25, 4, 1))
+const resolvedAriaLabel = computed(() => props.ariaLabel || (props.title ? `${props.title} player` : "Video player"))
+const normalizedDanmakuItems = computed(() => normalizeAoiDanmakuItems(props.danmakuItems, props.danmakuMapper))
 const normalizedSources = computed(() => {
   const explicitSources = props.sources
     .filter((source) => Boolean(source.src))
@@ -95,7 +180,7 @@ const normalizedSources = computed(() => {
   return [normalizeSource({
     id: "primary",
     kind: inferAoiVideoSourceKind(props.src),
-    label: t("player.sourceDefault"),
+    label: "Auto",
     src: props.src,
     isDefault: true
   }, 0)]
@@ -104,30 +189,69 @@ const sourceSignature = computed(() => normalizedSources.value
   .map((source) => `${source.id}:${source.kind}:${source.src}`)
   .join("|"))
 const selectedSource = computed(() => {
-  return normalizedSources.value.find((source) => source.id === selectedSourceId.value)
+  return normalizedSources.value.find((source) => source.id === props.selectedSourceId)
     || normalizedSources.value.find((source) => source.isDefault)
     || normalizedSources.value[0]
     || null
 })
 const shouldLoadMedia = computed(() => (viewport.hasIntersected.value || hasViewportFallback.value) && Boolean(selectedSource.value))
+const hasError = computed(() => Boolean(errorState.value))
 const canPlay = computed(() => Boolean(shouldLoadMedia.value && selectedSource.value && !hasError.value))
-const volumePercent = computed(() => Math.round(playerSettings.volume * 100))
-const danmakuAvailable = computed(() => props.danmakuEnabled && appSettings.danmakuEnabled)
-const effectiveDanmakuEnabled = computed(() => {
-  return danmakuAvailable.value && localDanmakuEnabled.value
-})
-const sourceMenuItems = computed(() => normalizedSources.value.map((source) => ({
-  icon: selectedSource.value?.id === source.id ? "check" : sourceIcon(source.kind),
-  label: sourceLabel(source),
-  value: source.id
-})))
-const rateMenuItems = computed(() => playerSettings.playbackRates.map((rate) => ({
-  icon: rate === playerSettings.playbackRate ? "check" : "gauge",
-  label: `${rate}x`,
-  value: String(rate)
-})))
-const selectedSourceLabel = computed(() => selectedSource.value ? sourceLabel(selectedSource.value) : t("player.sourceUnavailable"))
-const visibleErrorText = computed(() => errorKey.value ? t(errorKey.value) : t("player.errors.load"))
+const state = computed<AoiDanmakuVideoPlayerState>(() => ({
+  currentTime: currentTime.value,
+  duration: duration.value,
+  engineAttaching: engineAttaching.value,
+  error: errorState.value,
+  errorCode: errorState.value?.code || null,
+  hasError: hasError.value,
+  hasLoadedMetadata: hasLoadedMetadata.value,
+  isFullscreen: isFullscreen.value,
+  isLoading: isLoading.value,
+  isPlaying: isPlaying.value,
+  canPlay: canPlay.value,
+  danmakuEnabled: props.danmakuEnabled,
+  muted: props.muted,
+  playbackRate: safePlaybackRate.value,
+  theaterMode: props.theaterMode,
+  volume: safeVolume.value
+}))
+const controls: AoiDanmakuVideoPlayerControls = {
+  exitFullscreen,
+  pause,
+  play,
+  reload,
+  requestFullscreen,
+  seekBy,
+  seekTo,
+  selectSource,
+  sendDanmaku,
+  setDanmakuEnabled,
+  setMuted,
+  setPlaybackRate,
+  setTheaterMode,
+  setVolume,
+  toggleFullscreen,
+  togglePlay
+}
+const slotContext = computed<AoiDanmakuVideoPlayerSlotContext<T>>(() => ({
+  controls,
+  danmakuItems: normalizedDanmakuItems.value,
+  rawDanmakuItems: props.danmakuItems,
+  renderDanmakuItems: normalizedDanmakuItems.value,
+  selectedSource: selectedSource.value,
+  sources: normalizedSources.value,
+  state: state.value
+}))
+
+function clampNumber(value: unknown, min: number, max: number, fallback: number) {
+  const numberValue = Number(value)
+
+  if (!Number.isFinite(numberValue)) {
+    return fallback
+  }
+
+  return Math.min(max, Math.max(min, numberValue))
+}
 
 function normalizeSource(source: VideoSourceOption, index: number): VideoSourceOption {
   const kind = (source.kind || inferAoiVideoSourceKind(source.src, source.mimeType)) as VideoSourceKind
@@ -136,41 +260,29 @@ function normalizeSource(source: VideoSourceOption, index: number): VideoSourceO
     ...source,
     id: source.id || `source-${index + 1}`,
     kind,
-    label: source.label || source.qualityLabel || t("player.sourceDefault")
+    label: source.label || source.qualityLabel || "Auto"
   }
 }
 
-function sourceIcon(kind: VideoSourceKind) {
-  if (kind === "hls") {
-    return "radio-tower"
+function engineErrorCode(error: AoiVideoSourceEngineError): AoiDanmakuVideoPlayerErrorCode {
+  const map: Record<string, AoiDanmakuVideoPlayerErrorCode> = {
+    AOI_VIDEO_DASH_ERROR: "dash",
+    AOI_VIDEO_HLS_ERROR: "hls",
+    AOI_VIDEO_SOURCE_INIT_ERROR: "sourceInit",
+    AOI_VIDEO_UNSUPPORTED_FORMAT: "unsupportedFormat",
+    AOI_VIDEO_UNSUPPORTED_HLS: "unsupportedHls"
   }
 
-  if (kind === "dash") {
-    return "network"
-  }
-
-  return "film"
+  return map[error.message] || "load"
 }
 
-function sourceLabel(source: VideoSourceOption) {
-  const bits = [
-    source.qualityLabel || source.label,
-    source.bitrateKbps ? `${source.bitrateKbps} kbps` : ""
-  ].filter(Boolean)
-
-  return bits.join(" · ")
+function setError(error: AoiDanmakuVideoPlayerError) {
+  errorState.value = error
+  emit("error", error)
 }
 
-function engineErrorKey(error: AoiVideoSourceEngineError) {
-  const map: Record<string, string> = {
-    AOI_VIDEO_DASH_ERROR: "player.errors.dash",
-    AOI_VIDEO_HLS_ERROR: "player.errors.hls",
-    AOI_VIDEO_SOURCE_INIT_ERROR: "player.errors.sourceInit",
-    AOI_VIDEO_UNSUPPORTED_FORMAT: "player.errors.unsupportedFormat",
-    AOI_VIDEO_UNSUPPORTED_HLS: "player.errors.unsupportedHls"
-  }
-
-  return map[error.message] || "player.errors.load"
+function clearError() {
+  errorState.value = null
 }
 
 function emitProgress(force = false) {
@@ -189,17 +301,20 @@ function applyMediaSettings() {
     return
   }
 
-  video.muted = playerSettings.muted
-  video.playbackRate = playerSettings.playbackRate
-  video.volume = playerSettings.volume
+  video.muted = props.muted
+  video.playbackRate = safePlaybackRate.value
+  video.volume = safeVolume.value
 }
 
 function resetPlaybackState() {
   currentTime.value = 0
   duration.value = props.durationSeconds
   hasLoadedMetadata.value = false
+  isLoading.value = false
+  isPlaying.value = false
   lastProgressEmit = -1
-  pendingResumeTime.value = Math.max(0, props.initialProgressSeconds)
+  pendingResumeTime.value = initialTime.value
+  clearError()
 }
 
 function refreshViewportFallback() {
@@ -213,7 +328,7 @@ function refreshViewportFallback() {
     return
   }
 
-  const preloadMargin = 200
+  const preloadMargin = Number.parseFloat(props.preloadMargin) || 200
   const rect = root.getBoundingClientRect()
 
   if (rect.bottom >= -preloadMargin && rect.top <= window.innerHeight + preloadMargin) {
@@ -222,27 +337,33 @@ function refreshViewportFallback() {
 }
 
 function onEngineError(error: AoiVideoSourceEngineError) {
-  hasError.value = true
   isLoading.value = false
-  errorKey.value = engineErrorKey(error)
-  emit("error", error)
+  setError({
+    ...error,
+    code: engineErrorCode(error)
+  })
 }
 
 async function attachSelectedSource(options: { autoplay?: boolean, keepTime?: boolean } = {}) {
   const source = selectedSource.value
 
   if (!source || !shouldLoadMedia.value) {
-    hasError.value = !source
-    errorKey.value = source ? "" : "player.errors.noSource"
+    if (!source) {
+      setError({
+        code: "noSource",
+        fatal: true,
+        message: "AOI_VIDEO_NO_SOURCE"
+      })
+    }
+
     return false
   }
 
-  const resumeAt = options.keepTime ? currentTime.value : props.initialProgressSeconds
+  const resumeAt = options.keepTime ? currentTime.value : initialTime.value
 
-  hasError.value = false
+  clearError()
   hasLoadedMetadata.value = false
   isLoading.value = true
-  errorKey.value = ""
   pendingResumeTime.value = Math.max(0, resumeAt)
 
   const attached = await sourceEngine.attachSource(source, {
@@ -252,7 +373,6 @@ async function attachSelectedSource(options: { autoplay?: boolean, keepTime?: bo
   })
 
   if (!attached) {
-    hasError.value = true
     isLoading.value = false
     return false
   }
@@ -264,14 +384,19 @@ async function attachSelectedSource(options: { autoplay?: boolean, keepTime?: bo
   return true
 }
 
+async function reload() {
+  return attachSelectedSource({ keepTime: true })
+}
+
 async function play() {
   const video = videoRef.value
+  const source = selectedSource.value
 
-  if (!video || !selectedSource.value) {
+  if (!video || !source) {
     return
   }
 
-  if (attachedSourceId.value !== selectedSource.value.id) {
+  if (attachedSourceId.value !== source.id) {
     await attachSelectedSource({ autoplay: true, keepTime: true })
     return
   }
@@ -284,13 +409,12 @@ async function play() {
     await video.play()
   } catch (cause) {
     if (video.error) {
-      hasError.value = true
-      errorKey.value = "player.errors.load"
-      emit("error", {
+      setError({
         cause,
+        code: "play",
         fatal: true,
         message: "AOI_VIDEO_PLAY_ERROR",
-        source: selectedSource.value
+        source
       })
     }
   }
@@ -319,6 +443,7 @@ function onLoadedMetadata() {
   }
 
   duration.value = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : props.durationSeconds
+  emit("duration-change", duration.value)
   applyMediaSettings()
 
   const resumeAt = Math.min(pendingResumeTime.value, Math.max(0, duration.value - 0.5))
@@ -362,17 +487,16 @@ function onEnded() {
   isPlaying.value = false
   currentTime.value = duration.value
   emit("time-change", duration.value)
-  emit("progress", props.durationSeconds)
+  emit("progress", Math.floor(duration.value))
   emit("ended")
   emit("play-state-change", false)
 }
 
 function onError() {
-  hasError.value = true
   isLoading.value = false
-  errorKey.value = "player.errors.load"
-  emit("error", {
+  setError({
     cause: videoRef.value?.error,
+    code: "load",
     fatal: true,
     message: "AOI_VIDEO_LOAD_ERROR",
     source: selectedSource.value || undefined
@@ -388,10 +512,6 @@ function onWaiting() {
 function onCanPlay() {
   isLoading.value = false
   applyMediaSettings()
-}
-
-function retryLoad() {
-  void attachSelectedSource({ keepTime: true })
 }
 
 function seekTo(value: number) {
@@ -412,33 +532,24 @@ function seekBy(delta: number) {
   seekTo(currentTime.value + delta)
 }
 
-function setVolumePercent(value: number) {
-  playerSettings.setVolume(value / 100)
+function setVolume(value: number) {
+  emit("update:volume", clampNumber(value, 0, 1, safeVolume.value))
 }
 
-function selectPlaybackRate(value: string) {
-  playerSettings.setPlaybackRate(Number(value) as PlayerPlaybackRate)
-  rateMenuOpen.value = false
+function setPlaybackRate(value: number) {
+  emit("update:playbackRate", clampNumber(value, 0.25, 4, safePlaybackRate.value))
 }
 
-function toggleMuted() {
-  playerSettings.setMuted(!playerSettings.muted)
+function setMuted(value: boolean) {
+  emit("update:muted", value)
 }
 
-function toggleTheaterMode() {
-  playerSettings.setTheaterMode(!playerSettings.theaterMode)
+function setTheaterMode(value: boolean) {
+  emit("update:theaterMode", value)
 }
 
-function toggleDanmaku() {
-  if (!danmakuAvailable.value) {
-    return
-  }
-
-  localDanmakuEnabled.value = !localDanmakuEnabled.value
-}
-
-function togglePanel() {
-  panelOpen.value = !panelOpen.value
+function setDanmakuEnabled(value: boolean) {
+  emit("update:danmakuEnabled", value)
 }
 
 async function requestFullscreen() {
@@ -451,13 +562,19 @@ async function requestFullscreen() {
   await root.requestFullscreen?.()
 }
 
+async function exitFullscreen() {
+  if (import.meta.client && document.fullscreenElement) {
+    await document.exitFullscreen()
+  }
+}
+
 async function toggleFullscreen() {
   if (!import.meta.client) {
     return
   }
 
   if (document.fullscreenElement) {
-    await document.exitFullscreen()
+    await exitFullscreen()
     return
   }
 
@@ -465,18 +582,16 @@ async function toggleFullscreen() {
 }
 
 function selectSource(id: string) {
-  if (selectedSourceId.value === id) {
-    sourceMenuOpen.value = false
+  if (selectedSource.value?.id === id) {
     return
   }
 
   const wasPlaying = isPlaying.value
-  selectedSourceId.value = id
-  sourceMenuOpen.value = false
+  emit("update:selectedSourceId", id)
   void nextTick(() => attachSelectedSource({ autoplay: wasPlaying, keepTime: true }))
 }
 
-function sendDanmaku(payload: { body: string, color: string, mode: VideoDanmakuMode }) {
+function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMode }) {
   emit("send-danmaku", {
     ...payload,
     timeSeconds: currentTime.value
@@ -488,6 +603,10 @@ function onFullscreenChange() {
 }
 
 function onKeydown(event: KeyboardEvent) {
+  if (!props.keyboardShortcuts) {
+    return
+  }
+
   const target = event.target
 
   if (target instanceof HTMLElement && target.closest(".aoi-danmaku-composer")) {
@@ -502,7 +621,7 @@ function onKeydown(event: KeyboardEvent) {
 
   if (key === "enter") {
     event.preventDefault()
-    composerRef.value?.focus()
+    emit("compose-request")
   } else if (key === " ") {
     event.preventDefault()
     void togglePlay()
@@ -514,49 +633,60 @@ function onKeydown(event: KeyboardEvent) {
     seekBy(-5)
   } else if (key === "arrowup") {
     event.preventDefault()
-    playerSettings.setVolume(playerSettings.volume + 0.05)
+    setVolume(safeVolume.value + 0.05)
   } else if (key === "arrowdown") {
     event.preventDefault()
-    playerSettings.setVolume(playerSettings.volume - 0.05)
+    setVolume(safeVolume.value - 0.05)
   } else if (key === "m") {
     event.preventDefault()
-    toggleMuted()
+    setMuted(!props.muted)
   } else if (key === "f") {
     event.preventDefault()
     void toggleFullscreen()
   } else if (key === "d") {
     event.preventDefault()
-    toggleDanmaku()
+    setDanmakuEnabled(!props.danmakuEnabled)
   } else if (key === "t") {
     event.preventDefault()
-    toggleTheaterMode()
+    setTheaterMode(!props.theaterMode)
   }
 }
 
 watch([
-  () => playerSettings.muted,
-  () => playerSettings.playbackRate,
-  () => playerSettings.volume
+  () => props.muted,
+  safePlaybackRate,
+  safeVolume
 ], applyMediaSettings)
 
 watch(sourceSignature, () => {
-  const nextSource = normalizedSources.value.find((source) => source.isDefault) || normalizedSources.value[0]
+  const nextSource = selectedSource.value
 
-  selectedSourceId.value = nextSource?.id || ""
   attachedSourceId.value = ""
   sourceEngine.destroy()
   resetPlaybackState()
 
-  if (shouldLoadMedia.value) {
-    void nextTick(() => attachSelectedSource())
+  if (nextSource && props.selectedSourceId !== nextSource.id) {
+    emit("update:selectedSourceId", nextSource.id)
   }
 }, {
   immediate: true
 })
 
-watch(shouldLoadMedia, (ready) => {
-  if (ready && selectedSource.value && attachedSourceId.value !== selectedSource.value.id) {
-    void nextTick(() => attachSelectedSource())
+watch([
+  shouldLoadMedia,
+  () => selectedSource.value?.id || ""
+], ([ready, id], [, oldId]) => {
+  if (ready && id && attachedSourceId.value !== id) {
+    void nextTick(() => attachSelectedSource({
+      autoplay: isPlaying.value && Boolean(oldId),
+      keepTime: Boolean(oldId)
+    }))
+  } else if (ready && !id) {
+    setError({
+      code: "noSource",
+      fatal: true,
+      message: "AOI_VIDEO_NO_SOURCE"
+    })
   }
 }, {
   immediate: true
@@ -564,6 +694,7 @@ watch(shouldLoadMedia, (ready) => {
 
 watch(() => props.durationSeconds, (value) => {
   duration.value = value
+  emit("duration-change", value)
 })
 
 onMounted(() => {
@@ -579,12 +710,15 @@ onBeforeUnmount(() => {
 })
 
 defineExpose({
+  exitFullscreen,
   pause,
   play,
+  reload,
   requestFullscreen,
   seekBy,
   seekTo,
   selectSource,
+  toggleFullscreen,
   togglePlay
 })
 </script>
@@ -593,8 +727,8 @@ defineExpose({
   <section
     ref="rootRef"
     class="aoi-danmaku-video-player"
-    :class="{ 'aoi-danmaku-video-player--theater': playerSettings.theaterMode }"
-    :aria-label="t('player.ariaLabel', { title })"
+    :class="{ 'aoi-danmaku-video-player--theater': theaterMode }"
+    :aria-label="resolvedAriaLabel"
     tabindex="0"
     @keydown="onKeydown"
   >
@@ -617,170 +751,29 @@ defineExpose({
       />
 
       <AoiDanmakuLayer
-        v-if="effectiveDanmakuEnabled"
+        v-if="danmakuEnabled"
         :current-time="currentTime"
         :duration-seconds="duration"
-        :items="danmakuItems"
+        :items="normalizedDanmakuItems"
         :playing="isPlaying"
+        :settings="danmakuSettings"
       />
 
-      <div v-if="(isLoading || engineAttaching) && !hasError" class="aoi-danmaku-video-player__overlay" @click.stop>
-        <AoiProgress indeterminate />
-        <span>{{ t("player.loading") }}</span>
-      </div>
+      <slot v-bind="slotContext" />
+      <slot name="overlay" v-bind="slotContext" />
 
-      <div v-else-if="hasError || !selectedSource" class="aoi-danmaku-video-player__overlay" @click.stop>
-        <AoiIcon name="video-off" :size="32" decorative />
-        <span>{{ visibleErrorText }}</span>
-        <AoiButton variant="tonal" size="sm" icon="refresh-cw" @click="retryLoad">
-          {{ t("player.retry") }}
-        </AoiButton>
-      </div>
-
-      <AoiMediaOverlayButton
-        v-else-if="!isPlaying"
-        :icon="isPlaying ? 'pause' : 'play'"
-        :label="isPlaying ? t('player.pause') : t('player.play')"
-      />
-
-      <div class="aoi-danmaku-video-player__controls" :class="{ 'aoi-danmaku-video-player__controls--visible': !isPlaying }" @click.stop>
-        <AoiVideoTimeline
-          :current-time="currentTime"
-          :duration="duration"
-          @seek="seekTo"
-        />
-
-        <div class="aoi-danmaku-video-player__toolbar" :aria-label="t('player.controls')">
-          <AoiIconButton
-            :icon="isPlaying ? 'pause' : 'play'"
-            :label="isPlaying ? t('player.pause') : t('player.play')"
-            size="sm"
-            variant="tonal"
-            @click="togglePlay"
-          />
-
-          <AoiIconButton
-            :active="playerSettings.muted"
-            :icon="playerSettings.muted || volumePercent === 0 ? 'volume-x' : 'volume-2'"
-            :label="playerSettings.muted ? t('player.unmute') : t('player.mute')"
-            size="sm"
-            @click="toggleMuted"
-          />
-
-          <div class="aoi-danmaku-video-player__volume">
-            <AoiSlider
-              :model-value="volumePercent"
-              :aria-label="t('player.volume')"
-              tone="inverse"
-              compact
-              :min="0"
-              :max="100"
-              :step="1"
-              @update:model-value="setVolumePercent"
-            />
-          </div>
-
-          <span class="aoi-danmaku-video-player__spacer" aria-hidden="true" />
-
-          <span :id="sourceMenuAnchor" class="aoi-danmaku-video-player__anchor aoi-danmaku-video-player__anchor--source">
-            <AoiButton
-              class="aoi-danmaku-video-player__menu-button"
-              variant="tonal"
-              size="sm"
-              icon="sliders-horizontal"
-              :aria-label="t('player.source')"
-              :disabled="normalizedSources.length <= 1"
-              @click="sourceMenuOpen = true"
-            >
-              {{ selectedSourceLabel }}
-            </AoiButton>
-          </span>
-
-          <span :id="rateMenuAnchor" class="aoi-danmaku-video-player__anchor aoi-danmaku-video-player__anchor--rate">
-            <AoiButton
-              class="aoi-danmaku-video-player__menu-button aoi-danmaku-video-player__rate-button"
-              variant="tonal"
-              size="sm"
-              icon="gauge"
-              :aria-label="t('player.rate')"
-              @click="rateMenuOpen = true"
-            >
-              {{ playerSettings.playbackRate }}x
-            </AoiButton>
-          </span>
-
-          <AoiIconButton
-            icon="message-square-text"
-            :label="effectiveDanmakuEnabled ? t('player.hideDanmaku') : t('player.showDanmaku')"
-            :active="effectiveDanmakuEnabled"
-            :variant="effectiveDanmakuEnabled ? 'tonal' : 'standard'"
-            size="sm"
-            @click="toggleDanmaku"
-          />
-
-          <AoiIconButton
-            v-if="showDanmakuPanel"
-            :icon="panelOpen ? 'panel-right-close' : 'panel-right-open'"
-            :label="panelOpen ? t('player.hidePanel') : t('player.showPanel')"
-            :active="panelOpen"
-            :variant="panelOpen ? 'tonal' : 'standard'"
-            size="sm"
-            @click="togglePanel"
-          />
-
-          <AoiIconButton
-            icon="panel-top"
-            :label="t('player.theater')"
-            :active="playerSettings.theaterMode"
-            :variant="playerSettings.theaterMode ? 'tonal' : 'standard'"
-            size="sm"
-            @click="toggleTheaterMode"
-          />
-
-          <AoiIconButton
-            :icon="isFullscreen ? 'minimize' : 'maximize'"
-            :label="isFullscreen ? t('player.exitFullscreen') : t('player.fullscreen')"
-            size="sm"
-            @click="toggleFullscreen"
-          />
-        </div>
+      <div
+        v-if="$slots.controls"
+        class="aoi-danmaku-video-player__controls"
+        :class="{ 'aoi-danmaku-video-player__controls--visible': !isPlaying }"
+        @click.stop
+      >
+        <slot name="controls" v-bind="slotContext" />
       </div>
     </div>
 
-    <AoiDanmakuComposer
-      ref="composerRef"
-      class="aoi-danmaku-video-player__composer"
-      :count="danmakuItems.length"
-      :disabled="!danmakuAvailable"
-      :enabled="effectiveDanmakuEnabled"
-      :playing="isPlaying"
-      @submit="sendDanmaku"
-      @toggle-enabled="toggleDanmaku"
-    />
-
-    <AoiDanmakuPanel
-      v-if="showDanmakuPanel && panelOpen"
-      class="aoi-danmaku-video-player__panel"
-      :current-time="currentTime"
-      :items="danmakuItems"
-      @seek="seekTo"
-    />
-
-    <AoiMenu
-      v-model:open="sourceMenuOpen"
-      :anchor="sourceMenuAnchor"
-      :items="sourceMenuItems"
-      positioning="popover"
-      @select="selectSource"
-    />
-
-    <AoiMenu
-      v-model:open="rateMenuOpen"
-      :anchor="rateMenuAnchor"
-      :items="rateMenuItems"
-      positioning="popover"
-      @select="selectPlaybackRate"
-    />
+    <slot name="composer" v-bind="slotContext" />
+    <slot name="panel" v-bind="slotContext" />
   </section>
 </template>
 
@@ -842,7 +835,7 @@ defineExpose({
   backdrop-filter: blur(8px);
 }
 
-.aoi-danmaku-video-player__overlay {
+.aoi-danmaku-video-player__screen :deep(.aoi-danmaku-video-player__overlay) {
   position: absolute;
   inset: 0;
   z-index: 6;
@@ -881,14 +874,14 @@ defineExpose({
   transform: translate3d(0, 0, 0);
 }
 
-.aoi-danmaku-video-player__toolbar {
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar) {
   display: flex;
   min-width: 0;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
 }
 
-.aoi-danmaku-video-player__toolbar :deep(.aoi-icon-button) {
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar .aoi-icon-button) {
   --md-icon-button-icon-color: rgba(255, 255, 255, .92);
   --md-icon-button-hover-icon-color: #fff;
   --md-icon-button-pressed-icon-color: var(--aoi-player-accent);
@@ -896,50 +889,50 @@ defineExpose({
   --md-filled-tonal-icon-button-icon-color: #fff;
 }
 
-.aoi-danmaku-video-player__volume {
-  width: 110px;
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume) {
+  width: 96px;
 }
 
-.aoi-danmaku-video-player__volume :deep(.aoi-slider) {
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume .aoi-slider) {
   --md-slider-active-track-color: var(--aoi-player-accent);
   --md-slider-handle-color: #fff;
   --md-slider-inactive-track-color: rgba(255, 255, 255, .24);
 }
 
-.aoi-danmaku-video-player__spacer {
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__spacer) {
   flex: 1 1 auto;
   min-width: 8px;
 }
 
-.aoi-danmaku-video-player__anchor {
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__anchor) {
   display: inline-flex;
   min-width: 0;
 }
 
-.aoi-danmaku-video-player__menu-button {
-  max-width: 150px;
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__menu-button) {
+  max-width: 132px;
   --md-filled-tonal-button-container-color: rgba(255, 255, 255, .14);
   --md-filled-tonal-button-hover-state-layer-color: #fff;
   --md-filled-tonal-button-label-text-color: #fff;
   --md-filled-tonal-button-icon-color: #fff;
 }
 
-.aoi-danmaku-video-player__menu-button :deep(.aoi-button) {
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__menu-button .aoi-button) {
   max-width: 100%;
 }
 
-.aoi-danmaku-video-player__rate-button {
-  min-width: 74px;
+.aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__rate-button) {
+  min-width: 64px;
 }
 
-.aoi-danmaku-video-player__panel {
+.aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__panel) {
   border-radius: 0;
   border-inline: 0;
   border-bottom: 0;
   box-shadow: none;
 }
 
-.aoi-danmaku-video-player__composer {
+.aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__composer) {
   color: #18191c;
 }
 
@@ -960,25 +953,25 @@ defineExpose({
   position: absolute;
 }
 
-.aoi-danmaku-video-player:fullscreen .aoi-danmaku-video-player__panel {
+.aoi-danmaku-video-player:fullscreen :deep(.aoi-danmaku-video-player__panel) {
   max-height: 34vh;
   overflow: auto;
 }
 
 @container (max-width: 760px) {
-  .aoi-danmaku-video-player__toolbar {
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar) {
     gap: 4px;
   }
 
-  .aoi-danmaku-video-player__volume {
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume) {
     display: none;
   }
 
-  .aoi-danmaku-video-player__menu-button {
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__menu-button) {
     max-width: 96px;
   }
 
-  .aoi-danmaku-video-player__anchor--source {
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__anchor--source) {
     display: none;
   }
 }
@@ -991,21 +984,28 @@ defineExpose({
   .aoi-danmaku-video-player__controls {
     gap: 5px;
     opacity: 1;
-    padding: 26px 8px 8px;
+    padding: 26px 6px 8px;
     pointer-events: auto;
     transform: none;
   }
 
-  .aoi-danmaku-video-player__toolbar {
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar) {
+    gap: 2px;
     overflow: hidden;
   }
 
-  .aoi-danmaku-video-player__spacer {
-    min-width: 0;
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__toolbar .aoi-icon-button) {
+    --aoi-icon-button-size: 36px;
+    width: 36px;
+    height: 36px;
   }
 
-  .aoi-danmaku-video-player__rate-button {
-    min-width: 52px;
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__spacer) {
+    display: none;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__rate-button) {
+    min-width: 48px;
   }
 }
 

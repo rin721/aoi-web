@@ -30,7 +30,7 @@ const lightboxItems = computed<AoiLightboxItem[]>(() => [
   {
     id: "aoi-sample-video",
     type: "video",
-    src: "/media/taffty.mp4",
+    src: "https://r2-store.kobayashi.eu.org/aoi/video/1e32a269-bde5-4eb6-9c7e-c35add52b482.mp4",
     posterSrc: "gradient:aoi-lightbox-video",
     thumbnailSrc: "gradient:aoi-lightbox-video-thumb",
     alt: t("settings.experimental.lightbox.items.video.alt"),

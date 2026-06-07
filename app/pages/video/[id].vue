@@ -1,15 +1,37 @@
 <script setup lang="ts">
+import { useId } from "vue"
 import type { CommentSortMode } from "~/types/comments"
-import type { VideoDanmakuMode } from "~/types/api"
+import type { AoiDanmakuMapper, AoiDanmakuMode } from "~/types/danmaku"
+import type { PlayerPlaybackRate } from "~/types/player"
+import type { VideoDanmakuItem, VideoSourceKind, VideoSourceOption } from "~/types/api"
+import type { AoiDanmakuRuntimeSettings } from "~/utils/aoiDanmaku"
+
+type DanmakuComposerExpose = {
+  focus: () => void
+}
+
+type PlayerSourceControls = {
+  selectSource: (id: string) => void
+}
 
 const route = useRoute()
 const api = useAoiApi()
 const settings = useAppSettingsStore()
+const playerSettings = usePlayerSettingsStore()
 const library = useLibraryStore()
 const comments = useCommentsStore()
 const danmaku = useDanmakuStore()
+const { t } = useI18n()
 const id = computed(() => String(route.params.id || ""))
 const commentSortMode = ref<CommentSortMode>("newest")
+const composerRef = ref<DanmakuComposerExpose | null>(null)
+const localDanmakuEnabled = ref(true)
+const panelOpen = ref(false)
+const rateMenuOpen = ref(false)
+const selectedSourceId = ref("")
+const sourceMenuOpen = ref(false)
+const sourceMenuAnchor = `${useId()}-source`
+const rateMenuAnchor = `${useId()}-rate`
 
 const { data: watchPayload, error, pending, refresh } = useAsyncData(() => `video-watch-${id.value}`, async () => {
   const video = await api.getVideoDetail(id.value)
@@ -66,12 +88,136 @@ const commentAuthorName = computed({
 })
 const primaryQueue = computed(() => video.value?.related.slice(0, 1) || [])
 const relatedQueue = computed(() => video.value?.related.slice(1) || [])
+const danmakuAvailable = computed(() => settings.danmakuEnabled)
+const playerDanmakuEnabled = computed(() => danmakuAvailable.value && localDanmakuEnabled.value)
+const danmakuRuntimeSettings = computed<Partial<AoiDanmakuRuntimeSettings>>(() => ({
+  blocklist: settings.danmakuBlocklist,
+  bottomModeEnabled: settings.danmakuBottomModeEnabled,
+  enabled: playerDanmakuEnabled.value,
+  fontScale: settings.danmakuFontScale,
+  opacity: settings.danmakuOpacity,
+  scrollModeEnabled: settings.danmakuScrollModeEnabled,
+  speed: settings.danmakuSpeed,
+  topModeEnabled: settings.danmakuTopModeEnabled,
+  visibleArea: settings.danmakuVisibleArea
+}))
+const rateMenuItems = computed(() => playerSettings.playbackRates.map((rate) => ({
+  icon: rate === playerSettings.playbackRate ? "check" : "gauge",
+  label: `${rate}x`,
+  value: String(rate)
+})))
+const danmakuMapper: AoiDanmakuMapper<VideoDanmakuItem> = (item) => ({
+  id: item.id,
+  body: item.body,
+  timeSeconds: item.timeSeconds,
+  mode: item.mode,
+  color: item.color,
+  authorName: item.authorName,
+  createdAt: item.createdAt
+})
 
 watch([video, () => library.hydrated], ([current, hydrated]) => {
   if (import.meta.client && hydrated && current && !settings.disableWatchHistory) {
     library.recordView(current)
   }
 }, { immediate: true })
+
+watch(video, (current) => {
+  selectedSourceId.value = current ? defaultSourceId(current.sources, current.sourceUrl) : ""
+  localDanmakuEnabled.value = true
+  panelOpen.value = false
+}, { immediate: true })
+
+function defaultSourceId(sources: VideoSourceOption[] | undefined, fallbackSrc: string) {
+  const explicitSources = (sources || []).filter((source) => Boolean(source.src))
+
+  if (explicitSources.length) {
+    const defaultIndex = explicitSources.findIndex((source) => source.isDefault)
+    const index = defaultIndex >= 0 ? defaultIndex : 0
+    const source = explicitSources[index]
+
+    return source?.id || `source-${index + 1}`
+  }
+
+  return fallbackSrc ? "primary" : ""
+}
+
+function sourceIcon(kind: VideoSourceKind) {
+  if (kind === "hls") {
+    return "radio-tower"
+  }
+
+  if (kind === "dash") {
+    return "network"
+  }
+
+  return "film"
+}
+
+function sourceDisplayLabel(source: VideoSourceOption | null) {
+  if (!source) {
+    return t("player.sourceUnavailable")
+  }
+
+  const primary = source.qualityLabel || (source.label === "Auto" ? t("player.sourceDefault") : source.label)
+  const bits = [
+    primary,
+    source.bitrateKbps ? `${source.bitrateKbps} kbps` : ""
+  ].filter(Boolean)
+
+  return bits.join(" / ")
+}
+
+function sourceMenuItems(sources: VideoSourceOption[], selectedSource: VideoSourceOption | null) {
+  return sources.map((source) => ({
+    icon: selectedSource?.id === source.id ? "check" : sourceIcon(source.kind),
+    label: sourceDisplayLabel(source),
+    value: source.id
+  }))
+}
+
+function playerErrorText(code: string | null | undefined) {
+  const map: Record<string, string> = {
+    dash: "player.errors.dash",
+    hls: "player.errors.hls",
+    load: "player.errors.load",
+    noSource: "player.errors.noSource",
+    play: "player.errors.load",
+    sourceInit: "player.errors.sourceInit",
+    unsupportedFormat: "player.errors.unsupportedFormat",
+    unsupportedHls: "player.errors.unsupportedHls"
+  }
+
+  return t(map[code || ""] || "player.errors.load")
+}
+
+function selectPlayerSource(controls: PlayerSourceControls, sourceId: string) {
+  controls.selectSource(sourceId)
+  sourceMenuOpen.value = false
+}
+
+function setPlayerPlaybackRate(value: number) {
+  playerSettings.setPlaybackRate(value as PlayerPlaybackRate)
+}
+
+function selectPlaybackRate(value: string) {
+  setPlayerPlaybackRate(Number(value))
+  rateMenuOpen.value = false
+}
+
+function setVolumePercent(value: number) {
+  playerSettings.setVolume(value / 100)
+}
+
+function updateLocalDanmakuEnabled(value: boolean) {
+  if (danmakuAvailable.value) {
+    localDanmakuEnabled.value = value
+  }
+}
+
+function focusDanmakuComposer() {
+  composerRef.value?.focus()
+}
 
 function onPlayerProgress(seconds: number) {
   if (video.value && library.hydrated && !settings.disableWatchHistory) {
@@ -88,7 +234,7 @@ function onPlayerEnded() {
 function submitDanmaku(payload: {
   body: string
   color: string
-  mode: VideoDanmakuMode
+  mode: AoiDanmakuMode
   timeSeconds: number
 }) {
   if (video.value) {
@@ -164,14 +310,193 @@ useHead(() => ({
             :sources="video.sources"
             :title="video.title"
             :duration-seconds="video.durationSeconds"
-            :initial-progress-seconds="initialProgressSeconds"
+            :initial-time-seconds="initialProgressSeconds"
+            :selected-source-id="selectedSourceId"
+            :muted="playerSettings.muted"
+            :volume="playerSettings.volume"
+            :playback-rate="playerSettings.playbackRate"
+            :theater-mode="playerSettings.theaterMode"
             :danmaku-items="mergedDanmakuItems"
-            :danmaku-enabled="settings.danmakuEnabled"
-            show-danmaku-panel
+            :danmaku-mapper="danmakuMapper"
+            :danmaku-enabled="playerDanmakuEnabled"
+            :danmaku-settings="danmakuRuntimeSettings"
+            @compose-request="focusDanmakuComposer"
             @ended="onPlayerEnded"
             @progress="onPlayerProgress"
             @send-danmaku="submitDanmaku"
-          />
+            @update:danmaku-enabled="updateLocalDanmakuEnabled"
+            @update:muted="playerSettings.setMuted"
+            @update:playback-rate="setPlayerPlaybackRate"
+            @update:selected-source-id="selectedSourceId = $event"
+            @update:theater-mode="playerSettings.setTheaterMode"
+            @update:volume="playerSettings.setVolume"
+          >
+            <template #overlay="{ state, selectedSource, controls }">
+              <div v-if="(state.isLoading || state.engineAttaching) && !state.hasError" class="aoi-danmaku-video-player__overlay" @click.stop>
+                <AoiProgress indeterminate />
+                <span>{{ t("player.loading") }}</span>
+              </div>
+
+              <div v-else-if="state.hasError || !selectedSource" class="aoi-danmaku-video-player__overlay" @click.stop>
+                <AoiIcon name="video-off" :size="32" decorative />
+                <span>{{ playerErrorText(state.errorCode) }}</span>
+                <AoiButton variant="tonal" size="sm" icon="refresh-cw" @click="controls.reload">
+                  {{ t("player.retry") }}
+                </AoiButton>
+              </div>
+
+              <AoiMediaOverlayButton
+                v-else-if="!state.isPlaying"
+                :icon="state.isPlaying ? 'pause' : 'play'"
+                :label="state.isPlaying ? t('player.pause') : t('player.play')"
+                @click.stop="controls.togglePlay"
+              />
+            </template>
+
+            <template #controls="{ state, sources, selectedSource, controls }">
+              <AoiVideoTimeline
+                :current-time="state.currentTime"
+                :duration="state.duration"
+                :aria-label="t('player.controls')"
+                @seek="controls.seekTo"
+              />
+
+              <div class="aoi-danmaku-video-player__toolbar" :aria-label="t('player.controls')">
+                <AoiIconButton
+                  :icon="state.isPlaying ? 'pause' : 'play'"
+                  :label="state.isPlaying ? t('player.pause') : t('player.play')"
+                  size="sm"
+                  variant="tonal"
+                  @click="controls.togglePlay"
+                />
+
+                <AoiIconButton
+                  :active="state.muted"
+                  :icon="state.muted || Math.round(state.volume * 100) === 0 ? 'volume-x' : 'volume-2'"
+                  :label="state.muted ? t('player.unmute') : t('player.mute')"
+                  size="sm"
+                  @click="controls.setMuted(!state.muted)"
+                />
+
+                <div class="aoi-danmaku-video-player__volume">
+                  <AoiSlider
+                    :model-value="Math.round(state.volume * 100)"
+                    :aria-label="t('player.volume')"
+                    tone="inverse"
+                    compact
+                    :min="0"
+                    :max="100"
+                    :step="1"
+                    @update:model-value="setVolumePercent"
+                  />
+                </div>
+
+                <span class="aoi-danmaku-video-player__spacer" aria-hidden="true" />
+
+                <span :id="sourceMenuAnchor" class="aoi-danmaku-video-player__anchor aoi-danmaku-video-player__anchor--source">
+                  <AoiButton
+                    class="aoi-danmaku-video-player__menu-button"
+                    variant="tonal"
+                    size="sm"
+                    icon="sliders-horizontal"
+                    :aria-label="t('player.source')"
+                    :disabled="sources.length <= 1"
+                    @click="sourceMenuOpen = true"
+                  >
+                    {{ sourceDisplayLabel(selectedSource) }}
+                  </AoiButton>
+                </span>
+
+                <span :id="rateMenuAnchor" class="aoi-danmaku-video-player__anchor aoi-danmaku-video-player__anchor--rate">
+                  <AoiButton
+                    class="aoi-danmaku-video-player__menu-button aoi-danmaku-video-player__rate-button"
+                    variant="tonal"
+                    size="sm"
+                    icon="gauge"
+                    :aria-label="t('player.rate')"
+                    @click="rateMenuOpen = true"
+                  >
+                    {{ state.playbackRate }}x
+                  </AoiButton>
+                </span>
+
+                <AoiIconButton
+                  icon="message-square-text"
+                  :label="state.danmakuEnabled ? t('player.hideDanmaku') : t('player.showDanmaku')"
+                  :active="state.danmakuEnabled"
+                  :disabled="!danmakuAvailable"
+                  :variant="state.danmakuEnabled ? 'tonal' : 'standard'"
+                  size="sm"
+                  @click="controls.setDanmakuEnabled(!state.danmakuEnabled)"
+                />
+
+                <AoiIconButton
+                  :icon="panelOpen ? 'panel-right-close' : 'panel-right-open'"
+                  :label="panelOpen ? t('player.hidePanel') : t('player.showPanel')"
+                  :active="panelOpen"
+                  :variant="panelOpen ? 'tonal' : 'standard'"
+                  size="sm"
+                  @click="panelOpen = !panelOpen"
+                />
+
+                <AoiIconButton
+                  icon="panel-top"
+                  :label="t('player.theater')"
+                  :active="state.theaterMode"
+                  :variant="state.theaterMode ? 'tonal' : 'standard'"
+                  size="sm"
+                  @click="controls.setTheaterMode(!state.theaterMode)"
+                />
+
+                <AoiIconButton
+                  :icon="state.isFullscreen ? 'minimize' : 'maximize'"
+                  :label="state.isFullscreen ? t('player.exitFullscreen') : t('player.fullscreen')"
+                  size="sm"
+                  @click="controls.toggleFullscreen"
+                />
+              </div>
+
+              <AoiMenu
+                v-model:open="sourceMenuOpen"
+                :anchor="sourceMenuAnchor"
+                :items="sourceMenuItems(sources, selectedSource)"
+                positioning="popover"
+                @select="selectPlayerSource(controls, $event)"
+              />
+
+              <AoiMenu
+                v-model:open="rateMenuOpen"
+                :anchor="rateMenuAnchor"
+                :items="rateMenuItems"
+                positioning="popover"
+                @select="selectPlaybackRate"
+              />
+            </template>
+
+            <template #composer="{ state, controls, danmakuItems }">
+              <AoiDanmakuComposer
+                ref="composerRef"
+                class="aoi-danmaku-video-player__composer"
+                :count="danmakuItems.length"
+                :disabled="!danmakuAvailable"
+                :enabled="state.danmakuEnabled"
+                :playing="state.isPlaying"
+                @submit="controls.sendDanmaku"
+                @toggle-enabled="controls.setDanmakuEnabled(!state.danmakuEnabled)"
+              />
+            </template>
+
+            <template #panel="{ state, controls, danmakuItems }">
+              <AoiDanmakuPanel
+                v-if="panelOpen"
+                class="aoi-danmaku-video-player__panel"
+                :current-time="state.currentTime"
+                :items="danmakuItems"
+                :settings="danmakuRuntimeSettings"
+                @seek="controls.seekTo"
+              />
+            </template>
+          </AoiDanmakuVideoPlayer>
         </template>
 
         <template #side>

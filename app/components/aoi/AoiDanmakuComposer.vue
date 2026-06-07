@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { VideoDanmakuMode } from "~/types/api"
+import type { AoiDanmakuMode } from "~/types/danmaku"
 import { AOI_DANMAKU_COLORS } from "~/utils/aoiDanmaku"
 
 const props = withDefaults(defineProps<{
@@ -15,7 +15,7 @@ const props = withDefaults(defineProps<{
 })
 
 const emit = defineEmits<{
-  submit: [payload: { body: string, color: string, mode: VideoDanmakuMode }]
+  submit: [payload: { body: string, color: string, mode: AoiDanmakuMode }]
   "toggle-enabled": []
 }>()
 
@@ -23,7 +23,7 @@ const { t } = useI18n()
 const body = ref("")
 const color = ref(AOI_DANMAKU_COLORS[0]!)
 const inputRef = ref<HTMLInputElement | null>(null)
-const mode = ref<VideoDanmakuMode>("scroll")
+const mode = ref<AoiDanmakuMode>("scroll")
 const settingsOpen = ref(false)
 const modeModel = computed({
   get: () => mode.value,

@@ -327,6 +327,9 @@ export function searchMockAll(q: string, limit?: number): SearchPayload {
   }
 }
 
+const primaryMockVideoUrl = "https://r2-store.kobayashi.eu.org/aoi/video/1e32a269-bde5-4eb6-9c7e-c35add52b482.mp4"
+const secondaryMockVideoUrl = "https://r2-store.kobayashi.eu.org/aoi/video/BV1EF3uzeETo.mp4"
+
 export function getMockVideoDetail(idOrSlug: string): VideoDetail | null {
   const video = mockVideos.find((item) => item.id === idOrSlug || item.slug === idOrSlug)
 
@@ -346,16 +349,24 @@ export function getMockVideoDetail(idOrSlug: string): VideoDetail | null {
     ...video,
     likeCount: Math.max(24, Math.round(video.viewCount / 12)),
     related: mockVideos.filter((item) => item.id !== video.id).slice(0, 4),
-    sourceUrl: "/media/taffty.mp4",
+    sourceUrl: primaryMockVideoUrl,
     sources: [
       {
-        id: "sample-native",
-        src: "/media/taffty.mp4",
+        id: "r2-primary",
+        src: primaryMockVideoUrl,
         kind: "native",
-        label: "本地示例",
+        label: "R2 示例 1",
         mimeType: "video/mp4",
         qualityLabel: "Auto",
         isDefault: true
+      },
+      {
+        id: "r2-secondary",
+        src: secondaryMockVideoUrl,
+        kind: "native",
+        label: "R2 示例 2",
+        mimeType: "video/mp4",
+        qualityLabel: "Alt"
       }
     ],
     tags

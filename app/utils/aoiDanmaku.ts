@@ -1,4 +1,9 @@
-import type { VideoDanmakuItem, VideoDanmakuMode } from "~/types/api"
+import type {
+  AoiDanmakuItem,
+  AoiDanmakuMappedItem,
+  AoiDanmakuMapper,
+  AoiDanmakuMode
+} from "~/types/danmaku"
 
 export interface AoiDanmakuRuntimeSettings {
   blocklist: string
@@ -13,9 +18,9 @@ export interface AoiDanmakuRuntimeSettings {
 }
 
 export interface AoiDanmakuRenderItem {
-  item: VideoDanmakuItem
+  item: AoiDanmakuItem
   key: string
-  mode: VideoDanmakuMode
+  mode: AoiDanmakuMode
   style: Record<string, string>
   track: number
 }
@@ -23,13 +28,15 @@ export interface AoiDanmakuRenderItem {
 export interface AoiDanmakuDirectiveValue {
   currentTime: number
   durationSeconds: number
-  items: VideoDanmakuItem[]
+  items: AoiDanmakuItem[]
   playing: boolean
   settings?: Partial<AoiDanmakuRuntimeSettings>
 }
 
+export const AOI_DANMAKU_DEFAULT_COLOR = "#ffffff"
+
 export const AOI_DANMAKU_COLORS = [
-  "#ffffff",
+  AOI_DANMAKU_DEFAULT_COLOR,
   "#7ee7ff",
   "#ffe58a",
   "#ffb4d8",
@@ -71,12 +78,16 @@ function hashString(value: string) {
 
 function parseBlocklist(value: string) {
   return value
-    .split(/[\n,，;；]+/)
+    .split(/[\n,，;；、]+/)
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean)
 }
 
-function modeEnabled(mode: VideoDanmakuMode, settings: AoiDanmakuRuntimeSettings) {
+function normalizeMode(value: unknown): AoiDanmakuMode {
+  return value === "top" || value === "bottom" ? value : "scroll"
+}
+
+function modeEnabled(mode: AoiDanmakuMode, settings: AoiDanmakuRuntimeSettings) {
   if (mode === "top") {
     return settings.topModeEnabled
   }
@@ -88,18 +99,55 @@ function modeEnabled(mode: VideoDanmakuMode, settings: AoiDanmakuRuntimeSettings
   return settings.scrollModeEnabled
 }
 
-function durationForMode(mode: VideoDanmakuMode, settings: AoiDanmakuRuntimeSettings) {
+function durationForMode(mode: AoiDanmakuMode, settings: AoiDanmakuRuntimeSettings) {
   const speed = Math.max(0.5, settings.speed)
 
   return mode === "scroll" ? 9 / speed : 4.2 / speed
 }
 
-function trackCountForMode(mode: VideoDanmakuMode, settings: AoiDanmakuRuntimeSettings) {
+function trackCountForMode(mode: AoiDanmakuMode, settings: AoiDanmakuRuntimeSettings) {
   const baseTracks = mode === "scroll" ? 10 : 4
   const areaFactor = settings.visibleArea / 100
   const fontFactor = 1 / settings.fontScale
 
   return Math.max(1, Math.floor(baseTracks * areaFactor * fontFactor))
+}
+
+function defaultMapDanmakuItem<T>(item: T): Partial<AoiDanmakuMappedItem> {
+  return item && typeof item === "object" ? item as Partial<AoiDanmakuMappedItem> : {}
+}
+
+export function normalizeAoiDanmakuItem<T>(
+  item: T,
+  index: number,
+  mapper?: AoiDanmakuMapper<T>
+): AoiDanmakuItem {
+  const mapped = mapper ? mapper(item, index) : defaultMapDanmakuItem(item)
+  const id = typeof mapped.id === "string" && mapped.id.trim()
+    ? mapped.id
+    : `danmaku-${index + 1}`
+  const body = typeof mapped.body === "string" ? mapped.body : String(mapped.body || "")
+  const timeSeconds = clampNumber(mapped.timeSeconds, 0, Number.MAX_SAFE_INTEGER, 0)
+  const color = typeof mapped.color === "string" && mapped.color.trim()
+    ? mapped.color
+    : AOI_DANMAKU_DEFAULT_COLOR
+
+  return {
+    id,
+    body,
+    timeSeconds,
+    mode: normalizeMode(mapped.mode),
+    color,
+    authorName: typeof mapped.authorName === "string" ? mapped.authorName : undefined,
+    createdAt: typeof mapped.createdAt === "string" ? mapped.createdAt : undefined
+  }
+}
+
+export function normalizeAoiDanmakuItems<T>(
+  items: T[],
+  mapper?: AoiDanmakuMapper<T>
+) {
+  return items.map((item, index) => normalizeAoiDanmakuItem(item, index, mapper))
 }
 
 export function normalizeAoiDanmakuSettings(
@@ -119,7 +167,7 @@ export function normalizeAoiDanmakuSettings(
 }
 
 export function filterAoiDanmakuItems(
-  items: VideoDanmakuItem[],
+  items: AoiDanmakuItem[],
   settings: Partial<AoiDanmakuRuntimeSettings> = {}
 ) {
   const runtime = normalizeAoiDanmakuSettings(settings)
@@ -143,7 +191,7 @@ export function filterAoiDanmakuItems(
 }
 
 export function createAoiDanmakuRenderItems(
-  items: VideoDanmakuItem[],
+  items: AoiDanmakuItem[],
   currentTime: number,
   settings: Partial<AoiDanmakuRuntimeSettings> = {}
 ): AoiDanmakuRenderItem[] {
@@ -172,7 +220,7 @@ export function createAoiDanmakuRenderItems(
       track,
       style: {
         "--aoi-danmaku-item-bottom": item.mode === "bottom" ? offset : "auto",
-        "--aoi-danmaku-item-color": item.color || "#ffffff",
+        "--aoi-danmaku-item-color": item.color || AOI_DANMAKU_DEFAULT_COLOR,
         "--aoi-danmaku-item-delay": `${Math.min(0, -age)}s`,
         "--aoi-danmaku-item-duration": `${duration}s`,
         "--aoi-danmaku-item-top": item.mode === "bottom" ? "auto" : offset

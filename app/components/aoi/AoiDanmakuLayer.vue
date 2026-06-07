@@ -1,31 +1,23 @@
 <script setup lang="ts">
-import type { VideoDanmakuItem } from "~/types/api"
+import type { AoiDanmakuItem } from "~/types/danmaku"
+import type { AoiDanmakuRuntimeSettings } from "~/utils/aoiDanmaku"
 import { createAoiDanmakuRenderItems, normalizeAoiDanmakuSettings } from "~/utils/aoiDanmaku"
 
 const props = withDefaults(defineProps<{
   currentTime?: number
   durationSeconds?: number
-  items?: VideoDanmakuItem[]
+  items?: AoiDanmakuItem[]
   playing?: boolean
+  settings?: Partial<AoiDanmakuRuntimeSettings>
 }>(), {
   currentTime: 0,
   durationSeconds: 0,
   items: () => [],
-  playing: false
+  playing: false,
+  settings: () => ({})
 })
 
-const settings = useAppSettingsStore()
-const runtimeSettings = computed(() => normalizeAoiDanmakuSettings({
-  blocklist: settings.danmakuBlocklist,
-  bottomModeEnabled: settings.danmakuBottomModeEnabled,
-  enabled: settings.danmakuEnabled,
-  fontScale: settings.danmakuFontScale,
-  opacity: settings.danmakuOpacity,
-  scrollModeEnabled: settings.danmakuScrollModeEnabled,
-  speed: settings.danmakuSpeed,
-  topModeEnabled: settings.danmakuTopModeEnabled,
-  visibleArea: settings.danmakuVisibleArea
-}))
+const runtimeSettings = computed(() => normalizeAoiDanmakuSettings(props.settings))
 const renderItems = computed(() => createAoiDanmakuRenderItems(
   props.items,
   props.currentTime,

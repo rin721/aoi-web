@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import type { VideoDanmakuItem } from "~/types/api"
+import type { AoiDanmakuItem } from "~/types/danmaku"
+import type { AoiDanmakuRuntimeSettings } from "~/utils/aoiDanmaku"
 import { filterAoiDanmakuItems } from "~/utils/aoiDanmaku"
 
 const props = withDefaults(defineProps<{
   currentTime?: number
-  items?: VideoDanmakuItem[]
+  items?: AoiDanmakuItem[]
+  settings?: Partial<AoiDanmakuRuntimeSettings>
 }>(), {
   currentTime: 0,
-  items: () => []
+  items: () => [],
+  settings: () => ({})
 })
 
 const emit = defineEmits<{
@@ -15,25 +18,17 @@ const emit = defineEmits<{
 }>()
 
 const { t } = useI18n()
-const settings = useAppSettingsStore()
 const sortMode = ref<"time" | "newest">("time")
 const collapsed = ref(false)
 const visibleItems = computed(() => {
   const items = filterAoiDanmakuItems(props.items, {
-    blocklist: settings.danmakuBlocklist,
-    bottomModeEnabled: settings.danmakuBottomModeEnabled,
-    enabled: true,
-    fontScale: settings.danmakuFontScale,
-    opacity: settings.danmakuOpacity,
-    scrollModeEnabled: settings.danmakuScrollModeEnabled,
-    speed: settings.danmakuSpeed,
-    topModeEnabled: settings.danmakuTopModeEnabled,
-    visibleArea: settings.danmakuVisibleArea
+    ...props.settings,
+    enabled: true
   })
 
   return [...items].sort((a, b) => sortMode.value === "time"
     ? a.timeSeconds - b.timeSeconds
-    : Date.parse(b.createdAt) - Date.parse(a.createdAt))
+    : Date.parse(b.createdAt || "") - Date.parse(a.createdAt || ""))
 })
 
 function formatTime(seconds: number) {
@@ -43,7 +38,11 @@ function formatTime(seconds: number) {
   return `${minutes}:${rest}`
 }
 
-function formatDate(value: string) {
+function formatDate(value?: string) {
+  if (!value) {
+    return "-"
+  }
+
   return new Intl.DateTimeFormat("zh-CN", {
     day: "2-digit",
     hour: "2-digit",
