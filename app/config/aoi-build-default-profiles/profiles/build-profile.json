@@ -70,7 +70,7 @@
   "name": "aoi",
   "scope": "build",
   "settings": {
-    "preferredTheme": "system",
+    "preferredTheme": "light",
     "locale": "zh-CN",
     "accentMode": "preset",
     "accentPreset": "sunflower-orange",
@@ -141,5 +141,5 @@
     "routeProgressShowSpinner": false,
     "routeProgressEasing": "ease"
   },
-  "updatedAt": "2026-06-07T08:41:48.753Z"
+  "updatedAt": "2026-06-07T09:29:49.914Z"
 }

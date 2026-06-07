@@ -12,6 +12,8 @@ import { clampAoiScrollSetting } from "~/utils/aoiScroll"
 
 const { t } = useI18n()
 const settings = useAppSettingsStore()
+const resetPreferenceConfirmOpen = ref(false)
+const resettingPreference = ref(false)
 
 const dataModes: Array<{
   description: string
@@ -250,6 +252,17 @@ function clampRevealSetting(value: number, min: number, max: number) {
 
   return Math.min(max, Math.max(min, value))
 }
+
+async function confirmResetPreference() {
+  resettingPreference.value = true
+
+  try {
+    settings.resetPreference()
+    resetPreferenceConfirmOpen.value = false
+  } finally {
+    resettingPreference.value = false
+  }
+}
 </script>
 
 <template>
@@ -257,7 +270,19 @@ function clampRevealSetting(value: number, min: number, max: number) {
     <SettingsPageHeader
       title="偏好"
       description="管理浏览、隐私和搜索相关的本地偏好。"
-    />
+    >
+      <template #actions>
+        <AoiButton
+          variant="outlined"
+          size="sm"
+          icon="rotate-ccw"
+          :disabled="!settings.hydrated || resettingPreference"
+          @click="resetPreferenceConfirmOpen = true"
+        >
+          {{ t("settings.resetPage.action") }}
+        </AoiButton>
+      </template>
+    </SettingsPageHeader>
 
     <SettingsPanel
       icon="radio"
@@ -717,6 +742,27 @@ function clampRevealSetting(value: number, min: number, max: number) {
         <AoiSwitch v-model="settings.noRelatedVideos" />
       </SettingsRow>
     </SettingsPanel>
+
+    <AoiDialog v-model:open="resetPreferenceConfirmOpen">
+      <template #headline>{{ t("settings.resetPage.preference.title") }}</template>
+      <p class="settings-note">{{ t("settings.resetPage.preference.description") }}</p>
+      <template #actions>
+        <AoiButton
+          variant="text"
+          :disabled="resettingPreference"
+          @click="resetPreferenceConfirmOpen = false"
+        >
+          {{ t("settings.resetPage.cancel") }}
+        </AoiButton>
+        <AoiButton
+          icon="check"
+          :loading="resettingPreference"
+          @click="confirmResetPreference"
+        >
+          {{ t("settings.resetPage.confirm") }}
+        </AoiButton>
+      </template>
+    </AoiDialog>
   </div>
 </template>
 

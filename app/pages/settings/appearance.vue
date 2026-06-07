@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { AOI_ACCENT_PRESETS, AOI_DEFAULT_CUSTOM_ACCENT } from "~/stores/app-settings"
+import { AOI_ACCENT_PRESETS } from "~/stores/app-settings"
 import type {
   AoiAppearanceContrast,
   AoiAppearanceDensity,
@@ -21,6 +21,8 @@ import type { AoiRgbaColor } from "~/utils/aoiColor"
 
 const { t } = useI18n()
 const settings = useAppSettingsStore()
+const resetAppearanceConfirmOpen = ref(false)
+const resettingAppearance = ref(false)
 
 const themeCards: Array<{ icon: string, label: string, value: AoiPreferredTheme }> = [
   { icon: "sun", label: "浅色主题", value: "light" },
@@ -209,6 +211,7 @@ const customAccentModel = computed<AoiRgbaColor>({
   get: () => settings.customAccent,
   set: (value) => settings.setCustomAccent(value)
 })
+const defaultCustomAccent = computed(() => settings.activeDefaultCustomAccent())
 
 function setSpecUnit(key: AoiSpecUnitKey, value: number) {
   settings.setSpecUnit(key, value)
@@ -280,6 +283,17 @@ async function onBackgroundChange(files: File[]) {
   }
 }
 
+async function confirmResetAppearance() {
+  resettingAppearance.value = true
+
+  try {
+    await settings.resetAppearance()
+    resetAppearanceConfirmOpen.value = false
+  } finally {
+    resettingAppearance.value = false
+  }
+}
+
 function formatBytes(value: number) {
   if (!value) {
     return "未上传"
@@ -298,7 +312,19 @@ function formatBytes(value: number) {
     <SettingsPageHeader
       title="外观"
       description="用主题、个性色和本地背景图把 Aoi 调成自己的样子。"
-    />
+    >
+      <template #actions>
+        <AoiButton
+          variant="outlined"
+          size="sm"
+          icon="rotate-ccw"
+          :disabled="!settings.hydrated || resettingAppearance"
+          @click="resetAppearanceConfirmOpen = true"
+        >
+          {{ t("settings.resetPage.action") }}
+        </AoiButton>
+      </template>
+    </SettingsPageHeader>
 
     <SettingsPanel
       icon="sun-moon"
@@ -500,7 +526,7 @@ function formatBytes(value: number) {
           v-model="customAccentModel"
           :label="t('settings.appearance.palette.customTitle')"
           :reset-label="t('components.colorPalette.reset')"
-          :reset-value="AOI_DEFAULT_CUSTOM_ACCENT"
+          :reset-value="defaultCustomAccent"
         />
       </div>
     </SettingsPanel>
@@ -558,10 +584,36 @@ function formatBytes(value: number) {
       title="恢复默认"
       description="只重置外观、色板和背景，不影响播放器、本地互动和高级数据。"
     >
-      <AoiButton variant="outlined" icon="rotate-ccw" @click="settings.resetAppearance()">
+      <AoiButton
+        variant="outlined"
+        icon="rotate-ccw"
+        :disabled="!settings.hydrated || resettingAppearance"
+        @click="resetAppearanceConfirmOpen = true"
+      >
         重置外观
       </AoiButton>
     </SettingsPanel>
+
+    <AoiDialog v-model:open="resetAppearanceConfirmOpen">
+      <template #headline>{{ t("settings.resetPage.appearance.title") }}</template>
+      <p class="settings-note">{{ t("settings.resetPage.appearance.description") }}</p>
+      <template #actions>
+        <AoiButton
+          variant="text"
+          :disabled="resettingAppearance"
+          @click="resetAppearanceConfirmOpen = false"
+        >
+          {{ t("settings.resetPage.cancel") }}
+        </AoiButton>
+        <AoiButton
+          icon="check"
+          :loading="resettingAppearance"
+          @click="confirmResetAppearance"
+        >
+          {{ t("settings.resetPage.confirm") }}
+        </AoiButton>
+      </template>
+    </AoiDialog>
   </div>
 </template>
 

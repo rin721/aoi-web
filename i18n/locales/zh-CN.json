@@ -31,6 +31,23 @@
     "categoryTabsAria": "内容分类"
   },
   "settings": {
+    "resetPage": {
+      "action": "重置本页",
+      "cancel": "取消",
+      "confirm": "确认重置",
+      "appearance": {
+        "title": "重置外观设置",
+        "description": "将按当前 active 构建配置恢复外观、色板、背景参数和规格单位，并清除当前浏览器保存的背景图片。"
+      },
+      "preference": {
+        "title": "重置偏好设置",
+        "description": "将按当前 active 构建配置恢复流量、浏览、路由进度、入场动效、滚动、隐私和专注设置。"
+      },
+      "language": {
+        "title": "重置语言设置",
+        "description": "将按当前 active 构建配置恢复界面语言，并立即应用。"
+      }
+    },
     "appearance": {
       "form": {
         "title": "形态",

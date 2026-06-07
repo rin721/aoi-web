@@ -305,7 +305,7 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     : clampAoiRouteProgressSetting(candidate.routeProgressDelayMs, 0, 600, fallback.routeProgressDelayMs)
 
   return {
-    accentMode: candidate.accentMode === "custom" ? "custom" : "preset",
+    accentMode: candidate.accentMode === "custom" || candidate.accentMode === "preset" ? candidate.accentMode : fallback.accentMode,
     accentPreset: isAccentPreset(candidate.accentPreset) ? candidate.accentPreset : fallback.accentPreset,
     appearanceContrast: isAppearanceContrast(candidate.appearanceContrast) ? candidate.appearanceContrast : fallback.appearanceContrast,
     appearanceDensity: isAppearanceDensity(candidate.appearanceDensity) ? candidate.appearanceDensity : fallback.appearanceDensity,
@@ -317,16 +317,16 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     backgroundFileSize: clampNumber(candidate.backgroundFileSize, 0, AOI_BACKGROUND_MAX_BYTES, 0),
     backgroundImageId: typeof candidate.backgroundImageId === "string" ? candidate.backgroundImageId : null,
     backgroundOpacity: clampNumber(candidate.backgroundOpacity, 0, 1, fallback.backgroundOpacity),
-    colorfulNavigation: Boolean(candidate.colorfulNavigation),
+    colorfulNavigation: typeof candidate.colorfulNavigation === "boolean" ? candidate.colorfulNavigation : fallback.colorfulNavigation,
     customAccent: normalizeAoiRgbaColor(candidate.customAccent, fallback.customAccent),
     dataMode: isDataMode(candidate.dataMode) ? candidate.dataMode : fallback.dataMode,
     developerModeEnabled: Boolean(candidate.developerModeEnabled),
-    disableWatchHistory: Boolean(candidate.disableWatchHistory),
-    hideRecentSearches: Boolean(candidate.hideRecentSearches),
+    disableWatchHistory: typeof candidate.disableWatchHistory === "boolean" ? candidate.disableWatchHistory : fallback.disableWatchHistory,
+    hideRecentSearches: typeof candidate.hideRecentSearches === "boolean" ? candidate.hideRecentSearches : fallback.hideRecentSearches,
     locale: isLocale(candidate.locale) ? candidate.locale : fallback.locale,
-    noRelatedVideos: Boolean(candidate.noRelatedVideos),
-    noSearchRecommendations: Boolean(candidate.noSearchRecommendations),
-    openVideosInNewTab: Boolean(candidate.openVideosInNewTab),
+    noRelatedVideos: typeof candidate.noRelatedVideos === "boolean" ? candidate.noRelatedVideos : fallback.noRelatedVideos,
+    noSearchRecommendations: typeof candidate.noSearchRecommendations === "boolean" ? candidate.noSearchRecommendations : fallback.noSearchRecommendations,
+    openVideosInNewTab: typeof candidate.openVideosInNewTab === "boolean" ? candidate.openVideosInNewTab : fallback.openVideosInNewTab,
     pageScrollbarStrategy: isAoiPageScrollbarStrategy(candidate.pageScrollbarStrategy) ? candidate.pageScrollbarStrategy : fallback.pageScrollbarStrategy,
     preferredTheme: isPreferredTheme(candidate.preferredTheme) ? candidate.preferredTheme : fallback.preferredTheme,
     revealMotionDistancePx: clampAoiRevealSetting(candidate.revealMotionDistancePx, 0, 48, fallback.revealMotionDistancePx),
@@ -360,8 +360,8 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     smoothScrollDamping: clampAoiScrollSetting(candidate.smoothScrollDamping, 0.04, 0.22, fallback.smoothScrollDamping),
     smoothScrollDurationMs: clampAoiScrollSetting(candidate.smoothScrollDurationMs, 600, 1800, fallback.smoothScrollDurationMs),
     smoothScrollEnabled: typeof candidate.smoothScrollEnabled === "boolean" ? candidate.smoothScrollEnabled : fallback.smoothScrollEnabled,
-    specUnits: normalizeAoiSpecUnits(candidate.specUnits),
-    useRelativeDates: Boolean(candidate.useRelativeDates)
+    specUnits: normalizeAoiSpecUnits(candidate.specUnits, fallback.specUnits),
+    useRelativeDates: typeof candidate.useRelativeDates === "boolean" ? candidate.useRelativeDates : fallback.useRelativeDates
   }
 }
 
@@ -894,6 +894,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function activeDefaultCustomAccent() {
+    return { ...emptyState().customAccent }
+  }
+
   function setAccentPreset(value: string) {
     if (!isAccentPreset(value)) {
       return
@@ -956,6 +960,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
 
   async function resetAppearance() {
     const next = emptyState()
+
     preferredTheme.value = next.preferredTheme
     accentMode.value = next.accentMode
     accentPreset.value = next.accentPreset
@@ -968,6 +973,28 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     backgroundBlur.value = next.backgroundBlur
     backgroundDim.value = next.backgroundDim
     colorfulNavigation.value = next.colorfulNavigation
+    Object.assign(specUnits, next.specUnits)
+    await clearBackground()
+    persist()
+  }
+
+  function resetLanguage() {
+    const next = emptyState()
+
+    locale.value = next.locale
+    persist()
+  }
+
+  function resetPreference() {
+    const next = emptyState()
+
+    dataMode.value = next.dataMode
+    openVideosInNewTab.value = next.openVideosInNewTab
+    useRelativeDates.value = next.useRelativeDates
+    hideRecentSearches.value = next.hideRecentSearches
+    disableWatchHistory.value = next.disableWatchHistory
+    noSearchRecommendations.value = next.noSearchRecommendations
+    noRelatedVideos.value = next.noRelatedVideos
     pageScrollbarStrategy.value = next.pageScrollbarStrategy
     revealMotionDistancePx.value = next.revealMotionDistancePx
     revealMotionDurationMs.value = next.revealMotionDurationMs
@@ -998,8 +1025,6 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     smoothScrollDamping.value = next.smoothScrollDamping
     smoothScrollDurationMs.value = next.smoothScrollDurationMs
     smoothScrollEnabled.value = next.smoothScrollEnabled
-    Object.assign(specUnits, next.specUnits)
-    await clearBackground()
     persist()
   }
 
@@ -1138,6 +1163,8 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     scrollSnapStrength,
     resetAllAppSettings,
     resetAppearance,
+    resetLanguage,
+    resetPreference,
     restore,
     restoreBackgroundObjectUrl,
     selectedCategory,
@@ -1164,6 +1191,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     smoothScrollDurationMs,
     smoothScrollEnabled,
     specUnits,
+    activeDefaultCustomAccent,
     resetSpecUnits,
     setSpecUnit,
     useRelativeDates

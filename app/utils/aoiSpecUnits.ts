@@ -92,9 +92,12 @@ export function isAoiContentWidthMode(value: unknown): value is AoiContentWidthM
   return value === "px" || value === "percent"
 }
 
-export function clampAoiSpecUnit(key: AoiSpecUnitKey, value: unknown) {
+export function clampAoiSpecUnit(
+  key: AoiSpecUnitKey,
+  value: unknown,
+  fallback = AOI_SPEC_UNIT_DEFAULTS[key]
+) {
   const range = AOI_SPEC_UNIT_RANGES[key]
-  const fallback = AOI_SPEC_UNIT_DEFAULTS[key]
 
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return fallback
@@ -103,9 +106,12 @@ export function clampAoiSpecUnit(key: AoiSpecUnitKey, value: unknown) {
   return Math.min(range.max, Math.max(range.min, value))
 }
 
-export function clampAoiContentWidthPercent(key: AoiContentWidthPercentKey, value: unknown) {
+export function clampAoiContentWidthPercent(
+  key: AoiContentWidthPercentKey,
+  value: unknown,
+  fallback = AOI_SPEC_UNIT_DEFAULTS[key]
+) {
   const range = AOI_CONTENT_WIDTH_PERCENT_RANGES[key]
-  const fallback = AOI_SPEC_UNIT_DEFAULTS[key]
 
   if (typeof value !== "number" || !Number.isFinite(value)) {
     return fallback
@@ -114,24 +120,39 @@ export function clampAoiContentWidthPercent(key: AoiContentWidthPercentKey, valu
   return Math.min(range.max, Math.max(range.min, value))
 }
 
-export function normalizeAoiSpecUnits(value: unknown): AoiSpecUnitSettings {
+export function normalizeAoiSpecUnits(
+  value: unknown,
+  fallback: AoiSpecUnitSettings = AOI_SPEC_UNIT_DEFAULTS
+): AoiSpecUnitSettings {
   const candidate = value && typeof value === "object" && !Array.isArray(value)
     ? value as Partial<AoiSpecUnitSettings>
     : {}
-  const units = { ...AOI_SPEC_UNIT_DEFAULTS }
+  const fallbackUnits = {
+    ...AOI_SPEC_UNIT_DEFAULTS,
+    ...fallback
+  }
+  const units = { ...fallbackUnits }
 
   AOI_SPEC_UNIT_KEYS.forEach((key) => {
-    units[key] = clampAoiSpecUnit(key, candidate[key])
+    units[key] = clampAoiSpecUnit(key, candidate[key], fallbackUnits[key])
   })
 
   units.contentWidthMode = isAoiContentWidthMode(candidate.contentWidthMode)
     ? candidate.contentWidthMode
-    : AOI_SPEC_UNIT_DEFAULTS.contentWidthMode
-  units.contentWidthPercent = clampAoiContentWidthPercent("contentWidthPercent", candidate.contentWidthPercent)
+    : fallbackUnits.contentWidthMode
+  units.contentWidthPercent = clampAoiContentWidthPercent(
+    "contentWidthPercent",
+    candidate.contentWidthPercent,
+    fallbackUnits.contentWidthPercent
+  )
   units.contentWideWidthMode = isAoiContentWidthMode(candidate.contentWideWidthMode)
     ? candidate.contentWideWidthMode
-    : AOI_SPEC_UNIT_DEFAULTS.contentWideWidthMode
-  units.contentWideWidthPercent = clampAoiContentWidthPercent("contentWideWidthPercent", candidate.contentWideWidthPercent)
+    : fallbackUnits.contentWideWidthMode
+  units.contentWideWidthPercent = clampAoiContentWidthPercent(
+    "contentWideWidthPercent",
+    candidate.contentWideWidthPercent,
+    fallbackUnits.contentWideWidthPercent
+  )
 
   return units
 }

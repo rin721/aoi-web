@@ -2,7 +2,9 @@
 import type { AoiLocale } from "~/stores/app-settings"
 
 const settings = useAppSettingsStore()
-const { locale, setLocale } = useI18n()
+const { locale, setLocale, t } = useI18n()
+const resetLanguageConfirmOpen = ref(false)
+const resettingLanguage = ref(false)
 
 const localeOptions: Array<{
   description: string
@@ -34,6 +36,18 @@ async function chooseLocale(value: AoiLocale) {
   settings.setLocalePreference(value)
   await setLocale(value)
 }
+
+async function confirmResetLanguage() {
+  resettingLanguage.value = true
+
+  try {
+    settings.resetLanguage()
+    await setLocale(settings.locale)
+    resetLanguageConfirmOpen.value = false
+  } finally {
+    resettingLanguage.value = false
+  }
+}
 </script>
 
 <template>
@@ -41,7 +55,19 @@ async function chooseLocale(value: AoiLocale) {
     <SettingsPageHeader
       title="语言"
       description="当前项目接入了三种语言。更多语言等 locale 文件完善后再开放。"
-    />
+    >
+      <template #actions>
+        <AoiButton
+          variant="outlined"
+          size="sm"
+          icon="rotate-ccw"
+          :disabled="!settings.hydrated || resettingLanguage"
+          @click="resetLanguageConfirmOpen = true"
+        >
+          {{ t("settings.resetPage.action") }}
+        </AoiButton>
+      </template>
+    </SettingsPageHeader>
 
     <SettingsPanel
       icon="languages"
@@ -63,6 +89,27 @@ async function chooseLocale(value: AoiLocale) {
         </AoiChoiceCard>
       </div>
     </SettingsPanel>
+
+    <AoiDialog v-model:open="resetLanguageConfirmOpen">
+      <template #headline>{{ t("settings.resetPage.language.title") }}</template>
+      <p class="settings-note">{{ t("settings.resetPage.language.description") }}</p>
+      <template #actions>
+        <AoiButton
+          variant="text"
+          :disabled="resettingLanguage"
+          @click="resetLanguageConfirmOpen = false"
+        >
+          {{ t("settings.resetPage.cancel") }}
+        </AoiButton>
+        <AoiButton
+          icon="check"
+          :loading="resettingLanguage"
+          @click="confirmResetLanguage"
+        >
+          {{ t("settings.resetPage.confirm") }}
+        </AoiButton>
+      </template>
+    </AoiDialog>
   </div>
 </template>
 

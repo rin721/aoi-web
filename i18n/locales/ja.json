@@ -31,6 +31,23 @@
     "categoryTabsAria": "コンテンツカテゴリ"
   },
   "settings": {
+    "resetPage": {
+      "action": "このページをリセット",
+      "cancel": "キャンセル",
+      "confirm": "リセット",
+      "appearance": {
+        "title": "外観設定をリセット",
+        "description": "現在の active ビルド設定に合わせて、外観、パレット、背景パラメーター、サイズ単位を復元し、ブラウザーに保存された背景画像を消去します。"
+      },
+      "preference": {
+        "title": "環境設定をリセット",
+        "description": "現在の active ビルド設定に合わせて、データモード、閲覧、ルート進行、表示モーション、スクロール、プライバシー、集中設定を復元します。"
+      },
+      "language": {
+        "title": "言語設定をリセット",
+        "description": "現在の active ビルド設定に合わせてインターフェイス言語を復元し、すぐに適用します。"
+      }
+    },
     "appearance": {
       "form": {
         "title": "形態",

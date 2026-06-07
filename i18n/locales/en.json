@@ -31,6 +31,23 @@
     "categoryTabsAria": "Content categories"
   },
   "settings": {
+    "resetPage": {
+      "action": "Reset page",
+      "cancel": "Cancel",
+      "confirm": "Reset",
+      "appearance": {
+        "title": "Reset Appearance Settings",
+        "description": "Restore appearance, palette, background parameters, and size units from the current active build configuration. The browser-saved background image will be cleared."
+      },
+      "preference": {
+        "title": "Reset Preference Settings",
+        "description": "Restore data mode, browsing, route progress, reveal motion, scrolling, privacy, and focus settings from the current active build configuration."
+      },
+      "language": {
+        "title": "Reset Language Settings",
+        "description": "Restore the interface language from the current active build configuration and apply it immediately."
+      }
+    },
     "appearance": {
       "form": {
         "title": "Form",
