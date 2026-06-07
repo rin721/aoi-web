@@ -10,6 +10,9 @@ export type {
   PageResult,
   SearchPayload,
   UserSummary,
+  VideoDanmakuItem,
+  VideoDanmakuMode,
+  VideoDanmakuPayload,
   VideoDetail,
   VideoSummary
 } from "~~/shared/types/api"

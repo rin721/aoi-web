@@ -5,6 +5,9 @@ import type {
   FollowingFeedPayload,
   HomePayload,
   SearchPayload,
+  VideoDanmakuItem,
+  VideoDanmakuMode,
+  VideoDanmakuPayload,
   UserSummary,
   VideoDetail,
   VideoSummary
@@ -345,6 +348,50 @@ export function getMockVideoDetail(idOrSlug: string): VideoDetail | null {
     related: mockVideos.filter((item) => item.id !== video.id).slice(0, 4),
     sourceUrl: "/media/aoi-sample.webm",
     tags
+  }
+}
+
+const mockDanmakuSamples: Array<{
+  body: string
+  mode?: VideoDanmakuMode
+  color?: string
+  offset: number
+}> = [
+  { body: "开场好清爽", offset: 2 },
+  { body: "这个控制条很有 Aoi 的味道", offset: 5 },
+  { body: "弹幕层测试通过", offset: 8, color: "#7ee7ff" },
+  { body: "注意看右侧列表", offset: 11 },
+  { body: "顶部固定弹幕", mode: "top", offset: 14, color: "#ffe58a" },
+  { body: "节奏刚好", offset: 17 },
+  { body: "底部固定弹幕", mode: "bottom", offset: 20, color: "#ffb4d8" },
+  { body: "Aoi wrapper 化很舒服", offset: 23 },
+  { body: "这里可以接未来后端", offset: 27 },
+  { body: "移动端也要稳", offset: 31 }
+]
+
+export function getMockVideoDanmaku(idOrSlug: string): VideoDanmakuPayload | null {
+  const video = mockVideos.find((item) => item.id === idOrSlug || item.slug === idOrSlug)
+
+  if (!video) {
+    return null
+  }
+
+  const items: VideoDanmakuItem[] = mockDanmakuSamples.map((item, index) => ({
+    id: `danmaku-${video.id}-${index + 1}`,
+    videoId: video.id,
+    body: item.body,
+    timeSeconds: Math.min(video.durationSeconds - 1, item.offset + index * 2),
+    mode: item.mode || "scroll",
+    color: item.color || "#ffffff",
+    authorName: index % 3 === 0 ? video.uploader.displayName : "Aoi Viewer",
+    createdAt: new Date(Date.parse(video.publishedAt) + index * 90_000).toISOString()
+  }))
+
+  return {
+    items,
+    nextCursor: null,
+    totalCount: items.length,
+    videoId: video.id
   }
 }
 

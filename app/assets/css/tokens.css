@@ -57,6 +57,10 @@
   --aoi-user-bg-opacity: 0;
   --aoi-user-bg-blur: 0px;
   --aoi-user-bg-dim: 0;
+  --aoi-danmaku-font-scale: 1;
+  --aoi-danmaku-opacity: .86;
+  --aoi-danmaku-speed: 1;
+  --aoi-danmaku-visible-area: 65%;
 
   --aoi-radius-container: 12px;
   --aoi-radius-card: 8px;

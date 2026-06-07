@@ -5,6 +5,7 @@ const endpoints = [
   "/categories",
   "/videos",
   "/videos/:id",
+  "/videos/:id/danmaku",
   "/search",
   "/feed/following",
   "/users/:handle",

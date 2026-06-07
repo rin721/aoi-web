@@ -1,5 +1,6 @@
 export {
   getMockCategory,
+  getMockVideoDanmaku,
   getMockVideoDetail,
   listMockVideos,
   mockAnnouncement,

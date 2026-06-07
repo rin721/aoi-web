@@ -42,6 +42,26 @@ export interface VideoDetail extends VideoSummary {
   related: VideoSummary[]
 }
 
+export type VideoDanmakuMode = "scroll" | "top" | "bottom"
+
+export interface VideoDanmakuItem {
+  id: string
+  videoId: string
+  body: string
+  timeSeconds: number
+  mode: VideoDanmakuMode
+  color: string
+  authorName: string
+  createdAt: string
+}
+
+export interface VideoDanmakuPayload {
+  items: VideoDanmakuItem[]
+  nextCursor: string | null
+  totalCount: number
+  videoId: string
+}
+
 export interface Announcement {
   id: string
   title: string

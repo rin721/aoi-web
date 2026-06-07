@@ -32,6 +32,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     root.dataset.aoiColorfulNav = settings.colorfulNavigation ? "true" : "false"
     root.dataset.aoiContrast = settings.appearanceContrast
     root.dataset.aoiDataMode = settings.dataMode
+    root.dataset.aoiDanmaku = settings.danmakuEnabled ? "enabled" : "disabled"
+    root.dataset.aoiDanmakuBottom = settings.danmakuBottomModeEnabled ? "enabled" : "disabled"
+    root.dataset.aoiDanmakuScroll = settings.danmakuScrollModeEnabled ? "enabled" : "disabled"
+    root.dataset.aoiDanmakuTop = settings.danmakuTopModeEnabled ? "enabled" : "disabled"
     root.dataset.aoiDensity = settings.appearanceDensity
     root.dataset.aoiPageScrollbar = settings.pageScrollbarStrategy
     root.dataset.aoiRevealEffect = settings.revealMotionEffect
@@ -69,6 +73,10 @@ export default defineNuxtPlugin((nuxtApp) => {
     style.setProperty("--aoi-user-bg-opacity", settings.backgroundObjectUrl ? String(settings.backgroundOpacity) : "0")
     style.setProperty("--aoi-user-bg-blur", `${settings.backgroundBlur}px`)
     style.setProperty("--aoi-user-bg-dim", String(settings.backgroundObjectUrl ? settings.backgroundDim : 0))
+    style.setProperty("--aoi-danmaku-font-scale", String(settings.danmakuFontScale))
+    style.setProperty("--aoi-danmaku-opacity", String(settings.danmakuOpacity))
+    style.setProperty("--aoi-danmaku-speed", String(settings.danmakuSpeed))
+    style.setProperty("--aoi-danmaku-visible-area", `${settings.danmakuVisibleArea}%`)
     style.setProperty("--aoi-reveal-duration-setting", `${settings.revealMotionDurationMs}ms`)
     style.setProperty("--aoi-reveal-distance-setting", `${settings.revealMotionDistancePx}px`)
     style.setProperty("--aoi-reveal-stagger-setting", `${settings.revealMotionStaggerMs}ms`)
@@ -100,6 +108,14 @@ export default defineNuxtPlugin((nuxtApp) => {
       settings.appearanceSize,
       settings.colorfulNavigation,
       settings.dataMode,
+      settings.danmakuBottomModeEnabled,
+      settings.danmakuEnabled,
+      settings.danmakuFontScale,
+      settings.danmakuOpacity,
+      settings.danmakuScrollModeEnabled,
+      settings.danmakuSpeed,
+      settings.danmakuTopModeEnabled,
+      settings.danmakuVisibleArea,
       settings.accentScale.accent10,
       settings.accentScale.accent20,
       settings.accentScale.accent40,

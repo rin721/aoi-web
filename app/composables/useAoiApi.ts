@@ -8,6 +8,7 @@ import type {
   HomePayload,
   PageResult,
   SearchPayload,
+  VideoDanmakuPayload,
   VideoDetail,
   VideoSummary
 } from "~/types/api"
@@ -81,6 +82,10 @@ export function useAoiApi() {
     return await request<VideoDetail>(`/videos/${encodeURIComponent(idOrSlug)}`)
   }
 
+  async function getVideoDanmaku(idOrSlug: string): Promise<VideoDanmakuPayload> {
+    return await request<VideoDanmakuPayload>(`/videos/${encodeURIComponent(idOrSlug)}/danmaku`)
+  }
+
   async function getCreatorProfile(handle: string): Promise<CreatorProfile> {
     return await request<CreatorProfile>(`/users/${encodeURIComponent(handle)}`)
   }
@@ -101,6 +106,7 @@ export function useAoiApi() {
     getCreatorProfile,
     getFollowingFeed,
     getHomePayload,
+    getVideoDanmaku,
     getVideoDetail,
     listCategories,
     listVideos,

@@ -85,6 +85,15 @@ interface PersistedAppSettings {
   backgroundOpacity: number
   colorfulNavigation: boolean
   customAccent: AoiRgbaColor
+  danmakuBlocklist: string
+  danmakuBottomModeEnabled: boolean
+  danmakuEnabled: boolean
+  danmakuFontScale: number
+  danmakuOpacity: number
+  danmakuScrollModeEnabled: boolean
+  danmakuSpeed: number
+  danmakuTopModeEnabled: boolean
+  danmakuVisibleArea: number
   dataMode: AoiDataMode
   developerModeEnabled: boolean
   disableWatchHistory: boolean
@@ -224,6 +233,11 @@ const DEFAULT_ACCENT_PRESET = "sunflower-orange"
 export const AOI_DEFAULT_CUSTOM_ACCENT: AoiRgbaColor = { r: 255, g: 125, b: 82, a: 1 }
 const DEFAULT_ACCENT = AOI_DEFAULT_CUSTOM_ACCENT
 const DEFAULT_ACCENT_PRESET_OPTION = AOI_ACCENT_PRESETS.find((preset) => preset.value === DEFAULT_ACCENT_PRESET) || AOI_ACCENT_PRESETS[0]!
+const DEFAULT_DANMAKU_BLOCKLIST = ""
+const DEFAULT_DANMAKU_FONT_SCALE = 1
+const DEFAULT_DANMAKU_OPACITY = 0.86
+const DEFAULT_DANMAKU_SPEED = 1
+const DEFAULT_DANMAKU_VISIBLE_AREA = 65
 
 function emptyState(): PersistedAppSettings {
   const defaults = createAoiActiveBuildDefaultAppSettings()
@@ -243,6 +257,15 @@ function emptyState(): PersistedAppSettings {
     backgroundOpacity: defaults.backgroundOpacity,
     colorfulNavigation: defaults.colorfulNavigation,
     customAccent: { ...defaults.customAccent },
+    danmakuBlocklist: DEFAULT_DANMAKU_BLOCKLIST,
+    danmakuBottomModeEnabled: true,
+    danmakuEnabled: true,
+    danmakuFontScale: DEFAULT_DANMAKU_FONT_SCALE,
+    danmakuOpacity: DEFAULT_DANMAKU_OPACITY,
+    danmakuScrollModeEnabled: true,
+    danmakuSpeed: DEFAULT_DANMAKU_SPEED,
+    danmakuTopModeEnabled: true,
+    danmakuVisibleArea: DEFAULT_DANMAKU_VISIBLE_AREA,
     dataMode: defaults.dataMode,
     developerModeEnabled: false,
     disableWatchHistory: defaults.disableWatchHistory,
@@ -319,6 +342,15 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     backgroundOpacity: clampNumber(candidate.backgroundOpacity, 0, 1, fallback.backgroundOpacity),
     colorfulNavigation: typeof candidate.colorfulNavigation === "boolean" ? candidate.colorfulNavigation : fallback.colorfulNavigation,
     customAccent: normalizeAoiRgbaColor(candidate.customAccent, fallback.customAccent),
+    danmakuBlocklist: typeof candidate.danmakuBlocklist === "string" ? candidate.danmakuBlocklist.slice(0, 2000) : fallback.danmakuBlocklist,
+    danmakuBottomModeEnabled: typeof candidate.danmakuBottomModeEnabled === "boolean" ? candidate.danmakuBottomModeEnabled : fallback.danmakuBottomModeEnabled,
+    danmakuEnabled: typeof candidate.danmakuEnabled === "boolean" ? candidate.danmakuEnabled : fallback.danmakuEnabled,
+    danmakuFontScale: clampNumber(candidate.danmakuFontScale, 0.7, 1.6, fallback.danmakuFontScale),
+    danmakuOpacity: clampNumber(candidate.danmakuOpacity, 0.2, 1, fallback.danmakuOpacity),
+    danmakuScrollModeEnabled: typeof candidate.danmakuScrollModeEnabled === "boolean" ? candidate.danmakuScrollModeEnabled : fallback.danmakuScrollModeEnabled,
+    danmakuSpeed: clampNumber(candidate.danmakuSpeed, 0.5, 2, fallback.danmakuSpeed),
+    danmakuTopModeEnabled: typeof candidate.danmakuTopModeEnabled === "boolean" ? candidate.danmakuTopModeEnabled : fallback.danmakuTopModeEnabled,
+    danmakuVisibleArea: clampNumber(candidate.danmakuVisibleArea, 20, 100, fallback.danmakuVisibleArea),
     dataMode: isDataMode(candidate.dataMode) ? candidate.dataMode : fallback.dataMode,
     developerModeEnabled: Boolean(candidate.developerModeEnabled),
     disableWatchHistory: typeof candidate.disableWatchHistory === "boolean" ? candidate.disableWatchHistory : fallback.disableWatchHistory,
@@ -509,6 +541,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const backgroundBlur = ref(initialState.backgroundBlur)
   const backgroundDim = ref(initialState.backgroundDim)
   const colorfulNavigation = ref(initialState.colorfulNavigation)
+  const danmakuBlocklist = ref(initialState.danmakuBlocklist)
+  const danmakuBottomModeEnabled = ref(initialState.danmakuBottomModeEnabled)
+  const danmakuEnabled = ref(initialState.danmakuEnabled)
+  const danmakuFontScale = ref(initialState.danmakuFontScale)
+  const danmakuOpacity = ref(initialState.danmakuOpacity)
+  const danmakuScrollModeEnabled = ref(initialState.danmakuScrollModeEnabled)
+  const danmakuSpeed = ref(initialState.danmakuSpeed)
+  const danmakuTopModeEnabled = ref(initialState.danmakuTopModeEnabled)
+  const danmakuVisibleArea = ref(initialState.danmakuVisibleArea)
   const openVideosInNewTab = ref(initialState.openVideosInNewTab)
   const useRelativeDates = ref(initialState.useRelativeDates)
   const dataMode = ref<AoiDataMode>(initialState.dataMode)
@@ -583,6 +624,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       backgroundOpacity: backgroundOpacity.value,
       colorfulNavigation: colorfulNavigation.value,
       customAccent: { ...customAccent.value },
+      danmakuBlocklist: danmakuBlocklist.value,
+      danmakuBottomModeEnabled: danmakuBottomModeEnabled.value,
+      danmakuEnabled: danmakuEnabled.value,
+      danmakuFontScale: danmakuFontScale.value,
+      danmakuOpacity: danmakuOpacity.value,
+      danmakuScrollModeEnabled: danmakuScrollModeEnabled.value,
+      danmakuSpeed: danmakuSpeed.value,
+      danmakuTopModeEnabled: danmakuTopModeEnabled.value,
+      danmakuVisibleArea: danmakuVisibleArea.value,
       dataMode: dataMode.value,
       developerModeEnabled: developerModeEnabled.value,
       disableWatchHistory: disableWatchHistory.value,
@@ -644,6 +694,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     backgroundOpacity.value = state.backgroundOpacity
     colorfulNavigation.value = state.colorfulNavigation
     customAccent.value = normalizeAoiRgbaColor(state.customAccent, DEFAULT_ACCENT)
+    danmakuBlocklist.value = state.danmakuBlocklist
+    danmakuBottomModeEnabled.value = state.danmakuBottomModeEnabled
+    danmakuEnabled.value = state.danmakuEnabled
+    danmakuFontScale.value = state.danmakuFontScale
+    danmakuOpacity.value = state.danmakuOpacity
+    danmakuScrollModeEnabled.value = state.danmakuScrollModeEnabled
+    danmakuSpeed.value = state.danmakuSpeed
+    danmakuTopModeEnabled.value = state.danmakuTopModeEnabled
+    danmakuVisibleArea.value = state.danmakuVisibleArea
     dataMode.value = state.dataMode
     developerModeEnabled.value = state.developerModeEnabled
     disableWatchHistory.value = state.disableWatchHistory
@@ -860,6 +919,31 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function setDanmakuBlocklist(value: string) {
+    danmakuBlocklist.value = value.slice(0, 2000)
+    persist()
+  }
+
+  function setDanmakuFontScale(value: number) {
+    danmakuFontScale.value = clampNumber(value, 0.7, 1.6, DEFAULT_DANMAKU_FONT_SCALE)
+    persist()
+  }
+
+  function setDanmakuOpacity(value: number) {
+    danmakuOpacity.value = clampNumber(value, 0.2, 1, DEFAULT_DANMAKU_OPACITY)
+    persist()
+  }
+
+  function setDanmakuSpeed(value: number) {
+    danmakuSpeed.value = clampNumber(value, 0.5, 2, DEFAULT_DANMAKU_SPEED)
+    persist()
+  }
+
+  function setDanmakuVisibleArea(value: number) {
+    danmakuVisibleArea.value = clampNumber(value, 20, 100, DEFAULT_DANMAKU_VISIBLE_AREA)
+    persist()
+  }
+
   function setSpecUnit(key: AoiSpecUnitKey, value: number) {
     specUnits[key] = clampAoiSpecUnit(key, value)
     persist()
@@ -985,6 +1069,21 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function resetDanmakuSettings() {
+    const next = emptyState()
+
+    danmakuBlocklist.value = next.danmakuBlocklist
+    danmakuBottomModeEnabled.value = next.danmakuBottomModeEnabled
+    danmakuEnabled.value = next.danmakuEnabled
+    danmakuFontScale.value = next.danmakuFontScale
+    danmakuOpacity.value = next.danmakuOpacity
+    danmakuScrollModeEnabled.value = next.danmakuScrollModeEnabled
+    danmakuSpeed.value = next.danmakuSpeed
+    danmakuTopModeEnabled.value = next.danmakuTopModeEnabled
+    danmakuVisibleArea.value = next.danmakuVisibleArea
+    persist()
+  }
+
   function resetPreference() {
     const next = emptyState()
 
@@ -1061,6 +1160,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       backgroundBlur,
       backgroundDim,
       colorfulNavigation,
+      danmakuBlocklist,
+      danmakuBottomModeEnabled,
+      danmakuEnabled,
+      danmakuFontScale,
+      danmakuOpacity,
+      danmakuScrollModeEnabled,
+      danmakuSpeed,
+      danmakuTopModeEnabled,
+      danmakuVisibleArea,
       openVideosInNewTab,
       useRelativeDates,
       dataMode,
@@ -1124,6 +1232,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     clearBackground,
     colorfulNavigation,
     customAccent,
+    danmakuBlocklist,
+    danmakuBottomModeEnabled,
+    danmakuEnabled,
+    danmakuFontScale,
+    danmakuOpacity,
+    danmakuScrollModeEnabled,
+    danmakuSpeed,
+    danmakuTopModeEnabled,
+    danmakuVisibleArea,
     dataMode,
     developerModeEnabled,
     disableWatchHistory,
@@ -1163,6 +1280,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     scrollSnapStrength,
     resetAllAppSettings,
     resetAppearance,
+    resetDanmakuSettings,
     resetLanguage,
     resetPreference,
     restore,
@@ -1178,6 +1296,11 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     setContentWidthPercent,
     setCustomAccent,
     setDeveloperModeEnabled,
+    setDanmakuBlocklist,
+    setDanmakuFontScale,
+    setDanmakuOpacity,
+    setDanmakuSpeed,
+    setDanmakuVisibleArea,
     setLocalePreference,
     setPageScrollbarStrategy,
     setPreferredTheme,
