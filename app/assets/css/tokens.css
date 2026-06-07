@@ -63,7 +63,6 @@
   --aoi-danmaku-visible-area: 65%;
   --aoi-player-accent: var(--aoi-active-color);
   --aoi-player-accent-soft: color-mix(in srgb, var(--aoi-player-accent) 10%, var(--aoi-surface-solid));
-  --aoi-player-page-bg: color-mix(in srgb, var(--aoi-surface-muted) 82%, var(--aoi-bg));
   --aoi-player-surface: var(--aoi-surface-solid);
   --aoi-player-surface-muted: color-mix(in srgb, var(--aoi-surface-muted) 88%, var(--aoi-surface-solid));
   --aoi-player-border: color-mix(in srgb, var(--aoi-border) 82%, rgba(127, 127, 127, 0.16));
@@ -210,7 +209,6 @@
   --aoi-nav-border-colorful: color-mix(in srgb, var(--aoi-accent-40) 22%, transparent);
   --aoi-player-accent: var(--aoi-active-color);
   --aoi-player-accent-soft: color-mix(in srgb, var(--aoi-player-accent) 16%, var(--aoi-surface-solid));
-  --aoi-player-page-bg: color-mix(in srgb, var(--aoi-bg) 72%, #000);
   --aoi-player-surface: var(--aoi-surface-solid);
   --aoi-player-surface-muted: color-mix(in srgb, var(--aoi-surface-muted) 86%, var(--aoi-surface-solid));
   --aoi-player-border: color-mix(in srgb, var(--aoi-border) 88%, rgba(255, 255, 255, 0.1));

@@ -1,5 +1,8 @@
 import type { AoiRgbaColor } from "../utils/aoiColor"
 import {
+  AOI_DANMAKU_DEFAULTS
+} from "../utils/aoiDanmaku"
+import {
   normalizeAoiRgbaColor
 } from "../utils/aoiColor"
 import {
@@ -47,6 +50,15 @@ export interface AoiBuildDefaultAppSettings {
   backgroundOpacity: number
   colorfulNavigation: boolean
   customAccent: AoiRgbaColor
+  danmakuBlocklist: string
+  danmakuBottomModeEnabled: boolean
+  danmakuEnabled: boolean
+  danmakuFontScale: number
+  danmakuOpacity: number
+  danmakuScrollModeEnabled: boolean
+  danmakuSpeed: number
+  danmakuTopModeEnabled: boolean
+  danmakuVisibleArea: number
   dataMode: AoiBuildDataMode
   disableWatchHistory: boolean
   hideRecentSearches: boolean
@@ -110,6 +122,15 @@ export const AOI_FALLBACK_BUILD_DEFAULT_APP_SETTINGS: AoiBuildDefaultAppSettings
   backgroundOpacity: 0.56,
   colorfulNavigation: false,
   customAccent: DEFAULT_CUSTOM_ACCENT,
+  danmakuBlocklist: AOI_DANMAKU_DEFAULTS.blocklist,
+  danmakuBottomModeEnabled: AOI_DANMAKU_DEFAULTS.bottomModeEnabled,
+  danmakuEnabled: AOI_DANMAKU_DEFAULTS.enabled,
+  danmakuFontScale: AOI_DANMAKU_DEFAULTS.fontScale,
+  danmakuOpacity: AOI_DANMAKU_DEFAULTS.opacity,
+  danmakuScrollModeEnabled: AOI_DANMAKU_DEFAULTS.scrollModeEnabled,
+  danmakuSpeed: AOI_DANMAKU_DEFAULTS.speed,
+  danmakuTopModeEnabled: AOI_DANMAKU_DEFAULTS.topModeEnabled,
+  danmakuVisibleArea: AOI_DANMAKU_DEFAULTS.visibleArea,
   dataMode: "standard",
   disableWatchHistory: false,
   hideRecentSearches: false,
@@ -216,6 +237,15 @@ export function normalizeAoiBuildDefaultAppSettings(
     backgroundOpacity: clampNumber(candidate.backgroundOpacity, 0, 1, fallback.backgroundOpacity),
     colorfulNavigation: typeof candidate.colorfulNavigation === "boolean" ? candidate.colorfulNavigation : fallback.colorfulNavigation,
     customAccent: normalizeAoiRgbaColor(candidate.customAccent, fallback.customAccent || DEFAULT_CUSTOM_ACCENT),
+    danmakuBlocklist: typeof candidate.danmakuBlocklist === "string" ? candidate.danmakuBlocklist.slice(0, 2000) : fallback.danmakuBlocklist,
+    danmakuBottomModeEnabled: typeof candidate.danmakuBottomModeEnabled === "boolean" ? candidate.danmakuBottomModeEnabled : fallback.danmakuBottomModeEnabled,
+    danmakuEnabled: typeof candidate.danmakuEnabled === "boolean" ? candidate.danmakuEnabled : fallback.danmakuEnabled,
+    danmakuFontScale: clampNumber(candidate.danmakuFontScale, 0.7, 1.6, fallback.danmakuFontScale),
+    danmakuOpacity: clampNumber(candidate.danmakuOpacity, 0.2, 1, fallback.danmakuOpacity),
+    danmakuScrollModeEnabled: typeof candidate.danmakuScrollModeEnabled === "boolean" ? candidate.danmakuScrollModeEnabled : fallback.danmakuScrollModeEnabled,
+    danmakuSpeed: clampNumber(candidate.danmakuSpeed, 0.5, 2, fallback.danmakuSpeed),
+    danmakuTopModeEnabled: typeof candidate.danmakuTopModeEnabled === "boolean" ? candidate.danmakuTopModeEnabled : fallback.danmakuTopModeEnabled,
+    danmakuVisibleArea: clampNumber(candidate.danmakuVisibleArea, 20, 100, fallback.danmakuVisibleArea),
     dataMode: isDataMode(candidate.dataMode) ? candidate.dataMode : fallback.dataMode,
     disableWatchHistory: typeof candidate.disableWatchHistory === "boolean" ? candidate.disableWatchHistory : fallback.disableWatchHistory,
     hideRecentSearches: typeof candidate.hideRecentSearches === "boolean" ? candidate.hideRecentSearches : fallback.hideRecentSearches,

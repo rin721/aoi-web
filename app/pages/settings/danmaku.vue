@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { AOI_DANMAKU_DEFAULTS } from "~/utils/aoiDanmaku"
+
 const settings = useAppSettingsStore()
 const danmaku = useDanmakuStore()
 
@@ -23,15 +25,15 @@ const blocklistModel = computed({
   set: (value: string) => settings.setDanmakuBlocklist(value)
 })
 const hasDanmakuSettings = computed(() => {
-  return !settings.danmakuEnabled
-    || settings.danmakuOpacity !== 0.86
-    || settings.danmakuFontScale !== 1
-    || settings.danmakuSpeed !== 1
-    || settings.danmakuVisibleArea !== 65
-    || !settings.danmakuScrollModeEnabled
-    || !settings.danmakuTopModeEnabled
-    || !settings.danmakuBottomModeEnabled
-    || Boolean(settings.danmakuBlocklist)
+  return settings.danmakuEnabled !== AOI_DANMAKU_DEFAULTS.enabled
+    || settings.danmakuOpacity !== AOI_DANMAKU_DEFAULTS.opacity
+    || settings.danmakuFontScale !== AOI_DANMAKU_DEFAULTS.fontScale
+    || settings.danmakuSpeed !== AOI_DANMAKU_DEFAULTS.speed
+    || settings.danmakuVisibleArea !== AOI_DANMAKU_DEFAULTS.visibleArea
+    || settings.danmakuScrollModeEnabled !== AOI_DANMAKU_DEFAULTS.scrollModeEnabled
+    || settings.danmakuTopModeEnabled !== AOI_DANMAKU_DEFAULTS.topModeEnabled
+    || settings.danmakuBottomModeEnabled !== AOI_DANMAKU_DEFAULTS.bottomModeEnabled
+    || settings.danmakuBlocklist !== AOI_DANMAKU_DEFAULTS.blocklist
 })
 </script>
 

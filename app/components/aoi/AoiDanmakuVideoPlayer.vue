@@ -1327,7 +1327,7 @@ defineExpose({
 @container (max-width: 760px) {
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar) {
     grid-template-columns: auto minmax(0, 1fr) auto;
-    gap: 5px;
+    gap: 4px;
   }
 
   .aoi-danmaku-video-player :deep(.aoi-danmaku-video-player__composer) {
@@ -1339,6 +1339,10 @@ defineExpose({
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--panel),
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--theater) {
     display: none;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-group--right) {
+    gap: 2px;
   }
 
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__menu-button) {
@@ -1360,7 +1364,7 @@ defineExpose({
     --aoi-icon-button-size: 28px;
     --md-icon-button-state-layer-size: 28px;
     width: 28px;
-    height: 34px;
+    height: 32px;
   }
 
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__anchor--rate) {
@@ -1409,13 +1413,13 @@ defineExpose({
   .aoi-danmaku-video-player__controls {
     gap: 5px;
     opacity: 1;
-    padding: 34px 6px 8px;
+    padding: 30px 6px 8px;
     pointer-events: auto;
     transform: none;
   }
 
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar) {
-    gap: 2px;
+    gap: 3px;
     grid-template-columns: auto minmax(0, 1fr) auto;
   }
 
@@ -1424,9 +1428,10 @@ defineExpose({
   }
 
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar .aoi-icon-button) {
-    --aoi-icon-button-size: 36px;
-    width: 36px;
-    height: 36px;
+    --aoi-icon-button-size: 32px;
+    --md-icon-button-state-layer-size: 32px;
+    width: 32px;
+    height: 34px;
   }
 
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__volume-control) {
@@ -1437,10 +1442,18 @@ defineExpose({
     display: none;
   }
 
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control--web-fullscreen) {
+    display: none;
+  }
+
+  .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__anchor--rate) {
+    width: 44px;
+  }
+
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__rate-button) {
-    width: 48px;
-    min-width: 48px;
-    max-width: 48px;
+    width: 44px;
+    min-width: 44px;
+    max-width: 44px;
     --md-filled-tonal-button-leading-space: 8px;
     --md-filled-tonal-button-trailing-space: 8px;
     --md-filled-tonal-button-with-leading-icon-leading-space: 8px;

@@ -78,7 +78,7 @@ function hashString(value: string) {
 
 function parseBlocklist(value: string) {
   return value
-    .split(/[\n,，;；、]+/)
+    .split(/[\n,;，；]+/)
     .map((item) => item.trim().toLowerCase())
     .filter(Boolean)
 }

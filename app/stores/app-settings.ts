@@ -40,6 +40,11 @@ import {
 import {
   createAoiActiveBuildDefaultAppSettings
 } from "~/utils/aoiBuildDefaults"
+import type { AoiDanmakuRuntimeSettings } from "~/utils/aoiDanmaku"
+import {
+  AOI_DANMAKU_DEFAULTS,
+  normalizeAoiDanmakuSettings
+} from "~/utils/aoiDanmaku"
 import type { AoiRgbaColor } from "~/utils/aoiColor"
 import {
   aoiRgbaToCss,
@@ -233,11 +238,6 @@ const DEFAULT_ACCENT_PRESET = "sunflower-orange"
 export const AOI_DEFAULT_CUSTOM_ACCENT: AoiRgbaColor = { r: 255, g: 125, b: 82, a: 1 }
 const DEFAULT_ACCENT = AOI_DEFAULT_CUSTOM_ACCENT
 const DEFAULT_ACCENT_PRESET_OPTION = AOI_ACCENT_PRESETS.find((preset) => preset.value === DEFAULT_ACCENT_PRESET) || AOI_ACCENT_PRESETS[0]!
-const DEFAULT_DANMAKU_BLOCKLIST = ""
-const DEFAULT_DANMAKU_FONT_SCALE = 1
-const DEFAULT_DANMAKU_OPACITY = 0.86
-const DEFAULT_DANMAKU_SPEED = 1
-const DEFAULT_DANMAKU_VISIBLE_AREA = 65
 
 function emptyState(): PersistedAppSettings {
   const defaults = createAoiActiveBuildDefaultAppSettings()
@@ -257,15 +257,15 @@ function emptyState(): PersistedAppSettings {
     backgroundOpacity: defaults.backgroundOpacity,
     colorfulNavigation: defaults.colorfulNavigation,
     customAccent: { ...defaults.customAccent },
-    danmakuBlocklist: DEFAULT_DANMAKU_BLOCKLIST,
-    danmakuBottomModeEnabled: true,
-    danmakuEnabled: true,
-    danmakuFontScale: DEFAULT_DANMAKU_FONT_SCALE,
-    danmakuOpacity: DEFAULT_DANMAKU_OPACITY,
-    danmakuScrollModeEnabled: true,
-    danmakuSpeed: DEFAULT_DANMAKU_SPEED,
-    danmakuTopModeEnabled: true,
-    danmakuVisibleArea: DEFAULT_DANMAKU_VISIBLE_AREA,
+    danmakuBlocklist: defaults.danmakuBlocklist,
+    danmakuBottomModeEnabled: defaults.danmakuBottomModeEnabled,
+    danmakuEnabled: defaults.danmakuEnabled,
+    danmakuFontScale: defaults.danmakuFontScale,
+    danmakuOpacity: defaults.danmakuOpacity,
+    danmakuScrollModeEnabled: defaults.danmakuScrollModeEnabled,
+    danmakuSpeed: defaults.danmakuSpeed,
+    danmakuTopModeEnabled: defaults.danmakuTopModeEnabled,
+    danmakuVisibleArea: defaults.danmakuVisibleArea,
     dataMode: defaults.dataMode,
     developerModeEnabled: false,
     disableWatchHistory: defaults.disableWatchHistory,
@@ -607,6 +607,17 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       accent60: activePreset.value.accent60
     }
   })
+  const danmakuRuntimeSettings = computed<AoiDanmakuRuntimeSettings>(() => normalizeAoiDanmakuSettings({
+    blocklist: danmakuBlocklist.value,
+    bottomModeEnabled: danmakuBottomModeEnabled.value,
+    enabled: danmakuEnabled.value,
+    fontScale: danmakuFontScale.value,
+    opacity: danmakuOpacity.value,
+    scrollModeEnabled: danmakuScrollModeEnabled.value,
+    speed: danmakuSpeed.value,
+    topModeEnabled: danmakuTopModeEnabled.value,
+    visibleArea: danmakuVisibleArea.value
+  }))
 
   function currentState(): PersistedAppSettings {
     return {
@@ -925,22 +936,22 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   }
 
   function setDanmakuFontScale(value: number) {
-    danmakuFontScale.value = clampNumber(value, 0.7, 1.6, DEFAULT_DANMAKU_FONT_SCALE)
+    danmakuFontScale.value = clampNumber(value, 0.7, 1.6, AOI_DANMAKU_DEFAULTS.fontScale)
     persist()
   }
 
   function setDanmakuOpacity(value: number) {
-    danmakuOpacity.value = clampNumber(value, 0.2, 1, DEFAULT_DANMAKU_OPACITY)
+    danmakuOpacity.value = clampNumber(value, 0.2, 1, AOI_DANMAKU_DEFAULTS.opacity)
     persist()
   }
 
   function setDanmakuSpeed(value: number) {
-    danmakuSpeed.value = clampNumber(value, 0.5, 2, DEFAULT_DANMAKU_SPEED)
+    danmakuSpeed.value = clampNumber(value, 0.5, 2, AOI_DANMAKU_DEFAULTS.speed)
     persist()
   }
 
   function setDanmakuVisibleArea(value: number) {
-    danmakuVisibleArea.value = clampNumber(value, 20, 100, DEFAULT_DANMAKU_VISIBLE_AREA)
+    danmakuVisibleArea.value = clampNumber(value, 20, 100, AOI_DANMAKU_DEFAULTS.visibleArea)
     persist()
   }
 
@@ -1237,6 +1248,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     danmakuEnabled,
     danmakuFontScale,
     danmakuOpacity,
+    danmakuRuntimeSettings,
     danmakuScrollModeEnabled,
     danmakuSpeed,
     danmakuTopModeEnabled,
