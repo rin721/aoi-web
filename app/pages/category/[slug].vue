@@ -29,7 +29,7 @@ useHead(() => ({
 <template>
   <div class="aoi-page">
     <PageState
-      v-if="error"
+      v-if="!pending && error"
       icon="circle-alert"
       title="分类加载失败"
       description="Mock API 返回异常，请重试。"
@@ -38,12 +38,8 @@ useHead(() => ({
       @action="refresh()"
     />
 
-    <div v-else-if="pending" v-aoi-reveal class="category-detail-state">
-      <AoiProgress indeterminate />
-    </div>
-
     <PageState
-      v-else-if="!data.category"
+      v-else-if="!pending && !data.category"
       icon="folder-x"
       title="分类不存在"
       :description="`没有找到「${slug}」这个分类。`"
@@ -52,7 +48,7 @@ useHead(() => ({
       @action="navigateTo('/category')"
     />
 
-    <template v-else>
+    <template v-else-if="!pending && data.category">
       <PageHeader
         icon="folder-open"
         eyebrow="Category"
@@ -74,12 +70,3 @@ useHead(() => ({
     </template>
   </div>
 </template>
-
-<style scoped>
-.category-detail-state {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 16px;
-}
-</style>

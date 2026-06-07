@@ -1,5 +1,5 @@
 {
-  "createdAt": "2026-06-06T21:47:07.384Z",
+  "createdAt": "2026-06-07T08:40:56.074Z",
   "description": "",
   "fields": [
     "preferredTheme",
@@ -94,7 +94,7 @@
       "radiusUnitPx": 4,
       "controlHeightPx": 40,
       "contentWidthMode": "percent",
-      "contentWidthPercent": 99,
+      "contentWidthPercent": 100,
       "contentMaxWidthPx": 1280,
       "contentWideWidthMode": "percent",
       "contentWideWidthPercent": 100,
@@ -141,5 +141,5 @@
     "routeProgressShowSpinner": false,
     "routeProgressEasing": "ease"
   },
-  "updatedAt": "2026-06-06T21:47:07.384Z"
+  "updatedAt": "2026-06-07T08:40:56.074Z"
 }

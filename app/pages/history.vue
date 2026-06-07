@@ -64,11 +64,7 @@ useHead({
       </template>
     </PageHeader>
 
-    <div v-if="!library.hydrated" v-aoi-reveal class="history-state">
-      <AoiProgress indeterminate />
-    </div>
-
-    <section v-else-if="hasHistory" class="history-grid" aria-label="最近观看">
+    <section v-if="hasHistory" class="history-grid" aria-label="最近观看">
       <AoiReveal
         v-for="(entry, index) in entries"
         :key="entry.video.id"
@@ -92,7 +88,7 @@ useHead({
     </section>
 
     <PageState
-      v-else
+      v-else-if="library.hydrated"
       icon="clock"
       title="暂无历史记录"
       description="打开任意视频详情页后，这里会记录最近观看和播放进度。"
@@ -104,13 +100,6 @@ useHead({
 </template>
 
 <style scoped>
-.history-state {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 16px;
-}
-
 .history-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));

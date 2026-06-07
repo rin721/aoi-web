@@ -124,9 +124,8 @@ function cancelPendingAction() {
         </AoiButton>
       </template>
 
-      <AoiProgress v-if="apiStatusPending" indeterminate />
       <PageState
-        v-else-if="apiStatusError"
+        v-if="!apiStatusPending && apiStatusError"
         icon="cloud-alert"
         title="API 状态不可用"
         description="当前 API 状态探测失败。"
@@ -135,7 +134,7 @@ function cancelPendingAction() {
         @action="refreshApiStatus()"
       />
 
-      <template v-else-if="apiStatus">
+      <template v-else-if="!apiStatusPending && apiStatus">
         <div class="settings-stat-grid">
           <div class="settings-stat">
             <span>模式</span>

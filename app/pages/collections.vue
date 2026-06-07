@@ -59,14 +59,10 @@ useHead({
       />
     </AoiReveal>
 
-    <div v-if="!library.hydrated" v-aoi-reveal class="collections-state">
-      <AoiProgress indeterminate />
-    </div>
-
-    <VideoGrid v-else-if="hasVideos" :videos="activeVideos" />
+    <VideoGrid v-if="hasVideos" :videos="activeVideos" />
 
     <PageState
-      v-else
+      v-else-if="library.hydrated"
       icon="star"
       :title="emptyTitle"
       :description="emptyDescription"
@@ -76,12 +72,3 @@ useHead({
     />
   </div>
 </template>
-
-<style scoped>
-.collections-state {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 16px;
-}
-</style>

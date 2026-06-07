@@ -1,5 +1,5 @@
 {
-  "activeProfileId": "default",
+  "activeProfileId": "build-profile",
   "profiles": [
     {
       "id": "default",
@@ -11,19 +11,11 @@
     },
     {
       "builtin": false,
-      "createdAt": "2026-06-06T21:46:41.341Z",
-      "description": "Original Aoi application defaults.",
-      "id": "default-copy",
-      "name": "Aoi Default Copy",
-      "updatedAt": "2026-06-06T21:46:41.341Z"
-    },
-    {
-      "builtin": false,
-      "createdAt": "2026-06-06T21:47:07.384Z",
+      "createdAt": "2026-06-07T08:40:56.074Z",
       "description": "",
       "id": "build-profile",
-      "name": "build-profile",
-      "updatedAt": "2026-06-06T21:47:07.384Z"
+      "name": "aoi",
+      "updatedAt": "2026-06-07T08:41:48.753Z"
     }
   ]
 }

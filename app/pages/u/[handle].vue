@@ -49,7 +49,7 @@ useHead(() => ({
 <template>
   <div class="aoi-page">
     <PageState
-      v-if="error"
+      v-if="!pending && error"
       icon="user-x"
       title="创作者不存在"
       :description="`没有找到 @${route.params.handle} 对应的创作者。`"
@@ -58,11 +58,7 @@ useHead(() => ({
       @action="navigateTo('/search')"
     />
 
-    <div v-else-if="pending" v-aoi-reveal class="creator-profile-state">
-      <AoiProgress indeterminate />
-    </div>
-
-    <article v-else-if="creator" class="creator-profile">
+    <article v-else-if="!pending && creator" class="creator-profile">
       <section v-aoi-reveal="'rise'" class="creator-profile__hero">
         <div class="creator-profile__avatar" aria-hidden="true">
           {{ creator.displayName.slice(0, 1).toUpperCase() }}
@@ -144,7 +140,7 @@ useHead(() => ({
     </article>
 
     <PageState
-      v-else
+      v-else-if="!pending"
       icon="user"
       title="创作者加载中断"
       description="没有拿到创作者资料。"
@@ -244,13 +240,6 @@ useHead(() => ({
   margin: 0;
   color: var(--aoi-text);
   font-size: 18px;
-}
-
-.creator-profile-state {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 16px;
 }
 
 @media (max-width: 700px) {

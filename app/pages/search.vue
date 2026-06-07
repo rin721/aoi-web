@@ -126,7 +126,7 @@ useHead(() => ({
     />
 
     <PageState
-      v-else-if="error"
+      v-else-if="!pending && error"
       icon="circle-alert"
       title="搜索失败"
       description="Mock API 返回异常，请重试。"
@@ -135,18 +135,14 @@ useHead(() => ({
       @action="refresh()"
     />
 
-    <div v-else-if="pending" v-aoi-reveal class="search-state">
-      <AoiProgress indeterminate />
-    </div>
-
     <PageState
-      v-else-if="totalCount === 0"
+      v-else-if="!pending && totalCount === 0"
       icon="scan-search"
       title="没有找到结果"
       :description="`没有匹配「${submittedQuery}」的内容。`"
     />
 
-    <section v-else v-aoi-reveal="'rise'" class="search-results" aria-labelledby="search-results-title">
+    <section v-else-if="!pending" v-aoi-reveal="'rise'" class="search-results" aria-labelledby="search-results-title">
       <div class="search-results__header">
         <h2 id="search-results-title" class="result-title">
           搜索结果
@@ -223,13 +219,6 @@ useHead(() => ({
   gap: 10px;
   align-items: end;
   margin: 0 0 18px;
-}
-
-.search-state {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 16px;
 }
 
 .search-results,

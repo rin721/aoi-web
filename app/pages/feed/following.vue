@@ -19,7 +19,7 @@ useHead({
     />
 
     <PageState
-      v-if="error"
+      v-if="!pending && error"
       icon="cloud-alert"
       title="关注流加载失败"
       description="mock API 暂时没有返回关注流数据。"
@@ -28,11 +28,7 @@ useHead({
       @action="refresh()"
     />
 
-    <div v-else-if="pending" v-aoi-reveal class="following-state">
-      <AoiProgress indeterminate />
-    </div>
-
-    <template v-else-if="feed">
+    <template v-else-if="!pending && feed">
       <PageState
         v-if="!feed.authenticated && following.hydrated && following.followedCount === 0"
         icon="user-round-plus"
@@ -109,7 +105,7 @@ useHead({
     </template>
 
     <PageState
-      v-else
+      v-else-if="!pending"
       icon="user-round-plus"
       title="关注流暂无内容"
       description="没有拿到关注流预览数据。"
@@ -121,13 +117,6 @@ useHead({
 </template>
 
 <style scoped>
-.following-state {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 16px;
-}
-
 .following-section {
   display: grid;
   gap: 12px;

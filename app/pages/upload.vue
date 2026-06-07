@@ -166,11 +166,7 @@ useHead({
       </template>
     </PageHeader>
 
-    <div v-if="!drafts.hydrated" v-aoi-reveal class="upload-state">
-      <AoiProgress indeterminate />
-    </div>
-
-    <div v-else class="upload-workspace">
+    <div v-if="drafts.hydrated" class="upload-workspace">
       <main class="upload-workspace__main">
         <PageState
           v-if="!activeDraft"
@@ -366,16 +362,11 @@ useHead({
 </template>
 
 <style scoped>
-.upload-state,
 .upload-panel {
   border: 1px solid var(--aoi-border);
   border-radius: var(--aoi-radius-sm);
   background: var(--aoi-surface);
   box-shadow: var(--aoi-shadow-sm);
-}
-
-.upload-state {
-  padding: 16px;
 }
 
 .upload-workspace {

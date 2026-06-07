@@ -34,7 +34,7 @@ useHead({
     />
 
     <PageState
-      v-if="error"
+      v-if="!pending && error"
       icon="circle-alert"
       title="分类加载失败"
       description="Mock API 返回异常，请重试。"
@@ -43,11 +43,7 @@ useHead({
       @action="refresh()"
     />
 
-    <div v-else-if="pending" v-aoi-reveal class="category-loading">
-      <AoiProgress indeterminate />
-    </div>
-
-    <div v-else class="category-grid">
+    <div v-else-if="!pending" class="category-grid">
       <AoiReveal
         v-for="(category, index) in data.categories"
         :key="category.id"
@@ -72,12 +68,5 @@ useHead({
 
 .category-card-reveal {
   min-width: 0;
-}
-
-.category-loading {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 16px;
 }
 </style>

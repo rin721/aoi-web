@@ -47,9 +47,7 @@ const hasPlayerSettings = computed(() => {
         </AoiButton>
       </template>
 
-      <AoiProgress v-if="!playerSettings.hydrated" indeterminate />
-
-      <template v-else>
+      <template v-if="playerSettings.hydrated">
         <SettingsRow
           title="音量"
           :description="`当前音量 ${volumeModel}%`"
@@ -86,6 +84,7 @@ const hasPlayerSettings = computed(() => {
     </SettingsPanel>
 
     <SettingsPanel
+      v-if="playerSettings.hydrated"
       icon="activity"
       title="当前状态"
       description="用于确认持久化设置是否已恢复。"

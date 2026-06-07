@@ -44,18 +44,14 @@ const sortOptions = [
       />
     </div>
 
-    <div v-if="!hydrated" class="comment-thread__state">
-      <AoiProgress indeterminate />
-    </div>
-
     <PageState
-      v-else-if="comments.length === 0"
+      v-if="hydrated && comments.length === 0"
       icon="message-circle"
       title="还没有本地评论"
       description="写下第一条讨论，刷新页面后也会保存在当前浏览器。"
     />
 
-    <div v-else class="comment-thread__list">
+    <div v-else-if="hydrated" class="comment-thread__list">
       <AoiReveal
         v-for="(comment, index) in comments"
         :key="comment.id"
@@ -100,13 +96,6 @@ const sortOptions = [
 
 .comment-thread__sort {
   width: min(180px, 100%);
-}
-
-.comment-thread__state {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 14px;
 }
 
 .comment-thread__list {

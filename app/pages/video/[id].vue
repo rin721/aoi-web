@@ -76,7 +76,7 @@ useHead(() => ({
 <template>
   <div class="aoi-page">
     <PageState
-      v-if="error"
+      v-if="!pending && error"
       icon="video-off"
       title="视频不存在"
       :description="`没有找到“${route.params.id}”对应的视频。`"
@@ -85,11 +85,7 @@ useHead(() => ({
       @action="navigateTo('/')"
     />
 
-    <div v-else-if="pending" v-aoi-reveal class="video-detail-state">
-      <AoiProgress indeterminate />
-    </div>
-
-    <article v-else-if="video" class="video-detail">
+    <article v-else-if="!pending && video" class="video-detail">
       <VideoPlayerShell
         :video="video"
         :initial-progress-seconds="initialProgressSeconds"
@@ -180,7 +176,7 @@ useHead(() => ({
     </article>
 
     <PageState
-      v-else
+      v-else-if="!pending"
       icon="video"
       title="视频加载中断"
       description="没有拿到视频数据。"
@@ -253,13 +249,6 @@ useHead(() => ({
 
 .video-detail__side :deep(.video-grid) {
   grid-template-columns: 1fr;
-}
-
-.video-detail-state {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 16px;
 }
 
 @media (max-width: 960px) {
