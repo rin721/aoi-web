@@ -474,6 +474,37 @@
       }
     }
   },
+  "player": {
+    "ariaLabel": "{title} player",
+    "controls": "Player controls",
+    "exitFullscreen": "Exit fullscreen",
+    "fullscreen": "Fullscreen",
+    "hideDanmaku": "Hide danmaku",
+    "hidePanel": "Collapse danmaku list",
+    "loading": "Loading video",
+    "mute": "Mute",
+    "pause": "Pause video",
+    "play": "Play video",
+    "rate": "Playback speed",
+    "retry": "Retry",
+    "showDanmaku": "Show danmaku",
+    "showPanel": "Expand danmaku list",
+    "source": "Video source",
+    "sourceDefault": "Auto",
+    "sourceUnavailable": "No source",
+    "theater": "Theater mode",
+    "unmute": "Unmute",
+    "volume": "Volume",
+    "errors": {
+      "dash": "The DASH stream failed to load.",
+      "hls": "The HLS stream failed to load.",
+      "load": "Video failed to load.",
+      "noSource": "No playable video source is available.",
+      "sourceInit": "Video source initialization failed.",
+      "unsupportedFormat": "This video format is not supported by the current browser.",
+      "unsupportedHls": "HLS playback is not supported by the current browser."
+    }
+  },
   "lightbox": {
     "close": "Close",
     "counter": "{current} / {total}",

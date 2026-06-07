@@ -37,9 +37,23 @@ export interface VideoSummary {
 
 export interface VideoDetail extends VideoSummary {
   sourceUrl: string
+  sources?: VideoSourceOption[]
   likeCount: number
   tags: string[]
   related: VideoSummary[]
+}
+
+export type VideoSourceKind = "native" | "hls" | "dash"
+
+export interface VideoSourceOption {
+  id: string
+  src: string
+  kind: VideoSourceKind
+  label: string
+  mimeType?: string
+  qualityLabel?: string
+  bitrateKbps?: number
+  isDefault?: boolean
 }
 
 export type VideoDanmakuMode = "scroll" | "top" | "bottom"

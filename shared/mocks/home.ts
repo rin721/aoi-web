@@ -347,6 +347,17 @@ export function getMockVideoDetail(idOrSlug: string): VideoDetail | null {
     likeCount: Math.max(24, Math.round(video.viewCount / 12)),
     related: mockVideos.filter((item) => item.id !== video.id).slice(0, 4),
     sourceUrl: "/media/aoi-sample.webm",
+    sources: [
+      {
+        id: "sample-native",
+        src: "/media/aoi-sample.webm",
+        kind: "native",
+        label: "本地示例",
+        mimeType: "video/webm",
+        qualityLabel: "Auto",
+        isDefault: true
+      }
+    ],
     tags
   }
 }

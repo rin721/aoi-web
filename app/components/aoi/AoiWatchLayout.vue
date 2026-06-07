@@ -20,7 +20,8 @@
   align-items: start;
 }
 
-.aoi-watch-layout:has(.aoi-video-player--theater) {
+.aoi-watch-layout:has(.aoi-video-player--theater),
+.aoi-watch-layout:has(.aoi-danmaku-video-player--theater) {
   grid-template-columns: minmax(0, 1fr) minmax(292px, 328px);
 }
 
@@ -45,7 +46,8 @@
     grid-template-columns: 1fr;
   }
 
-  .aoi-watch-layout:has(.aoi-video-player--theater) {
+  .aoi-watch-layout:has(.aoi-video-player--theater),
+  .aoi-watch-layout:has(.aoi-danmaku-video-player--theater) {
     grid-template-columns: 1fr;
   }
 }

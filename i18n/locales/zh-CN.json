@@ -474,6 +474,37 @@
       }
     }
   },
+  "player": {
+    "ariaLabel": "{title} 播放器",
+    "controls": "播放器控制",
+    "exitFullscreen": "退出全屏",
+    "fullscreen": "全屏",
+    "hideDanmaku": "隐藏弹幕",
+    "hidePanel": "收起弹幕列表",
+    "loading": "正在加载视频",
+    "mute": "静音",
+    "pause": "暂停视频",
+    "play": "播放视频",
+    "rate": "倍速",
+    "retry": "重试",
+    "showDanmaku": "显示弹幕",
+    "showPanel": "展开弹幕列表",
+    "source": "视频源",
+    "sourceDefault": "自动",
+    "sourceUnavailable": "无可用源",
+    "theater": "剧场模式",
+    "unmute": "取消静音",
+    "volume": "音量",
+    "errors": {
+      "dash": "DASH 视频流加载失败。",
+      "hls": "HLS 视频流加载失败。",
+      "load": "视频加载失败。",
+      "noSource": "没有可播放的视频源。",
+      "sourceInit": "视频源初始化失败。",
+      "unsupportedFormat": "当前浏览器不支持这个视频格式。",
+      "unsupportedHls": "当前浏览器不支持 HLS 播放。"
+    }
+  },
   "lightbox": {
     "close": "关闭",
     "counter": "{current} / {total}",

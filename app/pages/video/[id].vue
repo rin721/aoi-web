@@ -10,8 +10,6 @@ const comments = useCommentsStore()
 const danmaku = useDanmakuStore()
 const id = computed(() => String(route.params.id || ""))
 const commentSortMode = ref<CommentSortMode>("newest")
-const playerRef = ref<{ seekTo: (seconds: number) => void } | null>(null)
-const playerCurrentTime = ref(0)
 
 const { data: watchPayload, error, pending, refresh } = useAsyncData(() => `video-watch-${id.value}`, async () => {
   const video = await api.getVideoDetail(id.value)
@@ -98,10 +96,6 @@ function submitDanmaku(payload: {
   }
 }
 
-function seekDanmaku(seconds: number) {
-  playerRef.value?.seekTo(seconds)
-}
-
 function submitComment(body: string) {
   if (video.value) {
     comments.submitComment(video.value.id, body)
@@ -165,18 +159,19 @@ useHead(() => ({
 
       <AoiWatchLayout>
         <template #primary>
-          <AoiVideoPlayer
-            ref="playerRef"
+          <AoiDanmakuVideoPlayer
             :src="video.sourceUrl"
+            :sources="video.sources"
             :title="video.title"
             :duration-seconds="video.durationSeconds"
             :initial-progress-seconds="initialProgressSeconds"
             :danmaku-items="mergedDanmakuItems"
             :danmaku-enabled="settings.danmakuEnabled"
+            show-danmaku-panel
+            panel-default-open
             @ended="onPlayerEnded"
             @progress="onPlayerProgress"
             @send-danmaku="submitDanmaku"
-            @time-change="playerCurrentTime = $event"
           />
         </template>
 
@@ -184,11 +179,6 @@ useHead(() => ({
           <CreatorCard
             v-if="creator"
             :creator="creator"
-          />
-          <AoiDanmakuPanel
-            :items="mergedDanmakuItems"
-            :current-time="playerCurrentTime"
-            @seek="seekDanmaku"
           />
           <AoiVideoQueueList
             v-if="primaryQueue.length && !settings.noRelatedVideos"

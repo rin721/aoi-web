@@ -474,6 +474,37 @@
       }
     }
   },
+  "player": {
+    "ariaLabel": "{title} プレイヤー",
+    "controls": "プレイヤー操作",
+    "exitFullscreen": "全画面を終了",
+    "fullscreen": "全画面",
+    "hideDanmaku": "弾幕を非表示",
+    "hidePanel": "弾幕リストを閉じる",
+    "loading": "動画を読み込み中",
+    "mute": "ミュート",
+    "pause": "動画を一時停止",
+    "play": "動画を再生",
+    "rate": "再生速度",
+    "retry": "再試行",
+    "showDanmaku": "弾幕を表示",
+    "showPanel": "弾幕リストを開く",
+    "source": "動画ソース",
+    "sourceDefault": "自動",
+    "sourceUnavailable": "ソースなし",
+    "theater": "シアターモード",
+    "unmute": "ミュート解除",
+    "volume": "音量",
+    "errors": {
+      "dash": "DASH ストリームを読み込めませんでした。",
+      "hls": "HLS ストリームを読み込めませんでした。",
+      "load": "動画を読み込めませんでした。",
+      "noSource": "再生できる動画ソースがありません。",
+      "sourceInit": "動画ソースの初期化に失敗しました。",
+      "unsupportedFormat": "現在のブラウザではこの動画形式に対応していません。",
+      "unsupportedHls": "現在のブラウザでは HLS 再生に対応していません。"
+    }
+  },
   "lightbox": {
     "close": "閉じる",
     "counter": "{current} / {total}",

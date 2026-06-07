@@ -41,7 +41,9 @@ useHead({
           </div>
         </div>
 
-        <div v-if="!pending && error" v-aoi-reveal class="home-state home-state--error">
+        <VideoGridSkeleton v-if="pending" />
+
+        <div v-else-if="!pending && error" v-aoi-reveal class="home-state home-state--error">
           <p>内容加载失败。</p>
           <AoiButton variant="tonal" icon="refresh-cw" @click="refresh()">重试</AoiButton>
         </div>

@@ -14,5 +14,7 @@ export type {
   VideoDanmakuMode,
   VideoDanmakuPayload,
   VideoDetail,
+  VideoSourceKind,
+  VideoSourceOption,
   VideoSummary
 } from "~~/shared/types/api"
