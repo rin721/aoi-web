@@ -1,0 +1,17 @@
+{
+  "name": "@aoi/runtime-core",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aoi/materials": "workspace:*",
+    "@aoi/protocol": "workspace:*",
+    "vue": "^3.5.25"
+  }
+}
