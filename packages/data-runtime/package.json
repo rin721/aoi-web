@@ -1,0 +1,16 @@
+{
+  "name": "@aoi/data-runtime",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "test": "node --import tsx --test src/index.test.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@aoi/protocol": "workspace:*"
+  }
+}

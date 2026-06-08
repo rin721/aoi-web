@@ -1,0 +1,20 @@
+{
+  "name": "@aoi/runtime",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@aoi/data-runtime": "workspace:*",
+    "@aoi/materials": "workspace:*",
+    "@aoi/protocol": "workspace:*",
+    "@aoi/runtime-core": "workspace:*",
+    "@nuxt/icon": "^2.2.3",
+    "nuxt": "^4.4.7",
+    "vue": "^3.5.25"
+  }
+}

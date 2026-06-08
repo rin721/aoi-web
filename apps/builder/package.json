@@ -1,0 +1,22 @@
+{
+  "name": "@aoi/builder",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "nuxt build",
+    "dev": "nuxt dev",
+    "preview": "nuxt preview",
+    "typecheck": "nuxt typecheck"
+  },
+  "dependencies": {
+    "@aoi/compiler": "workspace:*",
+    "@aoi/data-runtime": "workspace:*",
+    "@aoi/materials": "workspace:*",
+    "@aoi/protocol": "workspace:*",
+    "@aoi/runtime-core": "workspace:*",
+    "@aoi/template-admin-crud": "workspace:*",
+    "@nuxt/icon": "^2.2.3",
+    "nuxt": "^4.4.7",
+    "vue": "^3.5.25"
+  }
+}
