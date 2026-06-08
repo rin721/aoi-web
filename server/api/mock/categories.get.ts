@@ -1,3 +1,3 @@
-import { mockCategories } from "../../../shared/mocks/home"
+import { mockCategoryTree } from "../../../shared/mocks/home"
 
-export default defineEventHandler(() => mockCategories)
+export default defineEventHandler(() => mockCategoryTree)

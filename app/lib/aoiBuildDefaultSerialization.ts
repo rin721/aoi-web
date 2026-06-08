@@ -5,6 +5,20 @@ import {
 import {
   normalizeAoiRgbaColor
 } from "../utils/aoiColor"
+import type { AoiAccentDerivationStrengths } from "../utils/aoiAccentDerivation"
+import {
+  AOI_ACCENT_DERIVATION_DEFAULTS,
+  normalizeAoiAccentDerivationStrengths
+} from "../utils/aoiAccentDerivation"
+import type {
+  AoiDerivationPreset,
+  AoiSettingDerivationStrengths
+} from "../utils/aoiSettingDerivation"
+import {
+  AOI_SETTING_DERIVATION_DEFAULTS,
+  isAoiDerivationPreset,
+  normalizeAoiSettingDerivationStrengths
+} from "../utils/aoiSettingDerivation"
 import {
   AOI_REVEAL_DEFAULTS,
   clampAoiRevealSetting,
@@ -37,8 +51,10 @@ export type AoiBuildAppearanceDensity = "comfortable" | "compact"
 export type AoiBuildAppearanceSize = "small" | "default" | "large"
 export type AoiBuildAppearanceShape = "square" | "soft" | "pill"
 export type AoiBuildAppearanceContrast = "normal" | "high"
+export type AoiBuildSettingsDisplayDepth = "basic" | "all"
 
 export interface AoiBuildDefaultAppSettings {
+  accentDerivationStrengths: AoiAccentDerivationStrengths
   accentMode: AoiBuildAccentMode
   accentPreset: string
   appearanceContrast: AoiBuildAppearanceContrast
@@ -60,6 +76,7 @@ export interface AoiBuildDefaultAppSettings {
   danmakuTopModeEnabled: boolean
   danmakuVisibleArea: number
   dataMode: AoiBuildDataMode
+  derivationPreset: AoiDerivationPreset
   disableWatchHistory: boolean
   hideRecentSearches: boolean
   locale: AoiBuildLocale
@@ -93,6 +110,8 @@ export interface AoiBuildDefaultAppSettings {
   scrollSnapEnabled: boolean
   scrollSnapMode: string
   scrollSnapStrength: number
+  settingsDisplayDepth: AoiBuildSettingsDisplayDepth
+  settingDerivationStrengths: AoiSettingDerivationStrengths
   smoothScrollDamping: number
   smoothScrollDurationMs: number
   smoothScrollEnabled: boolean
@@ -111,6 +130,7 @@ export const AOI_BUILD_DEFAULT_CONFIG_PATHS = {
 } as const
 
 export const AOI_FALLBACK_BUILD_DEFAULT_APP_SETTINGS: AoiBuildDefaultAppSettings = {
+  accentDerivationStrengths: AOI_ACCENT_DERIVATION_DEFAULTS,
   accentMode: "preset",
   accentPreset: "sunflower-orange",
   appearanceContrast: "normal",
@@ -132,6 +152,7 @@ export const AOI_FALLBACK_BUILD_DEFAULT_APP_SETTINGS: AoiBuildDefaultAppSettings
   danmakuTopModeEnabled: AOI_DANMAKU_DEFAULTS.topModeEnabled,
   danmakuVisibleArea: AOI_DANMAKU_DEFAULTS.visibleArea,
   dataMode: "standard",
+  derivationPreset: "balanced",
   disableWatchHistory: false,
   hideRecentSearches: false,
   locale: "zh-CN",
@@ -165,6 +186,8 @@ export const AOI_FALLBACK_BUILD_DEFAULT_APP_SETTINGS: AoiBuildDefaultAppSettings
   scrollSnapEnabled: AOI_SCROLL_DEFAULTS.snap.enabled,
   scrollSnapMode: AOI_SCROLL_DEFAULTS.snap.mode,
   scrollSnapStrength: AOI_SCROLL_DEFAULTS.snap.strength,
+  settingsDisplayDepth: "basic",
+  settingDerivationStrengths: AOI_SETTING_DERIVATION_DEFAULTS,
   smoothScrollDamping: AOI_SCROLL_DEFAULTS.smooth.damping,
   smoothScrollDurationMs: AOI_SCROLL_DEFAULTS.smooth.durationMs,
   smoothScrollEnabled: AOI_SCROLL_DEFAULTS.smooth.enabled,
@@ -216,6 +239,10 @@ function isAppearanceContrast(value: unknown): value is AoiBuildAppearanceContra
   return value === "normal" || value === "high"
 }
 
+function isSettingsDisplayDepth(value: unknown): value is AoiBuildSettingsDisplayDepth {
+  return value === "basic" || value === "all"
+}
+
 export function normalizeAoiBuildDefaultAppSettings(
   value: unknown,
   fallback: AoiBuildDefaultAppSettings = AOI_FALLBACK_BUILD_DEFAULT_APP_SETTINGS
@@ -226,6 +253,7 @@ export function normalizeAoiBuildDefaultAppSettings(
     : fallback.specUnits
 
   return {
+    accentDerivationStrengths: normalizeAoiAccentDerivationStrengths(candidate.accentDerivationStrengths, fallback.accentDerivationStrengths),
     accentMode: isAccentMode(candidate.accentMode) ? candidate.accentMode : fallback.accentMode,
     accentPreset: typeof candidate.accentPreset === "string" && candidate.accentPreset ? candidate.accentPreset : fallback.accentPreset,
     appearanceContrast: isAppearanceContrast(candidate.appearanceContrast) ? candidate.appearanceContrast : fallback.appearanceContrast,
@@ -247,6 +275,7 @@ export function normalizeAoiBuildDefaultAppSettings(
     danmakuTopModeEnabled: typeof candidate.danmakuTopModeEnabled === "boolean" ? candidate.danmakuTopModeEnabled : fallback.danmakuTopModeEnabled,
     danmakuVisibleArea: clampNumber(candidate.danmakuVisibleArea, 20, 100, fallback.danmakuVisibleArea),
     dataMode: isDataMode(candidate.dataMode) ? candidate.dataMode : fallback.dataMode,
+    derivationPreset: isAoiDerivationPreset(candidate.derivationPreset) ? candidate.derivationPreset : fallback.derivationPreset,
     disableWatchHistory: typeof candidate.disableWatchHistory === "boolean" ? candidate.disableWatchHistory : fallback.disableWatchHistory,
     hideRecentSearches: typeof candidate.hideRecentSearches === "boolean" ? candidate.hideRecentSearches : fallback.hideRecentSearches,
     locale: isLocale(candidate.locale) ? candidate.locale : fallback.locale,
@@ -280,6 +309,8 @@ export function normalizeAoiBuildDefaultAppSettings(
     scrollSnapEnabled: typeof candidate.scrollSnapEnabled === "boolean" ? candidate.scrollSnapEnabled : fallback.scrollSnapEnabled,
     scrollSnapMode: isAoiScrollSnapMode(candidate.scrollSnapMode) ? candidate.scrollSnapMode : fallback.scrollSnapMode,
     scrollSnapStrength: clampAoiScrollSetting(candidate.scrollSnapStrength, 0, 100, fallback.scrollSnapStrength),
+    settingsDisplayDepth: isSettingsDisplayDepth(candidate.settingsDisplayDepth) ? candidate.settingsDisplayDepth : fallback.settingsDisplayDepth,
+    settingDerivationStrengths: normalizeAoiSettingDerivationStrengths(candidate.settingDerivationStrengths, fallback.settingDerivationStrengths),
     smoothScrollDamping: clampAoiScrollSetting(candidate.smoothScrollDamping, 0.04, 0.22, fallback.smoothScrollDamping),
     smoothScrollDurationMs: clampAoiScrollSetting(candidate.smoothScrollDurationMs, 600, 1800, fallback.smoothScrollDurationMs),
     smoothScrollEnabled: typeof candidate.smoothScrollEnabled === "boolean" ? candidate.smoothScrollEnabled : fallback.smoothScrollEnabled,

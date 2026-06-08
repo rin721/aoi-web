@@ -29,6 +29,12 @@ function toggleField(key: string, selected: boolean) {
 
   emit("update:modelValue", Array.from(fields))
 }
+
+function fieldLabel(field: AoiSettingsProfileField) {
+  const depth = field.depth === "all" ? "全部" : "基础"
+
+  return `${field.label} · ${depth} · ${field.path}`
+}
 </script>
 
 <template>
@@ -59,7 +65,7 @@ function toggleField(key: string, selected: boolean) {
           v-for="field in group.fields"
           :key="field.key"
           :model-value="props.modelValue.includes(field.key)"
-          :label="`${field.label} · ${field.path}`"
+          :label="fieldLabel(field)"
           @update:model-value="(value) => toggleField(field.key, value)"
         />
       </section>

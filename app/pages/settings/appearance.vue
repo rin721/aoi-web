@@ -18,11 +18,24 @@ import {
   AOI_SPEC_UNIT_RANGES
 } from "~/utils/aoiSpecUnits"
 import type { AoiRgbaColor } from "~/utils/aoiColor"
+import type { AoiAccentDerivedTone } from "~/utils/aoiAccentDerivation"
+import {
+  AOI_ACCENT_DERIVATION_STRENGTH_RANGE,
+  AOI_ACCENT_DERIVED_TONES
+} from "~/utils/aoiAccentDerivation"
+import type {
+  AoiDerivationPreset,
+  AoiSettingDerivationStrengthKey
+} from "~/utils/aoiSettingDerivation"
+import {
+  AOI_DERIVATION_PRESETS
+} from "~/utils/aoiSettingDerivation"
 
 const { t } = useI18n()
 const settings = useAppSettingsStore()
 const resetAppearanceConfirmOpen = ref(false)
 const resettingAppearance = ref(false)
+const showAdvancedSettings = computed(() => settings.settingsDisplayDepth === "all")
 
 const themeCards: Array<{ icon: string, label: string, value: AoiPreferredTheme }> = [
   { icon: "sun", label: "浅色主题", value: "light" },
@@ -108,6 +121,29 @@ const contrastOptions = computed<Array<AppearanceOption<AoiAppearanceContrast>>>
     value: "high"
   }
 ])
+const derivationPresetOptions = computed<Array<AppearanceOption<AoiDerivationPreset>>>(() => AOI_DERIVATION_PRESETS.map((value) => ({
+  icon: value === "soft" ? "cloud" : value === "vivid" ? "sparkles" : value === "custom" ? "sliders-horizontal" : "circle-dot",
+  label: t(`settings.derivation.presets.${value}.label`),
+  description: t(`settings.derivation.presets.${value}.description`),
+  value
+})))
+const themeDerivationKeys: AoiSettingDerivationStrengthKey[] = [
+  "auxiliaryPalette",
+  "surfaceTint",
+  "stateLayer",
+  "navigationColor",
+  "materialColor",
+  "shadowDepth"
+]
+const specDerivationKeys: AoiSettingDerivationStrengthKey[] = [
+  "typography",
+  "spacing",
+  "radius",
+  "controls",
+  "contentWidth",
+  "mediaGrid",
+  "settingsLayout"
+]
 
 const specUnitControls: Array<{
   descriptionKey: string
@@ -212,6 +248,55 @@ const customAccentModel = computed<AoiRgbaColor>({
   set: (value) => settings.setCustomAccent(value)
 })
 const defaultCustomAccent = computed(() => settings.activeDefaultCustomAccent())
+const accentPreviewTones = ["accent10", "accent20", "accent40", "accent50", "accent60"] as const
+const accentDerivationIsDefault = computed(() => {
+  return AOI_ACCENT_DERIVED_TONES.every((tone) => {
+    return settings.accentDerivationStrengths[tone] === AOI_ACCENT_DERIVATION_STRENGTH_RANGE.default
+  })
+})
+const accentDerivationControls = computed(() => AOI_ACCENT_DERIVED_TONES.map((tone) => ({
+  tone,
+  title: t(`settings.appearance.palette.derivation.tones.${tone}.title`),
+  label: t(`settings.appearance.palette.derivation.tones.${tone}.label`)
+})))
+const themeDerivationControls = computed(() => themeDerivationKeys.map(createDerivationControl))
+const specDerivationControls = computed(() => specDerivationKeys.map(createDerivationControl))
+
+function createDerivationControl(key: AoiSettingDerivationStrengthKey) {
+  const value = settings.settingDerivationStrengths[key]
+
+  return {
+    key,
+    value,
+    title: t(`settings.derivation.controls.${key}.title`),
+    label: t(`settings.derivation.controls.${key}.label`),
+    description: t("settings.derivation.valueDescription", {
+      description: t(`settings.derivation.controls.${key}.description`),
+      value
+    })
+  }
+}
+
+function accentDerivationDescription(tone: AoiAccentDerivedTone) {
+  const current = t("settings.appearance.palette.derivation.toneDescription", {
+    value: settings.accentDerivationStrengths[tone]
+  })
+  const affected = t(`settings.appearance.palette.derivation.tones.${tone}.affected`)
+
+  return `${current} ${affected}`
+}
+
+function setAccentDerivationStrength(tone: AoiAccentDerivedTone, value: number) {
+  settings.setAccentDerivationStrength(tone, value)
+}
+
+function setDerivationPreset(value: string) {
+  settings.setDerivationPreset(value as AoiDerivationPreset)
+}
+
+function setSettingDerivationStrength(key: string, value: number) {
+  settings.setSettingDerivationStrength(key as AoiSettingDerivationStrengthKey, value)
+}
 
 function setSpecUnit(key: AoiSpecUnitKey, value: number) {
   settings.setSpecUnit(key, value)
@@ -350,7 +435,7 @@ function formatBytes(value: number) {
       :title="t('settings.appearance.form.title')"
       :description="t('settings.appearance.form.description')"
     >
-      <template #actions>
+      <template v-if="showAdvancedSettings" #actions>
         <AoiButton
           variant="outlined"
           size="sm"
@@ -425,9 +510,24 @@ function formatBytes(value: number) {
       >
         <AoiSwitch v-model="settings.colorfulNavigation" />
       </SettingsRow>
+
+      <SettingsRow
+        v-if="showAdvancedSettings"
+        :title="t('settings.derivation.presetTitle')"
+        :description="t('settings.derivation.presetDescription')"
+      >
+        <AoiSegmentedControl
+          :model-value="settings.derivationPreset"
+          :items="derivationPresetOptions"
+          :columns="2"
+          :aria-label="t('settings.derivation.presetTitle')"
+          @update:model-value="setDerivationPreset"
+        />
+      </SettingsRow>
     </SettingsPanel>
 
     <SettingsPanel
+      v-if="showAdvancedSettings"
       id="appearance-spec-units"
       icon="ruler"
       :title="t('settings.appearance.specUnits.title')"
@@ -489,6 +589,17 @@ function formatBytes(value: number) {
           />
         </SettingsRow>
       </div>
+
+      <div class="settings-derivation-section">
+        <div class="settings-derivation-section__header">
+          <strong>{{ t("settings.derivation.specTitle") }}</strong>
+          <span>{{ t("settings.derivation.specDescription") }}</span>
+        </div>
+        <SettingsDerivationControlGrid
+          :controls="specDerivationControls"
+          @update="setSettingDerivationStrength"
+        />
+      </div>
     </SettingsPanel>
 
     <SettingsPanel
@@ -496,6 +607,18 @@ function formatBytes(value: number) {
       :title="t('settings.appearance.palette.title')"
       :description="t('settings.appearance.palette.description')"
     >
+      <template v-if="showAdvancedSettings" #actions>
+        <AoiButton
+          variant="outlined"
+          size="sm"
+          icon="rotate-ccw"
+          :disabled="accentDerivationIsDefault"
+          @click="settings.resetAccentDerivationStrengths()"
+        >
+          {{ t("settings.appearance.palette.derivation.reset") }}
+        </AoiButton>
+      </template>
+
       <div class="settings-palette-grid">
         <AoiChoiceCard
           v-for="preset in AOI_ACCENT_PRESETS"
@@ -527,6 +650,61 @@ function formatBytes(value: number) {
           :label="t('settings.appearance.palette.customTitle')"
           :reset-label="t('components.colorPalette.reset')"
           :reset-value="defaultCustomAccent"
+        />
+      </div>
+
+      <div v-if="showAdvancedSettings" class="settings-accent-derivation">
+        <div class="settings-accent-derivation__header">
+          <strong>{{ t("settings.appearance.palette.derivation.title") }}</strong>
+          <span>{{ t("settings.appearance.palette.derivation.description") }}</span>
+        </div>
+
+        <div
+          class="settings-accent-preview"
+          :aria-label="t('settings.appearance.palette.derivation.preview')"
+        >
+          <span
+            v-for="tone in accentPreviewTones"
+            :key="tone"
+            :style="{ background: settings.accentScale[tone] }"
+            :title="tone"
+            :aria-label="tone"
+          />
+        </div>
+
+        <div class="settings-accent-derivation__grid">
+          <SettingsRow
+            v-for="control in accentDerivationControls"
+            :key="control.tone"
+            :title="control.title"
+            :description="accentDerivationDescription(control.tone)"
+          >
+            <div class="settings-accent-strength-control">
+              <AoiSlider
+                class="settings-accent-strength-control__slider"
+                :model-value="settings.accentDerivationStrengths[control.tone]"
+                :label="control.label"
+                :min="AOI_ACCENT_DERIVATION_STRENGTH_RANGE.min"
+                :max="AOI_ACCENT_DERIVATION_STRENGTH_RANGE.max"
+                :step="AOI_ACCENT_DERIVATION_STRENGTH_RANGE.step"
+                @update:model-value="(value) => setAccentDerivationStrength(control.tone, value)"
+              />
+              <span class="settings-accent-strength-control__value">
+                {{ settings.accentDerivationStrengths[control.tone] }}%
+              </span>
+            </div>
+          </SettingsRow>
+        </div>
+      </div>
+
+      <div v-if="showAdvancedSettings" class="settings-derivation-section">
+        <div class="settings-derivation-section__header">
+          <strong>{{ t("settings.derivation.themeTitle") }}</strong>
+          <span>{{ t("settings.derivation.themeDescription") }}</span>
+        </div>
+        <SettingsDerivationControlGrid
+          :controls="themeDerivationControls"
+          @update="setSettingDerivationStrength"
         />
       </div>
     </SettingsPanel>
@@ -680,6 +858,86 @@ function formatBytes(value: number) {
   justify-items: start;
 }
 
+.settings-accent-derivation {
+  display: grid;
+  gap: var(--aoi-grid-gap-compact);
+}
+
+.settings-derivation-section {
+  display: grid;
+  gap: var(--aoi-grid-gap-compact);
+}
+
+.settings-accent-derivation__header {
+  display: grid;
+  gap: max(4px, calc(var(--aoi-grid-gap-compact) - 8px));
+}
+
+.settings-derivation-section__header {
+  display: grid;
+  gap: max(4px, calc(var(--aoi-grid-gap-compact) - 8px));
+}
+
+.settings-accent-derivation__header strong {
+  color: var(--aoi-text);
+  font-size: var(--aoi-settings-panel-title-size);
+}
+
+.settings-derivation-section__header strong {
+  color: var(--aoi-text);
+  font-size: var(--aoi-settings-panel-title-size);
+}
+
+.settings-accent-derivation__header span {
+  color: var(--aoi-text-muted);
+  line-height: 1.7;
+}
+
+.settings-derivation-section__header span {
+  color: var(--aoi-text-muted);
+  line-height: 1.7;
+}
+
+.settings-accent-preview {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  overflow: hidden;
+  min-height: var(--aoi-control-height-md);
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-card);
+  background: var(--aoi-control-bg);
+}
+
+.settings-accent-preview span {
+  min-width: 0;
+}
+
+.settings-accent-derivation__grid {
+  display: grid;
+  gap: var(--aoi-grid-gap-compact);
+}
+
+.settings-accent-strength-control {
+  display: grid;
+  width: min(calc(var(--aoi-settings-card-min-width) * 1.88), 100%);
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--aoi-grid-gap-compact);
+  align-items: end;
+}
+
+.settings-accent-strength-control__slider {
+  min-width: 0;
+}
+
+.settings-accent-strength-control__value {
+  min-width: 48px;
+  padding-bottom: 6px;
+  color: var(--aoi-text-muted);
+  font-size: 12px;
+  font-weight: 720;
+  text-align: right;
+}
+
 .settings-background-preview {
   display: grid;
   min-height: 220px;
@@ -733,9 +991,15 @@ function formatBytes(value: number) {
 
 @media (max-width: 760px) {
   .settings-custom-color,
+  .settings-accent-strength-control,
   .settings-form-group,
   .settings-slider-grid {
     grid-template-columns: 1fr;
+  }
+
+  .settings-accent-strength-control__value {
+    padding-bottom: 0;
+    text-align: left;
   }
 }
 </style>

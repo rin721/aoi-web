@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import type { CategoryTreeNode } from "~/types/api"
+import { getCategorySelfAndDescendants } from "~~/shared/utils/categories"
+
 const api = useAoiApi()
 
 const { data, pending, error, refresh } = useAsyncData("category-index", async () => {
@@ -12,12 +15,16 @@ const { data, pending, error, refresh } = useAsyncData("category-index", async (
   default: () => ({ categories: [], videos: [] })
 })
 
-function countFor(slug: string) {
+function countFor(category: CategoryTreeNode) {
+  const slug = category.slug
+
   if (slug === "home") {
     return data.value.videos.length
   }
 
-  return data.value.videos.filter((video) => video.categories.some((category) => category.slug === slug)).length
+  const slugs = getCategorySelfAndDescendants(data.value.categories, slug).map((item) => item.slug)
+
+  return data.value.videos.filter((video) => video.categories.some((item) => slugs.includes(item.slug))).length
 }
 
 useHead({
@@ -43,17 +50,40 @@ useHead({
       @action="refresh()"
     />
 
-    <AoiSection v-else-if="!pending" layout="grid" :reveal="false">
+    <AoiSection v-else-if="!pending" :reveal="false">
       <AoiReveal
         v-for="(category, index) in data.categories"
         :key="category.id"
         :index="index"
       >
-        <CategoryCard
-          :category="category"
-          :count="countFor(category.slug)"
-        />
+        <section class="category-tree-group">
+          <CategoryCard
+            :category="category"
+            :count="countFor(category)"
+          />
+
+          <AoiContentGrid
+            v-if="category.children.length"
+            min-width="220px"
+            gap="compact"
+            :mobile-columns="1"
+          >
+            <CategoryCard
+              v-for="child in category.children"
+              :key="child.id"
+              :category="child"
+              :count="countFor(child)"
+            />
+          </AoiContentGrid>
+        </section>
       </AoiReveal>
     </AoiSection>
   </div>
 </template>
+
+<style scoped>
+.category-tree-group {
+  display: grid;
+  gap: var(--aoi-grid-gap-compact);
+}
+</style>

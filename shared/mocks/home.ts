@@ -1,6 +1,7 @@
 import type {
   Announcement,
   Category,
+  CategoryTreeNode,
   CreatorProfile,
   FollowingFeedPayload,
   HomePayload,
@@ -12,17 +13,68 @@ import type {
   VideoDetail,
   VideoSummary
 } from "../types/api"
+import {
+  findCategoryInTree,
+  flattenCategoryTree,
+  getCategorySelfAndDescendants
+} from "../utils/categories"
 
-export const mockCategories: Category[] = [
-  { id: "cat-home", slug: "home", name: "首页", description: "全部精选内容", accentColor: "#f2709c" },
-  { id: "cat-animation", slug: "animation", name: "动画", description: "动画与短片", accentColor: "#22b8cf" },
-  { id: "cat-music", slug: "music", name: "音乐", description: "音乐视频与现场", accentColor: "#5b8def" },
-  { id: "cat-mad", slug: "mad", name: "音 MAD", description: "混剪与再创作", accentColor: "#f2709c" },
-  { id: "cat-tech", slug: "tech", name: "科技", description: "技术、开发与硬件", accentColor: "#0f9fb7" },
-  { id: "cat-design", slug: "design", name: "设计", description: "视觉与交互", accentColor: "#f7b955" },
-  { id: "cat-games", slug: "games", name: "游戏", description: "游戏与实况", accentColor: "#7a68f0" },
-  { id: "cat-general", slug: "general", name: "综合", description: "社区综合内容", accentColor: "#64757b" }
+export const mockCategoryTree: CategoryTreeNode[] = [
+  { id: "cat-home", slug: "home", name: "首页", description: "全部精选内容", accentColor: "#f2709c", parentSlug: null, order: 0, children: [] },
+  {
+    id: "cat-creative",
+    slug: "creative",
+    name: "创作",
+    description: "动画、音乐、MAD 与视觉表达",
+    accentColor: "#f2709c",
+    parentSlug: null,
+    order: 10,
+    children: [
+      { id: "cat-animation", slug: "animation", name: "动画", description: "动画与短片", accentColor: "#22b8cf", parentSlug: "creative", order: 10, children: [] },
+      { id: "cat-music", slug: "music", name: "音乐", description: "音乐视频与现场", accentColor: "#5b8def", parentSlug: "creative", order: 20, children: [] },
+      { id: "cat-mad", slug: "mad", name: "音 MAD", description: "混剪与再创作", accentColor: "#f2709c", parentSlug: "creative", order: 30, children: [] },
+      { id: "cat-design", slug: "design", name: "设计", description: "视觉与交互", accentColor: "#f7b955", parentSlug: "creative", order: 40, children: [] }
+    ]
+  },
+  {
+    id: "cat-knowledge",
+    slug: "knowledge",
+    name: "知识",
+    description: "技术、开发与硬件知识",
+    accentColor: "#0f9fb7",
+    parentSlug: null,
+    order: 20,
+    children: [
+      { id: "cat-tech", slug: "tech", name: "科技", description: "技术、开发与硬件", accentColor: "#0f9fb7", parentSlug: "knowledge", order: 10, children: [] }
+    ]
+  },
+  {
+    id: "cat-play",
+    slug: "play",
+    name: "游玩",
+    description: "游戏、实况与互动娱乐",
+    accentColor: "#7a68f0",
+    parentSlug: null,
+    order: 30,
+    children: [
+      { id: "cat-games", slug: "games", name: "游戏", description: "游戏与实况", accentColor: "#7a68f0", parentSlug: "play", order: 10, children: [] }
+    ]
+  },
+  {
+    id: "cat-community",
+    slug: "community",
+    name: "社区",
+    description: "社区综合内容与站内动态",
+    accentColor: "#64757b",
+    parentSlug: null,
+    order: 40,
+    children: [
+      { id: "cat-general", slug: "general", name: "综合", description: "社区综合内容", accentColor: "#64757b", parentSlug: "community", order: 10, children: [] }
+    ]
+  }
 ]
+
+export const mockCategories: Category[] = flattenCategoryTree(mockCategoryTree).map(({ children: _children, depth: _depth, path: _path, ...category }) => category)
 
 export const mockUsers: Record<string, UserSummary> = {
   backend: { id: "user-backend", handle: "aoi-backend", displayName: "Aoi Backend", avatarUrl: null },
@@ -34,7 +86,15 @@ export const mockUsers: Record<string, UserSummary> = {
 }
 
 export function getMockCategory(slug: string): Category | null {
-  return mockCategories.find((item) => item.slug === slug) || null
+  const category = findCategoryInTree(mockCategoryTree, slug)
+
+  if (!category) {
+    return null
+  }
+
+  const { children: _children, depth: _depth, path: _path, ...flatCategory } = category
+
+  return flatCategory
 }
 
 function category(slug: string) {
@@ -160,7 +220,7 @@ export const mockVideos: VideoSummary[] = [
 
 export const mockHomePayload: HomePayload = {
   announcement: mockAnnouncement,
-  categories: mockCategories,
+  categories: mockCategoryTree,
   latest: {
     items: mockVideos,
     nextCursor: null
@@ -264,9 +324,12 @@ export function listMockVideos(params: {
 } = {}) {
   const normalizedQuery = normalize(params.q)
   const categorySlug = params.category || "home"
+  const categorySlugs = categorySlug === "home"
+    ? []
+    : getCategorySelfAndDescendants(mockCategoryTree, categorySlug).map((category) => category.slug)
   let items = categorySlug === "home"
     ? mockVideos
-    : mockVideos.filter((video) => video.categories.some((category) => category.slug === categorySlug))
+    : mockVideos.filter((video) => video.categories.some((category) => categorySlugs.includes(category.slug)))
 
   if (normalizedQuery) {
     items = items.filter((video) => matchesVideo(video, normalizedQuery))

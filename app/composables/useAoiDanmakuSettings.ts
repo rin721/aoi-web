@@ -9,15 +9,7 @@ export function useAoiDanmakuSettings(
 
   return computed(() => {
     const runtime = normalizeAoiDanmakuSettings({
-      blocklist: settings.danmakuBlocklist,
-      bottomModeEnabled: settings.danmakuBottomModeEnabled,
-      enabled: settings.danmakuEnabled,
-      fontScale: settings.danmakuFontScale,
-      opacity: settings.danmakuOpacity,
-      scrollModeEnabled: settings.danmakuScrollModeEnabled,
-      speed: settings.danmakuSpeed,
-      topModeEnabled: settings.danmakuTopModeEnabled,
-      visibleArea: settings.danmakuVisibleArea,
+      ...settings.effectiveDanmakuRuntimeSettings,
       ...toValue(overrides)
     })
 

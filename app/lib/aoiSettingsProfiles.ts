@@ -1,14 +1,31 @@
 export type AoiSettingsProfileScope = "build" | "runtime"
 export type AoiSettingsProfileFieldType = "boolean" | "color" | "number" | "string"
+export type AoiSettingsProfileFieldDepth = "basic" | "all"
+export type AoiSettingsProfilePageId =
+  | "appearance"
+  | "player"
+  | "danmaku"
+  | "preference"
+  | "language"
+  | "experimental"
+  | "shortcut-key"
+  | "about"
+  | "acknowledgement"
+  | "advanced"
+  | "developer"
 
 export interface AoiSettingsProfileField {
+  depth: AoiSettingsProfileFieldDepth
   group: string
   key: string
   label: string
+  pageId: AoiSettingsProfilePageId
   path: string
   scopes: AoiSettingsProfileScope[]
   type: AoiSettingsProfileFieldType
 }
+
+type AoiSettingsProfileFieldDefinition = Omit<AoiSettingsProfileField, "depth" | "pageId">
 
 export interface AoiSettingsProfile {
   createdAt: string
@@ -45,12 +62,38 @@ export interface AoiSettingsProfileDiffItem {
 export const AOI_DEFAULT_BUILD_PROFILE_ID = "default"
 export const AOI_RUNTIME_PROFILE_STORAGE_KEY = "aoi.runtimeSettingsProfiles.v1"
 
-export const AOI_SETTINGS_PROFILE_FIELDS: AoiSettingsProfileField[] = [
+const AOI_SETTINGS_PROFILE_FIELD_DEFINITIONS: AoiSettingsProfileFieldDefinition[] = [
   { key: "preferredTheme", path: "preferredTheme", label: "主题模式", group: "主题与颜色", type: "string", scopes: ["build", "runtime"] },
+  { key: "settingsDisplayDepth", path: "settingsDisplayDepth", label: "设置展示深度", group: "偏好", type: "string", scopes: ["build", "runtime"] },
   { key: "locale", path: "locale", label: "语言", group: "主题与颜色", type: "string", scopes: ["build", "runtime"] },
   { key: "accentMode", path: "accentMode", label: "色彩模式", group: "主题与颜色", type: "string", scopes: ["build", "runtime"] },
   { key: "accentPreset", path: "accentPreset", label: "预设色", group: "主题与颜色", type: "string", scopes: ["build", "runtime"] },
   { key: "customAccent", path: "customAccent", label: "自定义色", group: "主题与颜色", type: "color", scopes: ["build", "runtime"] },
+  { key: "derivationPreset", path: "derivationPreset", label: "派生档位", group: "派生强度", type: "string", scopes: ["build", "runtime"] },
+  { key: "accentDerivation.accent10", path: "accentDerivationStrengths.accent10", label: "Accent 10 派生强度", group: "主题与颜色", type: "number", scopes: ["build", "runtime"] },
+  { key: "accentDerivation.accent20", path: "accentDerivationStrengths.accent20", label: "Accent 20 派生强度", group: "主题与颜色", type: "number", scopes: ["build", "runtime"] },
+  { key: "accentDerivation.accent40", path: "accentDerivationStrengths.accent40", label: "Accent 40 派生强度", group: "主题与颜色", type: "number", scopes: ["build", "runtime"] },
+  { key: "accentDerivation.accent50", path: "accentDerivationStrengths.accent50", label: "Accent 50 派生强度", group: "主题与颜色", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.auxiliaryPalette", path: "settingDerivationStrengths.auxiliaryPalette", label: "辅助色派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.surfaceTint", path: "settingDerivationStrengths.surfaceTint", label: "表面染色强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.stateLayer", path: "settingDerivationStrengths.stateLayer", label: "状态层强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.navigationColor", path: "settingDerivationStrengths.navigationColor", label: "导航色强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.materialColor", path: "settingDerivationStrengths.materialColor", label: "Material 色强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.shadowDepth", path: "settingDerivationStrengths.shadowDepth", label: "阴影深度强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.typography", path: "settingDerivationStrengths.typography", label: "字号派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.spacing", path: "settingDerivationStrengths.spacing", label: "间距派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.radius", path: "settingDerivationStrengths.radius", label: "圆角派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.controls", path: "settingDerivationStrengths.controls", label: "控件派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.contentWidth", path: "settingDerivationStrengths.contentWidth", label: "内容宽度派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.mediaGrid", path: "settingDerivationStrengths.mediaGrid", label: "媒体网格派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.settingsLayout", path: "settingDerivationStrengths.settingsLayout", label: "设置布局派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.revealMotion", path: "settingDerivationStrengths.revealMotion", label: "入场动效派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.routeProgress", path: "settingDerivationStrengths.routeProgress", label: "路由进度派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.smoothScroll", path: "settingDerivationStrengths.smoothScroll", label: "平滑滚动派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.scrollSnap", path: "settingDerivationStrengths.scrollSnap", label: "滚动吸附派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.scrollHijack", path: "settingDerivationStrengths.scrollHijack", label: "滚动场景派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.rubberBand", path: "settingDerivationStrengths.rubberBand", label: "橡皮筋派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
+  { key: "derivation.danmaku", path: "settingDerivationStrengths.danmaku", label: "弹幕派生强度", group: "派生强度", type: "number", scopes: ["build", "runtime"] },
   { key: "appearanceDensity", path: "appearanceDensity", label: "界面密度", group: "外观形态", type: "string", scopes: ["build", "runtime"] },
   { key: "appearanceSize", path: "appearanceSize", label: "界面尺寸", group: "外观形态", type: "string", scopes: ["build", "runtime"] },
   { key: "appearanceShape", path: "appearanceShape", label: "圆角形态", group: "外观形态", type: "string", scopes: ["build", "runtime"] },
@@ -122,6 +165,100 @@ export const AOI_SETTINGS_PROFILE_FIELDS: AoiSettingsProfileField[] = [
   { key: "routeProgressShowSpinner", path: "routeProgressShowSpinner", label: "显示 Spinner", group: "路由进度", type: "boolean", scopes: ["build", "runtime"] },
   { key: "routeProgressEasing", path: "routeProgressEasing", label: "缓动曲线", group: "路由进度", type: "string", scopes: ["build", "runtime"] }
 ]
+
+const BASIC_PROFILE_FIELD_KEYS = new Set([
+  "preferredTheme",
+  "settingsDisplayDepth",
+  "locale",
+  "accentMode",
+  "accentPreset",
+  "customAccent",
+  "appearanceDensity",
+  "appearanceSize",
+  "appearanceShape",
+  "appearanceContrast",
+  "colorfulNavigation",
+  "backgroundOpacity",
+  "backgroundBlur",
+  "backgroundDim",
+  "backgroundImageId",
+  "backgroundFileName",
+  "backgroundFileSize",
+  "danmakuEnabled",
+  "danmakuScrollModeEnabled",
+  "danmakuTopModeEnabled",
+  "danmakuBottomModeEnabled",
+  "danmakuOpacity",
+  "danmakuFontScale",
+  "danmakuSpeed",
+  "danmakuVisibleArea",
+  "danmakuBlocklist",
+  "dataMode",
+  "openVideosInNewTab",
+  "useRelativeDates",
+  "hideRecentSearches",
+  "disableWatchHistory",
+  "noSearchRecommendations",
+  "noRelatedVideos"
+])
+
+const PROFILE_PAGE_LABELS: Record<AoiSettingsProfilePageId, string> = {
+  acknowledgement: "鸣谢",
+  advanced: "高级",
+  appearance: "外观",
+  danmaku: "弹幕",
+  developer: "开发者",
+  experimental: "实验",
+  language: "语言",
+  player: "播放器",
+  preference: "偏好",
+  "shortcut-key": "快捷键",
+  about: "关于"
+}
+
+function getAoiSettingsProfileFieldPageId(field: AoiSettingsProfileFieldDefinition): AoiSettingsProfilePageId {
+  if (field.key === "locale") {
+    return "language"
+  }
+
+  if (field.key.startsWith("danmaku") || field.key === "derivation.danmaku") {
+    return "danmaku"
+  }
+
+  if (
+    field.key.startsWith("routeProgress")
+    || field.key.startsWith("revealMotion")
+    || field.key.startsWith("smoothScroll")
+    || field.key.startsWith("scrollSnap")
+    || field.key.startsWith("scrollHijack")
+    || field.key.startsWith("rubberBand")
+    || field.key === "pageScrollbarStrategy"
+    || field.key === "derivation.routeProgress"
+    || field.key === "derivation.revealMotion"
+    || field.key === "derivation.smoothScroll"
+    || field.key === "derivation.scrollSnap"
+    || field.key === "derivation.scrollHijack"
+    || field.key === "derivation.rubberBand"
+  ) {
+    return "preference"
+  }
+
+  if (field.group === "偏好") {
+    return "preference"
+  }
+
+  return "appearance"
+}
+
+function getAoiSettingsProfileFieldDepth(field: AoiSettingsProfileFieldDefinition): AoiSettingsProfileFieldDepth {
+  return BASIC_PROFILE_FIELD_KEYS.has(field.key) ? "basic" : "all"
+}
+
+export const AOI_SETTINGS_PROFILE_FIELDS: AoiSettingsProfileField[] = AOI_SETTINGS_PROFILE_FIELD_DEFINITIONS.map((field) => ({
+  ...field,
+  depth: getAoiSettingsProfileFieldDepth(field),
+  pageId: getAoiSettingsProfileFieldPageId(field)
+}))
 
 const FIELD_BY_KEY = new Map(AOI_SETTINGS_PROFILE_FIELDS.map((field) => [field.key, field]))
 
@@ -343,7 +480,8 @@ export function summarizeAoiSettingsProfileFields(fieldKeys: string[], scope: Ao
   const groups = new Map<string, number>()
 
   fields.forEach((key) => {
-    const group = getAoiSettingsProfileField(key)?.group || "其它"
+    const field = getAoiSettingsProfileField(key)
+    const group = field ? PROFILE_PAGE_LABELS[field.pageId] : "其它"
 
     groups.set(group, (groups.get(group) || 0) + 1)
   })

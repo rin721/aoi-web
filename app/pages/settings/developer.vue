@@ -86,6 +86,32 @@ const tabs = computed(() => [
   { value: "build", label: "构建预设", icon: "package-check" },
   { value: "runtime", label: "运行时档案", icon: "layers-3" }
 ])
+const profileFieldPageOrder = [
+  "appearance",
+  "player",
+  "danmaku",
+  "preference",
+  "language",
+  "experimental",
+  "shortcut-key",
+  "about",
+  "acknowledgement",
+  "advanced",
+  "developer"
+]
+const profileFieldPageLabels: Record<string, string> = {
+  acknowledgement: "鸣谢",
+  advanced: "高级",
+  appearance: "外观",
+  danmaku: "弹幕",
+  developer: "开发者",
+  experimental: "实验",
+  language: "语言",
+  player: "播放器",
+  preference: "偏好",
+  "shortcut-key": "快捷键",
+  about: "关于"
+}
 const runtimeModeLabel = computed(() => isDevBuild ? "本地开发" : "生产构建")
 const selectedBuildProfile = computed(() => buildProfiles.value.find((profile) => profile.id === selectedBuildId.value) || buildProfiles.value[0] || null)
 const selectedBuildSummary = computed(() => buildManifest.value.profiles.find((profile) => profile.id === selectedBuildProfile.value?.id))
@@ -325,16 +351,25 @@ function ensureFields(fieldKeys: string[], scope: AoiSettingsProfileScope) {
 }
 
 function groupedFields(scope: AoiSettingsProfileScope) {
-  const groups = new Map<string, AoiSettingsProfileField[]>()
+  const groups = new Map<string, {
+    fields: AoiSettingsProfileField[]
+    order: number
+  }>()
 
   getAoiSettingsProfileFields(scope).forEach((field) => {
-    const items = groups.get(field.group) || []
+    const name = profileFieldPageLabels[field.pageId] || field.group
+    const group = groups.get(name) || {
+      fields: [],
+      order: profileFieldPageOrder.indexOf(field.pageId)
+    }
 
-    items.push(field)
-    groups.set(field.group, items)
+    group.fields.push(field)
+    groups.set(name, group)
   })
 
-  return Array.from(groups.entries()).map(([name, fields]) => ({ name, fields }))
+  return Array.from(groups.entries())
+    .sort(([, a], [, b]) => a.order - b.order)
+    .map(([name, group]) => ({ name, fields: group.fields }))
 }
 
 function toggleField(scope: AoiSettingsProfileScope, key: string, value: boolean) {

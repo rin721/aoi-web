@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import type { CategoryTreeNode } from "~/types/api"
+import { getCategorySelfAndDescendants } from "~~/shared/utils/categories"
+
+const { t } = useI18n()
 const api = useAoiApi()
 const route = useRoute()
 const slug = computed(() => String(route.params.slug || "home"))
@@ -24,6 +28,16 @@ const { data, error, pending, refresh } = useAsyncData(() => `category-${slug.va
 useHead(() => ({
   title: data.value.category ? `${data.value.category.name} - Aoi` : "Category - Aoi"
 }))
+
+function countFor(category: CategoryTreeNode) {
+  if (!data.value.category) {
+    return 0
+  }
+
+  const slugs = getCategorySelfAndDescendants([data.value.category], category.slug).map((item) => item.slug)
+
+  return data.value.videos.filter((video) => video.categories.some((item) => slugs.includes(item.slug))).length
+}
 </script>
 
 <template>
@@ -59,6 +73,28 @@ useHead(() => ({
           <AoiButton variant="tonal" icon="layout-grid" to="/category">全部分类</AoiButton>
         </template>
       </PageHeader>
+
+      <AoiSection
+        v-if="data.category.children.length"
+        :title="t('category.childrenTitle')"
+        :description="t('category.childrenDescription')"
+        title-id="category-children-title"
+        :level="3"
+        :reveal="false"
+      >
+        <AoiContentGrid min-width="220px" gap="compact" :mobile-columns="1">
+          <AoiReveal
+            v-for="(child, index) in data.category.children"
+            :key="child.id"
+            :index="index"
+          >
+            <CategoryCard
+              :category="child"
+              :count="countFor(child)"
+            />
+          </AoiReveal>
+        </AoiContentGrid>
+      </AoiSection>
 
       <PageState
         v-if="data.videos.length === 0"

@@ -5,7 +5,7 @@ const settings = useAppSettingsStore()
 const nuxtApp = useNuxtApp()
 const router = useRouter()
 
-const nativeDuration = computed(() => Math.max(800, settings.routeProgressSpeedMs * 8))
+const nativeDuration = computed(() => Math.max(800, settings.effectiveRouteProgressSettings.speedMs * 8))
 
 let startTimeout: number | undefined
 let finishTimeout: number | undefined
@@ -40,11 +40,11 @@ function setProgressState(state: "idle" | "loading" | "done" | "error" | "disabl
 function configureNProgress() {
   NProgress.configure({
     easing: settings.routeProgressEasing,
-    minimum: settings.routeProgressMinimum,
+    minimum: settings.effectiveRouteProgressSettings.minimum,
     showSpinner: settings.routeProgressShowSpinner,
-    speed: settings.routeProgressSpeedMs,
+    speed: settings.effectiveRouteProgressSettings.speedMs,
     trickle: settings.routeProgressTrickle,
-    trickleSpeed: settings.routeProgressTrickleSpeedMs
+    trickleSpeed: settings.effectiveRouteProgressSettings.trickleSpeedMs
   })
 }
 
@@ -105,7 +105,7 @@ function completeRouteProgress(error = false) {
     if (document.documentElement.dataset.aoiRouteProgressState !== "loading") {
       setProgressState("idle")
     }
-  }, settings.routeProgressSpeedMs + 120)
+  }, settings.effectiveRouteProgressSettings.speedMs + 120)
 }
 
 function finishRouteProgress(error = false) {
@@ -116,7 +116,7 @@ function finishRouteProgress(error = false) {
     return
   }
 
-  const minimumVisibleMs = Math.min(360, Math.max(120, settings.routeProgressSpeedMs))
+  const minimumVisibleMs = Math.min(360, Math.max(120, settings.effectiveRouteProgressSettings.speedMs))
   const elapsedMs = startedAt ? Date.now() - startedAt : minimumVisibleMs
   const remainingMs = NProgress.isStarted() ? minimumVisibleMs - elapsedMs : 0
 
@@ -153,7 +153,8 @@ watch(() => [
   settings.routeProgressShowSpinner,
   settings.routeProgressSpeedMs,
   settings.routeProgressTrickle,
-  settings.routeProgressTrickleSpeedMs
+  settings.routeProgressTrickleSpeedMs,
+  settings.settingDerivationStrengths.routeProgress
 ], () => {
   configureNProgress()
 

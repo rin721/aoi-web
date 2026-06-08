@@ -15,13 +15,13 @@ export default defineNuxtPlugin((nuxtApp) => {
 
   function runtimeOptions(): AoiRevealRuntimeOptions {
     return {
-      durationMs: settings.revealMotionDurationMs,
-      distancePx: settings.revealMotionDistancePx,
+      durationMs: settings.effectiveRevealMotionSettings.durationMs,
+      distancePx: settings.effectiveRevealMotionSettings.distancePx,
       effect: settings.revealMotionEffect,
       enabled: settings.revealMotionEnabled,
-      maxDelayMs: settings.revealMotionMaxDelayMs,
+      maxDelayMs: settings.effectiveRevealMotionSettings.maxDelayMs,
       replay: settings.revealMotionReplay,
-      staggerMs: settings.revealMotionStaggerMs
+      staggerMs: settings.effectiveRevealMotionSettings.staggerMs
     }
   }
 
@@ -68,6 +68,7 @@ export default defineNuxtPlugin((nuxtApp) => {
     settings.revealMotionDurationMs,
     settings.revealMotionDistancePx,
     settings.revealMotionStaggerMs,
-    settings.revealMotionMaxDelayMs
+    settings.revealMotionMaxDelayMs,
+    settings.settingDerivationStrengths.revealMotion
   ], refreshControllers)
 })

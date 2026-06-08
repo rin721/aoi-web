@@ -3,6 +3,7 @@ export type {
   Announcement,
   ApiStatus,
   Category,
+  CategoryTreeNode,
   CreatorProfile,
   ErrorResponse,
   FollowingFeedPayload,

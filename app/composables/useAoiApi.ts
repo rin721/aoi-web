@@ -1,7 +1,7 @@
 import type {
   AoiApiErrorPayload,
   ApiStatus,
-  Category,
+  CategoryTreeNode,
   CreatorProfile,
   ErrorResponse,
   FollowingFeedPayload,
@@ -12,6 +12,7 @@ import type {
   VideoDetail,
   VideoSummary
 } from "~/types/api"
+import { findCategoryInTree } from "~~/shared/utils/categories"
 
 type RequestOptions = {
   query?: Record<string, unknown>
@@ -46,8 +47,8 @@ export function useAoiApi() {
     return await request<HomePayload>("/home")
   }
 
-  async function listCategories(): Promise<Category[]> {
-    return await request<Category[]>("/categories")
+  async function listCategories(): Promise<CategoryTreeNode[]> {
+    return await request<CategoryTreeNode[]>("/categories")
   }
 
   async function listVideos(params: {
@@ -94,10 +95,10 @@ export function useAoiApi() {
     return await request<FollowingFeedPayload>("/feed/following")
   }
 
-  async function getCategory(slug: string): Promise<Category | null> {
+  async function getCategory(slug: string): Promise<CategoryTreeNode | null> {
     const categories = await listCategories()
 
-    return categories.find((category) => category.slug === slug) || null
+    return findCategoryInTree(categories, slug)
   }
 
   return {

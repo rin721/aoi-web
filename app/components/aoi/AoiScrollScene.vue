@@ -126,8 +126,8 @@ function createSnap() {
 
   snap = new Snap(lenis, {
     debounce: 320,
-    distanceThreshold: toAoiSnapDistanceThreshold(settings.scrollSnapStrength),
-    duration: Math.max(0.24, settings.smoothScrollDurationMs / 1400),
+    distanceThreshold: toAoiSnapDistanceThreshold(settings.effectiveScrollSettings.snap.strength),
+    duration: Math.max(0.24, settings.effectiveScrollSettings.smooth.durationMs / 1400),
     type: settings.scrollSnapMode
   })
   snap.addElements(sections.value, {
@@ -156,7 +156,7 @@ function scrollToIndex(index: number) {
 
   lockUntil = Date.now() + props.cooldownMs
   aoiScroll.scrollTo(section, {
-    duration: Math.max(0.2, settings.smoothScrollDurationMs / 1000),
+    duration: Math.max(0.2, settings.effectiveScrollSettings.smooth.durationMs / 1000),
     lock: Boolean(aoiScroll.getLenis()),
     offset: props.offset
   })
@@ -192,7 +192,7 @@ function onWheel(event: WheelEvent) {
   const delta = normalizeWheelDelta(event)
 
   if (
-    Math.abs(delta) < settings.scrollHijackThresholdPx
+    Math.abs(delta) < settings.effectiveScrollSettings.hijack.thresholdPx
     || Math.abs(delta) <= Math.abs(event.deltaX)
     || Date.now() < lockUntil
   ) {
@@ -270,6 +270,9 @@ watch(() => [
   settings.scrollHijackMode,
   settings.scrollHijackThresholdPx,
   settings.smoothScrollDurationMs,
+  settings.settingDerivationStrengths.scrollSnap,
+  settings.settingDerivationStrengths.scrollHijack,
+  settings.settingDerivationStrengths.smoothScroll,
   aoiScroll.isSmoothEnabled.value,
   aoiScroll.isReducedMotion.value
 ], () => {

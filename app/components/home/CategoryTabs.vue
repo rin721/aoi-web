@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { Category } from "~/types/api"
+import type { CategoryTreeNode } from "~/types/api"
 
 const { t } = useI18n()
 const props = defineProps<{
-  categories: Category[]
+  categories: CategoryTreeNode[]
   modelValue: string
 }>()
 
