@@ -26,6 +26,18 @@ const isFollowing = computed(() => creator.value ? following.isFollowing(creator
 const localFollowerCount = computed(() => creator.value
   ? creator.value.followerCount + (isFollowing.value ? 1 : 0)
   : 0)
+const creatorStats = computed(() => creator.value
+  ? [
+      { label: "关注者", value: formatCount(localFollowerCount.value) },
+      { label: "投稿", value: creator.value.videoCount },
+      { label: "加入时间", value: joinedDate.value }
+    ]
+  : [])
+const categoryTags = computed(() => creator.value?.categories.map((category) => ({
+  label: category.name,
+  to: `/category/${category.slug}`,
+  value: category.id
+})) || [])
 
 function formatCount(value: number) {
   if (value >= 1000) {
@@ -100,35 +112,17 @@ useHead(() => ({
           </AoiButton>
         </div>
 
-        <dl class="creator-profile__stats" aria-label="创作者数据">
-          <div>
-            <dt>关注者</dt>
-            <dd>{{ formatCount(localFollowerCount) }}</dd>
-          </div>
-          <div>
-            <dt>投稿</dt>
-            <dd>{{ creator.videoCount }}</dd>
-          </div>
-          <div>
-            <dt>加入时间</dt>
-            <dd>{{ joinedDate }}</dd>
-          </div>
-        </dl>
+        <AoiStatGrid class="creator-profile__stats" :items="creatorStats" :columns="3" />
       </section>
 
-      <section v-if="creator.categories.length" v-aoi-reveal="'fade'" class="creator-profile__tags" aria-label="常见分区">
-        <AoiLink
-          v-for="category in creator.categories"
-          :key="category.id"
-          class="creator-profile__tag"
-          :to="`/category/${category.slug}`"
-        >
-          {{ category.name }}
-        </AoiLink>
-      </section>
+      <AoiTagList
+        v-if="creator.categories.length"
+        :items="categoryTags"
+        aria-label="常见分区"
+        reveal="fade"
+      />
 
-      <section v-aoi-reveal="'rise'" class="creator-profile__videos" aria-labelledby="creator-videos-title">
-        <h2 id="creator-videos-title">最新投稿</h2>
+      <AoiSection title="最新投稿" title-id="creator-videos-title">
         <VideoGrid v-if="creator.latest.items.length" :videos="creator.latest.items" />
         <PageState
           v-else
@@ -136,7 +130,7 @@ useHead(() => ({
           title="暂无投稿"
           description="这个创作者还没有可展示的视频。"
         />
-      </section>
+      </AoiSection>
     </article>
 
     <PageState
@@ -153,8 +147,7 @@ useHead(() => ({
 
 <style scoped>
 .creator-profile,
-.creator-profile__hero,
-.creator-profile__videos {
+.creator-profile__hero {
   display: grid;
   gap: 16px;
 }
@@ -188,58 +181,10 @@ useHead(() => ({
 
 .creator-profile__stats {
   grid-column: 2;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
-  margin: 0;
 }
 
 .creator-profile__mobile-actions {
   display: none;
-}
-
-.creator-profile__stats div {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: rgba(255, 255, 255, 0.58);
-  padding: 10px;
-}
-
-.creator-profile__stats dt {
-  color: var(--aoi-text-muted);
-  font-size: 12px;
-}
-
-.creator-profile__stats dd {
-  margin: 4px 0 0;
-  color: var(--aoi-text);
-  font-size: 17px;
-  font-weight: 850;
-}
-
-.creator-profile__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.creator-profile__tag {
-  display: inline-flex;
-  min-height: 32px;
-  align-items: center;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  color: var(--aoi-accent-60);
-  font-size: 12px;
-  font-weight: 750;
-  padding: 5px 10px;
-}
-
-.creator-profile__videos h2 {
-  margin: 0;
-  color: var(--aoi-text);
-  font-size: 18px;
 }
 
 @media (max-width: 700px) {

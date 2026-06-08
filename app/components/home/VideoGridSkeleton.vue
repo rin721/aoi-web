@@ -13,36 +13,40 @@ const items = computed(() => Array.from({
 </script>
 
 <template>
-  <AoiSkeletonGroup
+  <AoiContentGrid
     class="video-grid-skeleton"
-    layout="grid"
-    min-item-width="var(--aoi-video-grid-min-card-width)"
-    :label="label"
+    min-width="var(--aoi-video-grid-min-card-width)"
+    gap="video"
+    :mobile-columns="2"
+    :aria-busy="'true'"
+    :aria-live="label ? 'polite' : undefined"
+    :role="label ? 'status' : undefined"
   >
+    <span v-if="label" class="video-grid-skeleton__label">{{ label }}</span>
     <VideoCardSkeleton
       v-for="item in items"
       :key="item"
       class="video-grid-skeleton__item"
     />
-  </AoiSkeletonGroup>
+  </AoiContentGrid>
 </template>
 
 <style scoped>
 .video-grid-skeleton {
-  grid-template-columns: repeat(auto-fill, minmax(var(--aoi-video-grid-min-card-width), 1fr));
-  gap: var(--aoi-video-grid-row-gap) var(--aoi-video-grid-column-gap);
+  position: relative;
 }
 
 .video-grid-skeleton__item {
   min-width: 0;
 }
 
-@media (max-width: 639px) {
-  .video-grid-skeleton {
-    width: 100%;
-    max-width: 100%;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--aoi-video-grid-mobile-row-gap) var(--aoi-video-grid-mobile-column-gap);
-  }
+.video-grid-skeleton__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 </style>

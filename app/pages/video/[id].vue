@@ -72,6 +72,11 @@ const commentAuthorName = computed({
 })
 const primaryQueue = computed(() => video.value?.related.slice(0, 1) || [])
 const relatedQueue = computed(() => video.value?.related.slice(1) || [])
+const videoTags = computed(() => video.value?.tags.map((tag) => ({
+  label: tag,
+  to: `/search?q=${encodeURIComponent(tag)}`,
+  value: tag
+})) || [])
 const danmakuMapper: AoiDanmakuMapper<VideoDanmakuItem> = (item) => ({
   id: item.id,
   body: item.body,
@@ -214,6 +219,7 @@ useHead(() => ({
           <CreatorCard
             v-if="creator"
             :creator="creator"
+            density="compact"
           />
           <AoiVideoQueueList
             v-if="primaryQueue.length && !settings.noRelatedVideos"
@@ -232,12 +238,19 @@ useHead(() => ({
         </template>
 
         <template #below>
-          <section class="video-watch__below">
-            <div class="video-watch__meta">
+          <VideoWatchDetails
+            :description="video.description"
+            :description-title="t('player.descriptionTitle')"
+            :tags="videoTags"
+            :tags-label="t('player.tags')"
+            :actions-label="t('player.localActions')"
+            :comments-label="t('player.localComments')"
+          >
+            <template #meta>
               <VideoMeta :video="video" link-uploader />
-            </div>
+            </template>
 
-            <div v-aoi-reveal="'rise'" class="video-watch__actions" :aria-label="t('player.localActions')">
+            <template #actions>
               <AoiButton
                 :variant="isFavorite ? 'tonal' : 'outlined'"
                 icon="star"
@@ -259,25 +272,9 @@ useHead(() => ({
               <AoiButton variant="outlined" icon="flag">
                 {{ t("player.report") }}
               </AoiButton>
-            </div>
+            </template>
 
-            <section v-if="video.description" v-aoi-reveal="'fade'" class="video-watch__description">
-              <h2>{{ t("player.descriptionTitle") }}</h2>
-              <p>{{ video.description }}</p>
-            </section>
-
-            <div v-aoi-reveal="'fade'" class="video-watch__tags" :aria-label="t('player.tags')">
-              <AoiLink
-                v-for="tag in video.tags"
-                :key="tag"
-                class="video-watch__tag"
-                :to="`/search?q=${encodeURIComponent(tag)}`"
-              >
-                # {{ tag }}
-              </AoiLink>
-            </div>
-
-            <section v-aoi-reveal="'rise'" class="video-watch__comments" :aria-label="t('player.localComments')">
+            <template #comments>
               <CommentComposer
                 v-model:author-name="commentAuthorName"
                 :disabled="!comments.hydrated"
@@ -290,8 +287,8 @@ useHead(() => ({
                 @delete="deleteComment"
                 @edit="editComment"
               />
-            </section>
-          </section>
+            </template>
+          </VideoWatchDetails>
         </template>
       </AoiWatchLayout>
     </article>
@@ -377,126 +374,6 @@ useHead(() => ({
   scrollbar-width: thin;
 }
 
-.video-watch :deep(.creator-card) {
-  border-color: var(--aoi-player-border);
-  border-radius: var(--aoi-radius-card);
-  background: var(--aoi-player-surface);
-  box-shadow: none;
-  padding: 9px;
-}
-
-.video-watch :deep(.creator-card:hover) {
-  box-shadow: none;
-  transform: none;
-}
-
-.video-watch :deep(.creator-card__link) {
-  grid-template-columns: 42px minmax(0, 1fr);
-  gap: 9px;
-}
-
-.video-watch :deep(.creator-card__avatar) {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--aoi-radius-control);
-}
-
-.video-watch :deep(.creator-card__bio) {
-  -webkit-line-clamp: 1;
-}
-
-.video-watch :deep(.creator-card__actions .aoi-button) {
-  --md-outlined-button-outline-color: var(--aoi-player-accent);
-  --md-outlined-button-label-text-color: var(--aoi-player-accent);
-  --md-outlined-button-icon-color: var(--aoi-player-accent);
-}
-
-.video-watch__below {
-  --aoi-player-accent: var(--aoi-active-color);
-  --aoi-player-accent-soft: var(--aoi-state-hover);
-  --aoi-player-border: var(--aoi-border);
-  --aoi-player-surface: var(--aoi-card-bg);
-  --aoi-player-surface-muted: var(--aoi-state-hover);
-  --aoi-player-text: var(--aoi-text);
-  --aoi-player-text-muted: var(--aoi-text-muted);
-
-  display: grid;
-  gap: 14px;
-  max-width: min(920px, 100%);
-  padding-top: 2px;
-}
-
-.video-watch__meta {
-  border: 1px solid var(--aoi-player-border);
-  border-radius: var(--aoi-radius-card);
-  background: var(--aoi-player-surface);
-  padding: 10px 12px;
-}
-
-.video-watch__actions,
-.video-watch__tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.video-watch__actions :deep(.aoi-button) {
-  --md-outlined-button-outline-color: var(--aoi-player-border);
-  --md-outlined-button-label-text-color: var(--aoi-player-text-muted);
-  --md-outlined-button-icon-color: var(--aoi-player-text-muted);
-  --md-outlined-button-hover-label-text-color: var(--aoi-player-accent);
-  --md-outlined-button-hover-icon-color: var(--aoi-player-accent);
-  --md-filled-tonal-button-container-color: var(--aoi-player-accent-soft);
-  --md-filled-tonal-button-label-text-color: var(--aoi-player-accent);
-  --md-filled-tonal-button-icon-color: var(--aoi-player-accent);
-}
-
-.video-watch__description {
-  display: grid;
-  gap: 8px;
-  border: 1px solid var(--aoi-player-border);
-  border-radius: var(--aoi-radius-card);
-  background: var(--aoi-player-surface);
-  padding: 14px;
-}
-
-.video-watch__description h2,
-.video-watch__description p {
-  margin: 0;
-}
-
-.video-watch__description h2 {
-  color: var(--aoi-player-text);
-  font-size: 15px;
-}
-
-.video-watch__description p {
-  color: var(--aoi-player-text-muted);
-  line-height: 1.75;
-}
-
-.video-watch__tag {
-  display: inline-flex;
-  min-height: 30px;
-  align-items: center;
-  border: 1px solid var(--aoi-player-border);
-  border-radius: var(--aoi-radius-control);
-  background: var(--aoi-player-surface);
-  color: var(--aoi-player-accent);
-  font-size: 12px;
-  font-weight: 800;
-  padding: 5px 9px;
-}
-
-.video-watch__tag:hover {
-  background: var(--aoi-player-accent-soft);
-}
-
-.video-watch__comments {
-  display: grid;
-  gap: 18px;
-}
-
 @media (max-width: 1100px) {
   .video-watch :deep(.aoi-watch-layout__side) {
     position: static;
@@ -513,10 +390,6 @@ useHead(() => ({
 
   .video-watch :deep(.video-watch__header) {
     align-items: flex-start;
-  }
-
-  .video-watch__below {
-    gap: 12px;
   }
 }
 </style>

@@ -39,20 +39,16 @@ useHead({
         @action="navigateTo('/search')"
       />
 
-      <section
+      <AoiSection
         v-if="following.hydrated && following.followedList.length"
-        v-aoi-reveal="'rise'"
-        class="following-section"
-        aria-labelledby="local-following-title"
+        title="本地关注"
+        description="保存在当前浏览器，未来可迁移到 Go 用户关系接口。"
+        title-id="local-following-title"
       >
-        <div class="following-section__header">
-          <div>
-            <h2 id="local-following-title">本地关注</h2>
-            <p>保存在当前浏览器，未来可迁移到 Go 用户关系接口。</p>
-          </div>
+        <template #actions>
           <AoiButton variant="outlined" size="sm" icon="settings" to="/settings">管理缓存</AoiButton>
-        </div>
-        <div class="following-creators">
+        </template>
+        <AoiContentGrid min-width="260px" gap="compact" :mobile-columns="1">
           <AoiReveal
             v-for="(creator, index) in following.followedList"
             :key="creator.id"
@@ -61,30 +57,27 @@ useHead({
           >
             <CreatorCard :creator="creator" />
           </AoiReveal>
-        </div>
-      </section>
+        </AoiContentGrid>
+      </AoiSection>
 
-      <section
+      <AoiSection
         v-if="following.hydrated && following.latestVideos.length"
-        v-aoi-reveal="'rise'"
-        class="following-section"
-        aria-labelledby="local-following-latest-title"
+        title="本地关注更新"
+        title-id="local-following-latest-title"
       >
-        <div class="following-section__header">
-          <h2 id="local-following-latest-title">本地关注更新</h2>
-        </div>
         <VideoGrid :videos="following.latestVideos" />
-      </section>
+      </AoiSection>
 
-      <section v-if="recommendedCreators.length" v-aoi-reveal="'rise'" class="following-section" aria-labelledby="following-creators-title">
-        <div class="following-section__header">
-          <div>
-            <h2 id="following-creators-title">推荐创作者</h2>
-            <p>这些推荐来自 mock API，可直接关注到本地列表。</p>
-          </div>
+      <AoiSection
+        v-if="recommendedCreators.length"
+        title="推荐创作者"
+        description="这些推荐来自 mock API，可直接关注到本地列表。"
+        title-id="following-creators-title"
+      >
+        <template #actions>
           <AoiButton variant="outlined" size="sm" icon="search" to="/search">探索更多</AoiButton>
-        </div>
-        <div class="following-creators">
+        </template>
+        <AoiContentGrid min-width="260px" gap="compact" :mobile-columns="1">
           <AoiReveal
             v-for="(creator, index) in recommendedCreators"
             :key="creator.id"
@@ -93,15 +86,16 @@ useHead({
           >
             <CreatorCard :creator="creator" />
           </AoiReveal>
-        </div>
-      </section>
+        </AoiContentGrid>
+      </AoiSection>
 
-      <section v-if="feed.latest.items.length" v-aoi-reveal="'rise'" class="following-section" aria-labelledby="following-latest-title">
-        <div class="following-section__header">
-          <h2 id="following-latest-title">推荐更新</h2>
-        </div>
+      <AoiSection
+        v-if="feed.latest.items.length"
+        title="推荐更新"
+        title-id="following-latest-title"
+      >
         <VideoGrid :videos="feed.latest.items" />
-      </section>
+      </AoiSection>
     </template>
 
     <PageState
@@ -117,49 +111,7 @@ useHead({
 </template>
 
 <style scoped>
-.following-section {
-  display: grid;
-  gap: 12px;
-  margin-top: 18px;
-}
-
-.following-section__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.following-section__header h2 {
-  margin: 0;
-  color: var(--aoi-text);
-  font-size: 18px;
-}
-
-.following-section__header p {
-  margin: 4px 0 0;
-  color: var(--aoi-text-muted);
-  line-height: 1.6;
-}
-
-.following-creators {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 12px;
-}
-
 .following-card-reveal {
   min-width: 0;
-}
-
-@media (max-width: 639px) {
-  .following-section__header {
-    align-items: start;
-    flex-direction: column;
-  }
-
-  .following-creators {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

@@ -142,41 +142,41 @@ useHead(() => ({
       :description="`没有匹配「${submittedQuery}」的内容。`"
     />
 
-    <section v-else-if="!pending" v-aoi-reveal="'rise'" class="search-results" aria-labelledby="search-results-title">
-      <div class="search-results__header">
-        <h2 id="search-results-title" class="result-title">
-          搜索结果
-          <span>{{ totalCount }}</span>
-        </h2>
+    <AoiSection
+      v-else-if="!pending"
+      class="search-results"
+      title="搜索结果"
+      :count="totalCount"
+      title-id="search-results-title"
+    >
+      <template #actions>
         <AoiTabs
           v-model="activeTab"
           :items="tabItems"
           aria-label="搜索结果类型"
         />
-      </div>
+      </template>
 
-      <section
+      <AoiSection
         v-if="showVideos && videos.length"
-        class="result-section"
-        aria-labelledby="search-videos-title"
+        title="视频"
+        :count="videos.length"
+        title-id="search-videos-title"
+        :level="3"
+        :reveal="false"
       >
-        <div class="result-section__title">
-          <h3 id="search-videos-title">视频</h3>
-          <span>{{ videos.length }}</span>
-        </div>
         <VideoGrid :videos="videos" />
-      </section>
+      </AoiSection>
 
-      <section
+      <AoiSection
         v-if="showCreators && creators.length"
-        class="result-section"
-        aria-labelledby="search-creators-title"
+        title="创作者"
+        :count="creators.length"
+        title-id="search-creators-title"
+        :level="3"
+        :reveal="false"
       >
-        <div class="result-section__title">
-          <h3 id="search-creators-title">创作者</h3>
-          <span>{{ creators.length }}</span>
-        </div>
-        <div class="creator-grid">
+        <AoiContentGrid min-width="260px" gap="compact" :mobile-columns="1">
           <AoiReveal
             v-for="(creator, index) in creators"
             :key="creator.id"
@@ -185,19 +185,18 @@ useHead(() => ({
           >
             <CreatorCard :creator="creator" />
           </AoiReveal>
-        </div>
-      </section>
+        </AoiContentGrid>
+      </AoiSection>
 
-      <section
+      <AoiSection
         v-if="showCategories && categories.length"
-        class="result-section"
-        aria-labelledby="search-categories-title"
+        title="分区"
+        :count="categories.length"
+        title-id="search-categories-title"
+        :level="3"
+        :reveal="false"
       >
-        <div class="result-section__title">
-          <h3 id="search-categories-title">分区</h3>
-          <span>{{ categories.length }}</span>
-        </div>
-        <div class="category-grid">
+        <AoiContentGrid min-width="260px" gap="compact" :mobile-columns="1">
           <AoiReveal
             v-for="(category, index) in categories"
             :key="category.id"
@@ -206,9 +205,9 @@ useHead(() => ({
           >
             <CategoryCard :category="category" />
           </AoiReveal>
-        </div>
-      </section>
-    </section>
+        </AoiContentGrid>
+      </AoiSection>
+    </AoiSection>
   </div>
 </template>
 
@@ -221,64 +220,17 @@ useHead(() => ({
   margin: 0 0 18px;
 }
 
-.search-results,
-.result-section {
+.search-results {
   display: grid;
   min-width: 0;
   gap: 14px;
-}
-
-.search-results__header {
-  display: grid;
-  gap: 10px;
-  margin-bottom: 2px;
-}
-
-.result-title,
-.result-section__title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--aoi-accent-60);
-}
-
-.result-title {
-  font-size: 16px;
-}
-
-.result-section__title h3 {
-  margin: 0;
-  color: var(--aoi-text);
-  font-size: 18px;
-}
-
-.result-title span,
-.result-section__title span {
-  display: inline-flex;
-  min-width: 28px;
-  height: 22px;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-accent-60);
-  color: #fff;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.creator-grid,
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 12px;
 }
 
 .result-card-reveal {
   min-width: 0;
 }
 
-.search-results__header :deep(.aoi-tabs) {
+.search-results :deep(.aoi-tabs) {
   max-width: 100%;
   overflow-x: auto;
 }
@@ -288,9 +240,5 @@ useHead(() => ({
     grid-template-columns: minmax(0, 1fr);
   }
 
-  .creator-grid,
-  .category-grid {
-    grid-template-columns: 1fr;
-  }
 }
 </style>

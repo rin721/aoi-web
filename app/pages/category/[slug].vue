@@ -66,7 +66,9 @@ useHead(() => ({
         title="这个分类暂时没有内容"
         description="稍后可以从真实 Go API 拉取更多内容。"
       />
-      <VideoGrid v-else :videos="data.videos" />
+      <AoiSection v-else :reveal="false">
+        <VideoGrid :videos="data.videos" />
+      </AoiSection>
     </template>
   </div>
 </template>

@@ -43,11 +43,10 @@ useHead({
       @action="refresh()"
     />
 
-    <div v-else-if="!pending" class="category-grid">
+    <AoiSection v-else-if="!pending" layout="grid" :reveal="false">
       <AoiReveal
         v-for="(category, index) in data.categories"
         :key="category.id"
-        class="category-card-reveal"
         :index="index"
       >
         <CategoryCard
@@ -55,18 +54,6 @@ useHead({
           :count="countFor(category.slug)"
         />
       </AoiReveal>
-    </div>
+    </AoiSection>
   </div>
 </template>
-
-<style scoped>
-.category-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 14px;
-}
-
-.category-card-reveal {
-  min-width: 0;
-}
-</style>

@@ -59,7 +59,9 @@ useHead({
       />
     </AoiReveal>
 
-    <VideoGrid v-if="hasVideos" :videos="activeVideos" />
+    <AoiSection v-if="hasVideos" :reveal="false">
+      <VideoGrid :videos="activeVideos" />
+    </AoiSection>
 
     <PageState
       v-else-if="library.hydrated"

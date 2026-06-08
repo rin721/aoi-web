@@ -35,6 +35,12 @@ const hasDanmakuSettings = computed(() => {
     || settings.danmakuBottomModeEnabled !== AOI_DANMAKU_DEFAULTS.bottomModeEnabled
     || settings.danmakuBlocklist !== AOI_DANMAKU_DEFAULTS.blocklist
 })
+const danmakuStats = computed(() => [
+  { label: "本地弹幕", value: danmaku.totalCount },
+  { label: "透明度", value: `${opacityModel.value}%` },
+  { label: "字号", value: `${fontScaleModel.value}%` },
+  { label: "速度", value: `${speedModel.value}%` }
+])
 </script>
 
 <template>
@@ -149,24 +155,7 @@ const hasDanmakuSettings = computed(() => {
       title="本地弹幕状态"
       description="这里显示当前浏览器里保存的本地发送弹幕，不包含 mock API 初始弹幕。"
     >
-      <div class="settings-stat-grid">
-        <div class="settings-stat">
-          <span>本地弹幕</span>
-          <strong>{{ danmaku.totalCount }}</strong>
-        </div>
-        <div class="settings-stat">
-          <span>透明度</span>
-          <strong>{{ opacityModel }}%</strong>
-        </div>
-        <div class="settings-stat">
-          <span>字号</span>
-          <strong>{{ fontScaleModel }}%</strong>
-        </div>
-        <div class="settings-stat">
-          <span>速度</span>
-          <strong>{{ speedModel }}%</strong>
-        </div>
-      </div>
+      <AoiStatGrid :items="danmakuStats" />
     </SettingsPanel>
   </div>
 </template>

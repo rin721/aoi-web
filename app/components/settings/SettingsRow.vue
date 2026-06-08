@@ -8,7 +8,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <div class="settings-row">
+  <AoiSurface class="settings-row" surface="card" padding="md">
     <div class="settings-row__copy">
       <strong>{{ title }}</strong>
       <span v-if="description">{{ description }}</span>
@@ -16,7 +16,7 @@ withDefaults(defineProps<{
     <div class="settings-row__control">
       <slot />
     </div>
-  </div>
+  </AoiSurface>
 </template>
 
 <style scoped>
@@ -25,10 +25,6 @@ withDefaults(defineProps<{
   grid-template-columns: minmax(0, 1fr) minmax(var(--aoi-settings-control-min-width), .44fr);
   gap: var(--aoi-grid-gap);
   align-items: center;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-card);
-  background: var(--aoi-control-bg);
-  padding: var(--aoi-row-padding);
 }
 
 .settings-row__copy {

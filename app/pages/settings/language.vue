@@ -74,7 +74,7 @@ async function confirmResetLanguage() {
       title="界面语言"
       description="切换后会立即应用，并保存到当前浏览器。"
     >
-      <div class="settings-card-grid">
+      <SettingsOptionGrid>
         <AoiChoiceCard
           v-for="item in localeOptions"
           :key="item.value"
@@ -87,7 +87,7 @@ async function confirmResetLanguage() {
         >
           <small>{{ item.description }}</small>
         </AoiChoiceCard>
-      </div>
+      </SettingsOptionGrid>
     </SettingsPanel>
 
     <AoiDialog v-model:open="resetLanguageConfirmOpen">

@@ -12,7 +12,7 @@ withDefaults(defineProps<{
 </script>
 
 <template>
-  <section :id="id" v-aoi-reveal="'rise'" class="settings-panel">
+  <AoiSurface :id="id" as="section" reveal="rise" surface="panel" padding="lg" class="settings-panel">
     <header class="settings-panel__header">
       <span v-if="icon" class="settings-panel__icon" aria-hidden="true">
         <AoiIcon :name="icon" :size="18" decorative />
@@ -27,7 +27,7 @@ withDefaults(defineProps<{
     </header>
 
     <slot />
-  </section>
+  </AoiSurface>
 </template>
 
 <style scoped>
@@ -35,11 +35,6 @@ withDefaults(defineProps<{
   display: grid;
   gap: var(--aoi-grid-gap);
   scroll-margin-block-start: var(--aoi-settings-anchor-offset);
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-container);
-  background: var(--aoi-panel-bg);
-  box-shadow: var(--aoi-shadow-sm);
-  padding: var(--aoi-panel-padding);
 }
 
 .settings-panel__header {

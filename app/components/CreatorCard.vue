@@ -3,8 +3,10 @@ import type { CreatorProfile } from "~/types/api"
 
 const props = withDefaults(defineProps<{
   creator: CreatorProfile
+  density?: "default" | "compact"
   showActions?: boolean
 }>(), {
+  density: "default",
   showActions: true
 })
 
@@ -21,29 +23,34 @@ function formatCount(value: number) {
 </script>
 
 <template>
-  <article class="creator-card">
-    <AoiLink class="creator-card__link" :to="`/u/${creator.handle}`" :aria-label="creator.displayName">
+  <AoiInfoCard
+    class="creator-card"
+    :class="`creator-card--${props.density}`"
+    :to="`/u/${creator.handle}`"
+    :aria-label="creator.displayName"
+    layout="inline"
+    :density="props.density"
+    interactive
+  >
+    <template #media>
       <span class="creator-card__avatar" aria-hidden="true">
         {{ creator.displayName.slice(0, 1).toUpperCase() }}
       </span>
-      <span class="creator-card__body">
-        <span class="creator-card__name">{{ creator.displayName }}</span>
-        <span class="creator-card__handle">@{{ creator.handle }}</span>
-        <span v-if="creator.bio" class="creator-card__bio">{{ creator.bio }}</span>
-        <span class="creator-card__stats">
-          <span>
-            <AoiIcon name="users" :size="13" decorative />
-            {{ formatCount(creator.followerCount + (isFollowing ? 1 : 0)) }}
-          </span>
-          <span>
-            <AoiIcon name="video" :size="13" decorative />
-            {{ creator.videoCount }}
-          </span>
-        </span>
+    </template>
+    <template #title>{{ creator.displayName }}</template>
+    <template #subtitle>@{{ creator.handle }}</template>
+    <template v-if="creator.bio" #description>{{ creator.bio }}</template>
+    <template #meta>
+      <span>
+        <AoiIcon name="users" :size="13" decorative />
+        {{ formatCount(creator.followerCount + (isFollowing ? 1 : 0)) }}
       </span>
-    </AoiLink>
-
-    <div v-if="showActions" class="creator-card__actions">
+      <span>
+        <AoiIcon name="video" :size="13" decorative />
+        {{ creator.videoCount }}
+      </span>
+    </template>
+    <template v-if="showActions" #actions>
       <AoiButton
         variant="outlined"
         size="sm"
@@ -54,47 +61,15 @@ function formatCount(value: number) {
       >
         {{ isFollowing ? "已关注" : "关注" }}
       </AoiButton>
-    </div>
-  </article>
+    </template>
+  </AoiInfoCard>
 </template>
 
 <style scoped>
-.creator-card {
-  display: flex;
-  min-width: 0;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  box-shadow: var(--aoi-shadow-sm);
-  padding: 14px;
-  transform: translate3d(0, 0, 0);
-  transition:
-    transform var(--aoi-motion-base) var(--aoi-ease-out),
-    box-shadow var(--aoi-motion-base) var(--aoi-ease-out);
-  will-change: transform;
-}
-
-.creator-card__link {
-  display: grid;
-  min-width: 0;
-  grid-template-columns: 48px minmax(0, 1fr);
-  gap: 12px;
-  align-items: start;
-  flex: 1;
-}
-
-.creator-card:hover {
-  box-shadow: var(--aoi-shadow-md);
-  transform: translate3d(0, -4px, 0);
-}
-
 .creator-card__avatar {
   display: grid;
-  width: 48px;
-  height: 48px;
+  width: 100%;
+  height: var(--aoi-info-card-media-size);
   place-items: center;
   border-radius: var(--aoi-radius-sm);
   background:
@@ -104,76 +79,19 @@ function formatCount(value: number) {
   font-weight: 850;
 }
 
-.creator-card__body {
-  display: grid;
-  min-width: 0;
-  gap: 5px;
-}
-
-.creator-card__name {
-  overflow: hidden;
-  color: var(--aoi-text);
-  font-weight: 800;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.creator-card__handle,
-.creator-card__bio,
-.creator-card__stats {
-  color: var(--aoi-text-muted);
-  font-size: 12px;
-}
-
-.creator-card__bio {
-  display: -webkit-box;
-  overflow: hidden;
-  line-height: 1.6;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-}
-
-.creator-card__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 12px;
-}
-
-.creator-card__stats span {
+.creator-card :deep(.aoi-info-card__meta span) {
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
 
-.creator-card__actions {
-  display: flex;
-  flex: 0 0 auto;
+.creator-card--compact :deep(.aoi-info-card__description) {
+  -webkit-line-clamp: 1;
 }
 
 @media (max-width: 639px) {
-  .creator-card {
-    align-items: stretch;
-    flex-direction: column;
-    padding: 12px;
-  }
-
-  .creator-card__link {
-    grid-template-columns: 42px minmax(0, 1fr);
-  }
-
-  .creator-card__avatar {
-    width: 42px;
-    height: 42px;
-  }
-
-  .creator-card__actions {
+  .creator-card :deep(.aoi-info-card__actions) {
     justify-content: flex-end;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .creator-card {
-    will-change: auto;
   }
 }
 </style>

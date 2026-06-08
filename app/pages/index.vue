@@ -29,98 +29,41 @@ useHead({
 
       <AnnouncementStrip :announcement="announcement" />
 
-      <section v-aoi-reveal="'rise'" aria-labelledby="latest-title">
-        <div class="home-section-head">
-          <h2 id="latest-title" class="home-section-title">
-            {{ t("home.latest") }}
-            <span class="home-section-count">{{ videos.length }}</span>
-          </h2>
-          <div class="home-view-toggle" aria-label="视图模式">
+      <AoiSection :title="t('home.latest')" :count="videos.length" title-id="latest-title">
+        <template #actions>
+          <AoiActionBar class="home-view-toggle" surface size="sm" label="视图模式">
             <AoiIconButton icon="grid-3x3" :label="t('home.gridView')" active variant="tonal" size="sm" />
             <AoiIconButton icon="list" :label="t('home.listView')" size="sm" />
-          </div>
-        </div>
+          </AoiActionBar>
+        </template>
 
         <VideoGridSkeleton v-if="pending" />
 
-        <div v-else-if="!pending && error" v-aoi-reveal class="home-state home-state--error">
-          <p>内容加载失败。</p>
-          <AoiButton variant="tonal" icon="refresh-cw" @click="refresh()">重试</AoiButton>
-        </div>
+        <PageState
+          v-else-if="!pending && error"
+          icon="circle-alert"
+          title="内容加载失败"
+          action-icon="refresh-cw"
+          action-label="重试"
+          @action="refresh()"
+        />
 
-        <div v-else-if="!pending && videos.length === 0" v-aoi-reveal class="home-state">
-          <p>该分类暂时没有内容。</p>
-          <AoiButton variant="tonal" icon="rotate-ccw" @click="selectCategory('home')">返回首页</AoiButton>
-        </div>
+        <PageState
+          v-else-if="!pending && videos.length === 0"
+          icon="inbox"
+          title="该分类暂时没有内容"
+          action-icon="rotate-ccw"
+          action-label="返回首页"
+          @action="selectCategory('home')"
+        />
 
         <VideoGrid v-else-if="videos.length > 0" :videos="videos" />
-      </section>
+      </AoiSection>
     </div>
   </div>
 </template>
 
 <style scoped>
-.home-section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 0 0 12px;
-}
-
-.home-section-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 0;
-  color: var(--aoi-accent-60);
-  font-size: 16px;
-  font-weight: 800;
-}
-
-.home-section-count {
-  display: inline-flex;
-  min-width: 28px;
-  height: 22px;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-accent-60);
-  color: #fff;
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-  padding: 0 7px;
-}
-
-.home-view-toggle {
-  display: inline-flex;
-  gap: 4px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 3px;
-}
-
-.home-state {
-  display: grid;
-  gap: 12px;
-  align-items: center;
-  justify-items: start;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  color: var(--aoi-text-muted);
-  padding: 16px;
-}
-
-.home-state p {
-  margin: 0;
-}
-
-.home-state--error {
-  color: #9b1c1c;
-}
-
 @media (max-width: 639px) {
   .home-view-toggle {
     display: none;

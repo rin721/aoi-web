@@ -29,20 +29,24 @@ const sortOptions = [
 
 <template>
   <section class="comment-thread" aria-labelledby="comment-thread-title">
-    <div class="comment-thread__header">
-      <div>
-        <h2 id="comment-thread-title">讨论区</h2>
-        <p>{{ comments.length }} 条本地评论</p>
-      </div>
-      <AoiSelect
-        v-model="sortValue"
-        class="comment-thread__sort"
-        label="排序"
-        variant="outlined"
-        :options="sortOptions"
-        :disabled="!hydrated || comments.length < 2"
-      />
-    </div>
+    <AoiSection
+      as="div"
+      title="讨论区"
+      :description="`${comments.length} 条本地评论`"
+      title-id="comment-thread-title"
+      :reveal="false"
+    >
+      <template #actions>
+        <AoiSelect
+          v-model="sortValue"
+          class="comment-thread__sort"
+          label="排序"
+          variant="outlined"
+          :options="sortOptions"
+          :disabled="!hydrated || comments.length < 2"
+        />
+      </template>
+    </AoiSection>
 
     <PageState
       v-if="hydrated && comments.length === 0"
@@ -51,7 +55,7 @@ const sortOptions = [
       description="写下第一条讨论，刷新页面后也会保存在当前浏览器。"
     />
 
-    <div v-else-if="hydrated" class="comment-thread__list">
+    <AoiContentGrid v-else-if="hydrated" min-width="100%" gap="compact" :mobile-columns="1">
       <AoiReveal
         v-for="(comment, index) in comments"
         :key="comment.id"
@@ -65,7 +69,7 @@ const sortOptions = [
           @edit="(commentId, body) => emit('edit', commentId, body)"
         />
       </AoiReveal>
-    </div>
+    </AoiContentGrid>
   </section>
 </template>
 
@@ -75,32 +79,8 @@ const sortOptions = [
   gap: 12px;
 }
 
-.comment-thread__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.comment-thread__header h2 {
-  margin: 0;
-  color: var(--aoi-text);
-  font-size: 18px;
-}
-
-.comment-thread__header p {
-  margin: 4px 0 0;
-  color: var(--aoi-text-muted);
-  font-size: 13px;
-}
-
 .comment-thread__sort {
   width: min(180px, 100%);
-}
-
-.comment-thread__list {
-  display: grid;
-  gap: 10px;
 }
 
 .comment-thread__item {
@@ -108,11 +88,6 @@ const sortOptions = [
 }
 
 @media (max-width: 620px) {
-  .comment-thread__header {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
   .comment-thread__sort {
     width: 100%;
   }

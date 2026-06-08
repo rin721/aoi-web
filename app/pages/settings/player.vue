@@ -21,6 +21,12 @@ const hasPlayerSettings = computed(() => {
     || playerSettings.playbackRate !== 1
     || playerSettings.theaterMode
 })
+const playerStats = computed(() => [
+  { label: "音量", value: `${volumeModel.value}%` },
+  { label: "静音", value: playerSettings.muted ? "开启" : "关闭" },
+  { label: "倍速", value: `${playerSettings.playbackRate}x` },
+  { label: "剧场模式", value: playerSettings.theaterMode ? "开启" : "关闭" }
+])
 </script>
 
 <template>
@@ -89,24 +95,7 @@ const hasPlayerSettings = computed(() => {
       title="当前状态"
       description="用于确认持久化设置是否已恢复。"
     >
-      <div class="settings-stat-grid">
-        <div class="settings-stat">
-          <span>音量</span>
-          <strong>{{ volumeModel }}%</strong>
-        </div>
-        <div class="settings-stat">
-          <span>静音</span>
-          <strong>{{ playerSettings.muted ? "开启" : "关闭" }}</strong>
-        </div>
-        <div class="settings-stat">
-          <span>倍速</span>
-          <strong>{{ playerSettings.playbackRate }}x</strong>
-        </div>
-        <div class="settings-stat">
-          <span>剧场模式</span>
-          <strong>{{ playerSettings.theaterMode ? "开启" : "关闭" }}</strong>
-        </div>
-      </div>
+      <AoiStatGrid :items="playerStats" />
     </SettingsPanel>
   </div>
 </template>

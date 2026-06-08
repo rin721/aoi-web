@@ -64,28 +64,25 @@ useHead({
       </template>
     </PageHeader>
 
-    <section v-if="hasHistory" class="history-grid" aria-label="最近观看">
-      <AoiReveal
+    <AoiContentGrid
+      v-if="hasHistory"
+      as="section"
+      min-width="224px"
+      gap="video"
+      :mobile-columns="2"
+      aria-label="最近观看"
+    >
+      <HistoryEntryCard
         v-for="(entry, index) in entries"
         :key="entry.video.id"
-        tag="article"
-        class="history-entry"
+        :entry="entry"
         :index="index"
-        variant="rise"
-      >
-        <div class="history-entry__meta">
-          <span class="history-entry__time">
-            <AoiIcon name="clock-3" :size="14" decorative />
-            {{ formatViewedAt(entry) }}
-          </span>
-          <span class="history-entry__progress-label">{{ formatProgress(entry) }}</span>
-        </div>
-        <div class="history-entry__progress" aria-hidden="true">
-          <span :style="{ width: `${progressPercent(entry)}%` }" />
-        </div>
-        <VideoCard :video="entry.video" :index="index" />
-      </AoiReveal>
-    </section>
+        :viewed-label="formatViewedAt(entry)"
+        :progress-label="formatProgress(entry)"
+        :progress-percent="progressPercent(entry)"
+        progress-aria-label="观看进度"
+      />
+    </AoiContentGrid>
 
     <PageState
       v-else-if="library.hydrated"
@@ -98,64 +95,3 @@ useHead({
     />
   </div>
 </template>
-
-<style scoped>
-.history-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
-  gap: 18px 16px;
-}
-
-.history-entry {
-  display: grid;
-  min-width: 0;
-  gap: 8px;
-}
-
-.history-entry__meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
-
-.history-entry__time,
-.history-entry__progress-label {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  gap: 5px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  color: var(--aoi-text-muted);
-  font-size: 12px;
-  font-weight: 700;
-  padding: 5px 8px;
-}
-
-.history-entry__progress-label {
-  color: var(--aoi-accent-60);
-}
-
-.history-entry__progress {
-  overflow: hidden;
-  height: 5px;
-  border-radius: var(--aoi-radius-round);
-  background: var(--aoi-border);
-}
-
-.history-entry__progress span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, var(--aoi-accent-50), var(--aoi-accent-60));
-}
-
-@media (max-width: 639px) {
-  .history-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px 10px;
-  }
-}
-</style>

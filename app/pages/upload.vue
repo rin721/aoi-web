@@ -179,34 +179,36 @@ useHead({
         />
 
         <template v-else>
-          <section v-aoi-reveal="{ variant: 'rise', index: 0 }" class="upload-panel upload-source">
+          <AoiSurface
+            as="section"
+            class="upload-panel"
+            surface="panel"
+            padding="lg"
+            :reveal="{ variant: 'rise', index: 0 }"
+          >
             <div class="upload-panel__title">
               <h2>视频源</h2>
               <span>{{ statusLabel }}</span>
             </div>
 
-            <div class="upload-source__drop">
-              <div class="upload-source__icon" aria-hidden="true">
-                <AoiIcon name="file-video" :size="28" decorative />
-              </div>
-              <div class="upload-source__copy">
-                <strong>{{ activeDraft.source?.name || "选择一个视频文件" }}</strong>
-                <span v-if="activeDraft.source">
-                  {{ formatBytes(activeDraft.source.size) }} · {{ activeDraft.source.type || "video/*" }}
-                </span>
-                <span v-else>这里只读取文件名、大小和 MIME 类型，不上传文件内容。</span>
-              </div>
-              <AoiFileInput accept="video/*" @change="onFileSelected">
-                <template #default="{ open }">
-                  <AoiButton variant="outlined" icon="folder-open" @click="open">
-                    {{ activeDraft.source ? "替换文件" : "选择文件" }}
-                  </AoiButton>
-                </template>
-              </AoiFileInput>
-            </div>
-          </section>
+            <UploadDropZone
+              :source="activeDraft.source"
+              :format-bytes="formatBytes"
+              empty-title="选择一个视频文件"
+              empty-description="这里只读取文件名、大小和 MIME 类型，不上传文件内容。"
+              choose-label="选择文件"
+              replace-label="替换文件"
+              @change="onFileSelected"
+            />
+          </AoiSurface>
 
-          <section v-aoi-reveal="{ variant: 'rise', index: 1 }" class="upload-panel">
+          <AoiSurface
+            as="section"
+            class="upload-panel"
+            surface="panel"
+            padding="lg"
+            :reveal="{ variant: 'rise', index: 1 }"
+          >
             <div class="upload-panel__title">
               <h2>基础信息</h2>
               <span>自动保存 · {{ lastSavedLabel }}</span>
@@ -276,9 +278,9 @@ useHead({
                 />
               </div>
             </div>
-          </section>
+          </AoiSurface>
 
-          <section v-aoi-reveal="{ variant: 'fade', index: 2 }" class="upload-actions" aria-label="投稿草稿操作">
+          <AoiActionBar reveal="fade" label="投稿草稿操作">
             <AoiButton
               variant="filled"
               icon="send"
@@ -290,85 +292,57 @@ useHead({
             <AoiButton variant="text" icon="trash-2" @click="deleteActiveDraft">
               删除当前草稿
             </AoiButton>
-          </section>
+          </AoiActionBar>
         </template>
       </main>
 
       <aside class="upload-workspace__side">
-        <section v-aoi-reveal="{ variant: 'slide-left', index: 0 }" class="upload-panel">
+        <AoiSurface
+          as="section"
+          class="upload-panel"
+          surface="panel"
+          padding="lg"
+          :reveal="{ variant: 'slide-left', index: 0 }"
+        >
           <div class="upload-panel__title">
             <h2>草稿</h2>
             <span>{{ drafts.draftCount }}</span>
           </div>
 
-          <div class="draft-list" aria-label="投稿草稿列表">
-            <AoiChoiceCard
-              v-for="draft in drafts.draftList"
-              :key="draft.id"
-              :value="draft.id"
-              :title="draft.title || '未命名草稿'"
-              :description="`${draft.status === 'queued-local' ? '已本地排队' : '草稿'} · ${draft.tags.length} 标签`"
-              variant="compact"
-              :selected="draft.id === activeDraft?.id"
-              @select="selectDraft"
-            />
-          </div>
-        </section>
+          <UploadDraftList
+            :drafts="drafts.draftList"
+            :active-id="activeDraft?.id"
+            @select="selectDraft"
+          />
+        </AoiSurface>
 
-        <section v-aoi-reveal="{ variant: 'slide-left', index: 1 }" class="upload-panel upload-preview">
+        <AoiSurface
+          as="section"
+          class="upload-panel"
+          surface="panel"
+          padding="lg"
+          :reveal="{ variant: 'slide-left', index: 1 }"
+        >
           <div class="upload-panel__title">
             <h2>发布预检</h2>
             <span>{{ validation.ready ? "可排队" : "未完成" }}</span>
           </div>
 
-          <div class="upload-preview__cover">
-            <AoiIcon name="play" :size="30" decorative />
-          </div>
-          <h3>{{ activeDraft?.title || "未命名草稿" }}</h3>
-          <p>{{ activeDraft?.description || "简介会显示在这里，帮助你检查内容卡片的第一印象。" }}</p>
-
-          <dl class="upload-preview__meta">
-            <div>
-              <dt>分区</dt>
-              <dd>{{ selectedCategoryName }}</dd>
-            </div>
-            <div>
-              <dt>可见性</dt>
-              <dd>{{ draftVisibility === "public" ? "公开" : draftVisibility === "unlisted" ? "不公开链接" : "私密草稿" }}</dd>
-            </div>
-            <div>
-              <dt>状态</dt>
-              <dd>{{ statusLabel }}</dd>
-            </div>
-          </dl>
-
-          <div class="upload-checklist">
-            <p v-if="validation.missing.length === 0" class="upload-checklist__ok">
-              必填项已完成。
-            </p>
-            <p v-for="item in validation.missing" v-else :key="item">
-              <AoiIcon name="circle-alert" :size="15" decorative />
-              {{ item }}
-            </p>
-            <p v-for="item in validation.warnings" :key="item">
-              <AoiIcon name="info" :size="15" decorative />
-              {{ item }}
-            </p>
-          </div>
-        </section>
+          <UploadReviewCard
+            :title="activeDraft?.title"
+            :description="activeDraft?.description"
+            :category-name="selectedCategoryName"
+            :visibility="draftVisibility"
+            :status-label="statusLabel"
+            :validation="validation"
+          />
+        </AoiSurface>
       </aside>
     </div>
   </div>
 </template>
 
 <style scoped>
-.upload-panel {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  box-shadow: var(--aoi-shadow-sm);
-}
-
 .upload-workspace {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 340px;
@@ -387,7 +361,6 @@ useHead({
   display: grid;
   min-width: 0;
   gap: 14px;
-  padding: 16px;
 }
 
 .upload-panel__title {
@@ -402,47 +375,8 @@ useHead({
   font-size: 16px;
 }
 
-.upload-panel__title span,
-.upload-source__copy span,
-.upload-preview p,
-.upload-preview__meta dt,
-.upload-checklist p {
+.upload-panel__title span {
   color: var(--aoi-text-muted);
-}
-
-.upload-source__drop {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  gap: 14px;
-  align-items: center;
-  border: 1px dashed rgba(34, 184, 207, 0.42);
-  border-radius: var(--aoi-radius-sm);
-  background: rgba(233, 251, 253, 0.58);
-  padding: 14px;
-}
-
-.upload-source__icon {
-  display: grid;
-  width: 46px;
-  height: 46px;
-  place-items: center;
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-accent-10);
-  color: var(--aoi-accent-60);
-}
-
-.upload-source__copy,
-.upload-preview__meta div,
-.upload-checklist {
-  display: grid;
-  min-width: 0;
-  gap: 5px;
-}
-
-.upload-source__copy strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .upload-form-grid {
@@ -476,79 +410,6 @@ useHead({
   gap: 8px;
 }
 
-.upload-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.draft-list {
-  display: grid;
-  gap: 8px;
-}
-
-.upload-preview__cover {
-  display: grid;
-  aspect-ratio: 16 / 9;
-  place-items: center;
-  border-radius: var(--aoi-radius-sm);
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.22), transparent 45%),
-    linear-gradient(135deg, #6de5e5, #5b8def 48%, #f2709c);
-  color: #ffffff;
-}
-
-.upload-preview h3 {
-  margin: 0;
-  font-size: 18px;
-  line-height: 1.35;
-}
-
-.upload-preview p {
-  margin: 0;
-  line-height: 1.7;
-}
-
-.upload-preview__meta {
-  display: grid;
-  gap: 8px;
-  margin: 0;
-}
-
-.upload-preview__meta div {
-  grid-template-columns: 72px minmax(0, 1fr);
-  border-top: 1px solid var(--aoi-border);
-  padding-top: 8px;
-}
-
-.upload-preview__meta dt,
-.upload-preview__meta dd {
-  margin: 0;
-}
-
-.upload-preview__meta dd {
-  color: var(--aoi-text);
-  font-weight: 750;
-}
-
-.upload-checklist {
-  border-top: 1px solid var(--aoi-border);
-  padding-top: 10px;
-}
-
-.upload-checklist p {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  line-height: 1.6;
-}
-
-.upload-checklist__ok {
-  color: var(--aoi-accent-60) !important;
-  font-weight: 750;
-}
-
 @media (max-width: 960px) {
   .upload-workspace {
     grid-template-columns: 1fr;
@@ -556,18 +417,9 @@ useHead({
 }
 
 @media (max-width: 639px) {
-  .upload-panel {
-    padding: 12px;
-  }
-
-  .upload-source__drop,
   .upload-form-grid,
   .upload-tags__input {
     grid-template-columns: 1fr;
-  }
-
-  .upload-source__drop {
-    justify-items: start;
   }
 }
 </style>

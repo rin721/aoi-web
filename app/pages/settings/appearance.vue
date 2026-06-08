@@ -331,7 +331,7 @@ function formatBytes(value: number) {
       title="主题"
       description="切换浅色、深色或跟随系统。"
     >
-      <div class="settings-card-grid">
+      <SettingsOptionGrid>
         <AoiChoiceCard
           v-for="item in themeCards"
           :key="item.value"
@@ -341,7 +341,7 @@ function formatBytes(value: number) {
           :selected="settings.preferredTheme === item.value"
           @select="settings.setPreferredTheme(item.value)"
         />
-      </div>
+      </SettingsOptionGrid>
     </SettingsPanel>
 
     <SettingsPanel

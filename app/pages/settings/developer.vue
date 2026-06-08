@@ -885,32 +885,18 @@ function disableDeveloperMode() {
           </AoiButton>
         </template>
 
-        <div class="settings-developer-stat-grid">
-          <div
-            v-for="item in statusItems"
-            :key="item.label"
-            class="settings-developer-stat"
-          >
-            <span>{{ item.label }}</span>
-            <code>{{ item.value }}</code>
-          </div>
-        </div>
+        <AoiStatGrid :items="statusItems" />
         <p v-if="lastUpdatedAt" class="settings-note">
           最近刷新/写入：{{ lastUpdatedAt }}
         </p>
-        <p v-if="statusMessage" class="settings-developer-message settings-developer-message--success">
-          {{ statusMessage }}
-        </p>
-        <p v-if="errorMessage" class="settings-developer-message settings-developer-message--error">
-          {{ errorMessage }}
-        </p>
+        <AoiStatusMessage v-if="statusMessage" tone="success" :message="statusMessage" />
+        <AoiStatusMessage v-if="errorMessage" tone="error" :message="errorMessage" />
       </SettingsPanel>
 
       <AoiTabs
         v-model="activeTab"
         class="settings-developer-tabs"
-        data-aoi-scroll-native="true"
-        data-lenis-prevent
+        v-aoi-scroll-native
         :items="tabs"
         aria-label="开发者配置管理"
       />
@@ -922,27 +908,13 @@ function disableDeveloperMode() {
         description="一档一 JSON 文件，active 档会被兼容 facade 读取为构建默认应用设置；每档都有独立 original 备份。"
       >
         <div class="settings-developer-layout">
-          <aside class="settings-developer-list" aria-label="构建预设列表">
-            <button
-              v-for="profile in buildProfiles"
-              :key="profile.id"
-              class="settings-developer-profile-row"
-              :class="{ 'settings-developer-profile-row--active': selectedBuildId === profile.id }"
-              type="button"
-              @click="selectedBuildId = profile.id"
-            >
-              <span>
-                <strong>{{ profile.name }}</strong>
-                <small>{{ profile.id }}</small>
-              </span>
-              <AoiIcon
-                v-if="buildManifest.activeProfileId === profile.id"
-                name="check-circle-2"
-                :size="17"
-                decorative
-              />
-            </button>
-          </aside>
+          <SettingsProfileList
+            :profiles="buildProfiles"
+            :active-id="selectedBuildId"
+            :active-profile-id="buildManifest.activeProfileId"
+            label="构建预设列表"
+            @select="selectedBuildId = $event"
+          />
 
           <div class="settings-developer-workspace">
             <div class="settings-developer-form-grid">
@@ -1001,41 +973,13 @@ function disableDeveloperMode() {
               </AoiButton>
             </div>
 
-            <div class="settings-developer-field-toolbar">
-              <div>
-                <strong>字段选择器</strong>
-                <span>{{ buildSelectedFields.length }} 项 · {{ buildFieldSummary }}</span>
-              </div>
-              <div>
-                <AoiButton variant="text" size="sm" icon="list-checks" @click="selectAllFields('build')">
-                  全选
-                </AoiButton>
-                <AoiButton variant="text" size="sm" icon="eraser" @click="clearFields('build')">
-                  清空
-                </AoiButton>
-              </div>
-            </div>
-
-            <div
-              class="settings-developer-field-grid"
-              data-aoi-scroll-native="true"
-              data-lenis-prevent
-            >
-              <section
-                v-for="group in groupedFields('build')"
-                :key="group.name"
-                class="settings-developer-field-group"
-              >
-                <h3>{{ group.name }}</h3>
-                <AoiCheckbox
-                  v-for="field in group.fields"
-                  :key="field.key"
-                  :model-value="buildSelectedFields.includes(field.key)"
-                  :label="`${field.label} · ${field.path}`"
-                  @update:model-value="(value) => toggleField('build', field.key, value)"
-                />
-              </section>
-            </div>
+            <SettingsFieldSelector
+              v-model="buildSelectedFields"
+              :groups="groupedFields('build')"
+              :summary="buildFieldSummary"
+              @select-all="selectAllFields('build')"
+              @clear="clearFields('build')"
+            />
 
             <div class="settings-developer-form-grid">
               <AoiTextField
@@ -1089,15 +1033,11 @@ function disableDeveloperMode() {
               </AoiButton>
             </div>
 
-            <p class="settings-note">
-              当前字段写入预览中有 {{ selectedBuildChangedFields.length }} 项会变化。写入只覆盖 active profile JSON，不会修改 original 备份。
-            </p>
-            <pre
-              class="settings-developer-code"
-              data-aoi-scroll-native="true"
-              data-lenis-prevent
-              tabindex="0"
-            ><code>{{ buildPreviewJson || "未选择构建预设" }}</code></pre>
+            <SettingsJsonPreview
+              :code="buildPreviewJson"
+              fallback="未选择构建预设"
+              :note="`当前字段写入预览中有 ${selectedBuildChangedFields.length} 项会变化。写入只覆盖 active profile JSON，不会修改 original 备份。`"
+            />
           </div>
         </div>
       </SettingsPanel>
@@ -1109,24 +1049,13 @@ function disableDeveloperMode() {
         description="运行时档案只保存在当前浏览器 localStorage，可导入导出。背景只保存引用字段，不保存图片字节。"
       >
         <div class="settings-developer-layout">
-          <aside class="settings-developer-list" aria-label="运行时档案列表">
-            <button
-              v-for="profile in runtimeProfiles"
-              :key="profile.id"
-              class="settings-developer-profile-row"
-              :class="{ 'settings-developer-profile-row--active': selectedRuntimeId === profile.id }"
-              type="button"
-              @click="selectedRuntimeId = profile.id"
-            >
-              <span>
-                <strong>{{ profile.name }}</strong>
-                <small>{{ profile.id }}</small>
-              </span>
-            </button>
-            <p v-if="runtimeProfiles.length === 0" class="settings-note">
-              还没有运行时档案，可以从当前设置创建第一档。
-            </p>
-          </aside>
+          <SettingsProfileList
+            :profiles="runtimeProfiles"
+            :active-id="selectedRuntimeId"
+            label="运行时档案列表"
+            empty-text="还没有运行时档案，可以从当前设置创建第一档。"
+            @select="selectedRuntimeId = $event"
+          />
 
           <div class="settings-developer-workspace">
             <div class="settings-developer-form-grid">
@@ -1176,41 +1105,13 @@ function disableDeveloperMode() {
               </AoiButton>
             </div>
 
-            <div class="settings-developer-field-toolbar">
-              <div>
-                <strong>字段选择器</strong>
-                <span>{{ runtimeSelectedFields.length }} 项 · {{ runtimeFieldSummary }}</span>
-              </div>
-              <div>
-                <AoiButton variant="text" size="sm" icon="list-checks" @click="selectAllFields('runtime')">
-                  全选
-                </AoiButton>
-                <AoiButton variant="text" size="sm" icon="eraser" @click="clearFields('runtime')">
-                  清空
-                </AoiButton>
-              </div>
-            </div>
-
-            <div
-              class="settings-developer-field-grid"
-              data-aoi-scroll-native="true"
-              data-lenis-prevent
-            >
-              <section
-                v-for="group in groupedFields('runtime')"
-                :key="group.name"
-                class="settings-developer-field-group"
-              >
-                <h3>{{ group.name }}</h3>
-                <AoiCheckbox
-                  v-for="field in group.fields"
-                  :key="field.key"
-                  :model-value="runtimeSelectedFields.includes(field.key)"
-                  :label="`${field.label} · ${field.path}`"
-                  @update:model-value="(value) => toggleField('runtime', field.key, value)"
-                />
-              </section>
-            </div>
+            <SettingsFieldSelector
+              v-model="runtimeSelectedFields"
+              :groups="groupedFields('runtime')"
+              :summary="runtimeFieldSummary"
+              @select-all="selectAllFields('runtime')"
+              @clear="clearFields('runtime')"
+            />
 
             <div class="settings-developer-form-grid">
               <AoiTextField
@@ -1281,67 +1182,25 @@ function disableDeveloperMode() {
               </AoiButton>
             </div>
 
-            <p class="settings-note">
-              应用当前档案会有 {{ selectedRuntimeApplyDiffs.length }} 项变化。若背景引用缺少 IndexedDB 图片字节，会提示并恢复默认背景。
-            </p>
-            <pre
-              class="settings-developer-code"
-              data-aoi-scroll-native="true"
-              data-lenis-prevent
-              tabindex="0"
-            ><code>{{ runtimePreviewJson || "未选择运行时档案" }}</code></pre>
+            <SettingsJsonPreview
+              :code="runtimePreviewJson"
+              fallback="未选择运行时档案"
+              :note="`应用当前档案会有 ${selectedRuntimeApplyDiffs.length} 项变化。若背景引用缺少 IndexedDB 图片字节，会提示并恢复默认背景。`"
+            />
           </div>
         </div>
       </SettingsPanel>
 
-      <AoiDialog v-model:open="confirmOpen">
-        <template #headline>
-          {{ pendingConfirm?.title }}
-        </template>
-
-        <div class="settings-developer-confirm">
-          <p>{{ pendingConfirm?.description }}</p>
-          <div
-            v-if="pendingConfirm?.diffs.length"
-            class="settings-developer-diff-list"
-            data-aoi-scroll-native="true"
-            data-lenis-prevent
-          >
-            <div
-              v-for="item in pendingConfirm.diffs"
-              :key="item.field.key"
-              class="settings-developer-diff-row"
-              :class="{ 'settings-developer-diff-row--changed': item.changed }"
-            >
-              <span>{{ item.field.label }}</span>
-              <code>{{ item.before }}</code>
-              <AoiIcon name="arrow-right" :size="15" decorative />
-              <code>{{ item.after }}</code>
-            </div>
-          </div>
-          <p v-else class="settings-note">
-            该操作不修改具体设置字段，但会改变 profile 元数据或可用性。
-          </p>
-        </div>
-
-        <template #actions>
-          <AoiButton
-            variant="text"
-            :disabled="confirming"
-            @click="confirmOpen = false"
-          >
-            取消
-          </AoiButton>
-          <AoiButton
-            :variant="pendingConfirm?.danger ? 'filled' : 'filled'"
-            :icon="pendingConfirm?.danger ? 'trash-2' : 'check'"
-            :loading="confirming"
-            @click="runPendingConfirm"
-          >
-            {{ pendingConfirm?.confirmLabel || "确认" }}
-          </AoiButton>
-        </template>
-      </AoiDialog>
+      <SettingsProfileDiffDialog
+        v-model:open="confirmOpen"
+        :title="pendingConfirm?.title"
+        :description="pendingConfirm?.description"
+        :diffs="pendingConfirm?.diffs || []"
+        :danger="pendingConfirm?.danger"
+        :confirm-label="pendingConfirm?.confirmLabel || '确认'"
+        :confirming="confirming"
+        @confirm="runPendingConfirm"
+      />
     </template>
   </div>
 </template>
@@ -1352,35 +1211,6 @@ function disableDeveloperMode() {
   overflow-x: auto;
 }
 
-.settings-developer-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  gap: 10px;
-}
-
-.settings-developer-stat {
-  display: grid;
-  min-width: 0;
-  gap: 6px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-card-bg);
-  padding: 12px;
-}
-
-.settings-developer-stat span {
-  color: var(--aoi-text-muted);
-  font-size: 12px;
-  font-weight: 740;
-}
-
-.settings-developer-stat code {
-  overflow-wrap: anywhere;
-  color: var(--aoi-accent-60);
-  font-size: 12px;
-  line-height: 1.5;
-}
-
 .settings-developer-layout {
   display: grid;
   grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
@@ -1388,51 +1218,10 @@ function disableDeveloperMode() {
   align-items: start;
 }
 
-.settings-developer-list,
 .settings-developer-workspace {
   display: grid;
   min-width: 0;
   gap: var(--aoi-grid-gap-compact);
-}
-
-.settings-developer-profile-row {
-  display: grid;
-  width: 100%;
-  min-height: 58px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  gap: 8px;
-  align-items: center;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-card-bg);
-  color: var(--aoi-text);
-  cursor: pointer;
-  padding: 10px 12px;
-  text-align: left;
-}
-
-.settings-developer-profile-row:hover,
-.settings-developer-profile-row--active {
-  border-color: color-mix(in srgb, var(--aoi-accent-60) 42%, var(--aoi-border));
-  background: color-mix(in srgb, var(--aoi-accent-10) 74%, transparent);
-}
-
-.settings-developer-profile-row span {
-  display: grid;
-  min-width: 0;
-  gap: 4px;
-}
-
-.settings-developer-profile-row strong,
-.settings-developer-profile-row small {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.settings-developer-profile-row small {
-  color: var(--aoi-text-muted);
-  font-size: 12px;
 }
 
 .settings-developer-form-grid {
@@ -1447,159 +1236,9 @@ function disableDeveloperMode() {
   gap: 10px;
 }
 
-.settings-developer-field-toolbar {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-card-bg);
-  padding: 10px 12px;
-}
-
-.settings-developer-field-toolbar > div {
-  display: flex;
-  min-width: 0;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-}
-
-.settings-developer-field-toolbar strong {
-  color: var(--aoi-text);
-}
-
-.settings-developer-field-toolbar span {
-  color: var(--aoi-text-muted);
-  font-size: 12px;
-}
-
-.settings-developer-field-grid {
-  display: grid;
-  max-height: 360px;
-  overflow: auto;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: var(--aoi-grid-gap-compact);
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  padding: 10px;
-}
-
-.settings-developer-field-group {
-  display: grid;
-  align-content: start;
-  gap: 6px;
-}
-
-.settings-developer-field-group h3 {
-  margin: 0;
-  color: var(--aoi-text-muted);
-  font-size: 12px;
-}
-
-.settings-developer-code {
-  max-height: 420px;
-  max-width: 100%;
-  overflow: auto;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: color-mix(in srgb, var(--aoi-bg) 84%, black 4%);
-  color: var(--aoi-text);
-  font-size: 12px;
-  line-height: 1.6;
-  margin: 0;
-  padding: 14px;
-  white-space: pre;
-}
-
-.settings-developer-message {
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  font-weight: 760;
-  margin: 0;
-  padding: 10px 12px;
-}
-
-.settings-developer-message--success {
-  border-color: color-mix(in srgb, var(--aoi-success) 28%, var(--aoi-border));
-  background: color-mix(in srgb, var(--aoi-success) 10%, transparent);
-  color: var(--aoi-success);
-}
-
-.settings-developer-message--error {
-  border-color: color-mix(in srgb, var(--aoi-danger) 28%, var(--aoi-border));
-  background: color-mix(in srgb, var(--aoi-danger) 10%, transparent);
-  color: var(--aoi-danger);
-}
-
-.settings-developer-confirm {
-  display: grid;
-  gap: 12px;
-  min-width: min(680px, calc(100vw - 48px));
-}
-
-.settings-developer-confirm p {
-  margin: 0;
-  color: var(--aoi-text-muted);
-  line-height: 1.7;
-}
-
-.settings-developer-diff-list {
-  display: grid;
-  max-height: min(460px, 62dvh);
-  overflow: auto;
-  gap: 8px;
-}
-
-.settings-developer-diff-row {
-  display: grid;
-  grid-template-columns: minmax(120px, .9fr) minmax(0, 1fr) auto minmax(0, 1fr);
-  gap: 8px;
-  align-items: center;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  padding: 8px;
-}
-
-.settings-developer-diff-row--changed {
-  border-color: color-mix(in srgb, var(--aoi-accent-60) 32%, var(--aoi-border));
-  background: color-mix(in srgb, var(--aoi-accent-10) 62%, transparent);
-}
-
-.settings-developer-diff-row span {
-  color: var(--aoi-text);
-  font-weight: 760;
-}
-
-.settings-developer-diff-row code {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--aoi-text-muted);
-  font-size: 12px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 @media (max-width: 820px) {
   .settings-developer-layout {
     grid-template-columns: 1fr;
-  }
-
-  .settings-developer-list {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-  }
-}
-
-@media (max-width: 639px) {
-  .settings-developer-diff-row {
-    grid-template-columns: 1fr;
-  }
-
-  .settings-developer-diff-row svg {
-    display: none;
   }
 }
 </style>

@@ -289,7 +289,7 @@ async function confirmResetPreference() {
       title="流量模式"
       description="当前版本先保存为本地偏好，后续接入真实分页和预加载策略。"
     >
-      <div class="settings-card-grid">
+      <SettingsOptionGrid>
         <AoiChoiceCard
           v-for="mode in dataModes"
           :key="mode.value"
@@ -301,7 +301,7 @@ async function confirmResetPreference() {
           :selected="settings.dataMode === mode.value"
           @select="settings.dataMode = mode.value"
         />
-      </div>
+      </SettingsOptionGrid>
     </SettingsPanel>
 
     <SettingsPanel

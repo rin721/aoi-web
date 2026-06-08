@@ -43,7 +43,14 @@ function submitComment() {
 </script>
 
 <template>
-  <form v-aoi-reveal="'rise'" class="comment-composer" @submit.prevent="submitComment">
+  <AoiSurface
+    as="form"
+    class="comment-composer"
+    surface="card"
+    padding="md"
+    reveal="rise"
+    @submit.prevent="submitComment"
+  >
     <div class="comment-composer__fields">
       <AoiTextField
         v-model="localAuthorName"
@@ -66,7 +73,7 @@ function submitComment() {
       />
     </div>
 
-    <div class="comment-composer__actions">
+    <AoiActionBar class="comment-composer__actions" align="between">
       <span class="comment-composer__hint">
         本地评论只保存在当前浏览器。
       </span>
@@ -77,30 +84,18 @@ function submitComment() {
       >
         发布评论
       </AoiButton>
-    </div>
-  </form>
+    </AoiActionBar>
+  </AoiSurface>
 </template>
 
 <style scoped>
 .comment-composer {
   display: grid;
   gap: 12px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  box-shadow: var(--aoi-shadow-sm);
-  padding: 14px;
 }
 
 .comment-composer__fields {
   display: grid;
-  gap: 12px;
-}
-
-.comment-composer__actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   gap: 12px;
 }
 

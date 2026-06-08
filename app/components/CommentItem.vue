@@ -44,7 +44,7 @@ function saveEdit() {
 </script>
 
 <template>
-  <article class="comment-item">
+  <AoiSurface as="article" class="comment-item" surface="card" padding="md">
     <div class="comment-item__avatar" aria-hidden="true">
       {{ comment.authorName.slice(0, 1).toUpperCase() }}
     </div>
@@ -56,14 +56,14 @@ function saveEdit() {
           <span>{{ formatTime(comment.createdAt) }}</span>
           <small v-if="isEdited">已编辑</small>
         </div>
-        <div class="comment-item__actions">
+        <AoiActionBar class="comment-item__actions" size="sm" align="end">
           <AoiButton v-if="!editing" variant="text" size="sm" icon="pencil" @click="startEdit">
             编辑
           </AoiButton>
           <AoiButton variant="text" size="sm" icon="trash-2" @click="emit('delete', comment.id)">
             删除
           </AoiButton>
-        </div>
+        </AoiActionBar>
       </header>
 
       <template v-if="editing">
@@ -77,19 +77,19 @@ function saveEdit() {
           multiline
           :rows="3"
         />
-        <div class="comment-item__edit-actions">
+        <AoiActionBar class="comment-item__edit-actions" size="sm" align="end">
           <AoiButton variant="outlined" size="sm" @click="cancelEdit">
             取消
           </AoiButton>
           <AoiButton size="sm" icon="check" :disabled="!canSave" @click="saveEdit">
             保存
           </AoiButton>
-        </div>
+        </AoiActionBar>
       </template>
 
       <p v-else class="comment-item__body">{{ comment.body }}</p>
     </div>
-  </article>
+  </AoiSurface>
 </template>
 
 <style scoped>
@@ -97,10 +97,6 @@ function saveEdit() {
   display: grid;
   grid-template-columns: 38px minmax(0, 1fr);
   gap: 12px;
-  border: 1px solid var(--aoi-border);
-  border-radius: var(--aoi-radius-sm);
-  background: var(--aoi-surface);
-  padding: 14px;
 }
 
 .comment-item__avatar {
@@ -143,14 +139,6 @@ function saveEdit() {
 .comment-item__header small {
   color: var(--aoi-text-muted);
   font-size: 12px;
-}
-
-.comment-item__actions,
-.comment-item__edit-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: flex-end;
 }
 
 .comment-item__body {
