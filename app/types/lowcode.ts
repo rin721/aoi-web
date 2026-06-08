@@ -40,6 +40,118 @@ export interface DataBinding {
   targetKey?: string
 }
 
+export type ApiDataSourceMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
+
+export interface ApiDataSourceResponseMapping {
+  rootKey?: string
+}
+
+export interface ApiDataSourceConfig {
+  body?: unknown
+  headers?: Record<string, string>
+  method: ApiDataSourceMethod
+  params?: Record<string, string | number | boolean>
+  responseMapping?: ApiDataSourceResponseMapping
+  url: string
+}
+
+export type SQLiteFieldType = "text" | "integer" | "real" | "boolean" | "json"
+
+export interface SQLiteFieldSchema {
+  defaultValue?: unknown
+  name: string
+  primaryKey?: boolean
+  required?: boolean
+  type: SQLiteFieldType
+  unique?: boolean
+}
+
+export interface SQLiteTableSchema {
+  fields: SQLiteFieldSchema[]
+  name: string
+  seed?: DatabaseRecord[]
+}
+
+export interface SQLiteDataSourceConfig {
+  adapter?: "memory" | "sqlite"
+  databaseName?: string
+  tables: SQLiteTableSchema[]
+}
+
+export type DatabaseRecord = Record<string, unknown>
+
+export type DatabaseWhere = Record<string, unknown>
+
+export interface DatabaseQueryOptions {
+  limit?: number
+  where?: DatabaseWhere
+}
+
+export interface DatabaseAdapter {
+  connect: () => Promise<void>
+  delete: (table: string, where?: DatabaseWhere) => Promise<number>
+  initSchema: (tables: SQLiteTableSchema[]) => Promise<void>
+  insert: (table: string, record: DatabaseRecord) => Promise<DatabaseRecord>
+  query: (table: string, options?: DatabaseQueryOptions) => Promise<DatabaseRecord[]>
+  update: (table: string, where: DatabaseWhere, patch: DatabaseRecord) => Promise<DatabaseRecord[]>
+}
+
+export type EventName = "onClick" | "onSubmit" | "onChange" | "onLoad"
+
+export type ActionMessageTone = "info" | "success" | "warning" | "danger"
+
+export type ActionConfig =
+  | {
+      id: string
+      message: string
+      tone?: ActionMessageTone
+      type: "showToast"
+    }
+  | {
+      id: string
+      to: string
+      type: "navigate"
+    }
+  | {
+      id: string
+      key: string
+      type: "setVariable"
+      value: unknown
+    }
+  | {
+      dataSourceId: string
+      id: string
+      payload?: unknown
+      type: "callApi"
+    }
+
+export interface EventConfig {
+  actions: ActionConfig[]
+  event: EventName
+}
+
+export interface ActionMessage {
+  message: string
+  tone?: ActionMessageTone
+}
+
+export interface ActionRunnerContext {
+  dataSources?: DataSource[]
+  navigate: (to: string) => Promise<unknown> | unknown
+  setDataSourceValue: (sourceId: string, value: unknown) => void
+  setVariable: (key: string, value: unknown) => void
+  showMessage: (message: ActionMessage) => void
+}
+
+export type ActionExecutor<TAction extends ActionConfig = ActionConfig> = (
+  action: TAction,
+  context: ActionRunnerContext
+) => Promise<void> | void
+
+export type ActionRegistry = {
+  [Type in ActionConfig["type"]]: ActionExecutor<Extract<ActionConfig, { type: Type }>>
+}
+
 export type DataSource =
   | {
       data?: unknown
@@ -48,27 +160,20 @@ export type DataSource =
       type: "mock"
     }
   | {
-      headers?: Record<string, string>
+      config: ApiDataSourceConfig
       id: string
-      method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
       name: string
       type: "api"
-      url: string
     }
   | {
+      config: SQLiteDataSourceConfig
       id: string
       name: string
-      query?: string
-      table?: string
       type: "sqlite"
     }
 
 export type ActionNode =
-  | {
-      id: string
-      to: string
-      type: "navigate"
-    }
+  | ActionConfig
   | {
       id: string
       key: string
@@ -78,20 +183,8 @@ export type ActionNode =
   | {
       dataSourceId: string
       id: string
-      payload?: unknown
-      type: "callApi"
-    }
-  | {
-      dataSourceId: string
-      id: string
       params?: Record<string, unknown>
       type: "queryDb"
-    }
-  | {
-      id: string
-      message: string
-      tone?: "info" | "success" | "warning" | "danger"
-      type: "showToast"
     }
   | {
       id: string
@@ -100,15 +193,12 @@ export type ActionNode =
       workflowId: string
     }
 
-export interface EventAction {
-  actions: ActionNode[]
-  event: string
-}
+export type EventAction = EventConfig
 
 export interface ComponentNode {
   bindings?: DataBinding[]
   children?: ComponentNode[]
-  events?: EventAction[]
+  events?: EventConfig[]
   id: string
   props?: ComponentProps
   slots?: Record<string, ComponentNode[]>
@@ -116,32 +206,114 @@ export interface ComponentNode {
   type: string
 }
 
+export interface LowCodePageMeta {
+  description?: string
+  icon?: string
+  order?: number
+}
+
 export interface LowCodePage {
   dataSources?: DataSource[]
+  events?: EventConfig[]
   id: string
+  layout: ComponentNode
+  meta?: LowCodePageMeta
   name: string
   path: string
-  root: ComponentNode
+  root?: ComponentNode
+  theme?: ThemeConfig
   title?: string
 }
 
+export interface PageVersion {
+  createdAt: string
+  id: string
+  label: string
+  pageId: string
+  schema: LowCodePage
+}
+
+export interface PageVersionSummary {
+  createdAt: string
+  id: string
+  label: string
+  pageId: string
+}
+
+export interface ThemeColorTokens {
+  background: string
+  border: string
+  mutedText: string
+  primary: string
+  primaryText: string
+  surface: string
+  text: string
+}
+
+export interface ThemeSpacingTokens {
+  lg: string
+  md: string
+  sm: string
+  xl: string
+  xs: string
+}
+
+export interface ThemeRadiusTokens {
+  lg: string
+  md: string
+  pill: string
+  sm: string
+}
+
+export interface ThemeTypographyTokens {
+  fontFamily: string
+  fontSize: string
+  fontWeight: string
+  headingSize: string
+  lineHeight: string
+}
+
+export interface ThemeShadowTokens {
+  card: string
+  focus: string
+}
+
 export interface ThemeConfig {
+  colors: ThemeColorTokens
   id: string
   name: string
-  tokens?: Record<string, string | number>
-  variables?: Record<string, string | number>
+  radius: ThemeRadiusTokens
+  shadows: ThemeShadowTokens
+  spacing: ThemeSpacingTokens
+  typography: ThemeTypographyTokens
 }
 
 export interface LowCodeApp {
+  currentPageId?: string
   dataSources?: DataSource[]
   id: string
+  meta?: LowCodeAppMeta
   name: string
   pages: LowCodePage[]
   schemaVersion: "lowcode.app.v1"
   theme?: ThemeConfig
 }
 
-export type PropSchemaType = "string" | "number" | "boolean" | "select" | "image" | "route"
+export interface LowCodeAppMeta {
+  description?: string
+  icon?: string
+}
+
+export interface LowCodeAppSummary {
+  currentPageId?: string
+  id: string
+  name: string
+  pageCount: number
+}
+
+export type PluginContributionKind = "component" | "action" | "datasource" | "theme"
+
+export type PropSchemaType = "array" | "string" | "number" | "boolean" | "select" | "image" | "route"
 
 export interface PropSchema {
   defaultValue?: unknown
@@ -153,7 +325,7 @@ export interface PropSchema {
   type: PropSchemaType
 }
 
-export type ComponentMetaCategory = "basic" | "layout" | "media" | "action"
+export type ComponentMetaCategory = "basic" | "layout" | "media" | "action" | "data"
 
 export interface ComponentMeta {
   category: ComponentMetaCategory
@@ -165,6 +337,33 @@ export interface ComponentMeta {
 }
 
 export type ComponentRegistry = Record<string, ComponentMeta>
+
+export type PluginActionRegistry = Partial<ActionRegistry>
+
+export interface PluginContributions {
+  actions?: PluginActionRegistry
+  components?: ComponentRegistry
+  dataSources?: DataSource[]
+  themes?: ThemeConfig[]
+}
+
+export interface PluginManifest {
+  contributionKinds: PluginContributionKind[]
+  contributions: PluginContributions
+  description?: string
+  enabledByDefault?: boolean
+  id: string
+  name: string
+  version: string
+}
+
+export interface PluginSummary {
+  contributionKinds: PluginContributionKind[]
+  enabled: boolean
+  id: string
+  name: string
+  version: string
+}
 
 export type AoiMaterialCategory = "native" | "layout" | "settings" | "aoi"
 

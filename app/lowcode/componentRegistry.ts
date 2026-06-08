@@ -2,6 +2,8 @@ import AoiButton from "~/components/aoi/AoiButton.vue"
 import AoiIcon from "~/components/aoi/AoiIcon.vue"
 import AoiLazyImage from "~/components/aoi/AoiLazyImage.vue"
 import AoiLink from "~/components/aoi/AoiLink.vue"
+import LowCodeListBlock from "~/components/lowcode/LowCodeListBlock.vue"
+import { getComponents as getPluginComponents } from "~/lowcode/plugins/pluginRegistry"
 import SettingsPageHeader from "~/components/settings/SettingsPageHeader.vue"
 import SettingsPanel from "~/components/settings/SettingsPanel.vue"
 import type { AoiComponentRegistry, ComponentRegistry } from "~/types/lowcode"
@@ -203,9 +205,55 @@ export const componentRegistry: ComponentRegistry = {
       }
     ],
     type: "image"
+  },
+  listBlock: {
+    category: "data",
+    component: LowCodeListBlock,
+    defaultProps: {
+      emptyText: "No users",
+      items: [],
+      subtitleField: "email",
+      titleField: "name"
+    },
+    name: "ListBlock",
+    propSchema: [
+      {
+        defaultValue: [],
+        description: "Array data usually provided by a DataBinding.",
+        key: "items",
+        label: "Items",
+        type: "array"
+      },
+      {
+        defaultValue: "name",
+        key: "titleField",
+        label: "Title field",
+        type: "string"
+      },
+      {
+        defaultValue: "email",
+        key: "subtitleField",
+        label: "Subtitle field",
+        type: "string"
+      },
+      {
+        defaultValue: "No users",
+        key: "emptyText",
+        label: "Empty text",
+        type: "string"
+      }
+    ],
+    type: "listBlock"
+  }
+}
+
+export function getComponentRegistry(): ComponentRegistry {
+  return {
+    ...getPluginComponents(),
+    ...componentRegistry
   }
 }
 
 export function getRegisteredComponent(type: string) {
-  return componentRegistry[type]
+  return componentRegistry[type] || getPluginComponents()[type]
 }

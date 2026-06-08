@@ -2,7 +2,9 @@
 import AoiButton from "~/components/aoi/AoiButton.vue"
 
 defineProps<{
+  componentsTo: string
   previewTo: string
+  runtimeTo: string
   schemaVisible: boolean
   status?: string
 }>()
@@ -23,6 +25,16 @@ const emit = defineEmits<{
     >
       保存
     </AoiButton>
+
+    <AoiButton
+      icon="blocks"
+      size="sm"
+      :to="componentsTo"
+      variant="outlined"
+    >
+      组件
+    </AoiButton>
+
     <AoiButton
       icon="eye"
       size="sm"
@@ -31,6 +43,16 @@ const emit = defineEmits<{
     >
       预览
     </AoiButton>
+
+    <AoiButton
+      icon="play"
+      size="sm"
+      :to="runtimeTo"
+      variant="outlined"
+    >
+      运行态
+    </AoiButton>
+
     <AoiButton
       icon="braces"
       size="sm"
@@ -40,6 +62,7 @@ const emit = defineEmits<{
     >
       查看 Schema
     </AoiButton>
+
     <span
       v-if="status"
       class="building-editor-toolbar__status"

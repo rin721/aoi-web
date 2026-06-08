@@ -1,14 +1,30 @@
 <script setup lang="ts">
-import { computed } from "vue"
-import { componentRegistry } from "~/lowcode/componentRegistry"
+import { computed, onBeforeUnmount, onMounted, ref } from "vue"
+import { getComponentRegistry } from "~/lowcode/componentRegistry"
+import { subscribe as subscribeToPluginRegistry } from "~/lowcode/plugins/pluginRegistry"
 
-const components = computed(() =>
-  Object.values(componentRegistry).sort((left, right) => left.name.localeCompare(right.name))
-)
+const pluginRegistryVersion = ref(0)
+let unsubscribeFromPluginRegistry: (() => void) | undefined
+
+const components = computed(() => {
+  pluginRegistryVersion.value
+
+  return Object.values(getComponentRegistry()).sort((left, right) => left.name.localeCompare(right.name))
+})
 
 const emit = defineEmits<{
   "add-component": [type: string]
 }>()
+
+onMounted(() => {
+  unsubscribeFromPluginRegistry = subscribeToPluginRegistry(() => {
+    pluginRegistryVersion.value += 1
+  })
+})
+
+onBeforeUnmount(() => {
+  unsubscribeFromPluginRegistry?.()
+})
 </script>
 
 <template>

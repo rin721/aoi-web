@@ -41,7 +41,11 @@ function onCanvasClick(event: MouseEvent) {
       @click.capture="onCanvasClick"
     >
       <LowCodeRenderer
-        :node="pageSchema.root"
+        :actions-enabled="false"
+        :data-sources="pageSchema.dataSources"
+        :node="pageSchema.layout"
+        :page-events="pageSchema.events"
+        :theme="pageSchema.theme"
         selectable
         :selected-node-id="selectedNodeId || undefined"
         @select-node="emit('select-node', $event)"

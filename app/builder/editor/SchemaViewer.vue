@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue"
-import type { LowCodePage } from "~/types/lowcode"
+import type { LowCodeApp } from "~/types/lowcode"
 
 const props = defineProps<{
-  pageSchema: LowCodePage
+  appSchema: LowCodeApp
 }>()
 
-const formattedSchema = computed(() => JSON.stringify(props.pageSchema, null, 2))
+const formattedSchema = computed(() => JSON.stringify(props.appSchema, null, 2))
 </script>
 
 <template>
@@ -14,9 +14,9 @@ const formattedSchema = computed(() => JSON.stringify(props.pageSchema, null, 2)
     <header class="building-editor-schema-viewer__header">
       <div>
         <h2>SchemaViewer</h2>
-        <p>当前页面 Schema 的只读 JSON 快照。</p>
+        <p>当前应用 Schema 的只读 JSON 快照。</p>
       </div>
-      <code>{{ pageSchema.id }}</code>
+      <code>{{ appSchema.id }}</code>
     </header>
 
     <pre>{{ formattedSchema }}</pre>

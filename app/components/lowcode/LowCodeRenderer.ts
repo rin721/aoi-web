@@ -1,11 +1,25 @@
-import { defineComponent, h, type PropType, type VNodeChild } from "vue"
+import { useRouter } from "#app"
+import { defineComponent, h, onMounted, ref, watch, type PropType, type VNodeChild } from "vue"
+import AoiStatusMessage from "~/components/aoi/AoiStatusMessage.vue"
+import { getNodeEvent, runEventActions } from "~/lowcode/actions/actionRunner"
 import { getRegisteredComponent } from "~/lowcode/componentRegistry"
-import type { ComponentNode, ComponentProps, ComponentStyle } from "~/types/lowcode"
+import { executeApiDataSource } from "~/lowcode/dataSources/apiConnector"
+import { resolveDataBindingValue } from "~/lowcode/dataSources/dataSourceRegistry"
+import { toThemeCssVars } from "~/lowcode/themes/themeCssVars"
+import { getDefaultTheme, normalizeTheme } from "~/lowcode/themes/themeRegistry"
+import type { ActionMessage, ActionMessageTone, ComponentNode, ComponentProps, ComponentStyle, DataSource, EventConfig, EventName, ThemeConfig } from "~/types/lowcode"
+
+type ApiDataSource = Extract<DataSource, { type: "api" }>
 
 interface LowCodeRenderContext {
+  actionsEnabled: boolean
+  dataSources?: DataSource[]
+  dataSourceValues?: Record<string, unknown>
   emitSelectNode?: (id: string) => void
+  runNodeEvent?: (node: ComponentNode, eventName: EventName, event?: Event) => Promise<void>
   selectable: boolean
   selectedNodeId?: string
+  theme: ThemeConfig
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -47,6 +61,120 @@ function mergeNodeProps(defaultProps: ComponentProps, node: ComponentNode) {
   }
 
   return props
+}
+
+function applyDataBindings(
+  props: Record<string, unknown>,
+  node: ComponentNode,
+  context: LowCodeRenderContext
+) {
+  for (const binding of node.bindings || []) {
+    if (binding.target !== "props" || !binding.targetKey) {
+      continue
+    }
+
+    const value = resolveDataBindingValue(binding, context.dataSources, context.dataSourceValues)
+
+    if (value === undefined) {
+      continue
+    }
+
+    props[binding.targetKey] = value
+  }
+}
+
+function applyEventHandlers(
+  props: Record<string, unknown>,
+  node: ComponentNode,
+  context: LowCodeRenderContext
+) {
+  if (!context.actionsEnabled) {
+    return
+  }
+
+  const eventMap: Array<[EventName, string]> = [
+    ["onClick", "onClick"],
+    ["onSubmit", "onSubmit"],
+    ["onChange", "onChange"]
+  ]
+
+  for (const [eventName, propName] of eventMap) {
+    const eventConfig = getNodeEvent(node, eventName)
+
+    if (!eventConfig) {
+      continue
+    }
+
+    const previousHandler = props[propName]
+
+    props[propName] = (event: Event) => {
+      if (eventName === "onClick" || eventName === "onSubmit") {
+        event.preventDefault()
+        event.stopPropagation()
+      }
+
+      if (typeof previousHandler === "function") {
+        previousHandler(event)
+      }
+
+      void context.runNodeEvent?.(node, eventName, event)
+    }
+  }
+}
+
+function appendClass(props: Record<string, unknown>, className: string) {
+  props.class = [props.class, className].filter(Boolean)
+}
+
+function appendStyle(props: Record<string, unknown>, style: Record<string, string>) {
+  props.style = props.style
+    ? [style, props.style]
+    : style
+}
+
+function applyThemeProps(
+  props: Record<string, unknown>,
+  node: ComponentNode
+) {
+  if (node.type === "text") {
+    appendClass(props, "low-code-themed-text")
+    appendStyle(props, {
+      color: "var(--low-code-text)",
+      fontFamily: "var(--low-code-font-family)",
+      fontSize: "var(--low-code-font-size)",
+      fontWeight: "var(--low-code-font-weight)",
+      lineHeight: "var(--low-code-line-height)"
+    })
+    return
+  }
+
+  if (node.type === "container") {
+    appendClass(props, "low-code-themed-container")
+    appendStyle(props, {
+      background: "var(--low-code-background)",
+      border: "1px solid var(--low-code-border)",
+      borderRadius: "var(--low-code-radius-lg)",
+      boxShadow: "var(--low-code-shadow-card)",
+      color: "var(--low-code-text)",
+      padding: "var(--low-code-space-lg)"
+    })
+    return
+  }
+
+  if (node.type === "button") {
+    appendClass(props, "low-code-themed-button")
+    appendStyle(props, {
+      "--md-elevated-button-container-color": "var(--low-code-surface)",
+      "--md-elevated-button-label-text-color": "var(--low-code-primary)",
+      "--md-filled-button-container-color": "var(--low-code-primary)",
+      "--md-filled-button-label-text-color": "var(--low-code-primary-text)",
+      "--md-filled-tonal-button-container-color": "var(--low-code-surface)",
+      "--md-filled-tonal-button-label-text-color": "var(--low-code-primary)",
+      "--md-outlined-button-label-text-color": "var(--low-code-primary)",
+      "--md-outlined-button-outline-color": "var(--low-code-primary)",
+      "--md-text-button-label-text-color": "var(--low-code-primary)"
+    })
+  }
 }
 
 function applySelectableProps(
@@ -104,7 +232,7 @@ function resolveNodeContent(node: ComponentNode, props: Record<string, unknown>)
 
     delete props.text
 
-    return typeof text === "string" || typeof text === "number" ? String(text) : ""
+    return formatNodeContent(text)
   }
 
   if (node.type === "button") {
@@ -112,16 +240,42 @@ function resolveNodeContent(node: ComponentNode, props: Record<string, unknown>)
 
     delete props.label
 
-    return typeof label === "string" || typeof label === "number" ? String(label) : ""
+    return formatNodeContent(label)
   }
 
   return undefined
 }
 
+function formatNodeContent(value: unknown) {
+  if (value === undefined || value === null) {
+    return ""
+  }
+
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    return String(value)
+  }
+
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
+}
+
+function getApiDataSources(dataSources?: DataSource[]): ApiDataSource[] {
+  return (dataSources || []).filter((source): source is ApiDataSource => source.type === "api")
+}
+
+function toStatusMessageTone(tone: ActionMessageTone | undefined) {
+  return tone === "danger" ? "error" : tone || "info"
+}
+
 export function renderNode(
   node: ComponentNode,
   context: LowCodeRenderContext = {
-    selectable: false
+    actionsEnabled: true,
+    selectable: false,
+    theme: getDefaultTheme()
   }
 ): VNodeChild {
   const entry = getRegisteredComponent(node.type)
@@ -131,6 +285,9 @@ export function renderNode(
   }
 
   const props = mergeNodeProps(entry.defaultProps, node)
+  applyDataBindings(props, node, context)
+  applyEventHandlers(props, node, context)
+  applyThemeProps(props, node)
   applySelectableProps(props, node, context)
   const nodeContent = resolveNodeContent(node, props)
   const children = getNodeChildren(node, context)
@@ -161,6 +318,22 @@ export default defineComponent({
       required: true,
       type: Object as PropType<ComponentNode>
     },
+    dataSources: {
+      default: undefined,
+      type: Array as PropType<DataSource[]>
+    },
+    theme: {
+      default: undefined,
+      type: Object as PropType<ThemeConfig>
+    },
+    pageEvents: {
+      default: undefined,
+      type: Array as PropType<EventConfig[]>
+    },
+    actionsEnabled: {
+      default: true,
+      type: Boolean
+    },
     selectable: {
       default: false,
       type: Boolean
@@ -171,10 +344,140 @@ export default defineComponent({
     }
   },
   setup(props, { emit }) {
-    return () => renderNode(props.node, {
-      emitSelectNode: (id) => emit("select-node", id),
-      selectable: props.selectable,
-      selectedNodeId: props.selectedNodeId
+    const actionMessage = ref<ActionMessage | null>(null)
+    const dataSourceValues = ref<Record<string, unknown>>({})
+    const variables = ref<Record<string, unknown>>({})
+    const router = useRouter()
+    let requestSequence = 0
+
+    function setDataSourceValue(sourceId: string, value: unknown) {
+      dataSourceValues.value = {
+        ...dataSourceValues.value,
+        [sourceId]: value
+      }
+    }
+
+    function setVariable(key: string, value: unknown) {
+      variables.value = {
+        ...variables.value,
+        [key]: value
+      }
+    }
+
+    function showMessage(message: ActionMessage) {
+      actionMessage.value = message
+    }
+
+    async function runNodeEvent(node: ComponentNode, eventName: EventName) {
+      if (!props.actionsEnabled) {
+        return
+      }
+
+      await runEventActions(getNodeEvent(node, eventName), {
+        dataSources: props.dataSources,
+        navigate: (to) => router.push(to),
+        setDataSourceValue,
+        setVariable,
+        showMessage
+      })
+    }
+
+    async function runLoadEvents() {
+      if (!props.actionsEnabled) {
+        return
+      }
+
+      const pageLoadEvent = props.pageEvents?.find((eventConfig) => eventConfig.event === "onLoad")
+
+      await runEventActions(pageLoadEvent, {
+        dataSources: props.dataSources,
+        navigate: (to) => router.push(to),
+        setDataSourceValue,
+        setVariable,
+        showMessage
+      })
+      await runNodeEvent(props.node, "onLoad")
+    }
+
+    async function loadApiDataSources() {
+      const apiSources = getApiDataSources(props.dataSources)
+
+      if (!import.meta.client || !apiSources.length) {
+        dataSourceValues.value = {}
+        return
+      }
+
+      requestSequence += 1
+      const currentRequest = requestSequence
+      const results = await Promise.all(apiSources.map(async (source) => ({
+        result: await executeApiDataSource(source),
+        source
+      })))
+
+      if (currentRequest !== requestSequence) {
+        return
+      }
+
+      const nextValues: Record<string, unknown> = {}
+
+      for (const { result, source } of results) {
+        if (result.ok) {
+          nextValues[source.id] = result.data
+        }
+      }
+
+      dataSourceValues.value = nextValues
+    }
+
+    watch(
+      () => props.dataSources,
+      () => {
+        void loadApiDataSources()
+      },
+      { deep: true, immediate: true }
+    )
+
+    onMounted(() => {
+      void runLoadEvents()
     })
+
+    watch(
+      () => [props.node.id, props.pageEvents],
+      () => {
+        void runLoadEvents()
+      },
+      { deep: true }
+    )
+
+    return () => {
+      const theme = normalizeTheme(props.theme)
+      const renderedNode = renderNode(props.node, {
+        actionsEnabled: props.actionsEnabled,
+        dataSources: props.dataSources,
+        dataSourceValues: dataSourceValues.value,
+        emitSelectNode: (id) => emit("select-node", id),
+        runNodeEvent,
+        selectable: props.selectable,
+        selectedNodeId: props.selectedNodeId,
+        theme
+      })
+      const themedChildren = [
+        props.actionsEnabled && actionMessage.value
+          ? h(AoiStatusMessage, {
+              message: actionMessage.value.message,
+              tone: toStatusMessageTone(actionMessage.value.tone)
+            })
+          : null,
+        renderedNode
+      ]
+
+      return h("div", {
+        class: [
+          "low-code-theme-provider",
+          props.actionsEnabled ? "low-code-renderer-runtime" : undefined
+        ],
+        style: toThemeCssVars(theme)
+      }, themedChildren)
+    }
   }
 })
