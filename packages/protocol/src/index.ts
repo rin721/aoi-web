@@ -6,9 +6,12 @@ export type AoiFieldType = "string" | "text" | "integer" | "number" | "boolean" 
 export type AoiMaterialCategory = "layout" | "display" | "form" | "data" | "feedback" | "action" | "composite"
 export type AoiPropControl = "text" | "textarea" | "number" | "switch" | "select" | "color" | "resource" | "model" | "json"
 export type AoiBindingSource = "state" | "resource" | "route" | "constant"
+export type AoiActionPayloadBindingSource = "constant" | "event" | "route" | "state"
 export type AoiSchemaIssueSeverity = "error" | "warning"
 export type AoiDataRuntimeErrorCode =
   | "INVALID_INPUT"
+  | "MIGRATION_INVALID"
+  | "MIGRATION_REQUIRES_CONFIRMATION"
   | "MISSING_RECORD"
   | "OPERATION_NOT_ALLOWED"
   | "RESOURCE_NOT_FOUND"
@@ -195,7 +198,25 @@ export interface AoiSetStateAction {
 export interface AoiDataAction {
   kind: "data.create" | "data.delete" | "data.query" | "data.update"
   payload?: Record<string, unknown>
+  payloadBindings?: AoiActionPayloadBinding[]
   resourceId: string
+}
+
+export interface AoiActionPayloadBinding {
+  fallback?: unknown
+  from?: string
+  source: AoiActionPayloadBindingSource
+  to?: string
+  value?: unknown
+}
+
+export type AoiMaterialEventPayload = Record<string, unknown>
+
+export interface AoiRuntimeActionEvent {
+  eventName: string
+  flow: AoiActionFlowSchema
+  nodeId: string
+  payload?: AoiMaterialEventPayload
 }
 
 export interface AoiDialogAction {
@@ -270,6 +291,108 @@ export interface AoiDataRuntimeError {
   operation?: AoiDataOperation
   recoverable: boolean
   resourceId?: string
+}
+
+export interface AoiSchemaMigrationPlan {
+  confirmDestructive?: boolean
+  nextSchema: AoiSystemSchema
+  operations: AoiSchemaMigrationOperation[]
+  summary?: string
+}
+
+export type AoiSchemaMigrationOperation =
+  | AoiModelCreateMigration
+  | AoiModelRenameMigration
+  | AoiModelDeleteMigration
+  | AoiFieldCreateMigration
+  | AoiFieldRenameMigration
+  | AoiFieldDeleteMigration
+  | AoiFieldUpdateMetaMigration
+  | AoiResourceCreateMigration
+  | AoiResourceRenameMigration
+  | AoiResourceDeleteMigration
+  | AoiResourceUpdateMigration
+
+export interface AoiModelCreateMigration {
+  dataSourceId: string
+  kind: "model.create"
+  model: AoiModelSchema
+}
+
+export interface AoiModelRenameMigration {
+  dataSourceId: string
+  fromId: string
+  kind: "model.rename"
+  toId: string
+}
+
+export interface AoiModelDeleteMigration {
+  dataSourceId: string
+  kind: "model.delete"
+  modelId: string
+}
+
+export interface AoiFieldCreateMigration {
+  dataSourceId: string
+  field: AoiModelFieldSchema
+  kind: "field.create"
+  modelId: string
+}
+
+export interface AoiFieldRenameMigration {
+  dataSourceId: string
+  fromId: string
+  kind: "field.rename"
+  modelId: string
+  toId: string
+}
+
+export interface AoiFieldDeleteMigration {
+  dataSourceId: string
+  fieldId: string
+  kind: "field.delete"
+  modelId: string
+}
+
+export interface AoiFieldUpdateMetaMigration {
+  dataSourceId: string
+  field: AoiModelFieldSchema
+  kind: "field.updateMeta"
+  modelId: string
+}
+
+export interface AoiResourceCreateMigration {
+  dataSourceId: string
+  kind: "resource.create"
+  resource: AoiDataResourceSchema
+}
+
+export interface AoiResourceRenameMigration {
+  dataSourceId: string
+  fromId: string
+  kind: "resource.rename"
+  toId: string
+}
+
+export interface AoiResourceDeleteMigration {
+  dataSourceId: string
+  kind: "resource.delete"
+  resourceId: string
+}
+
+export interface AoiResourceUpdateMigration {
+  dataSourceId: string
+  kind: "resource.update"
+  resource: AoiDataResourceSchema
+}
+
+export interface AoiSchemaMigrationResult {
+  appliedAt: string
+  destructive: boolean
+  nextSchemaHash: string
+  operationCount: number
+  previousSchemaHash: string
+  summary: string
 }
 
 export function isAoiIdentifier(value: string) {
@@ -414,6 +537,45 @@ export function validateAoiSystemSchema(schema: AoiSystemSchema, options: AoiSch
   }
 }
 
+export function validateAoiSchemaMigrationPlan(plan: AoiSchemaMigrationPlan, currentSchema: AoiSystemSchema): AoiSchemaValidationResult {
+  const nextValidation = validateAoiSystemSchema(plan.nextSchema)
+  const issues = [...nextValidation.issues]
+  const current = normalizeAoiSystemSchema(currentSchema)
+  const next = nextValidation.normalizedSchema
+  const currentSourceIds = new Set(current.dataSources.map((source) => source.id))
+  const nextSourceIds = new Set(next.dataSources.map((source) => source.id))
+  const currentModelIds = new Set(current.dataSources.flatMap((source) => source.models.map((model) => model.id)))
+  const nextModelIds = new Set(next.dataSources.flatMap((source) => source.models.map((model) => model.id)))
+  const currentModels = new Map(current.dataSources.flatMap((source) => source.models).map((model) => [model.id, model]))
+  const nextModels = new Map(next.dataSources.flatMap((source) => source.models).map((model) => [model.id, model]))
+  const currentResourceIds = new Set(current.dataSources.flatMap((source) => source.resources.map((resource) => resource.id)))
+  const nextResourceIds = new Set(next.dataSources.flatMap((source) => source.resources.map((resource) => resource.id)))
+
+  const addIssue = (code: string, path: string, message: string, severity: AoiSchemaIssueSeverity = "error") => {
+    issues.push({ code, message, path, severity })
+  }
+
+  if (!plan.operations.length) {
+    addIssue("migration.operations", "operations", "Migration plan must contain at least one operation.")
+  }
+
+  plan.operations.forEach((operation, index) => {
+    const path = `operations.${index}`
+
+    if (!currentSourceIds.has(operation.dataSourceId) && !nextSourceIds.has(operation.dataSourceId)) {
+      addIssue("migration.dataSource", `${path}.dataSourceId`, `Migration operation points to missing data source ${operation.dataSourceId}.`)
+    }
+
+    validateMigrationOperation(operation, path, currentModelIds, nextModelIds, currentModels, nextModels, currentResourceIds, nextResourceIds, addIssue)
+  })
+
+  return {
+    issues,
+    normalizedSchema: next,
+    ok: issues.every((issue) => issue.severity !== "error")
+  }
+}
+
 export function isAoiDataRuntimeError(value: unknown): value is AoiDataRuntimeError {
   return Boolean(
     value &&
@@ -488,10 +650,124 @@ function validateActionFlow(
   }
 
   flow.steps.forEach((step, index) => {
-    if (isAoiDataAction(step) && !resourceIds.has(step.resourceId)) {
-      addIssue("actionFlow.resource", `${path}.steps.${index}.resourceId`, `Action ${step.kind} points to missing resource ${step.resourceId}.`)
+    const stepPath = `${path}.steps.${index}`
+
+    if (isAoiDataAction(step)) {
+      if (!resourceIds.has(step.resourceId)) {
+        addIssue("actionFlow.resource", `${stepPath}.resourceId`, `Action ${step.kind} points to missing resource ${step.resourceId}.`)
+      }
+
+      validatePayloadBindings(step.payloadBindings || [], stepPath, addIssue)
     }
   })
+}
+
+function validatePayloadBindings(
+  bindings: AoiActionPayloadBinding[],
+  path: string,
+  addIssue: (code: string, path: string, message: string, severity?: AoiSchemaIssueSeverity) => void
+) {
+  bindings.forEach((binding, index) => {
+    const bindingPath = `${path}.payloadBindings.${index}`
+
+    if (!["constant", "event", "route", "state"].includes(binding.source)) {
+      addIssue("payloadBinding.source", `${bindingPath}.source`, `Unsupported payload binding source ${binding.source}.`)
+    }
+
+    if (binding.source === "constant" && binding.value === undefined) {
+      addIssue("payloadBinding.value", `${bindingPath}.value`, "Constant payload binding requires a value.")
+    }
+
+    if (binding.source !== "constant" && !binding.from) {
+      addIssue("payloadBinding.from", `${bindingPath}.from`, `${binding.source} payload binding requires a from path.`)
+    }
+  })
+}
+
+function validateMigrationOperation(
+  operation: AoiSchemaMigrationOperation,
+  path: string,
+  currentModelIds: Set<string>,
+  nextModelIds: Set<string>,
+  currentModels: Map<string, AoiModelSchema>,
+  nextModels: Map<string, AoiModelSchema>,
+  currentResourceIds: Set<string>,
+  nextResourceIds: Set<string>,
+  addIssue: (code: string, path: string, message: string, severity?: AoiSchemaIssueSeverity) => void
+) {
+  switch (operation.kind) {
+    case "model.create":
+      if (!nextModelIds.has(operation.model.id)) {
+        addIssue("migration.model", `${path}.model.id`, `Created model ${operation.model.id} is not present in the next Schema.`)
+      }
+      break
+    case "model.rename":
+      if (!currentModelIds.has(operation.fromId)) {
+        addIssue("migration.model", `${path}.fromId`, `Renamed model ${operation.fromId} is not present in the current Schema.`)
+      }
+      if (!nextModelIds.has(operation.toId)) {
+        addIssue("migration.model", `${path}.toId`, `Renamed model ${operation.toId} is not present in the next Schema.`)
+      }
+      break
+    case "model.delete":
+      if (!currentModelIds.has(operation.modelId)) {
+        addIssue("migration.model", `${path}.modelId`, `Deleted model ${operation.modelId} is not present in the current Schema.`)
+      }
+      if (nextModelIds.has(operation.modelId)) {
+        addIssue("migration.model", `${path}.modelId`, `Deleted model ${operation.modelId} is still present in the next Schema.`)
+      }
+      break
+    case "field.create":
+    case "field.updateMeta":
+      if (!nextModelIds.has(operation.modelId)) {
+        addIssue("migration.model", `${path}.modelId`, `Field operation points to missing next model ${operation.modelId}.`)
+      } else if (!nextModels.get(operation.modelId)?.fields.some((field) => field.id === operation.field.id)) {
+        addIssue("migration.field", `${path}.field.id`, `Field ${operation.modelId}.${operation.field.id} is not present in the next Schema.`)
+      }
+      break
+    case "field.rename":
+      if (!currentModelIds.has(operation.modelId)) {
+        addIssue("migration.model", `${path}.modelId`, `Field operation points to missing current model ${operation.modelId}.`)
+      } else if (!currentModels.get(operation.modelId)?.fields.some((field) => field.id === operation.fromId)) {
+        addIssue("migration.field", `${path}.fromId`, `Renamed field ${operation.modelId}.${operation.fromId} is not present in the current Schema.`)
+      }
+      if (!nextModels.get(operation.modelId)?.fields.some((field) => field.id === operation.toId)) {
+        addIssue("migration.field", `${path}.toId`, `Renamed field ${operation.modelId}.${operation.toId} is not present in the next Schema.`)
+      }
+      break
+    case "field.delete":
+      if (!currentModelIds.has(operation.modelId)) {
+        addIssue("migration.model", `${path}.modelId`, `Field operation points to missing current model ${operation.modelId}.`)
+      } else if (!currentModels.get(operation.modelId)?.fields.some((field) => field.id === operation.fieldId)) {
+        addIssue("migration.field", `${path}.fieldId`, `Deleted field ${operation.modelId}.${operation.fieldId} is not present in the current Schema.`)
+      }
+      if (nextModels.get(operation.modelId)?.fields.some((field) => field.id === operation.fieldId)) {
+        addIssue("migration.field", `${path}.fieldId`, `Deleted field ${operation.modelId}.${operation.fieldId} is still present in the next Schema.`)
+      }
+      break
+    case "resource.create":
+    case "resource.update":
+      if (!nextResourceIds.has(operation.resource.id)) {
+        addIssue("migration.resource", `${path}.resource.id`, `Resource ${operation.resource.id} is not present in the next Schema.`)
+      }
+      break
+    case "resource.rename":
+      if (!currentResourceIds.has(operation.fromId)) {
+        addIssue("migration.resource", `${path}.fromId`, `Renamed resource ${operation.fromId} is not present in the current Schema.`)
+      }
+      if (!nextResourceIds.has(operation.toId)) {
+        addIssue("migration.resource", `${path}.toId`, `Renamed resource ${operation.toId} is not present in the next Schema.`)
+      }
+      break
+    case "resource.delete":
+      if (!currentResourceIds.has(operation.resourceId)) {
+        addIssue("migration.resource", `${path}.resourceId`, `Deleted resource ${operation.resourceId} is not present in the current Schema.`)
+      }
+      if (nextResourceIds.has(operation.resourceId)) {
+        addIssue("migration.resource", `${path}.resourceId`, `Deleted resource ${operation.resourceId} is still present in the next Schema.`)
+      }
+      break
+  }
 }
 
 function checkIdentifier(

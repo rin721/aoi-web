@@ -232,11 +232,20 @@ input {
   font-size: 12px;
 }
 
-.aoi-material-field input {
+.aoi-material-field input,
+.aoi-material-field select,
+.aoi-material-field textarea {
+  width: 100%;
   min-height: 34px;
   padding: 0 10px;
   border: 1px solid var(--runtime-border);
   border-radius: 7px;
+}
+
+.aoi-material-field textarea {
+  min-height: 80px;
+  padding: 8px 10px;
+  resize: vertical;
 }
 
 .aoi-material-form .aoi-material-button {

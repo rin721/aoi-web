@@ -156,7 +156,19 @@ export const adminCrudSystemSchema: AoiSystemSchema = {
         children: [
           { id: "customersTitle", material: "aoi.display.text", props: { text: "Customers", variant: "title" } },
           { id: "customersTable", material: "aoi.data.table", props: { limit: 8, resourceId: "customersResource" } },
-          { id: "customersForm", material: "aoi.form.model", props: { modelId: "customers", submitLabel: "Create Customer" }, events: { submit: { steps: [{ kind: "data.create", resourceId: "customersResource" }, { kind: "toast", message: "Customer action submitted.", tone: "success" }] } } }
+          {
+            id: "customersForm",
+            material: "aoi.form.model",
+            props: { modelId: "customers", submitLabel: "Create Customer" },
+            events: {
+              submit: {
+                steps: [
+                  { kind: "data.create", resourceId: "customersResource", payloadBindings: [{ source: "event", from: "record" }] },
+                  { kind: "toast", message: "Customer action submitted.", tone: "success" }
+                ]
+              }
+            }
+          }
         ],
         id: "customersRoot",
         material: "aoi.layout.container",
@@ -173,7 +185,19 @@ export const adminCrudSystemSchema: AoiSystemSchema = {
         children: [
           { id: "ordersTitle", material: "aoi.display.text", props: { text: "Orders", variant: "title" } },
           { id: "ordersTable", material: "aoi.data.table", props: { limit: 8, resourceId: "ordersResource" } },
-          { id: "ordersForm", material: "aoi.form.model", props: { modelId: "orders", submitLabel: "Create Order" } }
+          {
+            id: "ordersForm",
+            material: "aoi.form.model",
+            props: { modelId: "orders", submitLabel: "Create Order" },
+            events: {
+              submit: {
+                steps: [
+                  { kind: "data.create", resourceId: "ordersResource", payloadBindings: [{ source: "event", from: "record" }] },
+                  { kind: "toast", message: "Order action submitted.", tone: "success" }
+                ]
+              }
+            }
+          }
         ],
         id: "ordersRoot",
         material: "aoi.layout.container",

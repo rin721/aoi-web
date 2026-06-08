@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync } from "node:fs"
 import { dirname, resolve } from "node:path"
-import { randomUUID } from "node:crypto"
+import { createHash, randomUUID } from "node:crypto"
 import { DatabaseSync } from "node:sqlite"
 import type {
   AoiDataDriver,
@@ -12,6 +12,9 @@ import type {
   AoiModelSchema,
   AoiMutationInput,
   AoiQueryInput,
+  AoiSchemaMigrationOperation,
+  AoiSchemaMigrationPlan,
+  AoiSchemaMigrationResult,
   AoiSeedData,
   AoiSystemSchema
 } from "@aoi/protocol"
@@ -20,6 +23,7 @@ import {
   isAoiDataRuntimeError,
   isAoiIdentifier,
   normalizeAoiSystemSchema,
+  validateAoiSchemaMigrationPlan,
   validateAoiSystemSchema
 } from "@aoi/protocol"
 
@@ -40,6 +44,7 @@ export interface AoiProjectStoreStats {
 
 export interface AoiSqliteNodeProjectStore {
   close: () => void
+  applySchemaMigration: (plan: AoiSchemaMigrationPlan) => Promise<AoiSchemaMigrationResult>
   driver: AoiDataDriver
   ensure: () => void
   loadSchema: () => AoiSystemSchema
@@ -102,7 +107,11 @@ export function createSqliteNodeProjectStore(options: AoiSqliteNodeProjectStoreO
   }
 
   function saveSchema(schema: AoiSystemSchema) {
-    schemaRef.current = prepareSchema(schema, false)
+    const currentSchema = loadSchema()
+    const nextSchema = prepareSchema(schema, false)
+
+    assertNonDestructiveSchemaSave(currentSchema, nextSchema)
+    schemaRef.current = nextSchema
     writeSchema(schemaRef.current)
     ensureModelTables(schemaRef.current)
   }
@@ -155,8 +164,78 @@ export function createSqliteNodeProjectStore(options: AoiSqliteNodeProjectStoreO
     await seedRecords(schema, seedData)
   }
 
+  async function applySchemaMigration(plan: AoiSchemaMigrationPlan): Promise<AoiSchemaMigrationResult> {
+    const currentSchema = loadSchema()
+    const validation = validateAoiSchemaMigrationPlan(plan, currentSchema)
+
+    if (!validation.ok) {
+      failDataRuntime({
+        code: "MIGRATION_INVALID",
+        details: validation.issues,
+        message: `Schema migration is invalid: ${formatIssues(validation.issues)}`,
+        recoverable: false
+      })
+    }
+
+    const destructive = plan.operations.some(isDestructiveMigrationOperation)
+
+    if (destructive && !plan.confirmDestructive) {
+      failDataRuntime({
+        code: "MIGRATION_REQUIRES_CONFIRMATION",
+        message: "Destructive Schema migration requires confirmation.",
+        recoverable: false
+      })
+    }
+
+    const previousSchemaHash = hashSchema(currentSchema)
+    const nextSchema = validation.normalizedSchema
+    const nextSchemaHash = hashSchema(nextSchema)
+    const result: AoiSchemaMigrationResult = {
+      appliedAt: new Date().toISOString(),
+      destructive,
+      nextSchemaHash,
+      operationCount: plan.operations.length,
+      previousSchemaHash,
+      summary: plan.summary || summarizeMigration(plan.operations)
+    }
+
+    db.exec("BEGIN IMMEDIATE")
+
+    try {
+      for (const operation of plan.operations) {
+        applyMigrationOperation(nextSchema, operation)
+      }
+
+      schemaRef.current = cloneAoiSchema(nextSchema)
+      writeSchema(schemaRef.current)
+      appendMigrationHistory(result)
+      db.exec("COMMIT")
+    } catch (error) {
+      db.exec("ROLLBACK")
+      throw error
+    }
+
+    return result
+  }
+
   function writeSchema(schema: AoiSystemSchema) {
     db.prepare(`INSERT OR REPLACE INTO ${quoteIdent(META_TABLE)} (key, value) VALUES (?, ?)`).run("schema", JSON.stringify(schema))
+  }
+
+  function appendMigrationHistory(result: AoiSchemaMigrationResult) {
+    const row = db.prepare(`SELECT value FROM ${quoteIdent(META_TABLE)} WHERE key = ?`).get("migrations") as { value?: string } | undefined
+    let history: AoiSchemaMigrationResult[] = []
+
+    if (row?.value) {
+      try {
+        history = JSON.parse(row.value) as AoiSchemaMigrationResult[]
+      } catch {
+        history = []
+      }
+    }
+
+    db.prepare(`INSERT OR REPLACE INTO ${quoteIdent(META_TABLE)} (key, value) VALUES (?, ?)`)
+      .run("migrations", JSON.stringify(appendMigrationHistoryEntry(history, result)))
   }
 
   function readPersistedSchema() {
@@ -224,6 +303,133 @@ export function createSqliteNodeProjectStore(options: AoiSqliteNodeProjectStoreO
         db.exec(`ALTER TABLE ${quoteIdent(model.id)} ADD COLUMN ${quoteIdent(field.id)} ${sqlType(field)}`)
       }
     })
+  }
+
+  function applyMigrationOperation(nextSchema: AoiSystemSchema, operation: AoiSchemaMigrationOperation) {
+    switch (operation.kind) {
+      case "model.create":
+        ensureModelTable(operation.model)
+        break
+      case "model.rename":
+        renameModelTable(operation.fromId, operation.toId, modelById(nextSchema, operation.toId))
+        break
+      case "model.delete":
+        dropModelTable(operation.modelId)
+        break
+      case "field.create":
+        addModelField(modelById(nextSchema, operation.modelId), operation.field)
+        break
+      case "field.rename":
+        renameModelField(operation.modelId, operation.fromId, operation.toId, modelById(nextSchema, operation.modelId))
+        break
+      case "field.delete":
+        if (operation.fieldId === "id") {
+          failDataRuntime({
+            code: "MIGRATION_INVALID",
+            message: "The id field cannot be deleted.",
+            recoverable: false
+          })
+        }
+        rebuildModelTable(operation.modelId, modelById(nextSchema, operation.modelId))
+        break
+      case "field.updateMeta":
+        rebuildModelTable(operation.modelId, modelById(nextSchema, operation.modelId))
+        break
+      case "resource.create":
+      case "resource.rename":
+      case "resource.delete":
+      case "resource.update":
+        break
+    }
+  }
+
+  function renameModelTable(fromId: string, toId: string, nextModel: AoiModelSchema) {
+    assertIdentifier(fromId, "model.fromId")
+    assertIdentifier(toId, "model.toId")
+
+    if (tableExists(fromId) && !tableExists(toId)) {
+      db.exec(`ALTER TABLE ${quoteIdent(fromId)} RENAME TO ${quoteIdent(toId)}`)
+    }
+
+    ensureModelTable(nextModel)
+  }
+
+  function dropModelTable(modelId: string) {
+    assertIdentifier(modelId, "model.id")
+    db.exec(`DROP TABLE IF EXISTS ${quoteIdent(modelId)}`)
+  }
+
+  function addModelField(model: AoiModelSchema, field: AoiModelFieldSchema) {
+    ensureModelTable(model)
+
+    if (!columnExists(model.id, field.id)) {
+      db.exec(`ALTER TABLE ${quoteIdent(model.id)} ADD COLUMN ${quoteIdent(field.id)} ${sqlType(field)}`)
+    }
+  }
+
+  function renameModelField(modelId: string, fromId: string, toId: string, nextModel: AoiModelSchema) {
+    assertIdentifier(modelId, "model.id")
+    assertIdentifier(fromId, "field.fromId")
+    assertIdentifier(toId, "field.toId")
+
+    if (!tableExists(modelId)) {
+      ensureModelTable(nextModel)
+      return
+    }
+
+    if (columnExists(modelId, fromId) && !columnExists(modelId, toId)) {
+      db.exec(`ALTER TABLE ${quoteIdent(modelId)} RENAME COLUMN ${quoteIdent(fromId)} TO ${quoteIdent(toId)}`)
+    }
+
+    ensureModelTable(nextModel)
+  }
+
+  function rebuildModelTable(modelId: string, nextModel: AoiModelSchema) {
+    assertIdentifier(modelId, "model.id")
+
+    if (!tableExists(modelId)) {
+      ensureModelTable(nextModel)
+      return
+    }
+
+    const tempTable = `AoiTemp${randomUUID().replace(/-/g, "").slice(0, 24)}`
+    const fields = normalizeModelFields(nextModel)
+    const columns = fields.map((field) => field.id === "id" ? `${quoteIdent(field.id)} TEXT PRIMARY KEY` : `${quoteIdent(field.id)} ${sqlType(field)}`)
+    const existingColumns = new Set(tableColumns(modelId))
+    const copiedFields = fields.filter((field) => existingColumns.has(field.id))
+
+    db.exec(`CREATE TABLE ${quoteIdent(tempTable)} (${columns.join(", ")})`)
+
+    if (copiedFields.length) {
+      const copiedNames = copiedFields.map((field) => quoteIdent(field.id)).join(", ")
+
+      db.exec(`INSERT INTO ${quoteIdent(tempTable)} (${copiedNames}) SELECT ${copiedNames} FROM ${quoteIdent(modelId)}`)
+    }
+
+    db.exec(`DROP TABLE ${quoteIdent(modelId)}`)
+    db.exec(`ALTER TABLE ${quoteIdent(tempTable)} RENAME TO ${quoteIdent(modelId)}`)
+    ensureModelTable(nextModel)
+  }
+
+  function tableExists(tableName: string) {
+    assertIdentifier(tableName, "tableName")
+    const row = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = ?").get(tableName)
+
+    return Boolean(row)
+  }
+
+  function columnExists(tableName: string, columnName: string) {
+    return tableColumns(tableName).includes(columnName)
+  }
+
+  function tableColumns(tableName: string) {
+    assertIdentifier(tableName, "tableName")
+
+    if (!tableExists(tableName)) {
+      return []
+    }
+
+    return (db.prepare(`PRAGMA table_info(${quoteIdent(tableName)})`).all() as Array<{ name: string }>).map((column) => column.name)
   }
 
   function queryRecords(schema: AoiSystemSchema, input: AoiQueryInput): AoiDataResult {
@@ -367,6 +573,7 @@ export function createSqliteNodeProjectStore(options: AoiSqliteNodeProjectStoreO
   }
 
   return {
+    applySchemaMigration,
     close: () => db.close(),
     driver,
     ensure,
@@ -376,6 +583,116 @@ export function createSqliteNodeProjectStore(options: AoiSqliteNodeProjectStoreO
     seedDefault,
     stats
   }
+}
+
+function modelById(schema: AoiSystemSchema, modelId: string) {
+  const model = schema.dataSources.flatMap((source) => source.models).find((item) => item.id === modelId)
+
+  if (!model) {
+    failDataRuntime({
+      code: "MIGRATION_INVALID",
+      message: `Model ${modelId} is not configured in the next Schema.`,
+      recoverable: false
+    })
+  }
+
+  return model
+}
+
+function appendMigrationHistoryEntry(history: AoiSchemaMigrationResult[], result: AoiSchemaMigrationResult) {
+  return [...history, result].slice(-50)
+}
+
+function assertNonDestructiveSchemaSave(currentSchema: AoiSystemSchema, nextSchema: AoiSystemSchema) {
+  const nextModels = new Map(nextSchema.dataSources.flatMap((source) => source.models).map((model) => [model.id, model]))
+  const nextResources = new Map(nextSchema.dataSources.flatMap((source) => source.resources).map((resource) => [resource.id, resource]))
+
+  for (const model of currentSchema.dataSources.flatMap((source) => source.models)) {
+    const nextModel = nextModels.get(model.id)
+
+    if (!nextModel) {
+      failDataRuntime({
+        code: "MIGRATION_REQUIRES_CONFIRMATION",
+        message: `Model ${model.id} cannot be removed by saveSchema. Use applySchemaMigration with destructive confirmation.`,
+        recoverable: false
+      })
+    }
+
+    const nextFields = new Map(normalizeModelFields(nextModel).map((field) => [field.id, field]))
+
+    for (const field of normalizeModelFields(model)) {
+      const nextField = nextFields.get(field.id)
+
+      if (!nextField) {
+        failDataRuntime({
+          code: "MIGRATION_REQUIRES_CONFIRMATION",
+          message: `Field ${model.id}.${field.id} cannot be removed by saveSchema. Use applySchemaMigration with destructive confirmation.`,
+          recoverable: false
+        })
+      }
+
+      if (nextField.type !== field.type) {
+        failDataRuntime({
+          code: "MIGRATION_INVALID",
+          message: `Field ${model.id}.${field.id} type changes must go through applySchemaMigration.`,
+          recoverable: false
+        })
+      }
+    }
+  }
+
+  for (const resource of currentSchema.dataSources.flatMap((source) => source.resources)) {
+    if (!nextResources.has(resource.id)) {
+      failDataRuntime({
+        code: "MIGRATION_REQUIRES_CONFIRMATION",
+        message: `Resource ${resource.id} cannot be removed by saveSchema. Use applySchemaMigration.`,
+        recoverable: false
+      })
+    }
+  }
+}
+
+function isDestructiveMigrationOperation(operation: AoiSchemaMigrationOperation) {
+  return operation.kind === "model.delete" || operation.kind === "field.delete"
+}
+
+function hashSchema(schema: AoiSystemSchema) {
+  return createHash("sha256")
+    .update(JSON.stringify(normalizeAoiSystemSchema(schema)))
+    .digest("hex")
+}
+
+function summarizeMigration(operations: AoiSchemaMigrationOperation[]) {
+  if (!operations.length) {
+    return "Schema migration"
+  }
+
+  return operations.map((operation) => {
+    switch (operation.kind) {
+      case "model.create":
+        return `create model ${operation.model.id}`
+      case "model.rename":
+        return `rename model ${operation.fromId} to ${operation.toId}`
+      case "model.delete":
+        return `delete model ${operation.modelId}`
+      case "field.create":
+        return `create field ${operation.modelId}.${operation.field.id}`
+      case "field.rename":
+        return `rename field ${operation.modelId}.${operation.fromId} to ${operation.toId}`
+      case "field.delete":
+        return `delete field ${operation.modelId}.${operation.fieldId}`
+      case "field.updateMeta":
+        return `update field ${operation.modelId}.${operation.field.id}`
+      case "resource.create":
+        return `create resource ${operation.resource.id}`
+      case "resource.rename":
+        return `rename resource ${operation.fromId} to ${operation.toId}`
+      case "resource.delete":
+        return `delete resource ${operation.resourceId}`
+      case "resource.update":
+        return `update resource ${operation.resource.id}`
+    }
+  }).join("; ")
 }
 
 function resolveResource(schema: AoiSystemSchema, resourceId: string): { model: AoiModelSchema, resource: AoiDataResourceSchema } {

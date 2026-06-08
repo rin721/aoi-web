@@ -2,7 +2,7 @@ import assert from "node:assert/strict"
 import { mkdtemp, readFile, rm } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { dirname, resolve } from "node:path"
-import { fileURLToPath } from "node:url"
+import { fileURLToPath, pathToFileURL } from "node:url"
 import test from "node:test"
 import {
   adminCrudSeedData,
@@ -36,6 +36,9 @@ test("compiles admin CRUD into a builder-free runtime package", async () => {
       schemaHash?: string
     }
     const generatedSchema = await readFile(result.generatedSchemaPath, "utf8")
+    const generatedSchemaModule = await import(`${pathToFileURL(result.generatedSchemaPath).href}?${Date.now()}`) as {
+      generatedSystemSchema: typeof adminCrudSystemSchema
+    }
     const generatedSeed = await readFile(result.generatedSeedPath, "utf8")
     const packageText = await readFile(resolve(result.outputDir, "package.json"), "utf8")
 
@@ -44,6 +47,8 @@ test("compiles admin CRUD into a builder-free runtime package", async () => {
     assert.equal(manifest.packageName, result.packageName)
     assert.ok(manifest.schemaHash)
     assert.match(generatedSchema, /generatedSystemSchema/)
+    assert.match(generatedSchema, /payloadBindings/)
+    assert.ok(JSON.stringify(generatedSchemaModule.generatedSystemSchema).includes("payloadBindings"))
     assert.match(generatedSeed, /generatedSeedData/)
     assert.doesNotMatch(packageText, /@aoi\/template-admin-crud|apps\/builder|\/building/)
   } finally {

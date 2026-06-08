@@ -2,8 +2,10 @@ import { defineComponent, h } from "vue"
 import type {
   AoiActionFlowSchema,
   AoiMaterialManifest,
+  AoiModelFieldSchema,
   AoiModelSchema,
-  AoiNodeSchema
+  AoiNodeSchema,
+  AoiRuntimeActionEvent
 } from "@aoi/protocol"
 
 export interface AoiMaterialRuntimeProps {
@@ -30,11 +32,21 @@ function numberProp(node: AoiNodeSchema, key: string, fallback: number) {
   return typeof value === "number" ? value : fallback
 }
 
-function emitNodeAction(emit: (event: "action", flow: AoiActionFlowSchema) => void, node: AoiNodeSchema, eventName: string) {
+function emitNodeAction(
+  emit: (event: "action", actionEvent: AoiRuntimeActionEvent) => void,
+  node: AoiNodeSchema,
+  eventName: string,
+  payload: Record<string, unknown> = {}
+) {
   const flow = node.events?.[eventName]
 
   if (flow) {
-    emit("action", flow)
+    emit("action", {
+      eventName,
+      flow,
+      nodeId: node.id,
+      payload
+    })
   }
 }
 
@@ -261,16 +273,14 @@ export const AoiModelForm = defineComponent({
       class: "aoi-material-form",
       onSubmit: (event: Event) => {
         event.preventDefault()
-        emitNodeAction(emit, props.node, "submit")
+        emitNodeAction(emit, props.node, "submit", {
+          record: collectAoiFormRecord(props.model, event.currentTarget)
+        })
       }
     }, [
       ...(props.model?.fields || []).filter((field) => field.id !== "id").map((field) => h("label", { class: "aoi-material-field", key: field.id }, [
         h("span", field.label),
-        h("input", {
-          name: field.id,
-          placeholder: field.label,
-          type: field.type === "number" || field.type === "integer" ? "number" : field.type === "datetime" ? "datetime-local" : "text"
-        })
+        renderFieldInput(field)
       ])),
       h("button", { class: "aoi-material-button aoi-material-button--primary", type: "submit" }, textProp(props.node, "submitLabel", "Submit"))
     ])
@@ -310,4 +320,94 @@ export function createAoiMaterialComponentRegistry() {
 
 export function isAoiReadonlyMaterial(type: string) {
   return type === "aoi.display.text" || type === "aoi.feedback.status"
+}
+
+export function coerceAoiFormRecord(model: AoiModelSchema, values: Record<string, unknown>) {
+  const record: Record<string, unknown> = {}
+
+  model.fields.filter((field) => field.id !== "id").forEach((field) => {
+    const value = coerceFieldValue(field, values[field.id])
+
+    if (value !== undefined) {
+      record[field.id] = value
+    }
+  })
+
+  return record
+}
+
+function collectAoiFormRecord(model: AoiModelSchema | undefined, currentTarget: EventTarget | null) {
+  if (!model || !(currentTarget instanceof HTMLFormElement)) {
+    return {}
+  }
+
+  const formData = new FormData(currentTarget)
+  const rawValues: Record<string, unknown> = {}
+
+  model.fields.forEach((field) => {
+    rawValues[field.id] = field.type === "boolean"
+      ? formData.has(field.id)
+      : formData.get(field.id)
+  })
+
+  return coerceAoiFormRecord(model, rawValues)
+}
+
+function renderFieldInput(field: AoiModelFieldSchema) {
+  if (field.type === "enum") {
+    return h("select", {
+      name: field.id,
+      required: field.required
+    }, (field.enumOptions || []).map((option) => h("option", { key: option, value: option }, option)))
+  }
+
+  if (field.type === "boolean") {
+    return h("input", {
+      name: field.id,
+      type: "checkbox",
+      value: "true"
+    })
+  }
+
+  if (field.type === "text") {
+    return h("textarea", {
+      name: field.id,
+      placeholder: field.label,
+      required: field.required
+    })
+  }
+
+  return h("input", {
+    name: field.id,
+    placeholder: field.label,
+    required: field.required,
+    step: field.type === "integer" ? "1" : undefined,
+    type: field.type === "number" || field.type === "integer" ? "number" : field.type === "datetime" ? "datetime-local" : "text"
+  })
+}
+
+function coerceFieldValue(field: AoiModelFieldSchema, value: unknown) {
+  if (value === null || value === undefined || value === "") {
+    return field.defaultValue
+  }
+
+  if (field.type === "boolean") {
+    return value === true || value === "true" || value === "on" || value === "1"
+  }
+
+  if (field.type === "integer") {
+    return Number.isFinite(Number(value)) ? Math.trunc(Number(value)) : field.defaultValue
+  }
+
+  if (field.type === "number") {
+    return Number.isFinite(Number(value)) ? Number(value) : field.defaultValue
+  }
+
+  if (field.type === "datetime") {
+    const date = new Date(String(value))
+
+    return Number.isNaN(date.getTime()) ? String(value) : date.toISOString()
+  }
+
+  return String(value)
 }

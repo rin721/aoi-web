@@ -5,9 +5,8 @@ import {
   runAoiActionFlow
 } from "@aoi/runtime-core"
 import type {
-  AoiActionFlowSchema,
   AoiDataResourceSchema,
-  AoiModelSchema
+  AoiRuntimeActionEvent
 } from "@aoi/protocol"
 import {
   normalizeAoiSystemSchema,
@@ -60,14 +59,20 @@ async function mutateResource(action: "create" | "delete" | "update", resourceId
   await loadResource(resourceId)
 }
 
-async function handleAction(flow: AoiActionFlowSchema) {
-  await runAoiActionFlow(flow, {
+async function handleAction(event: AoiRuntimeActionEvent) {
+  await runAoiActionFlow(event.flow, {
     create: async (resourceId, payload) => {
       const resource = resourceById(resourceId)
-      const model = resource ? modelForResource(resource) : null
 
-      if (resource && model) {
-        await mutateResource("create", resource.id, payload || createSampleRecord(model))
+      if (resource) {
+        await mutateResource("create", resource.id, payload || {})
+      }
+    },
+    delete: async (resourceId, payload) => {
+      const id = String(payload?.id || "")
+
+      if (id) {
+        await mutateResource("delete", resourceId, {}, id)
       }
     },
     navigate: async (to) => {
@@ -84,7 +89,7 @@ async function handleAction(flow: AoiActionFlowSchema) {
         await mutateResource("update", resourceId, payload || {}, id)
       }
     }
-  })
+  }, event)
 }
 
 function resourceById(resourceId: string) {
@@ -93,29 +98,6 @@ function resourceById(resourceId: string) {
 
 function modelForResource(resource: AoiDataResourceSchema) {
   return models.value.find((model) => model.id === resource.modelId) || null
-}
-
-function createSampleRecord(model: AoiModelSchema) {
-  const timestamp = new Date().toISOString()
-  const record: Record<string, unknown> = {}
-
-  model.fields.forEach((field) => {
-    if (field.id === "id") {
-      record[field.id] = `${model.id}_${Date.now()}`
-    } else if (field.id === "createdAt") {
-      record[field.id] = timestamp
-    } else if (field.type === "number" || field.type === "integer") {
-      record[field.id] = 1
-    } else if (field.type === "boolean") {
-      record[field.id] = false
-    } else if (field.enumOptions?.length) {
-      record[field.id] = field.enumOptions[0]
-    } else {
-      record[field.id] = `New ${field.label}`
-    }
-  })
-
-  return record
 }
 </script>
 

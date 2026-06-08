@@ -129,8 +129,17 @@ button:disabled {
   font-size: 14px;
 }
 
+.builder-panel__header {
+  justify-content: space-between;
+}
+
+.builder-panel__header h2 {
+  flex: 1;
+}
+
 .builder-panel__header svg,
 .builder-command svg,
+.builder-icon-command svg,
 .material-item svg {
   flex: none;
   width: 16px;
@@ -209,6 +218,22 @@ button:disabled {
   position: absolute;
   inset: 0;
   opacity: 0;
+}
+
+.builder-icon-command {
+  display: inline-grid;
+  flex: none;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--builder-border);
+  border-radius: 7px;
+  color: var(--builder-text);
+  background: #ffffff;
+}
+
+.builder-icon-command--danger {
+  color: var(--builder-danger);
 }
 
 .builder-list-button,
@@ -391,7 +416,11 @@ button:disabled {
 }
 
 .aoi-material-field input,
+.aoi-material-field select,
+.aoi-material-field textarea,
 .builder-select,
+.builder-field input,
+.builder-field select,
 .builder-field textarea {
   width: 100%;
   border: 1px solid var(--builder-border);
@@ -401,9 +430,16 @@ button:disabled {
 }
 
 .aoi-material-field input,
+.aoi-material-field select,
 .builder-select {
   min-height: 34px;
   padding: 0 10px;
+}
+
+.aoi-material-field textarea {
+  min-height: 80px;
+  padding: 8px 10px;
+  resize: vertical;
 }
 
 .aoi-material-status,
@@ -486,12 +522,98 @@ button:disabled {
   font-size: 12px;
 }
 
+.builder-field input,
+.builder-field select {
+  min-height: 34px;
+  padding: 0 10px;
+}
+
 .builder-field textarea {
   min-height: 220px;
   padding: 10px;
   font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
   font-size: 12px;
   resize: vertical;
+}
+
+.builder-panel--data-model {
+  align-content: start;
+}
+
+.model-toolbar,
+.data-model-subhead,
+.model-field-card__header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.model-toolbar {
+  min-width: 0;
+}
+
+.model-toolbar .builder-select {
+  min-width: 0;
+}
+
+.data-model-subhead,
+.model-field-card__header {
+  justify-content: space-between;
+}
+
+.data-model-subhead {
+  padding-top: 6px;
+  border-top: 1px solid var(--builder-border);
+}
+
+.model-field-list,
+.resource-list {
+  display: grid;
+  gap: 10px;
+}
+
+.model-field-card,
+.resource-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid var(--builder-border);
+  border-radius: 7px;
+  background: var(--builder-panel-muted);
+}
+
+.model-field-card__header strong {
+  overflow-wrap: anywhere;
+  font-size: 13px;
+}
+
+.field-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.builder-checkbox,
+.operation-list {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.builder-checkbox {
+  min-height: 30px;
+  color: var(--builder-muted);
+  font-size: 12px;
+}
+
+.builder-checkbox input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--builder-accent);
+}
+
+.operation-list {
+  flex-wrap: wrap;
 }
 
 .builder-error,

@@ -9,7 +9,11 @@ import {
   adminCrudSystemSchema
 } from "../../templates/admin-crud/src/index"
 import {
-  cloneAoiSchema
+  cloneAoiSchema,
+  type AoiDataResourceSchema,
+  type AoiModelSchema,
+  type AoiNodeSchema,
+  type AoiSystemSchema
 } from "@aoi/protocol"
 import {
   createSqliteNodeProjectStore,
@@ -140,6 +144,207 @@ test("enforces operation allowlists and missing-record errors", async () => {
   }
 })
 
+test("applies controlled sqlite schema migrations", async () => {
+  const workspaceRoot = await mkdtemp(resolve(tmpdir(), "aoi-data-runtime-"))
+
+  try {
+    const store = createSqliteNodeProjectStore({
+      projectId: "admin_crud",
+      schema: adminCrudSystemSchema,
+      seedData: adminCrudSeedData,
+      workspaceRoot
+    })
+
+    try {
+      await store.seedDefault()
+
+      const addedFieldSchema = store.loadSchema()
+      const source = addedFieldSchema.dataSources[0]
+      const customers = source.models.find((model) => model.id === "customers")
+
+      assert.ok(customers)
+      customers.fields.push({ id: "tier", label: "Tier", type: "string" })
+
+      await store.applySchemaMigration({
+        nextSchema: addedFieldSchema,
+        operations: [{
+          dataSourceId: source.id,
+          field: { id: "tier", label: "Tier", type: "string" },
+          kind: "field.create",
+          modelId: "customers"
+        }]
+      })
+
+      await store.driver.create({
+        record: {
+          createdAt: "2026-06-08T00:00:00.000Z",
+          id: "cust_migration",
+          name: "Migration Customer",
+          owner: "Aoi",
+          segment: "Enterprise",
+          status: "active",
+          tier: "gold"
+        },
+        resourceId: "customersResource"
+      })
+
+      const renamedFieldSchema = store.loadSchema()
+      const renamedCustomers = renamedFieldSchema.dataSources[0].models.find((model) => model.id === "customers")
+      const tierField = renamedCustomers?.fields.find((field) => field.id === "tier")
+
+      assert.ok(renamedCustomers)
+      assert.ok(tierField)
+      tierField.id = "tierCode"
+      tierField.label = "Tier Code"
+
+      await store.applySchemaMigration({
+        nextSchema: renamedFieldSchema,
+        operations: [{
+          dataSourceId: source.id,
+          fromId: "tier",
+          kind: "field.rename",
+          modelId: "customers",
+          toId: "tierCode"
+        }]
+      })
+
+      const afterRename = await store.driver.query({ limit: 50, resourceId: "customersResource" })
+      assert.equal(afterRename.items.find((item) => item.id === "cust_migration")?.tierCode, "gold")
+
+      const deletedFieldSchema = store.loadSchema()
+      const deleteCustomers = deletedFieldSchema.dataSources[0].models.find((model) => model.id === "customers")
+
+      assert.ok(deleteCustomers)
+      deleteCustomers.fields = deleteCustomers.fields.filter((field) => field.id !== "tierCode")
+
+      await assert.rejects(
+        () => store.applySchemaMigration({
+          nextSchema: deletedFieldSchema,
+          operations: [{
+            dataSourceId: source.id,
+            fieldId: "tierCode",
+            kind: "field.delete",
+            modelId: "customers"
+          }]
+        }),
+        (error) => getAoiDataRuntimeError(error)?.code === "MIGRATION_REQUIRES_CONFIRMATION"
+      )
+
+      await store.applySchemaMigration({
+        confirmDestructive: true,
+        nextSchema: deletedFieldSchema,
+        operations: [{
+          dataSourceId: source.id,
+          fieldId: "tierCode",
+          kind: "field.delete",
+          modelId: "customers"
+        }]
+      })
+
+      const renamedModelSchema = store.loadSchema()
+      const renameSource = renamedModelSchema.dataSources[0]
+      const customersModel = renameSource.models.find((model) => model.id === "customers")
+      const customersResource = renameSource.resources.find((resource) => resource.id === "customersResource")
+
+      assert.ok(customersModel)
+      assert.ok(customersResource)
+      customersModel.id = "clients"
+      customersResource.modelId = "clients"
+      renamedModelSchema.modules.forEach((module) => {
+        module.modelIds = module.modelIds.map((modelId) => modelId === "customers" ? "clients" : modelId)
+      })
+      visitSchemaNodes(renamedModelSchema, (node) => {
+        if (node.props.modelId === "customers") {
+          node.props.modelId = "clients"
+        }
+      })
+
+      await store.applySchemaMigration({
+        nextSchema: renamedModelSchema,
+        operations: [
+          {
+            dataSourceId: renameSource.id,
+            fromId: "customers",
+            kind: "model.rename",
+            toId: "clients"
+          },
+          {
+            dataSourceId: renameSource.id,
+            kind: "resource.update",
+            resource: customersResource
+          }
+        ]
+      })
+
+      const afterModelRename = await store.driver.query({ limit: 50, resourceId: "customersResource" })
+      assert.ok(afterModelRename.items.some((item) => item.id === "cust_migration"))
+
+      const scratchSchema = store.loadSchema()
+      const scratchSource = scratchSchema.dataSources[0]
+      const scratchModel: AoiModelSchema = {
+        displayField: "name",
+        fields: [
+          { id: "id", label: "ID", type: "string" },
+          { id: "name", label: "Name", type: "string" }
+        ],
+        id: "migrationScratch",
+        label: "Migration Scratch",
+        pluralLabel: "Migration Scratch"
+      }
+      const scratchResource: AoiDataResourceSchema = {
+        driver: scratchSource.driver,
+        id: "migrationScratchResource",
+        label: "Migration Scratch Resource",
+        modelId: "migrationScratch",
+        operations: ["query", "create", "update", "delete", "seed", "reset"]
+      }
+
+      scratchSource.models.push(scratchModel)
+      scratchSource.resources.push(scratchResource)
+
+      await store.applySchemaMigration({
+        nextSchema: scratchSchema,
+        operations: [
+          { dataSourceId: scratchSource.id, kind: "model.create", model: scratchModel },
+          { dataSourceId: scratchSource.id, kind: "resource.create", resource: scratchResource }
+        ]
+      })
+
+      const deletedModelSchema = store.loadSchema()
+      const deleteSource = deletedModelSchema.dataSources[0]
+
+      deleteSource.models = deleteSource.models.filter((model) => model.id !== "migrationScratch")
+      deleteSource.resources = deleteSource.resources.filter((resource) => resource.modelId !== "migrationScratch")
+
+      await assert.rejects(
+        () => store.applySchemaMigration({
+          nextSchema: deletedModelSchema,
+          operations: [
+            { dataSourceId: deleteSource.id, kind: "resource.delete", resourceId: "migrationScratchResource" },
+            { dataSourceId: deleteSource.id, kind: "model.delete", modelId: "migrationScratch" }
+          ]
+        }),
+        (error) => getAoiDataRuntimeError(error)?.code === "MIGRATION_REQUIRES_CONFIRMATION"
+      )
+
+      await store.applySchemaMigration({
+        confirmDestructive: true,
+        nextSchema: deletedModelSchema,
+        operations: [
+          { dataSourceId: deleteSource.id, kind: "resource.delete", resourceId: "migrationScratchResource" },
+          { dataSourceId: deleteSource.id, kind: "model.delete", modelId: "migrationScratch" }
+        ]
+      })
+
+      assert.equal(store.loadSchema().dataSources[0].models.some((model) => model.id === "migrationScratch"), false)
+    } finally {
+      store.close()
+    }
+  } finally {
+    await rm(workspaceRoot, { force: true, recursive: true })
+  }
+})
+
 test("reports corrupted stored schema and lets reset recover from the default schema", async () => {
   const workspaceRoot = await mkdtemp(resolve(tmpdir(), "aoi-data-runtime-"))
   const sqlitePath = resolve(workspaceRoot, "project.sqlite")
@@ -183,3 +388,13 @@ test("reports corrupted stored schema and lets reset recover from the default sc
     await rm(workspaceRoot, { force: true, recursive: true })
   }
 })
+
+function visitSchemaNodes(schema: AoiSystemSchema, visitor: (node: AoiNodeSchema) => void) {
+  const visit = (node: AoiNodeSchema) => {
+    visitor(node)
+    ;(node.children || []).forEach(visit)
+    Object.values(node.slots || {}).flat().forEach(visit)
+  }
+
+  schema.pages.forEach((page) => visit(page.root))
+}

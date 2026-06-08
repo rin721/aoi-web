@@ -1,4 +1,8 @@
-import type { AoiSystemSchema } from "@aoi/protocol"
+import type {
+  AoiSchemaMigrationPlan,
+  AoiSchemaMigrationResult,
+  AoiSystemSchema
+} from "@aoi/protocol"
 import {
   normalizeAoiSystemSchema,
   validateAoiSystemSchema
@@ -6,10 +10,11 @@ import {
 import { createAdminCrudStore } from "../../utils/admin-crud-store"
 import { throwAoiHttpError } from "../../utils/aoi-http-error"
 
-type ProjectAction = "resetData" | "saveSchema" | "seedData"
+type ProjectAction = "applySchemaMigration" | "resetData" | "saveSchema" | "seedData"
 
 interface ProjectBody {
   action?: ProjectAction
+  migrationPlan?: AoiSchemaMigrationPlan
   schema?: AoiSystemSchema
 }
 
@@ -19,6 +24,7 @@ export default defineEventHandler(async (event) => {
 
   try {
     store = createAdminCrudStore()
+    let migrationResult: AoiSchemaMigrationResult | null = null
 
     if (body.action === "saveSchema") {
       if (!body.schema) {
@@ -36,6 +42,12 @@ export default defineEventHandler(async (event) => {
       }
 
       store.saveSchema(validation.normalizedSchema)
+    } else if (body.action === "applySchemaMigration") {
+      if (!body.migrationPlan) {
+        throw createError({ statusCode: 400, statusMessage: "Migration plan is required." })
+      }
+
+      migrationResult = await store.applySchemaMigration(body.migrationPlan)
     } else if (body.action === "resetData") {
       await store.resetData()
     } else if (body.action === "seedData") {
@@ -45,6 +57,7 @@ export default defineEventHandler(async (event) => {
     }
 
     return {
+      migrationResult,
       ok: true,
       schema: store.loadSchema(),
       stats: store.stats(),

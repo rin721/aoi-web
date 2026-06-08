@@ -2,11 +2,13 @@ import { defineComponent, h, reactive } from "vue"
 import { createAoiMaterialComponentRegistry } from "@aoi/materials"
 import type {
   AoiActionFlowSchema,
+  AoiActionPayloadBinding,
   AoiActionStepSchema,
   AoiDataResourceSchema,
   AoiModelSchema,
   AoiNodeSchema,
   AoiPageSchema,
+  AoiRuntimeActionEvent,
   AoiSystemSchema
 } from "@aoi/protocol"
 
@@ -21,7 +23,9 @@ export interface AoiActionRuntimeContext {
   navigate?: (to: string) => void | Promise<void>
   openDialog?: (dialogId: string) => void | Promise<void>
   query?: (resourceId: string, payload?: Record<string, unknown>) => void | Promise<void>
+  route?: Record<string, unknown>
   setState?: (key: string, value: unknown) => void | Promise<void>
+  state?: Record<string, unknown>
   toast?: (message: string, tone?: string) => void | Promise<void>
   update?: (resourceId: string, payload?: Record<string, unknown>) => void | Promise<void>
 }
@@ -62,7 +66,7 @@ function renderNode(input: {
   schema: AoiSystemSchema
   selectNode?: (nodeId: string) => void
   selectedNodeId?: string
-  emitAction: (flow: AoiActionFlowSchema) => void
+  emitAction: (event: AoiRuntimeActionEvent) => void
 }) {
   const component = builtinComponents[input.node.material as keyof typeof builtinComponents]
 
@@ -87,7 +91,9 @@ function renderNode(input: {
       model: resolveNodeModel(input.schema, input.node),
       node: input.node,
       records,
-      onAction: input.emitAction
+      onAction: (event: AoiRuntimeActionEvent | AoiActionFlowSchema) => {
+        input.emitAction(normalizeRuntimeActionEvent(event, input.node, "action"))
+      }
     }, {
       default: () => children.map((child) => renderNode({ ...input, node: child }))
     })
@@ -109,7 +115,7 @@ export const AoiSchemaRenderer = defineComponent({
       onClick: () => emit("selectNode", "")
     }, renderNode({
       dataContext: props.dataContext,
-      emitAction: (flow) => emit("action", flow),
+      emitAction: (event) => emit("action", event),
       node: props.page.root,
       schema: props.schema,
       selectedNodeId: props.selectedNodeId,
@@ -158,13 +164,13 @@ export function createAoiRuntimeState(page: AoiPageSchema) {
   return reactive({ ...page.state })
 }
 
-export async function runAoiActionFlow(flow: AoiActionFlowSchema, context: AoiActionRuntimeContext) {
+export async function runAoiActionFlow(flow: AoiActionFlowSchema, context: AoiActionRuntimeContext, event?: AoiRuntimeActionEvent) {
   for (const step of flow.steps) {
-    await runAoiActionStep(step, context)
+    await runAoiActionStep(step, context, event)
   }
 }
 
-async function runAoiActionStep(step: AoiActionStepSchema, context: AoiActionRuntimeContext) {
+async function runAoiActionStep(step: AoiActionStepSchema, context: AoiActionRuntimeContext, event?: AoiRuntimeActionEvent) {
   switch (step.kind) {
     case "navigate":
       await context.navigate?.(step.to)
@@ -173,16 +179,16 @@ async function runAoiActionStep(step: AoiActionStepSchema, context: AoiActionRun
       await context.setState?.(step.key, step.value)
       break
     case "data.query":
-      await context.query?.(step.resourceId, step.payload)
+      await context.query?.(step.resourceId, resolveActionPayload(step.payload, step.payloadBindings, context, event))
       break
     case "data.create":
-      await context.create?.(step.resourceId, step.payload)
+      await context.create?.(step.resourceId, resolveActionPayload(step.payload, step.payloadBindings, context, event))
       break
     case "data.update":
-      await context.update?.(step.resourceId, step.payload)
+      await context.update?.(step.resourceId, resolveActionPayload(step.payload, step.payloadBindings, context, event))
       break
     case "data.delete":
-      await context.delete?.(step.resourceId, step.payload)
+      await context.delete?.(step.resourceId, resolveActionPayload(step.payload, step.payloadBindings, context, event))
       break
     case "openDialog":
       await context.openDialog?.(step.dialogId)
@@ -194,4 +200,105 @@ async function runAoiActionStep(step: AoiActionStepSchema, context: AoiActionRun
       await context.toast?.(step.message, step.tone)
       break
   }
+}
+
+function normalizeRuntimeActionEvent(value: AoiRuntimeActionEvent | AoiActionFlowSchema, node: AoiNodeSchema, fallbackEventName: string): AoiRuntimeActionEvent {
+  if ("flow" in value) {
+    return value
+  }
+
+  return {
+    eventName: fallbackEventName,
+    flow: value,
+    nodeId: node.id,
+    payload: {}
+  }
+}
+
+export function resolveActionPayload(
+  payload: Record<string, unknown> | undefined,
+  bindings: AoiActionPayloadBinding[] | undefined,
+  context: AoiActionRuntimeContext,
+  event?: AoiRuntimeActionEvent
+) {
+  const resolvedPayload: Record<string, unknown> = { ...(payload || {}) }
+
+  for (const binding of bindings || []) {
+    const value = resolveBindingValue(binding, context, event)
+
+    if (value === undefined) {
+      continue
+    }
+
+    if (binding.to) {
+      setPathValue(resolvedPayload, binding.to, value)
+    } else if (isRecord(value)) {
+      Object.assign(resolvedPayload, value)
+    } else if (binding.from) {
+      resolvedPayload[lastPathSegment(binding.from)] = value
+    }
+  }
+
+  return resolvedPayload
+}
+
+function resolveBindingValue(binding: AoiActionPayloadBinding, context: AoiActionRuntimeContext, event?: AoiRuntimeActionEvent) {
+  let value: unknown
+
+  if (binding.source === "constant") {
+    value = binding.value
+  } else if (binding.source === "event") {
+    value = getPathValue(event?.payload || {}, binding.from || "")
+  } else if (binding.source === "route") {
+    value = getPathValue(context.route || {}, binding.from || "")
+  } else if (binding.source === "state") {
+    value = getPathValue(context.state || {}, binding.from || "")
+  }
+
+  return value === undefined ? binding.fallback : value
+}
+
+function getPathValue(source: unknown, path: string) {
+  if (!path) {
+    return source
+  }
+
+  return path.split(".").reduce<unknown>((current, segment) => {
+    if (!isRecord(current)) {
+      return undefined
+    }
+
+    return current[segment]
+  }, source)
+}
+
+function setPathValue(target: Record<string, unknown>, path: string, value: unknown) {
+  const segments = path.split(".").filter(Boolean)
+  const last = segments.pop()
+
+  if (!last) {
+    return
+  }
+
+  let current: Record<string, unknown> = target
+
+  for (const segment of segments) {
+    const next = current[segment]
+
+    if (!isRecord(next)) {
+      current[segment] = {}
+    }
+
+    current = current[segment] as Record<string, unknown>
+  }
+
+  current[last] = value
+}
+
+function lastPathSegment(path: string) {
+  return path.split(".").filter(Boolean).pop() || path
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value))
 }
