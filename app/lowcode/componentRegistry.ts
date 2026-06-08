@@ -1,8 +1,10 @@
+import AoiButton from "~/components/aoi/AoiButton.vue"
 import AoiIcon from "~/components/aoi/AoiIcon.vue"
+import AoiLazyImage from "~/components/aoi/AoiLazyImage.vue"
 import AoiLink from "~/components/aoi/AoiLink.vue"
 import SettingsPageHeader from "~/components/settings/SettingsPageHeader.vue"
 import SettingsPanel from "~/components/settings/SettingsPanel.vue"
-import type { AoiComponentRegistry } from "~/types/lowcode"
+import type { AoiComponentRegistry, ComponentRegistry } from "~/types/lowcode"
 
 export const aoiComponentRegistry: AoiComponentRegistry = {
   "native.div": {
@@ -89,4 +91,121 @@ export const aoiComponentRegistry: AoiComponentRegistry = {
       { control: "text", key: "target", label: "Target" }
     ]
   }
+}
+
+export const componentRegistry: ComponentRegistry = {
+  text: {
+    category: "basic",
+    component: "span",
+    defaultProps: {
+      text: "Text"
+    },
+    name: "Text",
+    propSchema: [
+      {
+        defaultValue: "Text",
+        key: "text",
+        label: "Text",
+        type: "string"
+      }
+    ],
+    type: "text"
+  },
+  button: {
+    category: "action",
+    component: AoiButton,
+    defaultProps: {
+      label: "Button",
+      size: "md",
+      variant: "filled"
+    },
+    name: "Button",
+    propSchema: [
+      {
+        defaultValue: "Button",
+        key: "label",
+        label: "Label",
+        type: "string"
+      },
+      {
+        defaultValue: "filled",
+        key: "variant",
+        label: "Variant",
+        options: ["filled", "tonal", "outlined", "text", "elevated"],
+        type: "select"
+      },
+      {
+        defaultValue: "md",
+        key: "size",
+        label: "Size",
+        options: ["sm", "md", "lg"],
+        type: "select"
+      },
+      {
+        defaultValue: false,
+        key: "disabled",
+        label: "Disabled",
+        type: "boolean"
+      },
+      {
+        key: "icon",
+        label: "Icon",
+        type: "string"
+      }
+    ],
+    type: "button"
+  },
+  container: {
+    category: "layout",
+    component: "div",
+    defaultProps: {
+      class: ""
+    },
+    name: "Container",
+    propSchema: [
+      {
+        defaultValue: "",
+        description: "Optional CSS class applied by a future renderer.",
+        key: "class",
+        label: "Class",
+        type: "string"
+      }
+    ],
+    type: "container"
+  },
+  image: {
+    category: "media",
+    component: AoiLazyImage,
+    defaultProps: {
+      alt: "",
+      aspectRatio: "16 / 9",
+      src: ""
+    },
+    name: "Image",
+    propSchema: [
+      {
+        defaultValue: "",
+        key: "src",
+        label: "Source",
+        type: "image"
+      },
+      {
+        defaultValue: "",
+        key: "alt",
+        label: "Alt text",
+        type: "string"
+      },
+      {
+        defaultValue: "16 / 9",
+        key: "aspectRatio",
+        label: "Aspect ratio",
+        type: "string"
+      }
+    ],
+    type: "image"
+  }
+}
+
+export function getRegisteredComponent(type: string) {
+  return componentRegistry[type]
 }

@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import BuilderShell from "~/builder/BuilderShell.vue"
 import AoiSchemaRenderer from "~/components/lowcode/AoiSchemaRenderer"
 import { aoiComponentRegistry } from "~/lowcode/componentRegistry"
 import { settingsAcknowledgementSchema } from "~/lowcode/schemas/settingsAcknowledgement"
-import type { AoiPropControl, AoiSchemaNode } from "~/types/lowcode"
+import type { AoiMaterialCategory, AoiPropControl, AoiSchemaNode } from "~/types/lowcode"
 
 interface BuildingSchemaNodeView {
   childCount: number
@@ -43,6 +44,60 @@ interface BuildingUnmappedPropRow {
   value: unknown
 }
 
+type BuildingMaterialCategoryFilter = "all" | AoiMaterialCategory
+
+const buildingNavigationItems = [
+  {
+    current: false,
+    description: "未来管理应用壳、发布目标和应用级配置。",
+    icon: "layout-dashboard",
+    key: "apps",
+    label: "应用"
+  },
+  {
+    current: false,
+    description: "承载页面 Schema、路由结构和页面预览。",
+    icon: "files",
+    key: "pages",
+    label: "页面"
+  },
+  {
+    current: false,
+    description: "注册基础物料，并逐步组合为复合组件。",
+    icon: "blocks",
+    key: "components",
+    label: "组件"
+  },
+  {
+    current: false,
+    description: "后续接入 Mock、API Connector 与本地数据适配。",
+    icon: "database",
+    key: "datasources",
+    label: "数据源"
+  },
+  {
+    current: false,
+    description: "后续描述动作流、业务流程和自动化编排。",
+    icon: "workflow",
+    key: "workflows",
+    label: "工作流"
+  },
+  {
+    current: false,
+    description: "后续承载可插拔扩展和平台能力注册。",
+    icon: "plug",
+    key: "plugins",
+    label: "插件"
+  },
+  {
+    current: true,
+    description: "当前阶段的只读 Schema 渲染与节点检查入口。",
+    icon: "eye",
+    key: "preview",
+    label: "预览"
+  }
+] as const
+
 const schemaJson = computed(() => `${JSON.stringify(settingsAcknowledgementSchema, null, 2)}\n`)
 const registeredMaterials = computed(() =>
   Object.entries(aoiComponentRegistry).map(([key, item]) => ({
@@ -54,6 +109,16 @@ const registeredMaterials = computed(() =>
     label: item.label,
     propControls: item.propControls || []
   }))
+)
+const materialSearchQuery = ref("")
+const selectedMaterialCategory = ref<BuildingMaterialCategoryFilter>("all")
+const normalizedMaterialSearchQuery = computed(() => materialSearchQuery.value.trim().toLowerCase())
+const materialCategoryOptions = computed<BuildingMaterialCategoryFilter[]>(() => [
+  "all",
+  ...Array.from(new Set(registeredMaterials.value.map((item) => item.category)))
+])
+const displayedMaterials = computed(() =>
+  registeredMaterials.value.filter(matchesMaterialFilters)
 )
 const selectedMaterialKey = ref(Object.keys(aoiComponentRegistry)[0] || "")
 const selectedMaterial = computed(() =>
@@ -70,8 +135,16 @@ const selectedMaterialUsageCount = computed(() =>
     : 0
 )
 const collapsedSchemaNodeIds = ref<Set<string>>(new Set())
+const schemaTreeSearchQuery = ref("")
+const normalizedSchemaTreeSearchQuery = computed(() => schemaTreeSearchQuery.value.trim().toLowerCase())
+const isSchemaTreeSearchActive = computed(() => Boolean(normalizedSchemaTreeSearchQuery.value))
 const schemaNodeViews = computed(() => flattenSchemaNodes(settingsAcknowledgementSchema.root))
 const visibleSchemaNodeViews = computed(() => flattenVisibleSchemaNodes(settingsAcknowledgementSchema.root))
+const displayedSchemaNodeViews = computed(() =>
+  isSchemaTreeSearchActive.value
+    ? schemaNodeViews.value.filter(matchesSchemaTreeSearch)
+    : visibleSchemaNodeViews.value
+)
 const selectedSchemaNodeId = ref(settingsAcknowledgementSchema.root.id)
 const selectedSchemaNode = computed(() =>
   schemaNodeViews.value.find((item) => item.id === selectedSchemaNodeId.value) || schemaNodeViews.value[0] || null
@@ -103,6 +176,16 @@ const selectedSchemaMaterial = computed(() =>
   selectedSchemaNode.value?.componentKey
     ? registeredMaterials.value.find((item) => item.key === selectedSchemaNode.value?.componentKey) || null
     : null
+)
+const selectedSchemaNodeSummary = computed(() =>
+  selectedSchemaNode.value
+    ? `${selectedSchemaNode.value.label} · ${selectedSchemaNode.value.id}`
+    : "none"
+)
+const selectedMaterialSummary = computed(() =>
+  selectedMaterial.value
+    ? `${selectedMaterial.value.label} · ${selectedMaterial.value.key}`
+    : "none"
 )
 const selectedSchemaNodeProps = computed<Record<string, unknown>>(() => {
   const node = selectedSchemaNode.value?.node
@@ -191,12 +274,47 @@ function formatPropValue(value: unknown) {
   return JSON.stringify(value)
 }
 
+function matchesMaterialFilters(material: (typeof registeredMaterials.value)[number]) {
+  const matchesCategory = selectedMaterialCategory.value === "all"
+    || material.category === selectedMaterialCategory.value
+  const query = normalizedMaterialSearchQuery.value
+  const matchesSearch = !query
+    || [material.key, material.label, material.category].some((value) =>
+      value.toLowerCase().includes(query)
+    )
+
+  return matchesCategory && matchesSearch
+}
+
+function clearMaterialFilters() {
+  materialSearchQuery.value = ""
+  selectedMaterialCategory.value = "all"
+}
+
 function selectMaterial(key: string) {
   selectedMaterialKey.value = key
 }
 
 function selectSchemaNode(id: string) {
   selectedSchemaNodeId.value = id
+}
+
+function matchesSchemaTreeSearch(nodeView: BuildingSchemaNodeView) {
+  const query = normalizedSchemaTreeSearchQuery.value
+
+  if (!query) {
+    return true
+  }
+
+  return [
+    nodeView.id,
+    nodeView.label,
+    nodeView.componentKey || nodeView.kind
+  ].some((value) => value.toLowerCase().includes(query))
+}
+
+function clearSchemaTreeSearch() {
+  schemaTreeSearchQuery.value = ""
 }
 
 function flattenSchemaNodes(node: AoiSchemaNode, depth = 0): BuildingSchemaNodeView[] {
@@ -371,386 +489,516 @@ function countComponentUsage(node: AoiSchemaNode, componentKey: string): number 
 
 <template>
   <div class="aoi-page building-page">
-    <SettingsPageHeader
-      title="/building"
-      description="Read-only Schema preview for the first low-code rendering pass."
-    />
-
-    <SettingsPanel
-      icon="blocks"
-      title="Schema Preview"
-      :description="settingsAcknowledgementSchema.title"
+    <BuilderShell
+      title="自构建低代码平台"
+      description="当前阶段只打通构建态入口与只读预览，不涉及拖拽、数据源或 Schema 写回。"
     >
-      <div class="building-preview">
-        <AoiSchemaRenderer
-          :node="settingsAcknowledgementSchema.root"
-          inspect-mode
-          :selected-node-id="selectedSchemaNodeId"
-          @select-node="selectSchemaNode"
-        />
-      </div>
-    </SettingsPanel>
+      <template #toolbar>
+        <span class="building-toolbar-badge">/building</span>
+        <span class="building-toolbar-badge">Dev only</span>
+        <span class="building-toolbar-badge">Read-only</span>
+        <span class="building-toolbar-badge">{{ settingsAcknowledgementSchema.schemaVersion }}</span>
+      </template>
 
-    <SettingsPanel
-      icon="list-tree"
-      title="Schema Tree"
-      description="Read-only flattened view of the current page schema nodes."
-    >
-      <div class="building-schema-tree">
-        <div
-          v-for="schemaNode in visibleSchemaNodeViews"
-          :key="schemaNode.id"
-          class="building-schema-node-row"
-          :style="{ paddingInlineStart: `${10 + schemaNode.depth * 16}px` }"
-        >
-          <button
-            v-if="isSchemaNodeCollapsible(schemaNode)"
-            class="building-schema-node-toggle"
-            type="button"
-            :aria-label="`${isSchemaNodeCollapsed(schemaNode.id) ? 'Expand' : 'Collapse'} schema node ${schemaNode.id}`"
-            :aria-expanded="!isSchemaNodeCollapsed(schemaNode.id)"
-            @click="toggleSchemaNodeCollapse(schemaNode)"
+      <template #resources>
+        <nav class="building-platform-nav" aria-label="低代码平台基础导航">
+          <article
+            v-for="item in buildingNavigationItems"
+            :key="item.key"
+            class="building-platform-nav__item"
+            :class="{ 'building-platform-nav__item--current': item.current }"
+            :aria-current="item.current ? 'page' : undefined"
           >
-            <AoiIcon
-              :name="isSchemaNodeCollapsed(schemaNode.id) ? 'chevron-right' : 'chevron-down'"
-              :size="15"
-              decorative
-            />
-          </button>
-          <span
-            v-else
-            class="building-schema-node-toggle building-schema-node-toggle--placeholder"
-            aria-hidden="true"
-          />
-
-          <button
-            class="building-schema-node"
-            :class="{ 'building-schema-node--selected': selectedSchemaNode?.id === schemaNode.id }"
-            type="button"
-            :aria-label="`Inspect schema node ${schemaNode.id}`"
-            :aria-pressed="selectedSchemaNode?.id === schemaNode.id"
-            @click="selectSchemaNode(schemaNode.id)"
-          >
-            <AoiIcon
-              :name="schemaNode.kind === 'text' ? 'type' : 'box'"
-              :size="16"
-              decorative
-            />
-            <span>{{ schemaNode.label }}</span>
-            <code>{{ schemaNode.componentKey || schemaNode.kind }}</code>
-            <small>{{ schemaNode.id }}</small>
-            <em>{{ schemaNode.childCount }} children</em>
-          </button>
-        </div>
-      </div>
-    </SettingsPanel>
-
-    <SettingsPanel
-      icon="scan-search"
-      title="Schema Node Detail"
-      description="Read-only props and material protocol for the selected schema node."
-    >
-      <div v-if="selectedSchemaNode" class="building-schema-detail">
-        <div class="building-schema-detail__header">
-          <div>
-            <h3>{{ selectedSchemaNode.label }}</h3>
-            <code>{{ selectedSchemaNode.id }}</code>
-          </div>
-          <span>{{ selectedSchemaNode.kind }}</span>
-        </div>
-
-        <nav
-          class="building-schema-path"
-          aria-label="Selected schema node path"
-        >
-          <span class="building-schema-path__label">Node Path</span>
-          <div class="building-schema-path__items">
-            <template
-              v-for="(pathItem, index) in selectedSchemaNodePath"
-              :key="pathItem.id"
-            >
-              <button
-                class="building-schema-path__item"
-                :class="{ 'building-schema-path__item--selected': index === selectedSchemaNodePath.length - 1 }"
-                type="button"
-                :aria-current="index === selectedSchemaNodePath.length - 1 ? 'page' : undefined"
-                :aria-label="`Select schema path node ${pathItem.id}`"
-                @click="selectSchemaNode(pathItem.id)"
-              >
-                <strong>{{ pathItem.label }}</strong>
-                <code>{{ pathItem.componentKey || pathItem.kind }}</code>
-              </button>
-              <span
-                v-if="index < selectedSchemaNodePath.length - 1"
-                class="building-schema-path__separator"
-                aria-hidden="true"
-              >/</span>
-            </template>
-          </div>
+            <AoiIcon :name="item.icon" :size="18" decorative />
+            <div>
+              <strong>{{ item.label }}</strong>
+              <span>{{ item.description }}</span>
+            </div>
+            <em v-if="item.current">当前</em>
+          </article>
         </nav>
 
-        <section class="building-schema-relations">
-          <div class="building-schema-relations__group">
-            <h4>Parent</h4>
+        <section class="building-resource-overview" aria-label="Builder resource overview">
+          <div class="building-resource-overview__item">
+            <span>Schema nodes</span>
+            <strong>{{ schemaNodeViews.length }}</strong>
+          </div>
+          <div class="building-resource-overview__item">
+            <span>Materials</span>
+            <strong>{{ registeredMaterials.length }}</strong>
+          </div>
+          <div class="building-resource-overview__item building-resource-overview__item--wide">
+            <span>Selected node</span>
+            <strong>{{ selectedSchemaNodeSummary }}</strong>
+          </div>
+          <div class="building-resource-overview__item building-resource-overview__item--wide">
+            <span>Selected material</span>
+            <strong>{{ selectedMaterialSummary }}</strong>
+          </div>
+        </section>
+
+        <SettingsPanel
+          icon="list-tree"
+          title="Schema Tree"
+          description="Read-only flattened view of the current page schema nodes."
+        >
+          <div class="building-schema-tree-tools">
+            <AoiTextField
+              v-model="schemaTreeSearchQuery"
+              class="building-schema-tree-search"
+              variant="outlined"
+              label="Search nodes"
+              placeholder="id, label, componentKey"
+              icon="search"
+            />
+
             <button
-              v-if="selectedSchemaParentNode"
-              class="building-schema-relation"
+              v-if="schemaTreeSearchQuery"
+              class="building-schema-tree-clear"
               type="button"
-              :aria-label="`Select parent schema node ${selectedSchemaParentNode.id}`"
-              @click="selectSchemaNode(selectedSchemaParentNode.id)"
+              @click="clearSchemaTreeSearch"
             >
-              <strong>{{ selectedSchemaParentNode.label }}</strong>
-              <code>{{ selectedSchemaParentNode.componentKey || selectedSchemaParentNode.kind }}</code>
-              <small>{{ selectedSchemaParentNode.id }}</small>
-              <em>{{ selectedSchemaParentNode.childCount }} children</em>
+              Clear
             </button>
-            <p v-else>No parent node</p>
           </div>
 
-          <div class="building-schema-relations__group">
-            <h4>Children</h4>
-            <div v-if="selectedSchemaChildNodes.length" class="building-schema-relations__children">
+          <p
+            v-if="isSchemaTreeSearchActive"
+            class="building-schema-tree-summary"
+          >
+            {{ displayedSchemaNodeViews.length }} matched nodes
+          </p>
+
+          <p
+            v-if="isSchemaTreeSearchActive && !displayedSchemaNodeViews.length"
+            class="building-schema-tree-summary"
+          >
+            No matched schema nodes
+          </p>
+
+          <div class="building-schema-tree">
+            <div
+              v-for="schemaNode in displayedSchemaNodeViews"
+              :key="schemaNode.id"
+              class="building-schema-node-row"
+              :style="{ paddingInlineStart: `${10 + schemaNode.depth * 16}px` }"
+            >
               <button
-                v-for="childNode in selectedSchemaChildNodes"
-                :key="childNode.id"
-                class="building-schema-relation"
+                v-if="!isSchemaTreeSearchActive && isSchemaNodeCollapsible(schemaNode)"
+                class="building-schema-node-toggle"
                 type="button"
-                :aria-label="`Select child schema node ${childNode.id}`"
-                @click="selectSchemaNode(childNode.id)"
+                :aria-label="`${isSchemaNodeCollapsed(schemaNode.id) ? 'Expand' : 'Collapse'} schema node ${schemaNode.id}`"
+                :aria-expanded="!isSchemaNodeCollapsed(schemaNode.id)"
+                @click="toggleSchemaNodeCollapse(schemaNode)"
               >
-                <strong>{{ childNode.label }}</strong>
-                <code>{{ childNode.componentKey || childNode.kind }}</code>
-                <small>{{ childNode.id }}</small>
-                <em>{{ childNode.childCount }} children</em>
+                <AoiIcon
+                  :name="isSchemaNodeCollapsed(schemaNode.id) ? 'chevron-right' : 'chevron-down'"
+                  :size="15"
+                  decorative
+                />
+              </button>
+              <span
+                v-else
+                class="building-schema-node-toggle building-schema-node-toggle--placeholder"
+                aria-hidden="true"
+              />
+
+              <button
+                class="building-schema-node"
+                :class="{ 'building-schema-node--selected': selectedSchemaNode?.id === schemaNode.id }"
+                type="button"
+                :aria-label="`Inspect schema node ${schemaNode.id}`"
+                :aria-pressed="selectedSchemaNode?.id === schemaNode.id"
+                @click="selectSchemaNode(schemaNode.id)"
+              >
+                <AoiIcon
+                  :name="schemaNode.kind === 'text' ? 'type' : 'box'"
+                  :size="16"
+                  decorative
+                />
+                <span>{{ schemaNode.label }}</span>
+                <code>{{ schemaNode.componentKey || schemaNode.kind }}</code>
+                <small>{{ schemaNode.id }}</small>
+                <em>{{ schemaNode.childCount }} children</em>
               </button>
             </div>
-            <p v-else>No child nodes</p>
           </div>
-        </section>
+        </SettingsPanel>
 
-        <dl class="building-schema-detail__stats">
-          <div>
-            <dt>componentKey</dt>
-            <dd>{{ selectedSchemaNode.componentKey || "none" }}</dd>
-          </div>
-          <div>
-            <dt>childCount</dt>
-            <dd>{{ selectedSchemaNode.childCount }}</dd>
-          </div>
-          <div>
-            <dt>material</dt>
-            <dd>{{ selectedSchemaMaterial?.label || "none" }}</dd>
-          </div>
-        </dl>
-
-        <section class="building-schema-detail__section">
-          <h4>Current Props</h4>
-          <AoiCodeBlock
-            :code="selectedSchemaNodePropsJson"
-            fallback="{}"
-            label="Selected schema node props"
-          />
-        </section>
-
-        <section class="building-schema-detail__section">
-          <h4>Matched Prop Controls</h4>
-          <ul v-if="selectedSchemaMaterial?.propControls.length" class="building-schema-detail__controls">
-            <li
-              v-for="control in selectedSchemaMaterial.propControls"
-              :key="`${selectedSchemaNode.id}:schema-detail:${control.key}`"
-            >
-              <strong>{{ control.label }}</strong>
-              <code>{{ control.key }}</code>
-              <span>{{ control.control }}</span>
-              <small>default: {{ formatDefaultValue(control.defaultValue) }}</small>
-            </li>
-          </ul>
-          <p v-else>No matched material controls</p>
-        </section>
-      </div>
-    </SettingsPanel>
-
-    <SettingsPanel
-      icon="sliders-horizontal"
-      title="Prop Control Comparison"
-      description="Read-only alignment between selected schema props and material controls."
-    >
-      <div class="building-prop-comparison">
-        <template v-if="selectedSchemaMaterial">
-          <div class="building-prop-comparison__summary">
-            <div>
-              <span>selected node</span>
-              <strong>{{ selectedSchemaNode?.id || "none" }}</strong>
-            </div>
-            <div>
-              <span>material</span>
-              <strong>{{ selectedSchemaMaterial.label }}</strong>
-            </div>
-          </div>
-
-          <ul v-if="selectedSchemaPropComparisonRows.length" class="building-prop-comparison__rows">
-            <li
-              v-for="row in selectedSchemaPropComparisonRows"
-              :key="`${selectedSchemaNode?.id}:prop-comparison:${row.key}`"
-              class="building-prop-comparison__row"
-              :class="`building-prop-comparison__row--${row.source}`"
-            >
-              <div class="building-prop-comparison__row-header">
-                <strong>{{ row.control.label }}</strong>
-                <span>{{ row.source }}</span>
-              </div>
-              <code>{{ row.key }}</code>
-              <small>{{ row.control.control }}</small>
-              <dl>
-                <div>
-                  <dt>Current</dt>
-                  <dd>{{ formatPropValue(row.currentValue) }}</dd>
-                </div>
-                <div>
-                  <dt>Default</dt>
-                  <dd>{{ formatPropValue(row.defaultValue) }}</dd>
-                </div>
-                <div>
-                  <dt>Effective</dt>
-                  <dd>{{ formatPropValue(row.effectiveValue) }}</dd>
-                </div>
-              </dl>
-            </li>
-          </ul>
-          <p v-else>No configurable props</p>
-
-          <section v-if="selectedSchemaUnmappedProps.length" class="building-prop-comparison__unmapped">
-            <h4>Unmapped Props</h4>
-            <ul>
-              <li
-                v-for="prop in selectedSchemaUnmappedProps"
-                :key="`${selectedSchemaNode?.id}:unmapped:${prop.key}`"
-              >
-                <code>{{ prop.key }}</code>
-                <span>{{ formatPropValue(prop.value) }}</span>
-              </li>
-            </ul>
-          </section>
-        </template>
-        <p v-else>No matched material protocol</p>
-      </div>
-    </SettingsPanel>
-
-    <SettingsPanel
-      icon="package"
-      title="Registered Materials"
-      description="Read-only material registry entries available to the current schema renderer."
-    >
-      <div class="building-material-list">
-        <article
-          v-for="material in registeredMaterials"
-          :key="material.key"
-          class="building-material"
-          :class="{ 'building-material--selected': selectedMaterial?.key === material.key }"
+        <SettingsPanel
+          icon="package"
+          title="Registered Materials"
+          description="Read-only material registry entries available to the current schema renderer."
         >
-          <div class="building-material__header">
-            <strong>{{ material.label }}</strong>
-            <span>{{ material.category }}</span>
-          </div>
-          <code>{{ material.key }}</code>
-          <p v-if="material.description">{{ material.description }}</p>
-          <div class="building-material__props">
-            <span>allowedProps</span>
-            <code>{{ material.allowedProps.length ? material.allowedProps.join(", ") : "none" }}</code>
-          </div>
-          <div class="building-material__controls">
-            <span>propControls</span>
-            <ul v-if="material.propControls.length">
-              <li
-                v-for="control in material.propControls"
-                :key="`${material.key}:${control.key}`"
+          <div class="building-material-tools">
+            <AoiTextField
+              v-model="materialSearchQuery"
+              class="building-material-search"
+              variant="outlined"
+              label="Search materials"
+              placeholder="key, label, category"
+              icon="search"
+            />
+
+            <div class="building-material-category-filter" aria-label="Material category filters">
+              <button
+                v-for="category in materialCategoryOptions"
+                :key="category"
+                class="building-material-category-filter__item"
+                :class="{ 'building-material-category-filter__item--selected': selectedMaterialCategory === category }"
+                type="button"
+                :aria-pressed="selectedMaterialCategory === category"
+                @click="selectedMaterialCategory = category"
               >
-                <strong>{{ control.label }}</strong>
-                <code>{{ control.key }}</code>
-                <span>{{ control.control }}</span>
-                <small>default: {{ formatDefaultValue(control.defaultValue) }}</small>
-              </li>
-            </ul>
-            <p v-else>No configurable props</p>
-          </div>
-          <button
-            class="building-material__inspect"
-            type="button"
-            :aria-label="`Inspect ${material.label}`"
-            :aria-pressed="selectedMaterial?.key === material.key"
-            @click="selectMaterial(material.key)"
-          >
-            <AoiIcon name="panel-right" :size="16" decorative />
-            <span>Inspect</span>
-          </button>
-        </article>
-      </div>
-    </SettingsPanel>
+                {{ category }}
+              </button>
+            </div>
 
-    <SettingsPanel
-      icon="panel-right"
-      title="Material Detail"
-      description="Read-only detail for the selected material and its usage in the current schema."
-    >
-      <div v-if="selectedMaterial" class="building-material-detail">
-        <div class="building-material-detail__header">
-          <div>
-            <h3>{{ selectedMaterial.label }}</h3>
-            <code>{{ selectedMaterial.key }}</code>
-          </div>
-          <span>{{ selectedMaterial.category }}</span>
-        </div>
-
-        <p v-if="selectedMaterial.description">{{ selectedMaterial.description }}</p>
-
-        <dl class="building-material-detail__stats">
-          <div>
-            <dt>Schema usage</dt>
-            <dd>{{ selectedMaterialUsageCount }}</dd>
-          </div>
-          <div>
-            <dt>Allowed props</dt>
-            <dd>{{ selectedMaterial.allowedProps.length ? selectedMaterial.allowedProps.join(", ") : "none" }}</dd>
-          </div>
-        </dl>
-
-        <section class="building-material-detail__section">
-          <h4>Default Props</h4>
-          <AoiCodeBlock
-            :code="selectedMaterialDefaultPropsJson"
-            fallback="{}"
-            label="Selected material default props"
-          />
-        </section>
-
-        <section class="building-material-detail__section">
-          <h4>Prop Controls</h4>
-          <ul v-if="selectedMaterial.propControls.length" class="building-material-detail__controls">
-            <li
-              v-for="control in selectedMaterial.propControls"
-              :key="`${selectedMaterial.key}:detail:${control.key}`"
+            <button
+              v-if="materialSearchQuery || selectedMaterialCategory !== 'all'"
+              class="building-material-clear"
+              type="button"
+              @click="clearMaterialFilters"
             >
-              <strong>{{ control.label }}</strong>
-              <code>{{ control.key }}</code>
-              <span>{{ control.control }}</span>
-              <small>default: {{ formatDefaultValue(control.defaultValue) }}</small>
-            </li>
-          </ul>
-          <p v-else>No configurable props</p>
-        </section>
-      </div>
-    </SettingsPanel>
+              Clear
+            </button>
+          </div>
 
-    <SettingsPanel
-      icon="braces"
-      title="Schema JSON"
-      description="aoi.page.v1"
-    >
-      <SettingsJsonPreview
-        :code="schemaJson"
-        fallback="Schema unavailable"
-      />
-    </SettingsPanel>
+          <p class="building-material-summary">
+            {{ displayedMaterials.length }} visible materials
+          </p>
+
+          <p
+            v-if="!displayedMaterials.length"
+            class="building-material-summary"
+          >
+            No matched materials
+          </p>
+
+          <div class="building-material-list">
+            <article
+              v-for="material in displayedMaterials"
+              :key="material.key"
+              class="building-material"
+              :class="{ 'building-material--selected': selectedMaterial?.key === material.key }"
+            >
+              <div class="building-material__header">
+                <strong>{{ material.label }}</strong>
+                <span>{{ material.category }}</span>
+              </div>
+              <code>{{ material.key }}</code>
+              <p v-if="material.description">{{ material.description }}</p>
+              <div class="building-material__props">
+                <span>allowedProps</span>
+                <code>{{ material.allowedProps.length ? material.allowedProps.join(", ") : "none" }}</code>
+              </div>
+              <div class="building-material__controls">
+                <span>propControls</span>
+                <ul v-if="material.propControls.length">
+                  <li
+                    v-for="control in material.propControls"
+                    :key="`${material.key}:${control.key}`"
+                  >
+                    <strong>{{ control.label }}</strong>
+                    <code>{{ control.key }}</code>
+                    <span>{{ control.control }}</span>
+                    <small>default: {{ formatDefaultValue(control.defaultValue) }}</small>
+                  </li>
+                </ul>
+                <p v-else>No configurable props</p>
+              </div>
+              <button
+                class="building-material__inspect"
+                type="button"
+                :aria-label="`Inspect ${material.label}`"
+                :aria-pressed="selectedMaterial?.key === material.key"
+                @click="selectMaterial(material.key)"
+              >
+                <AoiIcon name="panel-right" :size="16" decorative />
+                <span>Inspect</span>
+              </button>
+            </article>
+          </div>
+        </SettingsPanel>
+      </template>
+
+      <template #canvas>
+        <SettingsPanel
+          icon="blocks"
+          title="Schema Preview"
+          :description="settingsAcknowledgementSchema.title"
+        >
+          <div class="building-preview">
+            <AoiSchemaRenderer
+              :node="settingsAcknowledgementSchema.root"
+              inspect-mode
+              :selected-node-id="selectedSchemaNodeId"
+              @select-node="selectSchemaNode"
+            />
+          </div>
+        </SettingsPanel>
+      </template>
+
+      <template #inspector>
+        <SettingsPanel
+          icon="scan-search"
+          title="Schema Node Detail"
+          description="Read-only props and material protocol for the selected schema node."
+        >
+          <div v-if="selectedSchemaNode" class="building-schema-detail">
+            <div class="building-schema-detail__header">
+              <div>
+                <h3>{{ selectedSchemaNode.label }}</h3>
+                <code>{{ selectedSchemaNode.id }}</code>
+              </div>
+              <span>{{ selectedSchemaNode.kind }}</span>
+            </div>
+
+            <nav
+              class="building-schema-path"
+              aria-label="Selected schema node path"
+            >
+              <span class="building-schema-path__label">Node Path</span>
+              <div class="building-schema-path__items">
+                <template
+                  v-for="(pathItem, index) in selectedSchemaNodePath"
+                  :key="pathItem.id"
+                >
+                  <button
+                    class="building-schema-path__item"
+                    :class="{ 'building-schema-path__item--selected': index === selectedSchemaNodePath.length - 1 }"
+                    type="button"
+                    :aria-current="index === selectedSchemaNodePath.length - 1 ? 'page' : undefined"
+                    :aria-label="`Select schema path node ${pathItem.id}`"
+                    @click="selectSchemaNode(pathItem.id)"
+                  >
+                    <strong>{{ pathItem.label }}</strong>
+                    <code>{{ pathItem.componentKey || pathItem.kind }}</code>
+                  </button>
+                  <span
+                    v-if="index < selectedSchemaNodePath.length - 1"
+                    class="building-schema-path__separator"
+                    aria-hidden="true"
+                  >/</span>
+                </template>
+              </div>
+            </nav>
+
+            <section class="building-schema-relations">
+              <div class="building-schema-relations__group">
+                <h4>Parent</h4>
+                <button
+                  v-if="selectedSchemaParentNode"
+                  class="building-schema-relation"
+                  type="button"
+                  :aria-label="`Select parent schema node ${selectedSchemaParentNode.id}`"
+                  @click="selectSchemaNode(selectedSchemaParentNode.id)"
+                >
+                  <strong>{{ selectedSchemaParentNode.label }}</strong>
+                  <code>{{ selectedSchemaParentNode.componentKey || selectedSchemaParentNode.kind }}</code>
+                  <small>{{ selectedSchemaParentNode.id }}</small>
+                  <em>{{ selectedSchemaParentNode.childCount }} children</em>
+                </button>
+                <p v-else>No parent node</p>
+              </div>
+
+              <div class="building-schema-relations__group">
+                <h4>Children</h4>
+                <div v-if="selectedSchemaChildNodes.length" class="building-schema-relations__children">
+                  <button
+                    v-for="childNode in selectedSchemaChildNodes"
+                    :key="childNode.id"
+                    class="building-schema-relation"
+                    type="button"
+                    :aria-label="`Select child schema node ${childNode.id}`"
+                    @click="selectSchemaNode(childNode.id)"
+                  >
+                    <strong>{{ childNode.label }}</strong>
+                    <code>{{ childNode.componentKey || childNode.kind }}</code>
+                    <small>{{ childNode.id }}</small>
+                    <em>{{ childNode.childCount }} children</em>
+                  </button>
+                </div>
+                <p v-else>No child nodes</p>
+              </div>
+            </section>
+
+            <dl class="building-schema-detail__stats">
+              <div>
+                <dt>componentKey</dt>
+                <dd>{{ selectedSchemaNode.componentKey || "none" }}</dd>
+              </div>
+              <div>
+                <dt>childCount</dt>
+                <dd>{{ selectedSchemaNode.childCount }}</dd>
+              </div>
+              <div>
+                <dt>material</dt>
+                <dd>{{ selectedSchemaMaterial?.label || "none" }}</dd>
+              </div>
+            </dl>
+
+            <section class="building-schema-detail__section">
+              <h4>Current Props</h4>
+              <AoiCodeBlock
+                :code="selectedSchemaNodePropsJson"
+                fallback="{}"
+                label="Selected schema node props"
+              />
+            </section>
+
+            <section class="building-schema-detail__section">
+              <h4>Matched Prop Controls</h4>
+              <ul v-if="selectedSchemaMaterial?.propControls.length" class="building-schema-detail__controls">
+                <li
+                  v-for="control in selectedSchemaMaterial.propControls"
+                  :key="`${selectedSchemaNode.id}:schema-detail:${control.key}`"
+                >
+                  <strong>{{ control.label }}</strong>
+                  <code>{{ control.key }}</code>
+                  <span>{{ control.control }}</span>
+                  <small>default: {{ formatDefaultValue(control.defaultValue) }}</small>
+                </li>
+              </ul>
+              <p v-else>No matched material controls</p>
+            </section>
+          </div>
+        </SettingsPanel>
+
+        <SettingsPanel
+          icon="sliders-horizontal"
+          title="Prop Control Comparison"
+          description="Read-only alignment between selected schema props and material controls."
+        >
+          <div class="building-prop-comparison">
+            <template v-if="selectedSchemaMaterial">
+              <div class="building-prop-comparison__summary">
+                <div>
+                  <span>selected node</span>
+                  <strong>{{ selectedSchemaNode?.id || "none" }}</strong>
+                </div>
+                <div>
+                  <span>material</span>
+                  <strong>{{ selectedSchemaMaterial.label }}</strong>
+                </div>
+              </div>
+
+              <ul v-if="selectedSchemaPropComparisonRows.length" class="building-prop-comparison__rows">
+                <li
+                  v-for="row in selectedSchemaPropComparisonRows"
+                  :key="`${selectedSchemaNode?.id}:prop-comparison:${row.key}`"
+                  class="building-prop-comparison__row"
+                  :class="`building-prop-comparison__row--${row.source}`"
+                >
+                  <div class="building-prop-comparison__row-header">
+                    <strong>{{ row.control.label }}</strong>
+                    <span>{{ row.source }}</span>
+                  </div>
+                  <code>{{ row.key }}</code>
+                  <small>{{ row.control.control }}</small>
+                  <dl>
+                    <div>
+                      <dt>Current</dt>
+                      <dd>{{ formatPropValue(row.currentValue) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Default</dt>
+                      <dd>{{ formatPropValue(row.defaultValue) }}</dd>
+                    </div>
+                    <div>
+                      <dt>Effective</dt>
+                      <dd>{{ formatPropValue(row.effectiveValue) }}</dd>
+                    </div>
+                  </dl>
+                </li>
+              </ul>
+              <p v-else>No configurable props</p>
+
+              <section v-if="selectedSchemaUnmappedProps.length" class="building-prop-comparison__unmapped">
+                <h4>Unmapped Props</h4>
+                <ul>
+                  <li
+                    v-for="prop in selectedSchemaUnmappedProps"
+                    :key="`${selectedSchemaNode?.id}:unmapped:${prop.key}`"
+                  >
+                    <code>{{ prop.key }}</code>
+                    <span>{{ formatPropValue(prop.value) }}</span>
+                  </li>
+                </ul>
+              </section>
+            </template>
+            <p v-else>No matched material protocol</p>
+          </div>
+        </SettingsPanel>
+
+        <SettingsPanel
+          icon="panel-right"
+          title="Material Detail"
+          description="Read-only detail for the selected material and its usage in the current schema."
+        >
+          <div v-if="selectedMaterial" class="building-material-detail">
+            <div class="building-material-detail__header">
+              <div>
+                <h3>{{ selectedMaterial.label }}</h3>
+                <code>{{ selectedMaterial.key }}</code>
+              </div>
+              <span>{{ selectedMaterial.category }}</span>
+            </div>
+
+            <p v-if="selectedMaterial.description">{{ selectedMaterial.description }}</p>
+
+            <dl class="building-material-detail__stats">
+              <div>
+                <dt>Schema usage</dt>
+                <dd>{{ selectedMaterialUsageCount }}</dd>
+              </div>
+              <div>
+                <dt>Allowed props</dt>
+                <dd>{{ selectedMaterial.allowedProps.length ? selectedMaterial.allowedProps.join(", ") : "none" }}</dd>
+              </div>
+            </dl>
+
+            <section class="building-material-detail__section">
+              <h4>Default Props</h4>
+              <AoiCodeBlock
+                :code="selectedMaterialDefaultPropsJson"
+                fallback="{}"
+                label="Selected material default props"
+              />
+            </section>
+
+            <section class="building-material-detail__section">
+              <h4>Prop Controls</h4>
+              <ul v-if="selectedMaterial.propControls.length" class="building-material-detail__controls">
+                <li
+                  v-for="control in selectedMaterial.propControls"
+                  :key="`${selectedMaterial.key}:detail:${control.key}`"
+                >
+                  <strong>{{ control.label }}</strong>
+                  <code>{{ control.key }}</code>
+                  <span>{{ control.control }}</span>
+                  <small>default: {{ formatDefaultValue(control.defaultValue) }}</small>
+                </li>
+              </ul>
+              <p v-else>No configurable props</p>
+            </section>
+          </div>
+        </SettingsPanel>
+      </template>
+
+      <template #footer>
+        <SettingsPanel
+          icon="braces"
+          title="Schema JSON"
+          description="aoi.page.v1"
+        >
+          <SettingsJsonPreview
+            :code="schemaJson"
+            fallback="Schema unavailable"
+          />
+        </SettingsPanel>
+      </template>
+    </BuilderShell>
   </div>
 </template>
 
@@ -758,6 +1006,109 @@ function countComponentUsage(node: AoiSchemaNode, componentKey: string): number 
 .building-page {
   display: grid;
   gap: var(--aoi-grid-gap);
+}
+
+.building-toolbar-badge {
+  display: inline-grid;
+  min-height: var(--aoi-control-height-sm);
+  place-items: center;
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-control);
+  background: var(--aoi-card-bg);
+  color: var(--aoi-text-muted);
+  font-size: 12px;
+  font-weight: 800;
+  padding: 0 10px;
+}
+
+.building-platform-nav {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+}
+
+.building-platform-nav__item {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-card);
+  background: var(--aoi-card-bg);
+  color: var(--aoi-text);
+  padding: 12px;
+}
+
+.building-platform-nav__item--current {
+  border-color: var(--aoi-state-border-active);
+  background: var(--aoi-state-active);
+}
+
+.building-platform-nav__item div {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.building-platform-nav__item strong {
+  color: var(--aoi-text);
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.building-platform-nav__item span {
+  color: var(--aoi-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.building-platform-nav__item em {
+  display: inline-grid;
+  min-height: 24px;
+  place-items: center;
+  border: 1px solid var(--aoi-state-border-active);
+  border-radius: var(--aoi-radius-control);
+  color: var(--aoi-accent-60);
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+  padding: 0 8px;
+}
+
+.building-resource-overview {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.building-resource-overview__item {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-card);
+  background: var(--aoi-card-bg);
+  padding: 10px;
+}
+
+.building-resource-overview__item--wide {
+  grid-column: 1 / -1;
+}
+
+.building-resource-overview__item span {
+  color: var(--aoi-text-muted);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.building-resource-overview__item strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  color: var(--aoi-text);
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .building-preview {
@@ -823,6 +1174,51 @@ function countComponentUsage(node: AoiSchemaNode, componentKey: string): number 
   outline: 2px solid var(--aoi-accent-60);
   outline-offset: 4px;
   box-shadow: 0 0 0 6px var(--aoi-accent-10);
+}
+
+.building-schema-tree-tools {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: end;
+}
+
+.building-schema-tree-search {
+  min-width: 0;
+}
+
+.building-schema-tree-clear {
+  display: inline-grid;
+  min-height: var(--aoi-control-height-sm);
+  place-items: center;
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-control);
+  background: var(--aoi-card-bg);
+  color: var(--aoi-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 760;
+  padding: 0 12px;
+}
+
+.building-schema-tree-clear:hover {
+  border-color: var(--aoi-state-border-active);
+  background: var(--aoi-state-active);
+  color: var(--aoi-accent-60);
+}
+
+.building-schema-tree-clear:focus-visible {
+  outline: var(--aoi-focus-ring-width) solid var(--aoi-focus);
+  outline-offset: var(--aoi-focus-ring-offset);
+}
+
+.building-schema-tree-summary {
+  margin: 0;
+  color: var(--aoi-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .building-schema-tree {
@@ -1400,6 +1796,61 @@ function countComponentUsage(node: AoiSchemaNode, componentKey: string): number 
   font-weight: 760;
 }
 
+.building-material-tools {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+}
+
+.building-material-search {
+  min-width: 0;
+}
+
+.building-material-category-filter {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.building-material-category-filter__item,
+.building-material-clear {
+  display: inline-grid;
+  min-height: var(--aoi-control-height-sm);
+  place-items: center;
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-control);
+  background: var(--aoi-card-bg);
+  color: var(--aoi-text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 760;
+  padding: 0 11px;
+}
+
+.building-material-category-filter__item:hover,
+.building-material-category-filter__item--selected,
+.building-material-clear:hover {
+  border-color: var(--aoi-state-border-active);
+  background: var(--aoi-state-active);
+  color: var(--aoi-accent-60);
+}
+
+.building-material-category-filter__item:focus-visible,
+.building-material-clear:focus-visible {
+  outline: var(--aoi-focus-ring-width) solid var(--aoi-focus);
+  outline-offset: var(--aoi-focus-ring-offset);
+}
+
+.building-material-summary {
+  margin: 0;
+  color: var(--aoi-text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .building-material-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -1675,5 +2126,15 @@ function countComponentUsage(node: AoiSchemaNode, componentKey: string): number 
 .building-material-detail__controls li > small {
   color: var(--aoi-text-muted);
   font-size: 12px;
+}
+
+@media (max-width: 520px) {
+  .building-schema-tree-tools {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .building-schema-tree-clear {
+    justify-self: start;
+  }
 }
 </style>

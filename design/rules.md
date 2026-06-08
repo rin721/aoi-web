@@ -10,6 +10,18 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 - Current data is local mock API plus browser-local state. Keep contracts ready for a future Go backend, but do not build production backend behavior inside Nuxt mock routes.
 - KIRAKIRA is a structural reference, not a visual clone target. Borrow fixed navigation, category-first discovery, compact announcement, and dense video grids. Keep Aoi's sunflower-orange identity and use sakura mainly as an auxiliary decorative color.
 
+## Low-code Platform Mission
+
+- This project is evolving from an ordinary frontend Web system into a self-building low-code platform with `/building` as the build-time entry.
+- The long-term platform target is Schema-driven pages, registered and configurable components, component composition, visual page editing, local Mock data, external API connectors, local SQLite adapters, event actions, workflow orchestration, plugin extensions, theme systems, preview, save, publish, and version management.
+- Do not rewrite the project from scratch. Every platform capability should grow from the current Nuxt app, existing Aoi wrappers, current pages, and current schema/renderer work.
+- New low-code capability should be centered on `/building`. Runtime pages should not import builder-only UI or builder-only state from `app/builder/`.
+- Prefer Schema-driven modeling before complex drag-and-drop. Do not hard-code components, actions, or data sources directly in business pages when they should be registered through a registry.
+- Keep each evolution step small, verifiable, and reversible. Each step should finish the current stage goal before jumping to later capabilities.
+- Core low-code modules should stay extensible, testable, and replaceable. Avoid large new dependencies unless the current stage explicitly requires them.
+- Do not modify unrelated business pages while evolving builder, schema, renderer, registry, data source, action, workflow, plugin, or theme capabilities.
+- Recommended evolution order: `/building` route -> schema -> renderer -> component registry -> editor shell -> property panel -> preview -> local save -> mock datasource -> API connector -> SQLite adapter -> event action -> workflow -> plugin system -> theme system -> self-building admin pages.
+
 ## Repository Boundaries
 
 - Frontend app code lives in `app/`.

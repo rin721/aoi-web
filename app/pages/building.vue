@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue"
 import BuildingWorkspace from "~/builder/BuildingWorkspace.vue"
 
 if (!import.meta.dev) {
@@ -8,11 +9,15 @@ if (!import.meta.dev) {
   })
 }
 
+const route = useRoute()
+const isNestedBuildingRoute = computed(() => !["/building", "/building/"].includes(route.path))
+
 useHead({
   title: "/building - Aoi"
 })
 </script>
 
 <template>
-  <BuildingWorkspace />
+  <NuxtPage v-if="isNestedBuildingRoute" />
+  <BuildingWorkspace v-else />
 </template>
