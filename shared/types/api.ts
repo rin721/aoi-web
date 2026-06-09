@@ -19,6 +19,12 @@ export interface Category {
   name: string
   description: string | null
   accentColor: string | null
+  parentSlug: string | null
+  order: number
+}
+
+export interface CategoryTreeNode extends Category {
+  children: CategoryTreeNode[]
 }
 
 export interface VideoSummary {
@@ -132,7 +138,7 @@ export interface AoiApiErrorPayload {
 }
 
 export interface HomePayload {
-  categories: Category[]
+  categories: CategoryTreeNode[]
   announcement: Announcement | null
   latest: PageResult<VideoSummary>
 }

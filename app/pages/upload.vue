@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import {
+  findCategoryInTree,
+  formatCategoryPath,
+  getCategoryLeafNodes
+} from "~~/shared/utils/categories"
+
 const api = useAoiApi()
 const drafts = useUploadDraftStore()
 const tagInput = ref("")
@@ -14,8 +20,9 @@ const validation = computed(() => activeDraft.value
   ? drafts.validateDraft(activeDraft.value)
   : { missing: ["创建一个草稿"], ready: false, warnings: [] })
 const categoryOptions = computed(() => categories.value
-  .filter((category) => category.slug !== "home")
-  .map((category) => ({ label: category.name, value: category.slug })))
+  .flatMap((category) => category.slug === "home" ? [] : [category])
+  .flatMap((category) => getCategoryLeafNodes([category]))
+  .map((category) => ({ label: formatCategoryPath(category), value: category.slug })))
 const visibilityOptions = [
   { label: "公开", value: "public" },
   { label: "不公开链接", value: "unlisted" },
@@ -30,8 +37,9 @@ const statusLabel = computed(() => {
 })
 const selectedCategoryName = computed(() => {
   const slug = activeDraft.value?.categorySlug
+  const category = slug ? findCategoryInTree(categories.value, slug) : null
 
-  return categories.value.find((category) => category.slug === slug)?.name || "未选择"
+  return category ? formatCategoryPath(category) : "未选择"
 })
 const lastSavedLabel = computed(() => {
   if (!activeDraft.value) {

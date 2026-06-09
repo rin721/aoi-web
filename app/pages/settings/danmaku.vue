@@ -1,8 +1,12 @@
 <script setup lang="ts">
 import { AOI_DANMAKU_DEFAULTS } from "~/utils/aoiDanmaku"
+import type { AoiSettingDerivationStrengthKey } from "~/utils/aoiSettingDerivation"
 
 const settings = useAppSettingsStore()
 const danmaku = useDanmakuStore()
+const { t } = useI18n()
+const danmakuDerivationKeys: AoiSettingDerivationStrengthKey[] = ["danmaku"]
+const showAdvancedSettings = computed(() => settings.settingsDisplayDepth === "all")
 
 const opacityModel = computed({
   get: () => Math.round(settings.danmakuOpacity * 100),
@@ -24,6 +28,21 @@ const blocklistModel = computed({
   get: () => settings.danmakuBlocklist,
   set: (value: string) => settings.setDanmakuBlocklist(value)
 })
+const danmakuDerivationControls = computed(() => danmakuDerivationKeys.map((key) => {
+  const value = settings.settingDerivationStrengths[key]
+
+  return {
+    key,
+    value,
+    title: t(`settings.derivation.controls.${key}.title`),
+    label: t(`settings.derivation.controls.${key}.label`),
+    description: t("settings.derivation.valueDescription", {
+      description: t(`settings.derivation.controls.${key}.description`),
+      value
+    }),
+    disabled: !settings.danmakuEnabled
+  }
+}))
 const hasDanmakuSettings = computed(() => {
   return settings.danmakuEnabled !== AOI_DANMAKU_DEFAULTS.enabled
     || settings.danmakuOpacity !== AOI_DANMAKU_DEFAULTS.opacity
@@ -34,13 +53,18 @@ const hasDanmakuSettings = computed(() => {
     || settings.danmakuTopModeEnabled !== AOI_DANMAKU_DEFAULTS.topModeEnabled
     || settings.danmakuBottomModeEnabled !== AOI_DANMAKU_DEFAULTS.bottomModeEnabled
     || settings.danmakuBlocklist !== AOI_DANMAKU_DEFAULTS.blocklist
+    || settings.settingDerivationStrengths.danmaku !== 100
 })
 const danmakuStats = computed(() => [
   { label: "本地弹幕", value: danmaku.totalCount },
-  { label: "透明度", value: `${opacityModel.value}%` },
-  { label: "字号", value: `${fontScaleModel.value}%` },
-  { label: "速度", value: `${speedModel.value}%` }
+  { label: "透明度", value: `${Math.round(settings.effectiveDanmakuRuntimeSettings.opacity * 100)}%` },
+  { label: "字号", value: `${Math.round(settings.effectiveDanmakuRuntimeSettings.fontScale * 100)}%` },
+  { label: "速度", value: `${Math.round(settings.effectiveDanmakuRuntimeSettings.speed * 100)}%` }
 ])
+
+function setSettingDerivationStrength(key: string, value: number) {
+  settings.setSettingDerivationStrength(key as AoiSettingDerivationStrengthKey, value)
+}
 </script>
 
 <template>
@@ -131,6 +155,12 @@ const danmakuStats = computed(() => [
       >
         <AoiSlider v-model="visibleAreaModel" :min="20" :max="100" :step="1" />
       </SettingsRow>
+
+      <SettingsDerivationControlGrid
+        v-if="showAdvancedSettings"
+        :controls="danmakuDerivationControls"
+        @update="setSettingDerivationStrength"
+      />
     </SettingsPanel>
 
     <SettingsPanel

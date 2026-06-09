@@ -5,6 +5,7 @@ export {
   listMockVideos,
   mockAnnouncement,
   mockCategories,
+  mockCategoryTree,
   mockHomePayload,
   mockVideos,
   searchMockVideos

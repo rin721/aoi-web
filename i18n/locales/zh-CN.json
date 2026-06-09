@@ -30,7 +30,33 @@
     "listView": "列表视图",
     "categoryTabsAria": "内容分类"
   },
+  "category": {
+    "childrenTitle": "子分类",
+    "childrenDescription": "继续细分浏览，父级分类会聚合下方所有内容。"
+  },
   "settings": {
+    "shell": {
+      "title": "设置",
+      "description": "调整 Aoi 的外观、偏好、本地数据和开发诊断。",
+      "searchLabel": "搜索设置",
+      "searchPlaceholder": "主题、背景、播放器...",
+      "emptyText": "没有匹配的设置项。",
+      "groups": {
+        "app": "应用设置",
+        "project": "项目"
+      },
+      "depth": {
+        "label": "设置展示深度",
+        "basic": {
+          "label": "基础",
+          "description": "常用设置"
+        },
+        "all": {
+          "label": "全部",
+          "description": "含高级项"
+        }
+      }
+    },
     "resetPage": {
       "action": "重置本页",
       "cancel": "取消",
@@ -46,6 +72,135 @@
       "language": {
         "title": "重置语言设置",
         "description": "将按当前 active 构建配置恢复界面语言，并立即应用。"
+      }
+    },
+    "derivation": {
+      "presetTitle": "全应用派生档位",
+      "presetDescription": "用 soft、balanced 或 vivid 同步控制所有派生组；手动细调任一组后会切换为 custom。",
+      "themeTitle": "主题与语义色强度",
+      "themeDescription": "控制主题色向辅助色、表面、状态、导航、Material 控件和阴影的派生力度。",
+      "specTitle": "规格强度",
+      "specDescription": "控制字体、间距、圆角、控件、内容宽度、媒体网格和设置布局从基础单位派生的幅度。",
+      "valueDescription": "当前 {value}%。{description}",
+      "presets": {
+        "soft": {
+          "label": "Soft",
+          "description": "更克制、轻柔，降低色彩、空间和动效的外放感。"
+        },
+        "balanced": {
+          "label": "Balanced",
+          "description": "使用默认强度，保持现有 Aoi 视觉和交互节奏。"
+        },
+        "vivid": {
+          "label": "Vivid",
+          "description": "更鲜明、更有层次，增强色彩、规格和动态反馈。"
+        },
+        "custom": {
+          "label": "Custom",
+          "description": "保留每个派生组的手动细调结果。"
+        }
+      },
+      "controls": {
+        "auxiliaryPalette": {
+          "title": "辅助色谱",
+          "label": "辅助色强度",
+          "description": "影响 secondary、sakura、sun 等由主题色派生的辅助色。"
+        },
+        "surfaceTint": {
+          "title": "表面染色",
+          "label": "表面染色强度",
+          "description": "影响页面背景、卡片、边界和文字层次中主题色的渗入程度。"
+        },
+        "stateLayer": {
+          "title": "状态层",
+          "label": "状态层强度",
+          "description": "影响 hover、pressed、selected 和 focus 状态的颜色与透明度。"
+        },
+        "navigationColor": {
+          "title": "导航染色",
+          "label": "导航色强度",
+          "description": "影响侧栏、移动导航和选中项背景的主题色呼应。"
+        },
+        "materialColor": {
+          "title": "Material 控件",
+          "label": "Material 色彩强度",
+          "description": "影响 Material Web primary、secondary、surface 等 token。"
+        },
+        "shadowDepth": {
+          "title": "阴影深度",
+          "label": "阴影强度",
+          "description": "影响阴影透明度和层级深度。"
+        },
+        "typography": {
+          "title": "字体比例",
+          "label": "字体派生强度",
+          "description": "影响标题、正文和小字从基础字号扩张或收敛的幅度。"
+        },
+        "spacing": {
+          "title": "间距节奏",
+          "label": "间距派生强度",
+          "description": "影响页面留白、网格间距和紧凑间隔从基础间距派生的幅度。"
+        },
+        "radius": {
+          "title": "圆角层级",
+          "label": "圆角派生强度",
+          "description": "影响卡片、面板、控件和选择项圆角之间的层次差异。"
+        },
+        "controls": {
+          "title": "控件规格",
+          "label": "控件派生强度",
+          "description": "影响按钮、输入框、图标按钮和导航操作尺寸。"
+        },
+        "contentWidth": {
+          "title": "内容宽度",
+          "label": "内容宽度强度",
+          "description": "影响普通与宽内容容器相对基础宽度的扩张或收敛。"
+        },
+        "mediaGrid": {
+          "title": "媒体网格",
+          "label": "媒体网格强度",
+          "description": "影响视频卡片网格列宽和媒体列表密度。"
+        },
+        "settingsLayout": {
+          "title": "设置布局",
+          "label": "设置布局强度",
+          "description": "影响设置卡片和控制列的宽度节奏。"
+        },
+        "revealMotion": {
+          "title": "入场动效",
+          "label": "入场动效强度",
+          "description": "影响 reveal 动画的距离、时长、错峰和最大延迟。"
+        },
+        "routeProgress": {
+          "title": "路由进度",
+          "label": "路由进度强度",
+          "description": "影响顶部进度条高度、初始值、速度和自动递增节奏。"
+        },
+        "smoothScroll": {
+          "title": "平滑滚动",
+          "label": "平滑滚动强度",
+          "description": "影响全局平滑滚动时长。"
+        },
+        "scrollSnap": {
+          "title": "滚动吸附",
+          "label": "滚动吸附强度",
+          "description": "影响滚动场景吸附到锚点的力度。"
+        },
+        "scrollHijack": {
+          "title": "滚动接管",
+          "label": "滚动接管强度",
+          "description": "影响滚动场景接管滚轮输入的触发阈值。"
+        },
+        "rubberBand": {
+          "title": "橡皮筋",
+          "label": "橡皮筋强度",
+          "description": "影响边界回弹距离和阻尼感。"
+        },
+        "danmaku": {
+          "title": "弹幕视觉与运动",
+          "label": "弹幕派生强度",
+          "description": "影响弹幕字号、透明度、速度和可见区域。"
+        }
       }
     },
     "appearance": {
@@ -126,7 +281,36 @@
       "palette": {
         "title": "个性色",
         "description": "选择一套色板，或切到自定义色。",
-        "customTitle": "调色板"
+        "customTitle": "调色板",
+        "derivation": {
+          "title": "派生强度",
+          "description": "分别控制主题色浅阶 token 的柔和或鲜明程度。",
+          "preview": "当前主题色派生阶级预览",
+          "reset": "重置派生",
+          "toneDescription": "当前 {value}%。低一些更柔和，高一些更鲜明。",
+          "tones": {
+            "accent10": {
+              "title": "Accent 10",
+              "label": "Accent 10 强度",
+              "affected": "可能影响：浅色状态背景、导航选中背景、标签/提示/空状态浅底、Material primary container、进度轨道。"
+            },
+            "accent20": {
+              "title": "Accent 20",
+              "label": "Accent 20 强度",
+              "affected": "可能影响：自定义调色板滑杆轨道、Material secondary container、关于页和实验页浅色渐变。"
+            },
+            "accent40": {
+              "title": "Accent 40",
+              "label": "Accent 40 强度",
+              "affected": "可能影响：深色模式 active 色、深色焦点/hover/pressed/边框状态、深色导航选中、部分卡片/上传/骨架屏强调色。"
+            },
+            "accent50": {
+              "title": "Accent 50",
+              "label": "Accent 50 强度",
+              "affected": "可能影响：进度条 active 色、页面边缘提示渐变、品牌/认证/用户页装饰渐变、富文本引用边线、骨架屏 accent。"
+            }
+          }
+        }
       },
       "density": {
         "comfortable": {

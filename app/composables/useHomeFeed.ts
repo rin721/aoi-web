@@ -1,3 +1,5 @@
+import { getCategorySelfAndDescendants } from "~~/shared/utils/categories"
+
 export function useHomeFeed() {
   const api = useAoiApi()
   const settings = useAppSettingsStore()
@@ -25,8 +27,10 @@ export function useHomeFeed() {
       return data.value.latest.items
     }
 
+    const selectedSlugs = getCategorySelfAndDescendants(data.value.categories, selectedCategory.value).map((category) => category.slug)
+
     return data.value.latest.items.filter((video) =>
-      video.categories.some((category) => category.slug === selectedCategory.value)
+      video.categories.some((category) => selectedSlugs.includes(category.slug))
     )
   })
 

@@ -34,13 +34,13 @@ const rootRef = ref<Element | null>(null)
 const mounted = ref(false)
 const settings = useAppSettingsStore()
 const runtimeOptions = computed<AoiRevealRuntimeOptions>(() => ({
-  durationMs: settings.revealMotionDurationMs,
-  distancePx: settings.revealMotionDistancePx,
+  durationMs: settings.effectiveRevealMotionSettings.durationMs,
+  distancePx: settings.effectiveRevealMotionSettings.distancePx,
   effect: settings.revealMotionEffect,
   enabled: settings.revealMotionEnabled,
-  maxDelayMs: settings.revealMotionMaxDelayMs,
+  maxDelayMs: settings.effectiveRevealMotionSettings.maxDelayMs,
   replay: settings.revealMotionReplay,
-  staggerMs: settings.revealMotionStaggerMs
+  staggerMs: settings.effectiveRevealMotionSettings.staggerMs
 }))
 const options = computed(() => normalizeAoiRevealOptions({
   delay: props.delay,

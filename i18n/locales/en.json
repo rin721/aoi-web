@@ -30,7 +30,33 @@
     "listView": "List view",
     "categoryTabsAria": "Content categories"
   },
+  "category": {
+    "childrenTitle": "Subcategories",
+    "childrenDescription": "Browse a narrower branch. Parent categories aggregate everything below them."
+  },
   "settings": {
+    "shell": {
+      "title": "Settings",
+      "description": "Adjust Aoi appearance, preferences, local data, and diagnostics.",
+      "searchLabel": "Search settings",
+      "searchPlaceholder": "Theme, background, player...",
+      "emptyText": "No matching settings.",
+      "groups": {
+        "app": "App settings",
+        "project": "Project"
+      },
+      "depth": {
+        "label": "Settings display depth",
+        "basic": {
+          "label": "Basic",
+          "description": "Common settings"
+        },
+        "all": {
+          "label": "All",
+          "description": "Includes advanced"
+        }
+      }
+    },
     "resetPage": {
       "action": "Reset page",
       "cancel": "Cancel",
@@ -46,6 +72,135 @@
       "language": {
         "title": "Reset Language Settings",
         "description": "Restore the interface language from the current active build configuration and apply it immediately."
+      }
+    },
+    "derivation": {
+      "presetTitle": "App-wide derivation preset",
+      "presetDescription": "Use soft, balanced, or vivid to sync every derivation group. Manually tuning any group switches to custom.",
+      "themeTitle": "Theme and semantic color strength",
+      "themeDescription": "Controls how strongly the accent derives auxiliary colors, surfaces, states, navigation, Material controls, and shadows.",
+      "specTitle": "Spec strength",
+      "specDescription": "Controls how type, spacing, radius, controls, content width, media grids, and settings layout derive from the base units.",
+      "valueDescription": "Current {value}%. {description}",
+      "presets": {
+        "soft": {
+          "label": "Soft",
+          "description": "More restrained and gentle, with softer color, layout, and motion."
+        },
+        "balanced": {
+          "label": "Balanced",
+          "description": "Default strength for the existing Aoi visual and interaction rhythm."
+        },
+        "vivid": {
+          "label": "Vivid",
+          "description": "Brighter and more layered, with stronger color, spec, and motion feedback."
+        },
+        "custom": {
+          "label": "Custom",
+          "description": "Keeps the manually tuned strength for each derivation group."
+        }
+      },
+      "controls": {
+        "auxiliaryPalette": {
+          "title": "Auxiliary palette",
+          "label": "Auxiliary color strength",
+          "description": "Affects secondary, sakura, sun, and other accent-derived auxiliary colors."
+        },
+        "surfaceTint": {
+          "title": "Surface tint",
+          "label": "Surface tint strength",
+          "description": "Affects how much accent color enters page backgrounds, cards, borders, and text layers."
+        },
+        "stateLayer": {
+          "title": "State layer",
+          "label": "State layer strength",
+          "description": "Affects hover, pressed, selected, and focus state colors and opacity."
+        },
+        "navigationColor": {
+          "title": "Navigation tint",
+          "label": "Navigation color strength",
+          "description": "Affects accent response in the rail, mobile navigation, and selected item backgrounds."
+        },
+        "materialColor": {
+          "title": "Material controls",
+          "label": "Material color strength",
+          "description": "Affects Material Web primary, secondary, surface, and related tokens."
+        },
+        "shadowDepth": {
+          "title": "Shadow depth",
+          "label": "Shadow strength",
+          "description": "Affects shadow opacity and perceived elevation depth."
+        },
+        "typography": {
+          "title": "Typography scale",
+          "label": "Typography derivation strength",
+          "description": "Affects how strongly headings, body text, and small text expand or contract from the base font size."
+        },
+        "spacing": {
+          "title": "Spacing rhythm",
+          "label": "Spacing derivation strength",
+          "description": "Affects page padding, grid gaps, and compact gaps derived from the base spacing unit."
+        },
+        "radius": {
+          "title": "Radius layers",
+          "label": "Radius derivation strength",
+          "description": "Affects the difference between card, panel, control, and choice corner radii."
+        },
+        "controls": {
+          "title": "Control spec",
+          "label": "Control derivation strength",
+          "description": "Affects buttons, fields, icon buttons, and navigation action sizes."
+        },
+        "contentWidth": {
+          "title": "Content width",
+          "label": "Content width strength",
+          "description": "Affects how normal and wide content containers expand or contract from the base width."
+        },
+        "mediaGrid": {
+          "title": "Media grid",
+          "label": "Media grid strength",
+          "description": "Affects video card column width and media list density."
+        },
+        "settingsLayout": {
+          "title": "Settings layout",
+          "label": "Settings layout strength",
+          "description": "Affects settings card and control column width rhythm."
+        },
+        "revealMotion": {
+          "title": "Reveal motion",
+          "label": "Reveal motion strength",
+          "description": "Affects reveal animation distance, duration, stagger, and maximum delay."
+        },
+        "routeProgress": {
+          "title": "Route progress",
+          "label": "Route progress strength",
+          "description": "Affects the top progress bar height, initial value, speed, and trickle rhythm."
+        },
+        "smoothScroll": {
+          "title": "Smooth scroll",
+          "label": "Smooth scroll strength",
+          "description": "Affects global smooth scroll duration."
+        },
+        "scrollSnap": {
+          "title": "Scroll snap",
+          "label": "Scroll snap strength",
+          "description": "Affects how strongly scroll scenes snap to anchors."
+        },
+        "scrollHijack": {
+          "title": "Scroll takeover",
+          "label": "Scroll takeover strength",
+          "description": "Affects the wheel-input threshold for scroll scene takeover."
+        },
+        "rubberBand": {
+          "title": "Rubber band",
+          "label": "Rubber band strength",
+          "description": "Affects boundary bounce distance and damping feel."
+        },
+        "danmaku": {
+          "title": "Danmaku visual and motion",
+          "label": "Danmaku derivation strength",
+          "description": "Affects danmaku font size, opacity, speed, and visible area."
+        }
       }
     },
     "appearance": {
@@ -126,7 +281,36 @@
       "palette": {
         "title": "Accent color",
         "description": "Choose a preset palette or switch to a custom color.",
-        "customTitle": "Color palette"
+        "customTitle": "Color palette",
+        "derivation": {
+          "title": "Derived strength",
+          "description": "Tune how soft or vivid each light accent token feels.",
+          "preview": "Current derived accent scale preview",
+          "reset": "Reset derivation",
+          "toneDescription": "Current {value}%. Lower is softer, higher is more vivid.",
+          "tones": {
+            "accent10": {
+              "title": "Accent 10",
+              "label": "Accent 10 strength",
+              "affected": "May affect: soft state backgrounds, active navigation backgrounds, tag/notice/empty-state surfaces, Material primary containers, and progress tracks."
+            },
+            "accent20": {
+              "title": "Accent 20",
+              "label": "Accent 20 strength",
+              "affected": "May affect: custom palette slider tracks, Material secondary containers, and light gradients on About and Experimental pages."
+            },
+            "accent40": {
+              "title": "Accent 40",
+              "label": "Accent 40 strength",
+              "affected": "May affect: dark-mode active color, dark focus/hover/pressed/border states, dark navigation selection, and card/upload/skeleton accents."
+            },
+            "accent50": {
+              "title": "Accent 50",
+              "label": "Accent 50 strength",
+              "affected": "May affect: active progress color, page-edge hint gradients, brand/auth/profile decorative gradients, rich-text quote borders, and skeleton accents."
+            }
+          }
+        }
       },
       "density": {
         "comfortable": {

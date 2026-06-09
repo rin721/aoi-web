@@ -1,5 +1,6 @@
 <script setup lang="ts">
 interface SettingsShellItem {
+  depth: "basic" | "all"
   icon: string
   label: string
   to: string
@@ -13,6 +14,14 @@ interface SettingsShellGroup {
 const props = defineProps<{
   activePath: string
   description: string
+  depthItems: Array<{
+    description?: string
+    icon?: string
+    label: string
+    value: string
+  }>
+  depthLabel: string
+  depthModelValue: string
   emptyText: string
   groups: SettingsShellGroup[]
   modelValue: string
@@ -22,12 +31,17 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
+  "update:depthModelValue": [value: string]
   "update:modelValue": [value: string]
 }>()
 
 const query = computed({
   get: () => props.modelValue,
   set: (value: string) => emit("update:modelValue", value)
+})
+const depth = computed({
+  get: () => props.depthModelValue,
+  set: (value: string) => emit("update:depthModelValue", value)
 })
 </script>
 
@@ -57,6 +71,14 @@ const query = computed({
       type="search"
     />
 
+    <AoiSegmentedControl
+      v-model="depth"
+      class="settings-shell-nav__depth"
+      :items="props.depthItems"
+      :aria-label="props.depthLabel"
+      :columns="2"
+    />
+
     <nav class="settings-shell-nav__groups" aria-label="设置页面">
       <section
         v-for="group in props.groups"
@@ -82,27 +104,37 @@ const query = computed({
     </nav>
   </aside>
 
-  <nav v-aoi-scroll-native class="settings-shell-nav-mobile" aria-label="设置页面">
-    <template
-      v-for="group in props.groups"
-      :key="group.label"
-    >
-      <AoiLink
-        v-for="item in group.items"
-        :key="item.to"
-        class="settings-shell-nav__item"
-        :class="{ 'settings-shell-nav__item--active': props.activePath === item.to }"
-        :to="item.to"
-      >
-        <AoiIcon :name="item.icon" :size="17" decorative />
-        <span>{{ item.label }}</span>
-      </AoiLink>
-    </template>
+  <div class="settings-shell-nav-mobile">
+    <AoiSegmentedControl
+      v-model="depth"
+      class="settings-shell-nav__depth"
+      :items="props.depthItems"
+      :aria-label="props.depthLabel"
+      :columns="2"
+    />
 
-    <p v-if="props.groups.length === 0" class="settings-shell-nav__empty">
-      {{ props.emptyText }}
-    </p>
-  </nav>
+    <nav v-aoi-scroll-native class="settings-shell-nav-mobile__items" aria-label="设置页面">
+      <template
+        v-for="group in props.groups"
+        :key="group.label"
+      >
+        <AoiLink
+          v-for="item in group.items"
+          :key="item.to"
+          class="settings-shell-nav__item"
+          :class="{ 'settings-shell-nav__item--active': props.activePath === item.to }"
+          :to="item.to"
+        >
+          <AoiIcon :name="item.icon" :size="17" decorative />
+          <span>{{ item.label }}</span>
+        </AoiLink>
+      </template>
+
+      <p v-if="props.groups.length === 0" class="settings-shell-nav__empty">
+        {{ props.emptyText }}
+      </p>
+    </nav>
+  </div>
 </template>
 
 <style scoped>
@@ -166,6 +198,10 @@ const query = computed({
   gap: var(--aoi-grid-gap);
 }
 
+.settings-shell-nav__depth :deep(.aoi-segmented__item) {
+  min-height: var(--aoi-control-height-md);
+}
+
 .settings-shell-nav-mobile {
   display: none;
 }
@@ -216,14 +252,19 @@ const query = computed({
     position: sticky;
     top: calc(var(--aoi-mobile-header-height) + 8px);
     z-index: var(--aoi-z-sticky);
-    display: flex;
-    overflow-x: auto;
+    display: grid;
     gap: var(--aoi-grid-gap-compact);
     border: 1px solid var(--aoi-border);
     border-radius: var(--aoi-radius-container);
     background: var(--aoi-panel-bg);
     box-shadow: var(--aoi-shadow-sm);
     padding: 8px;
+  }
+
+  .settings-shell-nav-mobile__items {
+    display: flex;
+    overflow-x: auto;
+    gap: var(--aoi-grid-gap-compact);
   }
 
   .settings-shell-nav-mobile .settings-shell-nav__item {

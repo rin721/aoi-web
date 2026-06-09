@@ -98,8 +98,8 @@ export default defineNuxtPlugin((nuxtApp) => {
       return
     }
 
-    const ratio = toAoiRubberBandRatio(settings.rubberBandStrength)
-    const maxOffset = settings.rubberBandMaxOffsetPx
+    const ratio = toAoiRubberBandRatio(settings.effectiveScrollSettings.rubberBand.strength)
+    const maxOffset = settings.effectiveScrollSettings.rubberBand.maxOffsetPx
 
     stopRubberBandRelease()
     rubberBandOffset = Math.min(
@@ -123,9 +123,9 @@ export default defineNuxtPlugin((nuxtApp) => {
       return
     }
 
-    const duration = toAoiScrollDurationSeconds(settings.smoothScrollDurationMs)
+    const duration = toAoiScrollDurationSeconds(settings.effectiveScrollSettings.smooth.durationMs)
     const nextKey = JSON.stringify({
-      damping: settings.smoothScrollDamping,
+      damping: settings.effectiveScrollSettings.smooth.damping,
       duration,
       enabled: settings.smoothScrollEnabled
     })
@@ -142,7 +142,7 @@ export default defineNuxtPlugin((nuxtApp) => {
       },
       autoRaf: true,
       duration,
-      lerp: settings.smoothScrollDamping,
+      lerp: settings.effectiveScrollSettings.smooth.damping,
       overscroll: false,
       prevent: (node) => shouldSkipAoiPageScrollEnhancement(node),
       smoothWheel: true,
@@ -258,7 +258,9 @@ export default defineNuxtPlugin((nuxtApp) => {
       settings.smoothScrollDamping,
       settings.rubberBandEnabled,
       settings.rubberBandStrength,
-      settings.rubberBandMaxOffsetPx
+      settings.rubberBandMaxOffsetPx,
+      settings.settingDerivationStrengths.smoothScroll,
+      settings.settingDerivationStrengths.rubberBand
     ], syncRuntime)
   })
 

@@ -9,11 +9,13 @@ import type {
   AoiScrollSnapMode
 } from "~/utils/aoiScroll"
 import { clampAoiScrollSetting } from "~/utils/aoiScroll"
+import type { AoiSettingDerivationStrengthKey } from "~/utils/aoiSettingDerivation"
 
 const { t } = useI18n()
 const settings = useAppSettingsStore()
 const resetPreferenceConfirmOpen = ref(false)
 const resettingPreference = ref(false)
+const showAdvancedSettings = computed(() => settings.settingsDisplayDepth === "all")
 
 const dataModes: Array<{
   description: string
@@ -130,6 +132,17 @@ const routeProgressEasingOptions = computed(() => [
   { label: t("settings.preference.routeProgress.easing.easeOut"), value: "ease-out" },
   { label: t("settings.preference.routeProgress.easing.easeInOut"), value: "ease-in-out" }
 ])
+const routeProgressDerivationKeys: AoiSettingDerivationStrengthKey[] = ["routeProgress"]
+const revealDerivationKeys: AoiSettingDerivationStrengthKey[] = ["revealMotion"]
+const scrollDerivationKeys: AoiSettingDerivationStrengthKey[] = [
+  "smoothScroll",
+  "scrollSnap",
+  "scrollHijack",
+  "rubberBand"
+]
+const routeProgressDerivationControls = computed(() => routeProgressDerivationKeys.map(createDerivationControl))
+const revealDerivationControls = computed(() => revealDerivationKeys.map(createDerivationControl))
+const scrollDerivationControls = computed(() => scrollDerivationKeys.map(createDerivationControl))
 const revealEffectModel = computed({
   get: () => settings.revealMotionEffect,
   set: (value: string) => settings.setRevealMotionEffect(value as AoiRevealMotionEffect)
@@ -245,6 +258,54 @@ const rubberBandMaxOffsetModel = computed({
   }
 })
 
+function createDerivationControl(key: AoiSettingDerivationStrengthKey) {
+  const value = settings.settingDerivationStrengths[key]
+
+  return {
+    key,
+    value,
+    title: t(`settings.derivation.controls.${key}.title`),
+    label: t(`settings.derivation.controls.${key}.label`),
+    description: t("settings.derivation.valueDescription", {
+      description: t(`settings.derivation.controls.${key}.description`),
+      value
+    }),
+    disabled: isDerivationControlDisabled(key)
+  }
+}
+
+function isDerivationControlDisabled(key: AoiSettingDerivationStrengthKey) {
+  if (key === "routeProgress") {
+    return !settings.routeProgressEnabled
+  }
+
+  if (key === "revealMotion") {
+    return !settings.revealMotionEnabled
+  }
+
+  if (key === "smoothScroll") {
+    return !settings.smoothScrollEnabled
+  }
+
+  if (key === "scrollSnap") {
+    return !settings.scrollSnapEnabled
+  }
+
+  if (key === "scrollHijack") {
+    return !settings.scrollHijackEnabled
+  }
+
+  if (key === "rubberBand") {
+    return !settings.rubberBandEnabled
+  }
+
+  return false
+}
+
+function setSettingDerivationStrength(key: string, value: number) {
+  settings.setSettingDerivationStrength(key as AoiSettingDerivationStrengthKey, value)
+}
+
 function clampRevealSetting(value: number, min: number, max: number) {
   if (!Number.isFinite(value)) {
     return min
@@ -325,6 +386,7 @@ async function confirmResetPreference() {
     </SettingsPanel>
 
     <SettingsPanel
+      v-if="showAdvancedSettings"
       icon="loader"
       :title="t('settings.preference.routeProgress.title')"
       :description="t('settings.preference.routeProgress.description')"
@@ -441,9 +503,15 @@ async function confirmResetPreference() {
           />
         </SettingsRow>
       </div>
+
+      <SettingsDerivationControlGrid
+        :controls="routeProgressDerivationControls"
+        @update="setSettingDerivationStrength"
+      />
     </SettingsPanel>
 
     <SettingsPanel
+      v-if="showAdvancedSettings"
       icon="sparkles"
       :title="t('settings.preference.reveal.title')"
       :description="t('settings.preference.reveal.description')"
@@ -539,9 +607,15 @@ async function confirmResetPreference() {
           />
         </SettingsRow>
       </div>
+
+      <SettingsDerivationControlGrid
+        :controls="revealDerivationControls"
+        @update="setSettingDerivationStrength"
+      />
     </SettingsPanel>
 
     <SettingsPanel
+      v-if="showAdvancedSettings"
       icon="move-vertical"
       :title="t('settings.preference.scroll.title')"
       :description="t('settings.preference.scroll.description')"
@@ -701,6 +775,11 @@ async function confirmResetPreference() {
           />
         </SettingsRow>
       </div>
+
+      <SettingsDerivationControlGrid
+        :controls="scrollDerivationControls"
+        @update="setSettingDerivationStrength"
+      />
     </SettingsPanel>
 
     <SettingsPanel

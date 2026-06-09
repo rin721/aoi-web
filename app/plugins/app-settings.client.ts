@@ -1,4 +1,5 @@
 import { createAoiSpecCssVars } from "~/utils/aoiSpecUnits"
+import { createAoiDerivedThemeCssVars } from "~/utils/aoiSettingDerivation"
 
 type I18nRuntime = {
   locale?: string | { value: string }
@@ -57,39 +58,44 @@ export default defineNuxtPlugin((nuxtApp) => {
     const specVars = createAoiSpecCssVars(settings.specUnits, {
       density: settings.appearanceDensity,
       shape: settings.appearanceShape,
-      size: settings.appearanceSize
+      size: settings.appearanceSize,
+      strengths: settings.settingDerivationStrengths
+    })
+    const themeVars = createAoiDerivedThemeCssVars({
+      accentScale: settings.accentScale,
+      contrast: settings.appearanceContrast,
+      dark: shouldDark,
+      strengths: settings.settingDerivationStrengths
     })
 
-    Object.entries(specVars).forEach(([name, value]) => {
+    Object.entries({
+      ...themeVars,
+      ...specVars
+    }).forEach(([name, value]) => {
       style.setProperty(name, value)
     })
 
-    style.setProperty("--aoi-accent-60", settings.accentScale.accent60)
-    style.setProperty("--aoi-accent-50", settings.accentScale.accent50)
-    style.setProperty("--aoi-accent-40", settings.accentScale.accent40)
-    style.setProperty("--aoi-accent-20", settings.accentScale.accent20)
-    style.setProperty("--aoi-accent-10", settings.accentScale.accent10)
     style.setProperty("--aoi-user-bg-image", settings.backgroundObjectUrl ? `url("${settings.backgroundObjectUrl}")` : "none")
     style.setProperty("--aoi-user-bg-opacity", settings.backgroundObjectUrl ? String(settings.backgroundOpacity) : "0")
     style.setProperty("--aoi-user-bg-blur", `${settings.backgroundBlur}px`)
     style.setProperty("--aoi-user-bg-dim", String(settings.backgroundObjectUrl ? settings.backgroundDim : 0))
-    style.setProperty("--aoi-danmaku-font-scale", String(settings.danmakuFontScale))
-    style.setProperty("--aoi-danmaku-opacity", String(settings.danmakuOpacity))
-    style.setProperty("--aoi-danmaku-speed", String(settings.danmakuSpeed))
-    style.setProperty("--aoi-danmaku-visible-area", `${settings.danmakuVisibleArea}%`)
-    style.setProperty("--aoi-reveal-duration-setting", `${settings.revealMotionDurationMs}ms`)
-    style.setProperty("--aoi-reveal-distance-setting", `${settings.revealMotionDistancePx}px`)
-    style.setProperty("--aoi-reveal-stagger-setting", `${settings.revealMotionStaggerMs}ms`)
-    style.setProperty("--aoi-reveal-max-delay-setting", `${settings.revealMotionMaxDelayMs}ms`)
-    style.setProperty("--aoi-route-progress-height", `${settings.routeProgressHeightPx}px`)
-    style.setProperty("--aoi-route-progress-speed", `${settings.routeProgressSpeedMs}ms`)
+    style.setProperty("--aoi-danmaku-font-scale", String(settings.effectiveDanmakuRuntimeSettings.fontScale))
+    style.setProperty("--aoi-danmaku-opacity", String(settings.effectiveDanmakuRuntimeSettings.opacity))
+    style.setProperty("--aoi-danmaku-speed", String(settings.effectiveDanmakuRuntimeSettings.speed))
+    style.setProperty("--aoi-danmaku-visible-area", `${settings.effectiveDanmakuRuntimeSettings.visibleArea}%`)
+    style.setProperty("--aoi-reveal-duration-setting", `${settings.effectiveRevealMotionSettings.durationMs}ms`)
+    style.setProperty("--aoi-reveal-distance-setting", `${settings.effectiveRevealMotionSettings.distancePx}px`)
+    style.setProperty("--aoi-reveal-stagger-setting", `${settings.effectiveRevealMotionSettings.staggerMs}ms`)
+    style.setProperty("--aoi-reveal-max-delay-setting", `${settings.effectiveRevealMotionSettings.maxDelayMs}ms`)
+    style.setProperty("--aoi-route-progress-height", `${settings.effectiveRouteProgressSettings.heightPx}px`)
+    style.setProperty("--aoi-route-progress-speed", `${settings.effectiveRouteProgressSettings.speedMs}ms`)
     style.setProperty("--aoi-route-progress-easing", settings.routeProgressEasing)
-    style.setProperty("--aoi-page-rubber-band-max", `${settings.rubberBandMaxOffsetPx}px`)
-    style.setProperty("--aoi-page-rubber-band-strength", String(settings.rubberBandStrength))
-    style.setProperty("--aoi-scroll-hijack-threshold", `${settings.scrollHijackThresholdPx}px`)
-    style.setProperty("--aoi-scroll-smooth-duration", `${settings.smoothScrollDurationMs}ms`)
-    style.setProperty("--aoi-scroll-smooth-damping", String(settings.smoothScrollDamping))
-    style.setProperty("--aoi-scroll-snap-strength", String(settings.scrollSnapStrength))
+    style.setProperty("--aoi-page-rubber-band-max", `${settings.effectiveScrollSettings.rubberBand.maxOffsetPx}px`)
+    style.setProperty("--aoi-page-rubber-band-strength", String(settings.effectiveScrollSettings.rubberBand.strength))
+    style.setProperty("--aoi-scroll-hijack-threshold", `${settings.effectiveScrollSettings.hijack.thresholdPx}px`)
+    style.setProperty("--aoi-scroll-smooth-duration", `${settings.effectiveScrollSettings.smooth.durationMs}ms`)
+    style.setProperty("--aoi-scroll-smooth-damping", String(settings.effectiveScrollSettings.smooth.damping))
+    style.setProperty("--aoi-scroll-snap-strength", String(settings.effectiveScrollSettings.snap.strength))
   }
 
   onNuxtReady(async () => {
@@ -121,6 +127,27 @@ export default defineNuxtPlugin((nuxtApp) => {
       settings.accentScale.accent40,
       settings.accentScale.accent50,
       settings.accentScale.accent60,
+      settings.derivationPreset,
+      settings.settingDerivationStrengths.auxiliaryPalette,
+      settings.settingDerivationStrengths.surfaceTint,
+      settings.settingDerivationStrengths.stateLayer,
+      settings.settingDerivationStrengths.navigationColor,
+      settings.settingDerivationStrengths.materialColor,
+      settings.settingDerivationStrengths.shadowDepth,
+      settings.settingDerivationStrengths.typography,
+      settings.settingDerivationStrengths.spacing,
+      settings.settingDerivationStrengths.radius,
+      settings.settingDerivationStrengths.controls,
+      settings.settingDerivationStrengths.contentWidth,
+      settings.settingDerivationStrengths.mediaGrid,
+      settings.settingDerivationStrengths.settingsLayout,
+      settings.settingDerivationStrengths.revealMotion,
+      settings.settingDerivationStrengths.routeProgress,
+      settings.settingDerivationStrengths.smoothScroll,
+      settings.settingDerivationStrengths.scrollSnap,
+      settings.settingDerivationStrengths.scrollHijack,
+      settings.settingDerivationStrengths.rubberBand,
+      settings.settingDerivationStrengths.danmaku,
       settings.backgroundObjectUrl,
       settings.backgroundOpacity,
       settings.backgroundBlur,

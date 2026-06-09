@@ -48,9 +48,35 @@ import {
 import type { AoiRgbaColor } from "~/utils/aoiColor"
 import {
   aoiRgbaToCss,
-  mixAoiRgbaColor,
   normalizeAoiRgbaColor
 } from "~/utils/aoiColor"
+import type {
+  AoiAccentDerivationStrengths,
+  AoiAccentDerivedTone,
+  AoiAccentScale
+} from "~/utils/aoiAccentDerivation"
+import {
+  AOI_ACCENT_DERIVATION_DEFAULTS,
+  clampAoiAccentDerivationStrength,
+  createAoiAccentScaleFromColor,
+  isDefaultAoiAccentDerivationStrengths,
+  normalizeAoiAccentDerivationStrengths
+} from "~/utils/aoiAccentDerivation"
+import type {
+  AoiDerivationPreset,
+  AoiSettingDerivationStrengthKey,
+  AoiSettingDerivationStrengths
+} from "~/utils/aoiSettingDerivation"
+import {
+  AOI_SETTING_DERIVATION_DEFAULTS,
+  aoiDerivationStrengthScale,
+  clampAoiSettingDerivationStrength,
+  createAoiSettingDerivationStrengthsForPreset,
+  deriveAoiSettingNumber,
+  deriveAoiSettingPercent,
+  isAoiDerivationPreset,
+  normalizeAoiSettingDerivationStrengths
+} from "~/utils/aoiSettingDerivation"
 
 export type AoiPreferredTheme = "system" | "light" | "dark"
 export type AoiAccentMode = "preset" | "custom"
@@ -60,14 +86,7 @@ export type AoiAppearanceDensity = "comfortable" | "compact"
 export type AoiAppearanceSize = "small" | "default" | "large"
 export type AoiAppearanceShape = "square" | "soft" | "pill"
 export type AoiAppearanceContrast = "normal" | "high"
-
-export interface AoiAccentScale {
-  accent10: string
-  accent20: string
-  accent40: string
-  accent50: string
-  accent60: string
-}
+export type AoiSettingsDisplayDepth = "basic" | "all"
 
 export interface AoiAccentPresetOption extends AoiAccentScale {
   value: string
@@ -76,6 +95,7 @@ export interface AoiAccentPresetOption extends AoiAccentScale {
 }
 
 interface PersistedAppSettings {
+  accentDerivationStrengths: AoiAccentDerivationStrengths
   accentMode: AoiAccentMode
   accentPreset: string
   appearanceContrast: AoiAppearanceContrast
@@ -100,6 +120,7 @@ interface PersistedAppSettings {
   danmakuTopModeEnabled: boolean
   danmakuVisibleArea: number
   dataMode: AoiDataMode
+  derivationPreset: AoiDerivationPreset
   developerModeEnabled: boolean
   disableWatchHistory: boolean
   hideRecentSearches: boolean
@@ -137,6 +158,8 @@ interface PersistedAppSettings {
   scrollSnapMode: AoiScrollSnapMode
   scrollSnapStrength: number
   selectedCategory: string
+  settingsDisplayDepth: AoiSettingsDisplayDepth
+  settingDerivationStrengths: AoiSettingDerivationStrengths
   smoothScrollDamping: number
   smoothScrollDurationMs: number
   smoothScrollEnabled: boolean
@@ -243,6 +266,7 @@ function emptyState(): PersistedAppSettings {
   const defaults = createAoiActiveBuildDefaultAppSettings()
 
   return {
+    accentDerivationStrengths: normalizeAoiAccentDerivationStrengths(defaults.accentDerivationStrengths),
     accentMode: defaults.accentMode,
     accentPreset: defaults.accentPreset,
     appearanceContrast: defaults.appearanceContrast,
@@ -267,6 +291,7 @@ function emptyState(): PersistedAppSettings {
     danmakuTopModeEnabled: defaults.danmakuTopModeEnabled,
     danmakuVisibleArea: defaults.danmakuVisibleArea,
     dataMode: defaults.dataMode,
+    derivationPreset: defaults.derivationPreset,
     developerModeEnabled: false,
     disableWatchHistory: defaults.disableWatchHistory,
     hideRecentSearches: defaults.hideRecentSearches,
@@ -304,6 +329,8 @@ function emptyState(): PersistedAppSettings {
     scrollSnapMode: defaults.scrollSnapMode as AoiScrollSnapMode,
     scrollSnapStrength: defaults.scrollSnapStrength,
     selectedCategory: "home",
+    settingsDisplayDepth: defaults.settingsDisplayDepth,
+    settingDerivationStrengths: normalizeAoiSettingDerivationStrengths(defaults.settingDerivationStrengths),
     smoothScrollDamping: defaults.smoothScrollDamping,
     smoothScrollDurationMs: defaults.smoothScrollDurationMs,
     smoothScrollEnabled: defaults.smoothScrollEnabled,
@@ -328,6 +355,7 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     : clampAoiRouteProgressSetting(candidate.routeProgressDelayMs, 0, 600, fallback.routeProgressDelayMs)
 
   return {
+    accentDerivationStrengths: normalizeAoiAccentDerivationStrengths(candidate.accentDerivationStrengths, fallback.accentDerivationStrengths),
     accentMode: candidate.accentMode === "custom" || candidate.accentMode === "preset" ? candidate.accentMode : fallback.accentMode,
     accentPreset: isAccentPreset(candidate.accentPreset) ? candidate.accentPreset : fallback.accentPreset,
     appearanceContrast: isAppearanceContrast(candidate.appearanceContrast) ? candidate.appearanceContrast : fallback.appearanceContrast,
@@ -352,6 +380,7 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     danmakuTopModeEnabled: typeof candidate.danmakuTopModeEnabled === "boolean" ? candidate.danmakuTopModeEnabled : fallback.danmakuTopModeEnabled,
     danmakuVisibleArea: clampNumber(candidate.danmakuVisibleArea, 20, 100, fallback.danmakuVisibleArea),
     dataMode: isDataMode(candidate.dataMode) ? candidate.dataMode : fallback.dataMode,
+    derivationPreset: isAoiDerivationPreset(candidate.derivationPreset) ? candidate.derivationPreset : fallback.derivationPreset,
     developerModeEnabled: Boolean(candidate.developerModeEnabled),
     disableWatchHistory: typeof candidate.disableWatchHistory === "boolean" ? candidate.disableWatchHistory : fallback.disableWatchHistory,
     hideRecentSearches: typeof candidate.hideRecentSearches === "boolean" ? candidate.hideRecentSearches : fallback.hideRecentSearches,
@@ -389,6 +418,8 @@ function coercePersistedState(value: unknown): PersistedAppSettings {
     scrollSnapMode: isAoiScrollSnapMode(candidate.scrollSnapMode) ? candidate.scrollSnapMode : fallback.scrollSnapMode,
     scrollSnapStrength: clampAoiScrollSetting(candidate.scrollSnapStrength, 0, 100, fallback.scrollSnapStrength),
     selectedCategory: typeof candidate.selectedCategory === "string" && candidate.selectedCategory ? candidate.selectedCategory : fallback.selectedCategory,
+    settingsDisplayDepth: isSettingsDisplayDepth(candidate.settingsDisplayDepth) ? candidate.settingsDisplayDepth : fallback.settingsDisplayDepth,
+    settingDerivationStrengths: normalizeAoiSettingDerivationStrengths(candidate.settingDerivationStrengths, fallback.settingDerivationStrengths),
     smoothScrollDamping: clampAoiScrollSetting(candidate.smoothScrollDamping, 0.04, 0.22, fallback.smoothScrollDamping),
     smoothScrollDurationMs: clampAoiScrollSetting(candidate.smoothScrollDurationMs, 600, 1800, fallback.smoothScrollDurationMs),
     smoothScrollEnabled: typeof candidate.smoothScrollEnabled === "boolean" ? candidate.smoothScrollEnabled : fallback.smoothScrollEnabled,
@@ -425,6 +456,10 @@ function isAppearanceContrast(value: unknown): value is AoiAppearanceContrast {
   return value === "normal" || value === "high"
 }
 
+function isSettingsDisplayDepth(value: unknown): value is AoiSettingsDisplayDepth {
+  return value === "basic" || value === "all"
+}
+
 function isAccentPreset(value: unknown): value is string {
   return typeof value === "string" && AOI_ACCENT_PRESETS.some((preset) => preset.value === value)
 }
@@ -437,23 +472,27 @@ function clampNumber(value: unknown, min: number, max: number, fallback: number)
   return Math.min(max, Math.max(min, value))
 }
 
-function mixRgbaWithWhite(color: AoiRgbaColor, amount: number) {
-  const base = normalizeAoiRgbaColor(color, DEFAULT_ACCENT)
-  const white = { r: 255, g: 255, b: 255, a: base.a }
+function createAccentDerivationStrengthsFromSettingPreset(preset: AoiDerivationPreset) {
+  const value = preset === "custom"
+    ? AOI_SETTING_DERIVATION_DEFAULTS.auxiliaryPalette
+    : createAoiSettingDerivationStrengthsForPreset(preset).auxiliaryPalette
 
-  return aoiRgbaToCss(mixAoiRgbaColor(base, white, amount))
+  return normalizeAoiAccentDerivationStrengths({
+    accent10: value,
+    accent20: value,
+    accent40: value,
+    accent50: value
+  })
 }
 
-function scaleFromRgba(color: AoiRgbaColor): AoiAccentScale {
-  const base = normalizeAoiRgbaColor(color, DEFAULT_ACCENT)
-
-  return {
-    accent10: mixRgbaWithWhite(base, 0.9),
-    accent20: mixRgbaWithWhite(base, 0.76),
-    accent40: mixRgbaWithWhite(base, 0.42),
-    accent50: mixRgbaWithWhite(base, 0.18),
-    accent60: aoiRgbaToCss(base)
-  }
+function deriveOpacity(value: number, strength: number, min: number, max: number) {
+  return deriveAoiSettingNumber(value, strength, {
+    amount: 0.18,
+    fallback: value,
+    max,
+    min,
+    precision: 2
+  })
 }
 
 function openBackgroundDb() {
@@ -525,6 +564,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const backgroundError = ref("")
   const backgroundObjectUrl = ref("")
   const selectedCategory = ref(initialState.selectedCategory)
+  const settingsDisplayDepth = ref<AoiSettingsDisplayDepth>(initialState.settingsDisplayDepth)
   const preferredTheme = ref<AoiPreferredTheme>(initialState.preferredTheme)
   const locale = ref<AoiLocale>(initialState.locale)
   const appearanceContrast = ref<AoiAppearanceContrast>(initialState.appearanceContrast)
@@ -533,6 +573,9 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const appearanceSize = ref<AoiAppearanceSize>(initialState.appearanceSize)
   const accentMode = ref<AoiAccentMode>(initialState.accentMode)
   const accentPreset = ref(initialState.accentPreset)
+  const accentDerivationStrengths = reactive<AoiAccentDerivationStrengths>({ ...initialState.accentDerivationStrengths })
+  const derivationPreset = ref<AoiDerivationPreset>(initialState.derivationPreset)
+  const settingDerivationStrengths = reactive<AoiSettingDerivationStrengths>({ ...initialState.settingDerivationStrengths })
   const customAccent = ref<AoiRgbaColor>({ ...initialState.customAccent })
   const backgroundImageId = ref<string | null>(initialState.backgroundImageId)
   const backgroundFileName = ref(initialState.backgroundFileName)
@@ -596,7 +639,11 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const activeAccent = computed(() => accentMode.value === "custom" ? aoiRgbaToCss(customAccent.value) : activePreset.value.accent60)
   const accentScale = computed<AoiAccentScale>(() => {
     if (accentMode.value === "custom") {
-      return scaleFromRgba(customAccent.value)
+      return createAoiAccentScaleFromColor(customAccent.value, accentDerivationStrengths, DEFAULT_ACCENT)
+    }
+
+    if (!isDefaultAoiAccentDerivationStrengths(accentDerivationStrengths)) {
+      return createAoiAccentScaleFromColor(activePreset.value.accent60, accentDerivationStrengths, DEFAULT_ACCENT)
     }
 
     return {
@@ -607,20 +654,160 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       accent60: activePreset.value.accent60
     }
   })
-  const danmakuRuntimeSettings = computed<AoiDanmakuRuntimeSettings>(() => normalizeAoiDanmakuSettings({
+  const effectiveRevealMotionSettings = computed(() => ({
+    durationMs: deriveAoiSettingNumber(revealMotionDurationMs.value, settingDerivationStrengths.revealMotion, {
+      amount: 0.18,
+      fallback: revealMotionDurationMs.value,
+      max: 800,
+      min: 120
+    }),
+    distancePx: deriveAoiSettingNumber(revealMotionDistancePx.value, settingDerivationStrengths.revealMotion, {
+      amount: 0.52,
+      fallback: revealMotionDistancePx.value,
+      max: 48,
+      min: 0
+    }),
+    effect: revealMotionEffect.value,
+    enabled: revealMotionEnabled.value,
+    maxDelayMs: deriveAoiSettingNumber(revealMotionMaxDelayMs.value, settingDerivationStrengths.revealMotion, {
+      amount: 0.28,
+      fallback: revealMotionMaxDelayMs.value,
+      max: 600,
+      min: 0
+    }),
+    replay: revealMotionReplay.value,
+    staggerMs: deriveAoiSettingNumber(revealMotionStaggerMs.value, settingDerivationStrengths.revealMotion, {
+      amount: 0.38,
+      fallback: revealMotionStaggerMs.value,
+      max: 120,
+      min: 0
+    })
+  }))
+  const effectiveRouteProgressSettings = computed(() => ({
+    delayMs: routeProgressDelayMs.value,
+    easing: routeProgressEasing.value,
+    enabled: routeProgressEnabled.value,
+    heightPx: deriveAoiSettingNumber(routeProgressHeightPx.value, settingDerivationStrengths.routeProgress, {
+      amount: 0.34,
+      fallback: routeProgressHeightPx.value,
+      max: 8,
+      min: 1
+    }),
+    minimum: deriveAoiSettingNumber(routeProgressMinimum.value, settingDerivationStrengths.routeProgress, {
+      amount: 0.42,
+      fallback: routeProgressMinimum.value,
+      max: 0.5,
+      min: 0,
+      precision: 2
+    }),
+    showSpinner: routeProgressShowSpinner.value,
+    speedMs: deriveAoiSettingNumber(routeProgressSpeedMs.value, settingDerivationStrengths.routeProgress, {
+      amount: 0.16,
+      fallback: routeProgressSpeedMs.value,
+      inverse: true,
+      max: 800,
+      min: 80
+    }),
+    trickle: routeProgressTrickle.value,
+    trickleSpeedMs: deriveAoiSettingNumber(routeProgressTrickleSpeedMs.value, settingDerivationStrengths.routeProgress, {
+      amount: 0.16,
+      fallback: routeProgressTrickleSpeedMs.value,
+      inverse: true,
+      max: 1000,
+      min: 80
+    })
+  }))
+  const effectiveScrollSettings = computed(() => ({
+    hijack: {
+      enabled: scrollHijackEnabled.value,
+      mode: scrollHijackMode.value,
+      thresholdPx: deriveAoiSettingNumber(scrollHijackThresholdPx.value, settingDerivationStrengths.scrollHijack, {
+        amount: 0.42,
+        fallback: scrollHijackThresholdPx.value,
+        inverse: true,
+        max: 180,
+        min: 24
+      })
+    },
+    pageScrollbar: {
+      strategy: pageScrollbarStrategy.value
+    },
+    rubberBand: {
+      enabled: rubberBandEnabled.value,
+      maxOffsetPx: deriveAoiSettingNumber(rubberBandMaxOffsetPx.value, settingDerivationStrengths.rubberBand, {
+        amount: 0.46,
+        fallback: rubberBandMaxOffsetPx.value,
+        max: 36,
+        min: 8
+      }),
+      strength: deriveAoiSettingPercent(rubberBandStrength.value, settingDerivationStrengths.rubberBand, {
+        amount: 0.48,
+        fallback: rubberBandStrength.value,
+        max: 100,
+        min: 0
+      })
+    },
+    smooth: {
+      damping: deriveAoiSettingNumber(smoothScrollDamping.value, settingDerivationStrengths.smoothScroll, {
+        amount: 0.3,
+        fallback: smoothScrollDamping.value,
+        inverse: true,
+        max: 0.22,
+        min: 0.04,
+        precision: 2
+      }),
+      durationMs: deriveAoiSettingNumber(smoothScrollDurationMs.value, settingDerivationStrengths.smoothScroll, {
+        amount: 0.22,
+        fallback: smoothScrollDurationMs.value,
+        max: 1800,
+        min: 600
+      }),
+      enabled: smoothScrollEnabled.value
+    },
+    snap: {
+      enabled: scrollSnapEnabled.value,
+      mode: scrollSnapMode.value,
+      strength: deriveAoiSettingPercent(scrollSnapStrength.value, settingDerivationStrengths.scrollSnap, {
+        amount: 0.48,
+        fallback: scrollSnapStrength.value,
+        max: 100,
+        min: 0
+      })
+    }
+  }))
+  const effectiveDanmakuRuntimeSettings = computed<AoiDanmakuRuntimeSettings>(() => normalizeAoiDanmakuSettings({
     blocklist: danmakuBlocklist.value,
     bottomModeEnabled: danmakuBottomModeEnabled.value,
     enabled: danmakuEnabled.value,
-    fontScale: danmakuFontScale.value,
-    opacity: danmakuOpacity.value,
+    fontScale: deriveAoiSettingNumber(danmakuFontScale.value, settingDerivationStrengths.danmaku, {
+      amount: 0.18,
+      fallback: danmakuFontScale.value,
+      max: 1.6,
+      min: 0.7,
+      precision: 2
+    }),
+    opacity: deriveOpacity(danmakuOpacity.value, settingDerivationStrengths.danmaku, 0.2, 1),
     scrollModeEnabled: danmakuScrollModeEnabled.value,
-    speed: danmakuSpeed.value,
+    speed: deriveAoiSettingNumber(danmakuSpeed.value, settingDerivationStrengths.danmaku, {
+      amount: 0.26,
+      fallback: danmakuSpeed.value,
+      max: 2,
+      min: 0.5,
+      precision: 2
+    }),
     topModeEnabled: danmakuTopModeEnabled.value,
-    visibleArea: danmakuVisibleArea.value
+    visibleArea: deriveAoiSettingPercent(danmakuVisibleArea.value, settingDerivationStrengths.danmaku, {
+      amount: 0.18,
+      fallback: danmakuVisibleArea.value,
+      max: 100,
+      min: 20
+    })
   }))
+  const danmakuRuntimeSettings = effectiveDanmakuRuntimeSettings
 
   function currentState(): PersistedAppSettings {
     return {
+      accentDerivationStrengths: { ...accentDerivationStrengths },
       accentMode: accentMode.value,
       accentPreset: accentPreset.value,
       appearanceContrast: appearanceContrast.value,
@@ -645,6 +832,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       danmakuTopModeEnabled: danmakuTopModeEnabled.value,
       danmakuVisibleArea: danmakuVisibleArea.value,
       dataMode: dataMode.value,
+      derivationPreset: derivationPreset.value,
       developerModeEnabled: developerModeEnabled.value,
       disableWatchHistory: disableWatchHistory.value,
       hideRecentSearches: hideRecentSearches.value,
@@ -682,6 +870,8 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       scrollSnapMode: scrollSnapMode.value,
       scrollSnapStrength: scrollSnapStrength.value,
       selectedCategory: selectedCategory.value,
+      settingsDisplayDepth: settingsDisplayDepth.value,
+      settingDerivationStrengths: { ...settingDerivationStrengths },
       smoothScrollDamping: smoothScrollDamping.value,
       smoothScrollDurationMs: smoothScrollDurationMs.value,
       smoothScrollEnabled: smoothScrollEnabled.value,
@@ -691,6 +881,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   }
 
   function assignState(state: PersistedAppSettings) {
+    Object.assign(accentDerivationStrengths, normalizeAoiAccentDerivationStrengths(state.accentDerivationStrengths))
     accentMode.value = state.accentMode
     accentPreset.value = state.accentPreset
     appearanceContrast.value = state.appearanceContrast
@@ -715,6 +906,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     danmakuTopModeEnabled.value = state.danmakuTopModeEnabled
     danmakuVisibleArea.value = state.danmakuVisibleArea
     dataMode.value = state.dataMode
+    derivationPreset.value = state.derivationPreset
     developerModeEnabled.value = state.developerModeEnabled
     disableWatchHistory.value = state.disableWatchHistory
     hideRecentSearches.value = state.hideRecentSearches
@@ -751,6 +943,8 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     scrollSnapMode.value = state.scrollSnapMode
     scrollSnapStrength.value = state.scrollSnapStrength
     selectedCategory.value = state.selectedCategory
+    settingsDisplayDepth.value = state.settingsDisplayDepth
+    Object.assign(settingDerivationStrengths, normalizeAoiSettingDerivationStrengths(state.settingDerivationStrengths))
     smoothScrollDamping.value = state.smoothScrollDamping
     smoothScrollDurationMs.value = state.smoothScrollDurationMs
     smoothScrollEnabled.value = state.smoothScrollEnabled
@@ -822,6 +1016,15 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
 
   function setSelectedCategory(slug: string) {
     selectedCategory.value = slug
+    persist()
+  }
+
+  function setSettingsDisplayDepth(value: AoiSettingsDisplayDepth) {
+    if (!isSettingsDisplayDepth(value)) {
+      return
+    }
+
+    settingsDisplayDepth.value = value
     persist()
   }
 
@@ -993,6 +1196,50 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     return { ...emptyState().customAccent }
   }
 
+  function setDerivationPreset(value: AoiDerivationPreset) {
+    if (!isAoiDerivationPreset(value)) {
+      return
+    }
+
+    derivationPreset.value = value
+
+    if (value !== "custom") {
+      Object.assign(settingDerivationStrengths, createAoiSettingDerivationStrengthsForPreset(value))
+      Object.assign(accentDerivationStrengths, createAccentDerivationStrengthsFromSettingPreset(value))
+    }
+
+    persist()
+  }
+
+  function setSettingDerivationStrength(key: AoiSettingDerivationStrengthKey, value: number) {
+    if (!(key in settingDerivationStrengths)) {
+      return
+    }
+
+    settingDerivationStrengths[key] = clampAoiSettingDerivationStrength(value, settingDerivationStrengths[key])
+    derivationPreset.value = "custom"
+    persist()
+  }
+
+  function resetSettingDerivationStrengths() {
+    derivationPreset.value = "balanced"
+    Object.assign(settingDerivationStrengths, AOI_SETTING_DERIVATION_DEFAULTS)
+    Object.assign(accentDerivationStrengths, AOI_ACCENT_DERIVATION_DEFAULTS)
+    persist()
+  }
+
+  function setAccentDerivationStrength(tone: AoiAccentDerivedTone, value: number) {
+    accentDerivationStrengths[tone] = clampAoiAccentDerivationStrength(value, accentDerivationStrengths[tone])
+    derivationPreset.value = "custom"
+    persist()
+  }
+
+  function resetAccentDerivationStrengths() {
+    Object.assign(accentDerivationStrengths, AOI_ACCENT_DERIVATION_DEFAULTS)
+    derivationPreset.value = "custom"
+    persist()
+  }
+
   function setAccentPreset(value: string) {
     if (!isAccentPreset(value)) {
       return
@@ -1057,6 +1304,9 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     const next = emptyState()
 
     preferredTheme.value = next.preferredTheme
+    Object.assign(accentDerivationStrengths, next.accentDerivationStrengths)
+    derivationPreset.value = next.derivationPreset
+    Object.assign(settingDerivationStrengths, next.settingDerivationStrengths)
     accentMode.value = next.accentMode
     accentPreset.value = next.accentPreset
     appearanceContrast.value = next.appearanceContrast
@@ -1092,6 +1342,8 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     danmakuSpeed.value = next.danmakuSpeed
     danmakuTopModeEnabled.value = next.danmakuTopModeEnabled
     danmakuVisibleArea.value = next.danmakuVisibleArea
+    settingDerivationStrengths.danmaku = next.settingDerivationStrengths.danmaku
+    derivationPreset.value = "custom"
     persist()
   }
 
@@ -1135,6 +1387,13 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     smoothScrollDamping.value = next.smoothScrollDamping
     smoothScrollDurationMs.value = next.smoothScrollDurationMs
     smoothScrollEnabled.value = next.smoothScrollEnabled
+    settingDerivationStrengths.revealMotion = next.settingDerivationStrengths.revealMotion
+    settingDerivationStrengths.routeProgress = next.settingDerivationStrengths.routeProgress
+    settingDerivationStrengths.smoothScroll = next.settingDerivationStrengths.smoothScroll
+    settingDerivationStrengths.scrollSnap = next.settingDerivationStrengths.scrollSnap
+    settingDerivationStrengths.scrollHijack = next.settingDerivationStrengths.scrollHijack
+    settingDerivationStrengths.rubberBand = next.settingDerivationStrengths.rubberBand
+    derivationPreset.value = "custom"
     persist()
   }
 
@@ -1163,6 +1422,9 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       appearanceSize,
       accentMode,
       accentPreset,
+      () => ({ ...accentDerivationStrengths }),
+      derivationPreset,
+      () => ({ ...settingDerivationStrengths }),
       customAccent,
       backgroundImageId,
       backgroundFileName,
@@ -1218,11 +1480,13 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       rubberBandStrength,
       rubberBandMaxOffsetPx,
       () => ({ ...specUnits }),
-      selectedCategory
+      selectedCategory,
+      settingsDisplayDepth
     ], persist, { flush: "sync" })
   }
 
   return {
+    accentDerivationStrengths,
     accentMode,
     accentPreset,
     accentScale,
@@ -1254,8 +1518,13 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     danmakuTopModeEnabled,
     danmakuVisibleArea,
     dataMode,
+    derivationPreset,
     developerModeEnabled,
     disableWatchHistory,
+    effectiveDanmakuRuntimeSettings,
+    effectiveRevealMotionSettings,
+    effectiveRouteProgressSettings,
+    effectiveScrollSettings,
     hideRecentSearches,
     hydrated,
     locale,
@@ -1291,13 +1560,17 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     scrollSnapMode,
     scrollSnapStrength,
     resetAllAppSettings,
+    resetAccentDerivationStrengths,
     resetAppearance,
     resetDanmakuSettings,
     resetLanguage,
     resetPreference,
+    resetSettingDerivationStrengths,
     restore,
     restoreBackgroundObjectUrl,
     selectedCategory,
+    settingsDisplayDepth,
+    setAccentDerivationStrength,
     setAccentPreset,
     setAppearanceContrast,
     setAppearanceDensity,
@@ -1307,6 +1580,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     setContentWidthMode,
     setContentWidthPercent,
     setCustomAccent,
+    setDerivationPreset,
     setDeveloperModeEnabled,
     setDanmakuBlocklist,
     setDanmakuFontScale,
@@ -1322,6 +1596,9 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     setScrollHijackMode,
     setScrollSnapMode,
     setSelectedCategory,
+    setSettingsDisplayDepth,
+    setSettingDerivationStrength,
+    settingDerivationStrengths,
     smoothScrollDamping,
     smoothScrollDurationMs,
     smoothScrollEnabled,

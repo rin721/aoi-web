@@ -1,3 +1,10 @@
+import type { AoiSettingDerivationStrengths } from "./aoiSettingDerivation"
+import {
+  AOI_SETTING_DERIVATION_DEFAULTS,
+  aoiDerivationStrengthScale,
+  normalizeAoiSettingDerivationStrengths
+} from "./aoiSettingDerivation"
+
 export type AoiSpecDensity = "comfortable" | "compact"
 export type AoiSpecSize = "small" | "default" | "large"
 export type AoiSpecShape = "square" | "soft" | "pill"
@@ -41,6 +48,7 @@ export interface AoiSpecDeriveOptions {
   density: AoiSpecDensity
   shape: AoiSpecShape
   size: AoiSpecSize
+  strengths?: Partial<AoiSettingDerivationStrengths>
 }
 
 export interface AoiSpecUnitRange {
@@ -169,24 +177,35 @@ function pct(value: number) {
   return `${round(value)}%`
 }
 
-function contentWidthValue(units: AoiSpecUnitSettings, scope: AoiContentWidthScope) {
+function scale(value: number, strength: number, amount: number) {
+  return value * aoiDerivationStrengthScale(strength, amount)
+}
+
+function contentWidthValue(
+  units: AoiSpecUnitSettings,
+  scope: AoiContentWidthScope,
+  strength: number
+) {
+  const widthScale = aoiDerivationStrengthScale(strength, 0.16)
+
   if (scope === "wide") {
     return units.contentWideWidthMode === "percent"
-      ? pct(units.contentWideWidthPercent)
-      : px(units.contentWideMaxWidthPx)
+      ? pct(Math.min(100, units.contentWideWidthPercent * widthScale))
+      : px(units.contentWideMaxWidthPx * widthScale)
   }
 
   return units.contentWidthMode === "percent"
-    ? pct(units.contentWidthPercent)
-    : px(units.contentMaxWidthPx)
+    ? pct(Math.min(100, units.contentWidthPercent * widthScale))
+    : px(units.contentMaxWidthPx * widthScale)
 }
 
-function deriveControlVars(units: AoiSpecUnitSettings, size: AoiSpecSize) {
-  const md = units.controlHeightPx + (size === "small" ? -4 : size === "large" ? 4 : 0)
+function deriveControlVars(units: AoiSpecUnitSettings, size: AoiSpecSize, strength: number) {
+  const controlScale = aoiDerivationStrengthScale(strength, 0.22)
+  const md = (units.controlHeightPx + (size === "small" ? -4 : size === "large" ? 4 : 0)) * controlScale
   const sm = size === "small" ? md - 6 : size === "large" ? md - 10 : md - 8
   const lg = md + (size === "large" ? 6 : 4)
   const navAction = md + (size === "large" ? 2 : 4)
-  const navIcon = 22 + (size === "small" ? -2 : size === "large" ? 2 : 0)
+  const navIcon = (22 + (size === "small" ? -2 : size === "large" ? 2 : 0)) * aoiDerivationStrengthScale(strength, 0.12)
   const bottomLabel = 11 + (size === "small" ? -1 : size === "large" ? 1 : 0)
 
   return {
@@ -201,8 +220,8 @@ function deriveControlVars(units: AoiSpecUnitSettings, size: AoiSpecSize) {
   }
 }
 
-function deriveSpacingVars(units: AoiSpecUnitSettings, density: AoiSpecDensity, size: AoiSpecSize) {
-  const s = units.spaceUnitPx
+function deriveSpacingVars(units: AoiSpecUnitSettings, density: AoiSpecDensity, size: AoiSpecSize, strength: number) {
+  const s = scale(units.spaceUnitPx, strength, 0.34)
   const largeComfortable = density === "comfortable" && size === "large"
 
   if (density === "compact") {
@@ -234,8 +253,8 @@ function deriveSpacingVars(units: AoiSpecUnitSettings, density: AoiSpecDensity, 
   }
 }
 
-function deriveRadiusVars(units: AoiSpecUnitSettings, shape: AoiSpecShape) {
-  const r = units.radiusUnitPx
+function deriveRadiusVars(units: AoiSpecUnitSettings, shape: AoiSpecShape, strength: number) {
+  const r = scale(units.radiusUnitPx, strength, 0.62)
 
   if (shape === "square") {
     return {
@@ -271,14 +290,21 @@ function deriveRadiusVars(units: AoiSpecUnitSettings, shape: AoiSpecShape) {
 
 export function createAoiSpecCssVars(input: AoiSpecUnitSettings, options: AoiSpecDeriveOptions) {
   const units = normalizeAoiSpecUnits(input)
-  const controls = deriveControlVars(units, options.size)
-  const spacing = deriveSpacingVars(units, options.density, options.size)
-  const radius = deriveRadiusVars(units, options.shape)
-  const baseFont = units.baseFontPx + (options.size === "small" ? -1 : options.size === "large" ? 1 : 0)
+  const strengths = normalizeAoiSettingDerivationStrengths({
+    ...AOI_SETTING_DERIVATION_DEFAULTS,
+    ...options.strengths
+  })
+  const controls = deriveControlVars(units, options.size, strengths.controls)
+  const spacing = deriveSpacingVars(units, options.density, options.size, strengths.spacing)
+  const radius = deriveRadiusVars(units, options.shape, strengths.radius)
+  const baseFont = (units.baseFontPx + (options.size === "small" ? -1 : options.size === "large" ? 1 : 0))
+    * aoiDerivationStrengthScale(strengths.typography, 0.14)
+  const mediaGridScale = aoiDerivationStrengthScale(strengths.mediaGrid, 0.14)
+  const settingsLayoutScale = aoiDerivationStrengthScale(strengths.settingsLayout, 0.14)
 
   return {
-    "--aoi-content-max-width": contentWidthValue(units, "content"),
-    "--aoi-content-wide-max-width": contentWidthValue(units, "wide"),
+    "--aoi-content-max-width": contentWidthValue(units, "content", strengths.contentWidth),
+    "--aoi-content-wide-max-width": contentWidthValue(units, "wide", strengths.contentWidth),
     "--aoi-base-font-size": px(baseFont),
     "--aoi-page-padding-block-start": px(spacing.pageStart),
     "--aoi-page-padding-block-end": px(spacing.pageEnd),
@@ -310,10 +336,10 @@ export function createAoiSpecCssVars(input: AoiSpecUnitSettings, options: AoiSpe
     "--aoi-settings-sticky-top": px(spacing.pageStart),
     "--aoi-settings-mobile-sticky-top": `calc(${px(units.mobileNavHeightPx)} + ${px(units.spaceUnitPx)})`,
     "--aoi-settings-anchor-offset": `calc(${px(spacing.pageStart)} + ${px(spacing.grid)})`,
-    "--aoi-settings-card-min-width": px(units.settingsCardMinWidthPx),
-    "--aoi-settings-control-min-width": px(units.settingsCardMinWidthPx + 10),
-    "--aoi-settings-shell-nav-min-width": px(units.settingsCardMinWidthPx + 70),
-    "--aoi-settings-shell-nav-width": px(units.settingsCardMinWidthPx + 118),
+    "--aoi-settings-card-min-width": px(units.settingsCardMinWidthPx * settingsLayoutScale),
+    "--aoi-settings-control-min-width": px((units.settingsCardMinWidthPx + 10) * settingsLayoutScale),
+    "--aoi-settings-shell-nav-min-width": px((units.settingsCardMinWidthPx + 70) * settingsLayoutScale),
+    "--aoi-settings-shell-nav-width": px((units.settingsCardMinWidthPx + 118) * settingsLayoutScale),
     "--aoi-settings-shell-gap": px(spacing.grid + round(units.spaceUnitPx * .5)),
     "--aoi-settings-shell-mark-size": px(controls.iconButton - 2),
     "--aoi-settings-shell-title-size": px(baseFont + 10),
@@ -322,7 +348,7 @@ export function createAoiSpecCssVars(input: AoiSpecUnitSettings, options: AoiSpe
     "--aoi-settings-panel-title-size": px(baseFont + 3),
     "--aoi-settings-nav-item-height": px(controls.md),
     "--aoi-settings-nav-item-mobile-height": px(Math.max(controls.sm + 4, 32)),
-    "--aoi-video-grid-min-card-width": px(units.videoGridMinCardWidthPx),
+    "--aoi-video-grid-min-card-width": px(units.videoGridMinCardWidthPx * mediaGridScale),
     "--aoi-video-grid-row-gap": px(spacing.panel),
     "--aoi-video-grid-column-gap": px(spacing.grid),
     "--aoi-video-grid-mobile-row-gap": px(spacing.card),

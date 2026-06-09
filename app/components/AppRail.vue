@@ -5,30 +5,20 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 <template>
   <nav class="app-rail" aria-label="桌面主导航">
     <div class="app-rail__group">
-      <AoiLink
-        v-for="item in desktopPrimaryItems"
-        :key="item.to"
-        class="app-rail__link"
-        :class="{ 'app-rail__link--active': item.active }"
-        :to="item.to"
-        :aria-current="item.active ? 'page' : undefined"
-        :aria-label="item.label"
-      >
-        <AoiIcon class="app-rail__icon" :name="item.icon" size="var(--aoi-nav-icon-size)" decorative />
-        <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
+      <AoiLink v-for="item in desktopPrimaryItems" :key="item.to" class="app-rail__link"
+        :class="{ 'app-rail__link--active': item.active }" :to="item.to"
+        :aria-current="item.active ? 'page' : undefined" :aria-label="item.label">
+        <!-- <AoiButton> -->
+          <AoiIcon class="app-rail__icon" :name="item.icon" size="var(--aoi-nav-icon-size)" decorative />
+          <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
+        <!-- </AoiButton> -->
       </AoiLink>
     </div>
 
     <div class="app-rail__group">
-      <AoiLink
-        v-for="item in secondaryItems"
-        :key="item.to"
-        class="app-rail__link"
-        :class="{ 'app-rail__link--active': item.active }"
-        :to="item.to"
-        :aria-current="item.active ? 'page' : undefined"
-        :aria-label="item.label"
-      >
+      <AoiLink v-for="item in secondaryItems" :key="item.to" class="app-rail__link"
+        :class="{ 'app-rail__link--active': item.active }" :to="item.to"
+        :aria-current="item.active ? 'page' : undefined" :aria-label="item.label">
         <AoiIcon class="app-rail__icon" :name="item.icon" size="var(--aoi-nav-icon-size)" decorative />
         <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
       </AoiLink>
@@ -144,6 +134,7 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   .app-rail__link,
   .app-rail__label {
     transition-duration: 1ms;

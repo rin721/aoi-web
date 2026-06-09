@@ -30,7 +30,33 @@
     "listView": "リスト表示",
     "categoryTabsAria": "コンテンツカテゴリ"
   },
+  "category": {
+    "childrenTitle": "サブカテゴリ",
+    "childrenDescription": "より細かい分類で閲覧します。親カテゴリは配下の内容をまとめて表示します。"
+  },
   "settings": {
+    "shell": {
+      "title": "設定",
+      "description": "Aoi の外観、好み、ローカルデータ、診断を調整します。",
+      "searchLabel": "設定を検索",
+      "searchPlaceholder": "テーマ、背景、プレイヤー...",
+      "emptyText": "一致する設定項目はありません。",
+      "groups": {
+        "app": "アプリ設定",
+        "project": "プロジェクト"
+      },
+      "depth": {
+        "label": "設定の表示深度",
+        "basic": {
+          "label": "基本",
+          "description": "よく使う設定"
+        },
+        "all": {
+          "label": "すべて",
+          "description": "高度な項目を含む"
+        }
+      }
+    },
     "resetPage": {
       "action": "このページをリセット",
       "cancel": "キャンセル",
@@ -46,6 +72,135 @@
       "language": {
         "title": "言語設定をリセット",
         "description": "現在の active ビルド設定に合わせてインターフェイス言語を復元し、すぐに適用します。"
+      }
+    },
+    "derivation": {
+      "presetTitle": "アプリ全体の派生プリセット",
+      "presetDescription": "soft、balanced、vivid で全派生グループを同期します。どれかを手動調整すると custom になります。",
+      "themeTitle": "テーマと意味色の強度",
+      "themeDescription": "アクセントから補助色、面、状態、ナビゲーション、Material 操作部、影へ派生する強さを調整します。",
+      "specTitle": "仕様強度",
+      "specDescription": "文字、余白、角丸、操作部、コンテンツ幅、メディアグリッド、設定レイアウトが基準単位から派生する幅を調整します。",
+      "valueDescription": "現在 {value}%。{description}",
+      "presets": {
+        "soft": {
+          "label": "Soft",
+          "description": "控えめで柔らかく、色・レイアウト・モーションの主張を下げます。"
+        },
+        "balanced": {
+          "label": "Balanced",
+          "description": "既存の Aoi の視覚と操作リズムを保つ既定強度です。"
+        },
+        "vivid": {
+          "label": "Vivid",
+          "description": "より鮮明で階層感があり、色・仕様・動的フィードバックを強めます。"
+        },
+        "custom": {
+          "label": "Custom",
+          "description": "各派生グループを手動調整した結果を保持します。"
+        }
+      },
+      "controls": {
+        "auxiliaryPalette": {
+          "title": "補助色パレット",
+          "label": "補助色の強度",
+          "description": "secondary、sakura、sun など、アクセント由来の補助色に影響します。"
+        },
+        "surfaceTint": {
+          "title": "面の色付け",
+          "label": "面の色付け強度",
+          "description": "ページ背景、カード、境界線、文字階層にアクセント色が入る量に影響します。"
+        },
+        "stateLayer": {
+          "title": "状態レイヤー",
+          "label": "状態レイヤー強度",
+          "description": "hover、pressed、selected、focus の色と透明度に影響します。"
+        },
+        "navigationColor": {
+          "title": "ナビゲーション色",
+          "label": "ナビゲーション色の強度",
+          "description": "サイドバー、モバイルナビ、選択項目背景のアクセント反応に影響します。"
+        },
+        "materialColor": {
+          "title": "Material 操作部",
+          "label": "Material 色強度",
+          "description": "Material Web の primary、secondary、surface などの token に影響します。"
+        },
+        "shadowDepth": {
+          "title": "影の深さ",
+          "label": "影の強度",
+          "description": "影の透明度と階層の深さに影響します。"
+        },
+        "typography": {
+          "title": "文字スケール",
+          "label": "文字派生強度",
+          "description": "見出し、本文、小さい文字が基準文字サイズから広がる、または縮む幅に影響します。"
+        },
+        "spacing": {
+          "title": "余白リズム",
+          "label": "余白派生強度",
+          "description": "ページ余白、グリッド間隔、コンパクトな間隔が基準余白から派生する幅に影響します。"
+        },
+        "radius": {
+          "title": "角丸階層",
+          "label": "角丸派生強度",
+          "description": "カード、パネル、操作部、選択項目の角丸差に影響します。"
+        },
+        "controls": {
+          "title": "操作部仕様",
+          "label": "操作部派生強度",
+          "description": "ボタン、入力欄、アイコンボタン、ナビゲーション操作のサイズに影響します。"
+        },
+        "contentWidth": {
+          "title": "コンテンツ幅",
+          "label": "コンテンツ幅強度",
+          "description": "通常幅と広幅のコンテナが基準幅から広がる、または縮む量に影響します。"
+        },
+        "mediaGrid": {
+          "title": "メディアグリッド",
+          "label": "メディアグリッド強度",
+          "description": "動画カード列幅とメディア一覧の密度に影響します。"
+        },
+        "settingsLayout": {
+          "title": "設定レイアウト",
+          "label": "設定レイアウト強度",
+          "description": "設定カードと操作列の幅リズムに影響します。"
+        },
+        "revealMotion": {
+          "title": "表示モーション",
+          "label": "表示モーション強度",
+          "description": "reveal アニメーションの距離、時間、ずらし、最大遅延に影響します。"
+        },
+        "routeProgress": {
+          "title": "ルート進行",
+          "label": "ルート進行強度",
+          "description": "上部進行バーの高さ、初期値、速度、自動進行リズムに影響します。"
+        },
+        "smoothScroll": {
+          "title": "スムーズスクロール",
+          "label": "スムーズスクロール強度",
+          "description": "全体のスムーズスクロール時間に影響します。"
+        },
+        "scrollSnap": {
+          "title": "スクロール吸着",
+          "label": "スクロール吸着強度",
+          "description": "スクロールシーンがアンカーへ吸着する強さに影響します。"
+        },
+        "scrollHijack": {
+          "title": "スクロール引き継ぎ",
+          "label": "スクロール引き継ぎ強度",
+          "description": "スクロールシーンがホイール入力を引き継ぐしきい値に影響します。"
+        },
+        "rubberBand": {
+          "title": "ラバーバンド",
+          "label": "ラバーバンド強度",
+          "description": "端での跳ね返り距離と減衰感に影響します。"
+        },
+        "danmaku": {
+          "title": "弾幕の表示と動き",
+          "label": "弾幕派生強度",
+          "description": "弾幕の文字サイズ、透明度、速度、表示領域に影響します。"
+        }
       }
     },
     "appearance": {
@@ -126,7 +281,36 @@
       "palette": {
         "title": "アクセントカラー",
         "description": "プリセットの色板を選ぶか、カスタムカラーに切り替えます。",
-        "customTitle": "カラーパレット"
+        "customTitle": "カラーパレット",
+        "derivation": {
+          "title": "派生強度",
+          "description": "淡いアクセント token ごとの柔らかさと鮮やかさを調整します。",
+          "preview": "現在の派生アクセント階調プレビュー",
+          "reset": "派生をリセット",
+          "toneDescription": "現在 {value}%。低いほど柔らかく、高いほど鮮やかです。",
+          "tones": {
+            "accent10": {
+              "title": "Accent 10",
+              "label": "Accent 10 強度",
+              "affected": "影響する可能性：淡い状態背景、ナビゲーションの選択背景、タグ/通知/空状態の淡い面、Material primary container、進捗トラック。"
+            },
+            "accent20": {
+              "title": "Accent 20",
+              "label": "Accent 20 強度",
+              "affected": "影響する可能性：カスタムカラーパレットのスライダートラック、Material secondary container、About と Experimental ページの淡いグラデーション。"
+            },
+            "accent40": {
+              "title": "Accent 40",
+              "label": "Accent 40 強度",
+              "affected": "影響する可能性：ダークモードの active 色、ダーク時の focus/hover/pressed/境界状態、ダークナビ選択、カード/アップロード/スケルトンの強調色。"
+            },
+            "accent50": {
+              "title": "Accent 50",
+              "label": "Accent 50 強度",
+              "affected": "影響する可能性：進捗バーの active 色、ページ端のヒントグラデーション、ブランド/認証/プロフィール装飾グラデーション、リッチテキスト引用線、スケルトンの accent。"
+            }
+          }
+        }
       },
       "density": {
         "comfortable": {

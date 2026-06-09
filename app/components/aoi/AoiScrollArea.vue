@@ -107,8 +107,8 @@ function onWheel(event: WheelEvent) {
     return
   }
 
-  const ratio = toAoiRubberBandRatio(settings.rubberBandStrength)
-  const maxOffset = settings.rubberBandMaxOffsetPx
+  const ratio = toAoiRubberBandRatio(settings.effectiveScrollSettings.rubberBand.strength)
+  const maxOffset = settings.effectiveScrollSettings.rubberBand.maxOffsetPx
 
   stopRelease()
   offset.value = Math.min(maxOffset, Math.max(-maxOffset, offset.value - (delta * ratio * 0.12)))
