@@ -590,6 +590,144 @@
           "selectAll": "すべて選択",
           "clear": "クリア"
         }
+      },
+      "assets": {
+        "title": "公共アセット",
+        "description": "ローカル dev サーバーから、ビルド成果物に入る public、app/assets、i18n/locales のファイルを管理します。",
+        "unavailable": {
+          "title": "公共アセット管理はローカル dev のみ利用できます",
+          "description": "本番ビルドと preview ではソースファイル書き込み API を公開しません。pnpm dev でこのパネルを使用してください。"
+        },
+        "rootLabel": "アセットルート",
+        "searchLabel": "現在のディレクトリを検索",
+        "viewModeLabel": "アセット表示モード",
+        "sortLabel": "並び替え",
+        "breadcrumbLabel": "アセットパス",
+        "itemCount": "{count} 件",
+        "empty": "このディレクトリに表示できるアセットはありません。",
+        "emptySearch": "現在の検索に一致するアセットはありません。",
+        "lastUpdated": "最終更新 / 書き込み：{time}",
+        "noSelection": "ファイルまたはディレクトリを選択してください。",
+        "previewUnavailable": "このファイル形式はインラインプレビューに対応していません。ダウンロードまたは置換してください。",
+        "previewDirectory": "ディレクトリはダブルクリックで開けます。ファイルのプレビューはここに表示されます。",
+        "workspace": {
+          "label": "アセットワークスペース",
+          "browser": "閲覧",
+          "preview": "プレビュー",
+          "editor": "テキスト編集"
+        },
+        "explorer": {
+          "title": "エクスプローラー",
+          "loading": "読み込み中",
+          "expand": "ディレクトリを展開",
+          "collapse": "ディレクトリを折りたたむ"
+        },
+        "views": {
+          "list": "リスト表示",
+          "grid": "グリッド表示"
+        },
+        "sort": {
+          "nameAsc": "名前 A-Z",
+          "nameDesc": "名前 Z-A",
+          "modifiedDesc": "更新日時が新しい順",
+          "modifiedAsc": "更新日時が古い順",
+          "sizeDesc": "サイズが大きい順",
+          "sizeAsc": "サイズが小さい順",
+          "kindAsc": "種類"
+        },
+        "detail": {
+          "title": "詳細"
+        },
+        "preview": {
+          "title": "プレビュー"
+        },
+        "kinds": {
+          "directory": "ディレクトリ",
+          "file": "ファイル"
+        },
+        "stats": {
+          "root": "ルート",
+          "path": "パス",
+          "items": "項目数",
+          "type": "種類",
+          "size": "サイズ",
+          "mode": "権限",
+          "modified": "更新日時"
+        },
+        "table": {
+          "name": "名前",
+          "type": "種類",
+          "size": "サイズ",
+          "mode": "権限",
+          "modified": "更新日時",
+          "actions": "操作"
+        },
+        "actions": {
+          "refresh": "更新",
+          "newFile": "新規ファイル",
+          "newDirectory": "新規フォルダ",
+          "upload": "アップロード",
+          "open": "開く",
+          "download": "ダウンロード",
+          "more": "その他",
+          "rename": "名前変更",
+          "copy": "コピー",
+          "move": "移動",
+          "chmod": "chmod",
+          "delete": "削除",
+          "copyPublicUrl": "公開 URL をコピー",
+          "loadText": "テキストを読み込み",
+          "saveText": "テキストを保存",
+          "create": "作成",
+          "cancel": "キャンセル",
+          "overwriteUpload": "上書きアップロード"
+        },
+        "dialogs": {
+          "createFileTitle": "ファイルを作成",
+          "createFileDescription": "現在のディレクトリに空のテキストファイルを作成します。",
+          "createDirectoryTitle": "フォルダを作成",
+          "createDirectoryDescription": "現在のディレクトリにフォルダを作成します。",
+          "renameTitle": "アセット名を変更",
+          "renameDescription": "{name} の名前を変更します。",
+          "copyTitle": "アセットをコピー",
+          "copyDescription": "{name} を相対パスの宛先へコピーします。宛先がディレクトリの場合、元の名前を保持します。",
+          "moveTitle": "アセットを移動",
+          "moveDescription": "{name} を相対パスの宛先へ移動します。ソースのディレクトリ構造が変わります。",
+          "chmodTitle": "権限を変更",
+          "chmodDescription": "{name} に 644、755、7777 など 3 桁または 4 桁の 8 進 mode を設定します。",
+          "deleteTitle": "アセットを削除",
+          "deleteDescription": "{name} を削除します。ディレクトリは再帰的に削除され、ゴミ箱には移動しません。",
+          "nameLabel": "名前",
+          "destinationLabel": "宛先の相対パス",
+          "modeLabel": "権限 mode",
+          "overwriteLabel": "既存の宛先を上書きする",
+          "uploadOverwriteTitle": "既存ファイルを上書きしますか？",
+          "uploadOverwriteDescription": "アップロード先に同名ファイルがあります。確認するとそれらを上書きします。"
+        },
+        "editor": {
+          "title": "テキスト編集",
+          "placeholder": "テキストを読み込むとここで編集できます。",
+          "unavailable": "1 MiB 以下のテキストアセットだけインライン編集できます。"
+        },
+        "messages": {
+          "refreshed": "公共アセットを更新しました。",
+          "textLoaded": "テキスト内容を読み込みました。",
+          "textSaved": "テキスト内容を保存しました。",
+          "chmodded": "アセット権限を更新しました。",
+          "copied": "アセットをコピーしました。",
+          "createdDirectory": "フォルダを作成しました。",
+          "createdFile": "ファイルを作成しました。",
+          "deleted": "アセットを削除しました。",
+          "moved": "アセットを移動しました。",
+          "renamed": "アセット名を変更しました。",
+          "uploaded": "{count} 個のファイルをアップロードしました。",
+          "publicUrlCopied": "公開 URL をコピーしました。"
+        },
+        "errors": {
+          "action": "公共アセット操作に失敗しました",
+          "upload": "アップロードに失敗しました",
+          "copyUrl": "公開 URL をコピーできませんでした。"
+        }
       }
     },
     "components": {

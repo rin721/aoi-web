@@ -24,7 +24,7 @@ import type {
   AoiSettingsProfileScope
 } from "~/lib/aoiSettingsProfiles"
 
-type DeveloperTab = "build" | "runtime"
+type DeveloperTab = "assets" | "build" | "runtime"
 
 interface DeveloperProfilesResponse {
   manifest: AoiBuildProfileManifest
@@ -84,7 +84,8 @@ const pendingConfirm = shallowRef<PendingConfirm | null>(null)
 
 const tabs = computed(() => [
   { value: "build", label: "构建预设", icon: "package-check" },
-  { value: "runtime", label: "运行时档案", icon: "layers-3" }
+  { value: "runtime", label: "运行时档案", icon: "layers-3" },
+  { value: "assets", label: "公共资产", icon: "folder-cog" }
 ])
 const profileFieldPageOrder = [
   "appearance",
@@ -1078,7 +1079,7 @@ function disableDeveloperMode() {
       </SettingsPanel>
 
       <SettingsPanel
-        v-else
+        v-else-if="activeTab === 'runtime'"
         icon="layers-3"
         title="运行时档案 profiles"
         description="运行时档案只保存在当前浏览器 localStorage，可导入导出。背景只保存引用字段，不保存图片字节。"
@@ -1224,6 +1225,15 @@ function disableDeveloperMode() {
             />
           </div>
         </div>
+      </SettingsPanel>
+
+      <SettingsPanel
+        v-else
+        icon="folder-cog"
+        :title="t('settings.developer.assets.title')"
+        :description="t('settings.developer.assets.description')"
+      >
+        <SettingsAssetManager :writable="isDevBuild" />
       </SettingsPanel>
 
       <SettingsProfileDiffDialog

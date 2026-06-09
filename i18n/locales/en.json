@@ -590,6 +590,144 @@
           "selectAll": "Select all",
           "clear": "Clear"
         }
+      },
+      "assets": {
+        "title": "Public Assets",
+        "description": "Manage build-bound files in public, app/assets, and i18n/locales from the local dev server.",
+        "unavailable": {
+          "title": "Public asset management is available only in local dev",
+          "description": "Production builds and preview do not expose source-file write APIs. Use this panel under pnpm dev."
+        },
+        "rootLabel": "Asset root",
+        "searchLabel": "Search current directory",
+        "viewModeLabel": "Asset view mode",
+        "sortLabel": "Sort",
+        "breadcrumbLabel": "Asset path",
+        "itemCount": "{count} items",
+        "empty": "No assets are available in this directory.",
+        "emptySearch": "No assets match the current search.",
+        "lastUpdated": "Last refresh/write: {time}",
+        "noSelection": "Select a file or directory.",
+        "previewUnavailable": "This file type cannot be previewed inline. Download or replace it instead.",
+        "previewDirectory": "Double-click a directory to open it. File previews appear here.",
+        "workspace": {
+          "label": "Asset workspace",
+          "browser": "Browse",
+          "preview": "Preview",
+          "editor": "Text editor"
+        },
+        "explorer": {
+          "title": "Explorer",
+          "loading": "Loading",
+          "expand": "Expand directory",
+          "collapse": "Collapse directory"
+        },
+        "views": {
+          "list": "List view",
+          "grid": "Grid view"
+        },
+        "sort": {
+          "nameAsc": "Name A-Z",
+          "nameDesc": "Name Z-A",
+          "modifiedDesc": "Newest first",
+          "modifiedAsc": "Oldest first",
+          "sizeDesc": "Largest first",
+          "sizeAsc": "Smallest first",
+          "kindAsc": "Type"
+        },
+        "detail": {
+          "title": "Details"
+        },
+        "preview": {
+          "title": "Preview"
+        },
+        "kinds": {
+          "directory": "Directory",
+          "file": "File"
+        },
+        "stats": {
+          "root": "Root",
+          "path": "Path",
+          "items": "Items",
+          "type": "Type",
+          "size": "Size",
+          "mode": "Mode",
+          "modified": "Modified"
+        },
+        "table": {
+          "name": "Name",
+          "type": "Type",
+          "size": "Size",
+          "mode": "Mode",
+          "modified": "Modified",
+          "actions": "Actions"
+        },
+        "actions": {
+          "refresh": "Refresh",
+          "newFile": "New file",
+          "newDirectory": "New folder",
+          "upload": "Upload",
+          "open": "Open",
+          "download": "Download",
+          "more": "More",
+          "rename": "Rename",
+          "copy": "Copy",
+          "move": "Move",
+          "chmod": "chmod",
+          "delete": "Delete",
+          "copyPublicUrl": "Copy public URL",
+          "loadText": "Load text",
+          "saveText": "Save text",
+          "create": "Create",
+          "cancel": "Cancel",
+          "overwriteUpload": "Overwrite upload"
+        },
+        "dialogs": {
+          "createFileTitle": "Create file",
+          "createFileDescription": "Create an empty text file in the current directory.",
+          "createDirectoryTitle": "Create folder",
+          "createDirectoryDescription": "Create a folder in the current directory.",
+          "renameTitle": "Rename asset",
+          "renameDescription": "Rename {name}.",
+          "copyTitle": "Copy asset",
+          "copyDescription": "Copy {name} to a relative target path. If the target is a directory, the original name is kept.",
+          "moveTitle": "Move asset",
+          "moveDescription": "Move {name} to a relative target path. This changes the source directory structure.",
+          "chmodTitle": "Change permissions",
+          "chmodDescription": "Set a 3- or 4-digit octal mode for {name}, such as 644, 755, or 7777.",
+          "deleteTitle": "Delete asset",
+          "deleteDescription": "Delete {name}. Directories are deleted recursively and are not moved to trash.",
+          "nameLabel": "Name",
+          "destinationLabel": "Target relative path",
+          "modeLabel": "Permission mode",
+          "overwriteLabel": "Allow overwriting existing target",
+          "uploadOverwriteTitle": "Overwrite existing files?",
+          "uploadOverwriteDescription": "One or more uploaded files already exist in the target directory. Confirm to overwrite them."
+        },
+        "editor": {
+          "title": "Text editor",
+          "placeholder": "Load text before editing here.",
+          "unavailable": "Only text assets up to 1 MiB can be edited inline."
+        },
+        "messages": {
+          "refreshed": "Public assets refreshed.",
+          "textLoaded": "Text content loaded.",
+          "textSaved": "Text content saved.",
+          "chmodded": "Asset permissions updated.",
+          "copied": "Asset copied.",
+          "createdDirectory": "Folder created.",
+          "createdFile": "File created.",
+          "deleted": "Asset deleted.",
+          "moved": "Asset moved.",
+          "renamed": "Asset renamed.",
+          "uploaded": "Uploaded {count} files.",
+          "publicUrlCopied": "Public URL copied."
+        },
+        "errors": {
+          "action": "Public asset action failed",
+          "upload": "Upload failed",
+          "copyUrl": "Could not copy the public URL."
+        }
       }
     },
     "components": {

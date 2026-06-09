@@ -43,6 +43,90 @@ const depth = computed({
   get: () => props.depthModelValue,
   set: (value: string) => emit("update:depthModelValue", value)
 })
+
+const desktopGroups = ref<HTMLElement | null>(null)
+const mobileItems = ref<HTMLElement | null>(null)
+const desktopIndicatorStyle = ref<Record<string, string>>({})
+const mobileIndicatorStyle = ref<Record<string, string>>({})
+let indicatorFrame = 0
+let indicatorResizeObserver: ResizeObserver | undefined
+
+function resolveIndicatorStyle(container: HTMLElement | null, placement: "bottom" | "left") {
+  const activeItem = container?.querySelector<HTMLElement>(".settings-shell-nav__item--active")
+
+  if (!container || !activeItem) {
+    return {
+      "--settings-shell-nav-indicator-opacity": "0",
+      "--settings-shell-nav-indicator-height": "0px",
+      "--settings-shell-nav-indicator-width": "0px",
+      "--settings-shell-nav-indicator-x": "0px",
+      "--settings-shell-nav-indicator-y": "0px"
+    }
+  }
+
+  const containerRect = container.getBoundingClientRect()
+  const activeRect = activeItem.getBoundingClientRect()
+  const indicatorWidth = placement === "bottom" ? activeRect.width / 4 : 3
+  const indicatorHeight = placement === "bottom" ? 3 : 16
+  const x = activeRect.left - containerRect.left + container.scrollLeft
+    + (placement === "bottom" ? (activeRect.width - indicatorWidth) / 2 : 0)
+  const y = activeRect.top - containerRect.top + container.scrollTop
+    + (placement === "bottom" ? activeRect.height - indicatorHeight : activeRect.height / 2 - indicatorHeight / 2)
+
+  return {
+    "--settings-shell-nav-indicator-opacity": "1",
+    "--settings-shell-nav-indicator-height": `${indicatorHeight}px`,
+    "--settings-shell-nav-indicator-width": `${indicatorWidth}px`,
+    "--settings-shell-nav-indicator-x": `${x}px`,
+    "--settings-shell-nav-indicator-y": `${y}px`
+  }
+}
+
+function updateIndicators() {
+  desktopIndicatorStyle.value = resolveIndicatorStyle(desktopGroups.value, "left")
+  mobileIndicatorStyle.value = resolveIndicatorStyle(mobileItems.value, "bottom")
+}
+
+function scheduleIndicatorUpdate() {
+  if (!import.meta.client) {
+    return
+  }
+
+  window.cancelAnimationFrame(indicatorFrame)
+  indicatorFrame = window.requestAnimationFrame(updateIndicators)
+}
+
+watch(
+  () => [props.activePath, props.groups, props.modelValue, props.depthModelValue],
+  async () => {
+    await nextTick()
+    scheduleIndicatorUpdate()
+  },
+  { deep: true, flush: "post" }
+)
+
+onMounted(async () => {
+  await nextTick()
+  scheduleIndicatorUpdate()
+
+  indicatorResizeObserver = new ResizeObserver(scheduleIndicatorUpdate)
+
+  if (desktopGroups.value) {
+    indicatorResizeObserver.observe(desktopGroups.value)
+  }
+
+  if (mobileItems.value) {
+    indicatorResizeObserver.observe(mobileItems.value)
+  }
+
+  window.addEventListener("resize", scheduleIndicatorUpdate)
+})
+
+onBeforeUnmount(() => {
+  window.cancelAnimationFrame(indicatorFrame)
+  indicatorResizeObserver?.disconnect()
+  window.removeEventListener("resize", scheduleIndicatorUpdate)
+})
 </script>
 
 <template>
@@ -79,7 +163,16 @@ const depth = computed({
       :columns="2"
     />
 
-    <nav class="settings-shell-nav__groups" aria-label="设置页面">
+    <nav
+      ref="desktopGroups"
+      class="settings-shell-nav__groups"
+      aria-label="设置页面"
+    >
+      <span
+        class="settings-shell-nav__indicator"
+        :style="desktopIndicatorStyle"
+        aria-hidden="true"
+      />
       <section
         v-for="group in props.groups"
         :key="group.label"
@@ -113,7 +206,17 @@ const depth = computed({
       :columns="2"
     />
 
-    <nav v-aoi-scroll-native class="settings-shell-nav-mobile__items" aria-label="设置页面">
+    <nav
+      ref="mobileItems"
+      v-aoi-scroll-native
+      class="settings-shell-nav-mobile__items"
+      aria-label="设置页面"
+    >
+      <span
+        class="settings-shell-nav__indicator"
+        :style="mobileIndicatorStyle"
+        aria-hidden="true"
+      />
       <template
         v-for="group in props.groups"
         :key="group.label"
@@ -194,6 +297,7 @@ const depth = computed({
 }
 
 .settings-shell-nav__groups {
+  position: relative;
   display: grid;
   gap: var(--aoi-grid-gap);
 }
@@ -226,7 +330,28 @@ const depth = computed({
   border-radius: var(--aoi-radius-choice);
   color: var(--aoi-text-muted);
   font-weight: 740;
-  padding: var(--aoi-settings-nav-item-padding);
+  padding: 0 8px;
+}
+
+.settings-shell-nav__indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+  display: block;
+  width: var(--settings-shell-nav-indicator-width, 3px);
+  height: var(--settings-shell-nav-indicator-height, 16px);
+  background: var(--aoi-active-color);
+  opacity: var(--settings-shell-nav-indicator-opacity, 0);
+  pointer-events: none;
+  transform: translate3d(
+    var(--settings-shell-nav-indicator-x, 0),
+    var(--settings-shell-nav-indicator-y, 0),
+    0
+  );
+  transition:
+    transform var(--aoi-motion-base) var(--aoi-ease-out),
+    opacity var(--aoi-motion-fast) var(--aoi-ease-out);
 }
 
 .settings-shell-nav__item:hover,
@@ -236,7 +361,8 @@ const depth = computed({
 }
 
 .settings-shell-nav__item--active {
-  box-shadow: inset 3px 0 0 var(--aoi-active-color);
+  position: relative;
+  padding: 0 8px;
 }
 
 .settings-shell-nav__empty {
@@ -262,6 +388,7 @@ const depth = computed({
   }
 
   .settings-shell-nav-mobile__items {
+    position: relative;
     display: flex;
     overflow-x: auto;
     gap: var(--aoi-grid-gap-compact);
@@ -269,7 +396,12 @@ const depth = computed({
 
   .settings-shell-nav-mobile .settings-shell-nav__item {
     flex: 0 0 auto;
-    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .settings-shell-nav__indicator {
+    transition: none;
   }
 }
 </style>

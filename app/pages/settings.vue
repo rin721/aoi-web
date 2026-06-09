@@ -30,7 +30,7 @@ const settingsCatalog = computed<SettingsCatalogItem[]>(() => [
   { id: "acknowledgement", depth: "basic", group: "project", icon: "heart-handshake", label: "鸣谢", description: "链接、友情链接和致谢。", keywords: "链接 友情链接 致谢", to: "/settings/acknowledgement" },
   { id: "advanced", depth: "all", group: "project", icon: "database", label: "高级", description: "API 诊断、本地缓存和重置。", keywords: "API mock 错误 本地缓存 重置 数据", to: "/settings/advanced" },
   { id: "components", depth: "all", group: "project", icon: "blocks", label: t("settings.components.title"), description: t("settings.components.catalogDescription"), keywords: t("settings.components.keywords"), requiresDeveloperMode: true, to: "/settings/components" },
-  { id: "developer", depth: "all", group: "project", icon: "code-2", label: "开发者", description: "构建默认配置和运行时档案。", keywords: "开发者 developer defaults build config restore profiles runtime profile 构建 默认 配置 恢复 多配置 运行时 档案 字段选择 差异预览", requiresDeveloperMode: true, to: "/settings/developer" }
+  { id: "developer", depth: "all", group: "project", icon: "code-2", label: "开发者", description: "构建默认配置、运行时档案和公共资产。", keywords: "开发者 developer defaults build config restore profiles runtime profile assets public i18n 构建 默认 配置 恢复 多配置 运行时 档案 字段选择 差异预览 公共资产 文件管理 上传 下载 chmod", requiresDeveloperMode: true, to: "/settings/developer" }
 ])
 
 const depthOptions = computed(() => [
