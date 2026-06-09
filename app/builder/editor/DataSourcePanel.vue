@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { computed, ref } from "vue"
+import { computed, ref, watch } from "vue"
 import AoiButton from "~/components/aoi/AoiButton.vue"
+import AoiTextField from "~/components/aoi/AoiTextField.vue"
 import { executeApiDataSource } from "~/lowcode/dataSources/apiConnector"
 import { createDatabaseAdapter } from "~/lowcode/dataSources/databaseAdapter"
+import { normalizeDataSources } from "~/lowcode/schemaModel"
 import type { DatabaseAdapter, DataSource } from "~/types/lowcode"
 
 type ApiDataSource = Extract<DataSource, { type: "api" }>
@@ -12,6 +14,11 @@ const props = defineProps<{
   dataSources?: DataSource[]
 }>()
 
+const emit = defineEmits<{
+  "update-data-sources": [dataSources: DataSource[]]
+}>()
+
+const { t } = useI18n()
 const apiDataSources = computed<ApiDataSource[]>(() =>
   (props.dataSources || []).filter((source): source is ApiDataSource => source.type === "api")
 )
@@ -25,9 +32,11 @@ const apiErrors = ref<Record<string, string>>({})
 const databaseResults = ref<Record<string, string>>({})
 const databaseErrors = ref<Record<string, string>>({})
 const databaseAdapters = new Map<string, DatabaseAdapter>()
+const dataSourcesDraftJson = ref("[]")
+const dataSourcesDraftError = ref("")
 
 function getErrorMessage(error: unknown) {
-  return error instanceof Error ? error.message : "Data source action failed"
+  return error instanceof Error ? error.message : t("building.validation.dataSourceActionFailed")
 }
 
 function getDatabaseAdapter(source: SqliteDataSource) {
@@ -53,6 +62,35 @@ function getUsersTableName(source: SqliteDataSource) {
     : source.config.tables[0]?.name || ""
 }
 
+function syncDataSourcesDraft() {
+  dataSourcesDraftJson.value = JSON.stringify(props.dataSources || [], null, 2)
+  dataSourcesDraftError.value = ""
+}
+
+function applyDataSourcesDraft() {
+  try {
+    const parsed = JSON.parse(dataSourcesDraftJson.value)
+
+    if (!Array.isArray(parsed)) {
+      dataSourcesDraftError.value = t("building.validation.dataSourcesMustBeArray")
+      return
+    }
+
+    const normalized = normalizeDataSources(parsed)
+
+    if (normalized.length !== parsed.length) {
+      dataSourcesDraftError.value = t("building.validation.dataSourcesInvalidItems")
+      return
+    }
+
+    databaseAdapters.clear()
+    emit("update-data-sources", normalized)
+    dataSourcesDraftError.value = ""
+  } catch {
+    dataSourcesDraftError.value = t("building.validation.dataSourcesJsonInvalid")
+  }
+}
+
 async function testApiDataSource(source: ApiDataSource) {
   loadingSourceId.value = source.id
   apiErrors.value = {
@@ -74,7 +112,7 @@ async function testApiDataSource(source: ApiDataSource) {
     }
     apiErrors.value = {
       ...apiErrors.value,
-      [source.id]: result.error || "API request failed"
+      [source.id]: result.error || t("building.validation.apiRequestFailed")
     }
   }
 
@@ -87,7 +125,7 @@ async function queryUsers(source: SqliteDataSource) {
   if (!tableName) {
     databaseErrors.value = {
       ...databaseErrors.value,
-      [source.id]: "SQLite data source has no tables."
+      [source.id]: t("building.validation.sqliteNoTables")
     }
     return
   }
@@ -129,7 +167,7 @@ async function insertUser(source: SqliteDataSource) {
   if (!tableName) {
     databaseErrors.value = {
       ...databaseErrors.value,
-      [source.id]: "SQLite data source has no tables."
+      [source.id]: t("building.validation.sqliteNoTables")
     }
     return
   }
@@ -168,30 +206,71 @@ async function insertUser(source: SqliteDataSource) {
     loadingDatabaseAction.value = ""
   }
 }
+
+watch(
+  () => props.dataSources,
+  syncDataSourcesDraft,
+  { deep: true, immediate: true }
+)
 </script>
 
 <template>
-  <section class="building-editor-data-source-panel" aria-label="Data source panel">
+  <section class="building-editor-data-source-panel" :aria-label="t('building.panels.dataSource.aria')">
     <header class="building-editor-data-source-panel__header">
       <div>
-        <h2>Data Sources</h2>
-        <p>API connector and local database adapter test panel.</p>
+        <h2>{{ t("building.panels.dataSource.title") }}</h2>
+        <p>{{ t("building.panels.dataSource.description") }}</p>
       </div>
       <strong>{{ apiDataSources.length + sqliteDataSources.length }}</strong>
     </header>
 
-    <section class="building-editor-data-source-section" aria-label="API data sources">
+    <section class="building-editor-data-source-section" :aria-label="t('building.panels.dataSource.schemaAria')">
       <header class="building-editor-data-source-section__header">
-        <h3>API Connector</h3>
-        <p>GET-only external API requests.</p>
+        <h3>{{ t("building.panels.dataSource.schemaTitle") }}</h3>
+        <p>{{ t("building.panels.dataSource.schemaDescription") }}</p>
+      </header>
+
+      <AoiTextField
+        v-model="dataSourcesDraftJson"
+        :error-text="dataSourcesDraftError"
+        :label="t('building.panels.dataSource.jsonLabel')"
+        multiline
+        :rows="10"
+        variant="outlined"
+      />
+
+      <div class="building-editor-data-source-card__actions">
+        <AoiButton
+          icon="save"
+          size="sm"
+          variant="tonal"
+          @click="applyDataSourcesDraft"
+        >
+          {{ t("building.panels.dataSource.applyDataSources") }}
+        </AoiButton>
+        <AoiButton
+          icon="rotate-ccw"
+          size="sm"
+          variant="outlined"
+          @click="syncDataSourcesDraft"
+        >
+          {{ t("building.panels.dataSource.resetDraft") }}
+        </AoiButton>
+      </div>
+    </section>
+
+    <section class="building-editor-data-source-section" :aria-label="t('building.panels.dataSource.apiAria')">
+      <header class="building-editor-data-source-section__header">
+        <h3>{{ t("building.panels.dataSource.apiTitle") }}</h3>
+        <p>{{ t("building.panels.dataSource.apiDescription") }}</p>
       </header>
 
       <div
         v-if="!apiDataSources.length"
         class="building-editor-data-source-panel__empty"
       >
-        <strong>No API data sources</strong>
-        <p>Add api DataSource config to the page schema before testing requests.</p>
+        <strong>{{ t("building.panels.dataSource.noApiTitle") }}</strong>
+        <p>{{ t("building.panels.dataSource.noApiDescription") }}</p>
       </div>
 
       <div
@@ -216,7 +295,7 @@ async function insertUser(source: SqliteDataSource) {
             :loading="loadingSourceId === source.id"
             @click="testApiDataSource(source)"
           >
-            Test request
+            {{ t("building.panels.dataSource.testRequest") }}
           </AoiButton>
 
           <p
@@ -235,18 +314,18 @@ async function insertUser(source: SqliteDataSource) {
       </div>
     </section>
 
-    <section class="building-editor-data-source-section" aria-label="SQLite data sources">
+    <section class="building-editor-data-source-section" :aria-label="t('building.panels.dataSource.sqliteAria')">
       <header class="building-editor-data-source-section__header">
-        <h3>SQLite Adapter</h3>
-        <p>In-memory adapter for local CRUD flow.</p>
+        <h3>{{ t("building.panels.dataSource.sqliteTitle") }}</h3>
+        <p>{{ t("building.panels.dataSource.sqliteDescription") }}</p>
       </header>
 
       <div
         v-if="!sqliteDataSources.length"
         class="building-editor-data-source-panel__empty"
       >
-        <strong>No SQLite data sources</strong>
-        <p>Add sqlite DataSource config to test local database operations.</p>
+        <strong>{{ t("building.panels.dataSource.noSqliteTitle") }}</strong>
+        <p>{{ t("building.panels.dataSource.noSqliteDescription") }}</p>
       </div>
 
       <div
@@ -272,7 +351,7 @@ async function insertUser(source: SqliteDataSource) {
               :loading="loadingDatabaseAction === `${source.id}:query`"
               @click="queryUsers(source)"
             >
-              Query users
+              {{ t("building.panels.dataSource.queryUsers") }}
             </AoiButton>
 
             <AoiButton
@@ -282,7 +361,7 @@ async function insertUser(source: SqliteDataSource) {
               :loading="loadingDatabaseAction === `${source.id}:insert`"
               @click="insertUser(source)"
             >
-              Insert user
+              {{ t("building.panels.dataSource.insertUser") }}
             </AoiButton>
           </div>
 

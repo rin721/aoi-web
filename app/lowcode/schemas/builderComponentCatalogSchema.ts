@@ -1,4 +1,9 @@
 import { getDefaultTheme } from "~/lowcode/themes/themeRegistry"
+import {
+  translateComponentCategory,
+  translateComponentName,
+  type LowCodeTranslate
+} from "~/lowcode/componentI18n"
 import type { ComponentMeta, ComponentNode, LowCodePage } from "~/types/lowcode"
 
 const COMPONENT_CATALOG_SOURCE_ID = "builder-component-catalog"
@@ -12,22 +17,48 @@ interface ComponentCatalogItem {
   type: string
 }
 
-function toComponentCatalogItem(component: ComponentMeta): ComponentCatalogItem {
+const fallbackTranslate: LowCodeTranslate = (key) => key
+
+function translateWithFallback(
+  t: LowCodeTranslate,
+  key: string,
+  fallback: string,
+  params?: Record<string, unknown>
+) {
+  const translated = t(key, params)
+
+  return translated === key ? fallback : translated
+}
+
+function toComponentCatalogItem(component: ComponentMeta, t: LowCodeTranslate): ComponentCatalogItem {
   const propCount = component.propSchema.length
+  const category = translateComponentCategory(component, t)
 
   return {
-    category: component.category,
+    category,
     id: component.type,
-    name: component.name,
+    name: translateComponentName(component, t),
     propCount,
-    summary: `${component.type} · ${component.category} · ${propCount} props`,
+    summary: translateWithFallback(
+      t,
+      "building.catalog.itemSummary",
+      `${component.type} · ${component.category} · ${propCount} props`,
+      {
+        category,
+        count: propCount,
+        type: component.type
+      }
+    ),
     type: component.type
   }
 }
 
-export function createBuilderComponentCatalogPageSchema(components: ComponentMeta[]): LowCodePage {
+export function createBuilderComponentCatalogPageSchema(
+  components: ComponentMeta[],
+  translate: LowCodeTranslate = fallbackTranslate
+): LowCodePage {
   const catalogItems = components
-    .map(toComponentCatalogItem)
+    .map((component) => toComponentCatalogItem(component, translate))
     .sort((left, right) => left.name.localeCompare(right.name))
 
   const layout: ComponentNode = {
@@ -35,14 +66,19 @@ export function createBuilderComponentCatalogPageSchema(components: ComponentMet
       {
         id: "builder-component-catalog-title",
         props: {
-          text: "组件列表"
+          text: translateWithFallback(translate, "building.catalog.schemaTitle", "Component Catalog")
         },
         type: "text"
       },
       {
         id: "builder-component-catalog-summary",
         props: {
-          text: `当前 registry 暴露 ${catalogItems.length} 个低代码组件。此页面主体由 LowCodeRenderer 渲染。`
+          text: translateWithFallback(
+            translate,
+            "building.catalog.schemaSummary",
+            `Current registry exposes ${catalogItems.length} low-code components. This page is rendered by LowCodeRenderer.`,
+            { count: catalogItems.length }
+          )
         },
         type: "text"
       },
@@ -59,7 +95,7 @@ export function createBuilderComponentCatalogPageSchema(components: ComponentMet
         ],
         id: "builder-component-catalog-list",
         props: {
-          emptyText: "当前没有可展示的组件。",
+          emptyText: translateWithFallback(translate, "building.catalog.emptyText", "No components to display."),
           subtitleField: "summary",
           titleField: "name"
         },
@@ -86,7 +122,7 @@ export function createBuilderComponentCatalogPageSchema(components: ComponentMet
           components: catalogItems
         },
         id: COMPONENT_CATALOG_SOURCE_ID,
-        name: "Builder Component Catalog",
+        name: translateWithFallback(translate, "building.catalog.sourceName", "Builder Component Catalog"),
         type: "mock"
       }
     ],
@@ -94,13 +130,17 @@ export function createBuilderComponentCatalogPageSchema(components: ComponentMet
     id: "builder-component-catalog",
     layout,
     meta: {
-      description: "Read-only builder management page rendered from LowCodePage schema.",
+      description: translateWithFallback(
+        translate,
+        "building.catalog.metaDescription",
+        "Read-only builder management page rendered from LowCodePage schema."
+      ),
       order: 1
     },
-    name: "Component Catalog",
+    name: translateWithFallback(translate, "building.catalog.name", "Component Catalog"),
     path: "/components",
     root: layout,
     theme: getDefaultTheme(),
-    title: "组件列表"
+    title: translateWithFallback(translate, "building.catalog.schemaTitle", "Component Catalog")
   }
 }

@@ -773,5 +773,340 @@
     "volume": "音量",
     "zoomIn": "拡大",
     "zoomOut": "縮小"
+  },
+  "building": {
+    "actions": {
+      "addCallApi": "callApi を追加",
+      "addNavigate": "navigate を追加",
+      "addShowToast": "showToast を追加",
+      "apiCompleted": "{name} が完了しました",
+      "applyJson": "actions JSON を適用",
+      "clearOnClick": "onClick actions をクリア",
+      "defaultToastMessage": "Event Action からこんにちは",
+      "jsonLabel": "onClick actions JSON",
+      "noOnClick": "onClick actions はまだ設定されていません。"
+    },
+    "catalog": {
+      "canvasAria": "Schema で描画されたコンポーネントカタログ",
+      "emptyText": "表示できるコンポーネントはありません。",
+      "eyebrow": "Low-code 管理ページ · {appId}",
+      "headTitle": "コンポーネントカタログ - {appId}",
+      "itemSummary": "{type} · {category} · {count} props",
+      "metaDescription": "LowCodePage schema から描画される読み取り専用のビルダー管理ページです。",
+      "name": "コンポーネントカタログ",
+      "pageTitle": "コンポーネント一覧管理",
+      "schemaSummary": "現在の registry は {count} 個の low-code コンポーネントを公開しています。このページは LowCodeRenderer で描画されています。",
+      "schemaTitle": "コンポーネント一覧",
+      "sourceName": "Builder Component Catalog"
+    },
+    "common": {
+      "app": "アプリ",
+      "apps": "アプリ",
+      "backToEditor": "エディターへ戻る",
+      "components": "コンポーネント",
+      "copy": "コピー",
+      "delete": "削除",
+      "devOnly": "開発専用",
+      "disable": "無効化",
+      "disabled": "無効",
+      "down": "下へ",
+      "editor": "エディター",
+      "enable": "有効化",
+      "enabled": "有効",
+      "none": "なし",
+      "openRuntime": "ランタイムを開く",
+      "pageCount": "{count} ページ",
+      "pages": "ページ",
+      "preview": "プレビュー",
+      "refresh": "更新",
+      "remove": "削除",
+      "reset": "リセット",
+      "restore": "復元",
+      "runtime": "ランタイム",
+      "save": "保存",
+      "unknown": "不明",
+      "up": "上へ",
+      "viewJson": "JSON を表示"
+    },
+    "console": {
+      "contract": {
+        "appBoundary": "LowCodeApp がアプリの境界です。",
+        "layoutPrimary": "LowCodePage.layout が主要なページツリーです。",
+        "recursiveNodes": "ComponentNode children と slots はどちらも再帰構造です。",
+        "registryRenderer": "レンダリング結果は登録済みコンポーネントだけを使用します。",
+        "sqliteLocal": "SQLite はローカル開発サービスのデータであり、mock API データではありません。"
+      },
+      "contractAria": "MVP 契約",
+      "contractDescription": "ビルド時の操作面は ComponentNode schema を中心にします。",
+      "contractTitle": "MVP 契約",
+      "description": "schema 駆動ページ、登録済みコンポーネント、データソース、ローカル保存、プレビュー、ランタイムを扱う開発専用の自構築ワークスペースです。",
+      "headTitle": "/building - Aoi",
+      "heroAria": "ビルダー入口",
+      "heroDescription": "Nuxt 開発ワークスペースから離れずに、ページ作成、コンポーネント追加、props 編集、データバインド、actions 設定、バージョン保存、JSON エクスポート、ランタイムプレビューを行えます。",
+      "heroEyebrow": "Schema MVP",
+      "heroTitle": "登録済み schema プリミティブからローカルアプリを構築します。",
+      "localAppsAria": "ローカル low-code アプリ",
+      "localAppsDescription": "ブラウザの localStorage に保存され、共通 schema normalizer で復元されます。",
+      "localAppsTitle": "ローカルアプリ",
+      "openEditor": "エディターを開く",
+      "resourcesAria": "プラットフォームリソース",
+      "resourcesDescription": "現在の low-code platform registry スナップショットです。",
+      "resourcesTitle": "リソース",
+      "roadmapAria": "プラットフォーム段階",
+      "roadmapDescription": "ビルダーの schema-first な進化順序です。",
+      "roadmapTitle": "ロードマップ",
+      "stageStatus": {
+        "done": "完了",
+        "later": "後続",
+        "next": "次"
+      },
+      "stages": {
+        "advanced": {
+          "description": "ワークフロー編成、プラグインマーケット、共同公開、本番権限。",
+          "label": "高度なプラットフォーム"
+        },
+        "data": {
+          "description": "編集可能なデータソース設定、ローカル mock データ、GET API connector、開発用 SQLite adapter。",
+          "label": "データアダプター"
+        },
+        "schema": {
+          "description": "LowCodeApp schema、renderer、registry、storage、preview、runtime を統一します。",
+          "label": "Schema MVP"
+        }
+      },
+      "startFromMock": "mock アプリから開始",
+      "stats": {
+        "apps": "アプリ",
+        "components": "コンポーネント",
+        "dataSources": "データソース",
+        "themes": "テーマ"
+      },
+      "title": "Aoi Building コンソール"
+    },
+    "editor": {
+      "description": "複数アプリ、複数ページ、ローカル保存、ページバージョン、プレビューに対応する low-code エディターです。ドラッグ、権限、公開はこの MVP の対象外です。",
+      "generatedPageDescription": "ローカル /building エディターで作成されました。",
+      "generatedPageName": "ページ {number}",
+      "generatedPageTitle": "ページ {number}",
+      "headTitle": "Building エディター - {appId}",
+      "status": {
+        "imported": "インポートしました。保存すると永続化されます。",
+        "restoredFromLocal": "ローカルから復元しました",
+        "savedAt": "{time} に保存しました",
+        "saveFailed": "保存に失敗しました。ブラウザのストレージ権限を確認してください。",
+        "versionLabel": "{time} に保存",
+        "versionRestored": "バージョンを復元しました。保存すると永続化されます。"
+      },
+      "title": "Building エディター · {appId}",
+      "toolbar": {
+        "aria": "エディターツールバー",
+        "toggleSchema": "Schema を表示"
+      }
+    },
+    "panels": {
+      "canvas": {
+        "aria": "キャンバス",
+        "title": "キャンバス"
+      },
+      "component": {
+        "addToCanvas": "キャンバスに追加",
+        "aria": "コンポーネントパネル",
+        "description": "登録済み schema プリミティブ",
+        "title": "コンポーネント"
+      },
+      "dataSource": {
+        "apiAria": "API データソース",
+        "apiDescription": "GET のみの外部 API リクエストです。",
+        "apiTitle": "API Connector",
+        "applyDataSources": "データソースを適用",
+        "aria": "データソースパネル",
+        "description": "API connector とローカルデータベース adapter のテストパネルです。",
+        "insertUser": "ユーザーを追加",
+        "jsonLabel": "データソース JSON",
+        "noApiDescription": "リクエストをテストする前に、ページ schema に api DataSource 設定を追加してください。",
+        "noApiTitle": "API データソースはありません",
+        "noSqliteDescription": "ローカルデータベース操作をテストするには sqlite DataSource 設定を追加してください。",
+        "noSqliteTitle": "SQLite データソースはありません",
+        "queryUsers": "ユーザーを検索",
+        "resetDraft": "下書きをリセット",
+        "schemaAria": "データソース schema エディター",
+        "schemaDescription": "現在のページの LowCodePage.dataSources に保存される DataSource 配列を編集します。",
+        "schemaTitle": "Schema 設定",
+        "sqliteAria": "SQLite データソース",
+        "sqliteDescription": "ローカル CRUD フロー用のメモリまたは開発サービス adapter です。",
+        "sqliteTitle": "SQLite Adapter",
+        "testRequest": "リクエストをテスト",
+        "title": "データソース"
+      },
+      "nodeTree": {
+        "aria": "ノードツリーパネル",
+        "description": "ドラッグなしの schema 編集です。",
+        "emptyDescription": "schema ノードを編集する前にページを選択または作成してください。",
+        "emptyTitle": "ページが選択されていません",
+        "title": "ノードツリー"
+      },
+      "pageManager": {
+        "appButton": "{name} · {count}",
+        "aria": "ページ管理",
+        "createPage": "ページを作成",
+        "title": "ページ管理"
+      },
+      "plugin": {
+        "aria": "プラグインパネル",
+        "description": "ローカルメモリ内のプラグイン切り替えです。",
+        "emptyDescription": "PluginManifest を登録すると任意の low-code 機能を公開できます。",
+        "emptyTitle": "ローカルプラグインはありません",
+        "title": "プラグイン"
+      },
+      "property": {
+        "actionAria": "イベントアクションパネル",
+        "actionDescription": "ComponentNode.events に保存される onClick actions を設定します。",
+        "actionTitle": "イベントアクション",
+        "applyBinding": "バインドを適用",
+        "aria": "プロパティパネル",
+        "bindingAria": "データバインドパネル",
+        "bindingDescription": "選択中コンポーネントの props に mock、api、sqlite の第 1 階層フィールドをバインドします。",
+        "bindingTitle": "データバインド",
+        "dataSourceLabel": "データソース",
+        "dataSourceOption": "{name} · {type}",
+        "description": "選択中ノードの props、bindings、actions を編集します。",
+        "fieldLabel": "フィールド",
+        "noDataSourcesDescription": "現在のページ schema にはバインド可能なデータソースがありません。",
+        "noDataSourcesTitle": "利用可能なデータソースはありません",
+        "noPropsDescription": "現在のコンポーネントには編集可能な propSchema がまだありません。",
+        "noPropsTitle": "設定可能な props はありません",
+        "noSelectionDescription": "キャンバス上のコンポーネントを選択すると、ここで props を編集できます。",
+        "noSelectionTitle": "コンポーネントが選択されていません",
+        "targetPropLabel": "対象 prop",
+        "title": "プロパティ",
+        "unknownComponentDescription": "現在のノードに一致する componentRegistry 設定がありません。",
+        "unknownComponentTitle": "不明なコンポーネント契約",
+        "unsupportedPropType": "{type} 型はまだ編集できません。"
+      },
+      "publish": {
+        "aria": "公開とエクスポートパネル",
+        "copyBrowserOnly": "コピーはブラウザでのみ利用できます。",
+        "copyFailedManual": "コピーに失敗しました。SchemaViewer の内容を手動で選択してください。",
+        "copyJson": "JSON をコピー",
+        "copyPermissionFailed": "コピーに失敗しました。ブラウザのクリップボード権限を確認してください。",
+        "copySuccess": "現在のアプリ JSON をコピーしました。",
+        "currentPath": "現在のパス",
+        "description": "現在の LowCodeApp JSON をエクスポート、コピー、またはインポートします。この MVP ではクラウド公開は扱いません。",
+        "downloadBrowserOnly": "ダウンロードはブラウザでのみ利用できます。",
+        "downloadFailed": "ダウンロードに失敗しました。ブラウザのファイルダウンロード権限を確認してください。",
+        "downloadJson": "JSON をダウンロード",
+        "downloadSuccess": "アプリ JSON のダウンロードを生成しました。",
+        "importInvalid": "インポートに失敗しました。有効な LowCodeApp JSON を入力してください。",
+        "importLabel": "LowCodeApp JSON をインポート",
+        "importSuccess": "アプリ schema をインポートしました。保存すると永続化されます。",
+        "importToCurrent": "現在のアプリにインポート",
+        "statsAria": "現在のアプリのエクスポート概要",
+        "title": "公開"
+      },
+      "schemaViewer": {
+        "aria": "Schema ビューア",
+        "description": "現在のアプリ schema の読み取り専用 JSON スナップショットです。",
+        "title": "Schema ビューア"
+      },
+      "theme": {
+        "aria": "テーマパネル",
+        "background": "背景",
+        "description": "Low-code 描画トークンです。",
+        "presetLabel": "テーマプリセット",
+        "primary": "プライマリ",
+        "radius": "角丸",
+        "spacing": "余白",
+        "text": "テキスト",
+        "title": "テーマ"
+      },
+      "version": {
+        "aria": "バージョンパネル",
+        "description": "現在のページのローカル schema スナップショットです。",
+        "emptyDescription": "ツールバーで保存すると、現在のページのローカルスナップショットが作成されます。",
+        "emptyTitle": "バージョンはまだありません",
+        "noPageDescription": "ページを選択すると保存履歴を確認できます。",
+        "noPageTitle": "ページが選択されていません",
+        "title": "バージョン"
+      }
+    },
+    "preview": {
+      "canvasAria": "保存済み schema プレビュー",
+      "defaultNotice": "ローカル保存されたアプリ schema が見つかりません。デフォルトのアプリ schema を表示しています。",
+      "empty": "現在のアプリにはプレビュー可能なページがありません。",
+      "eyebrow": "プレビュー · {appId}",
+      "fallbackNotice": "{path} に一致するページがありません。fallback ページを表示しています。",
+      "headTitle": "Building プレビュー - {appId}",
+      "restoredNotice": "ローカル保存されたアプリ schema をプレビューしています。"
+    },
+    "registry": {
+      "categories": {
+        "action": "アクション",
+        "basic": "基本",
+        "data": "データ",
+        "layout": "レイアウト",
+        "media": "メディア"
+      },
+      "components": {
+        "button": { "name": "ボタン" },
+        "cardBlock": { "name": "カードブロック" },
+        "container": { "name": "コンテナ" },
+        "image": { "name": "画像" },
+        "listBlock": { "name": "リストブロック" },
+        "text": { "name": "テキスト" }
+      },
+      "props": {
+        "altText": "代替テキスト",
+        "aspectRatio": "アスペクト比",
+        "class": "Class",
+        "classDescription": "将来の renderer が利用する任意の CSS class です。",
+        "description": "説明",
+        "disabled": "無効",
+        "emptyText": "空表示テキスト",
+        "icon": "アイコン",
+        "items": "項目",
+        "itemsDescription": "通常 DataBinding から提供される配列データです。",
+        "label": "ラベル",
+        "size": "サイズ",
+        "source": "ソース",
+        "subtitleField": "サブタイトルフィールド",
+        "text": "テキスト",
+        "title": "タイトル",
+        "titleField": "タイトルフィールド",
+        "variant": "バリアント"
+      }
+    },
+    "runtime": {
+      "aria": "Low-code ランタイム",
+      "empty": "現在のアプリには描画可能なページがありません。",
+      "fallbackNotice": "{path} に一致するページがありません。アプリのデフォルトページを表示しています。",
+      "headTitle": "Low-code ランタイム - {appId}"
+    },
+    "shell": {
+      "canvasLabel": "ビルダーキャンバス",
+      "inspectorLabel": "ビルダーインスペクター",
+      "outputLabel": "ビルダー出力",
+      "resourcesLabel": "ビルダーリソース",
+      "toolbarLabel": "ビルダーツールバー",
+      "workspaceLabel": "ビルダーワークスペース"
+    },
+    "themes": {
+      "default": "デフォルト",
+      "soft": "ソフト"
+    },
+    "validation": {
+      "actionsInvalidArray": "Actions はサポートされている ActionConfig 項目の配列である必要があります。",
+      "actionsJsonInvalid": "Actions JSON が無効です。",
+      "apiActionFailed": "API action に失敗しました",
+      "apiDataSourceNotFound": "API データソースが見つかりません: {id}",
+      "apiRequestFailed": "API リクエストに失敗しました",
+      "dataSourceActionFailed": "データソース action に失敗しました",
+      "dataSourcesInvalidItems": "各データソースには有効な id、name、type、config が必要です。",
+      "dataSourcesJsonInvalid": "データソース JSON が無効です。",
+      "dataSourcesMustBeArray": "データソースは JSON 配列である必要があります。",
+      "sqliteNoTables": "SQLite データソースにテーブルがありません。",
+      "sqliteQueryFailed": "SQLite クエリに失敗しました",
+      "unknownComponent": "不明な low-code コンポーネント: {type}",
+      "unsupportedAction": "サポートされていない action: {type}"
+    }
   }
 }

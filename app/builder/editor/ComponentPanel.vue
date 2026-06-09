@@ -1,15 +1,23 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue"
 import { getComponentRegistry } from "~/lowcode/componentRegistry"
+import { translateComponentCategory, translateComponentName } from "~/lowcode/componentI18n"
 import { subscribe as subscribeToPluginRegistry } from "~/lowcode/plugins/pluginRegistry"
 
+const { t } = useI18n()
 const pluginRegistryVersion = ref(0)
 let unsubscribeFromPluginRegistry: (() => void) | undefined
 
 const components = computed(() => {
   pluginRegistryVersion.value
 
-  return Object.values(getComponentRegistry()).sort((left, right) => left.name.localeCompare(right.name))
+  return Object.values(getComponentRegistry())
+    .map((component) => ({
+      ...component,
+      categoryLabel: translateComponentCategory(component, t),
+      nameLabel: translateComponentName(component, t)
+    }))
+    .sort((left, right) => left.nameLabel.localeCompare(right.nameLabel))
 })
 
 const emit = defineEmits<{
@@ -28,11 +36,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="building-editor-panel" aria-label="Component panel">
+  <section class="building-editor-panel" :aria-label="t('building.panels.component.aria')">
     <header class="building-editor-panel__header">
       <div>
-        <h2>ComponentPanel</h2>
-        <p>组件面板</p>
+        <h2>{{ t("building.panels.component.title") }}</h2>
+        <p>{{ t("building.panels.component.description") }}</p>
       </div>
       <strong>{{ components.length }}</strong>
     </header>
@@ -45,10 +53,10 @@ onBeforeUnmount(() => {
         type="button"
         @click="emit('add-component', component.type)"
       >
-        <span>{{ component.category }}</span>
-        <strong>{{ component.name }}</strong>
+        <span>{{ component.categoryLabel }}</span>
+        <strong>{{ component.nameLabel }}</strong>
         <code>{{ component.type }}</code>
-        <em>添加到画布</em>
+        <em>{{ t("building.panels.component.addToCanvas") }}</em>
       </button>
     </div>
   </section>

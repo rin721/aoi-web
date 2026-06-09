@@ -14,6 +14,7 @@ const props = defineProps<{
   pagePath?: string | string[]
 }>()
 
+const { t } = useI18n()
 const appSchema = ref<LowCodeApp>(normalizeRuntimeLowCodeApp(loadOrCreateRuntimeLowCodeApp(props.appId)))
 
 const requestedPath = computed(() => normalizeRequestedPath(props.pagePath))
@@ -65,13 +66,13 @@ onMounted(() => {
 </script>
 
 <template>
-  <main class="low-code-runtime-view" aria-label="Low-code runtime">
+  <main class="low-code-runtime-view" :aria-label="t('building.runtime.aria')">
     <p
       v-if="usingFallback"
       class="low-code-runtime-view__notice"
       role="status"
     >
-      未找到路径 {{ requestedPath }} 对应的页面，当前显示应用的默认页面。
+      {{ t("building.runtime.fallbackNotice", { path: requestedPath }) }}
     </p>
 
     <LowCodeRenderer
@@ -83,7 +84,7 @@ onMounted(() => {
     />
 
     <p v-else class="low-code-runtime-view__notice">
-      当前应用没有可渲染页面。
+      {{ t("building.runtime.empty") }}
     </p>
   </main>
 </template>

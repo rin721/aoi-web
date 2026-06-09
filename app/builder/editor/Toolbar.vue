@@ -13,17 +13,19 @@ const emit = defineEmits<{
   save: []
   "toggle-schema": []
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
-  <nav class="building-editor-toolbar" aria-label="Editor toolbar">
+  <nav class="building-editor-toolbar" :aria-label="t('building.editor.toolbar.aria')">
     <AoiButton
       icon="save"
       size="sm"
       variant="tonal"
       @click="emit('save')"
     >
-      保存
+      {{ t("building.common.save") }}
     </AoiButton>
 
     <AoiButton
@@ -32,7 +34,7 @@ const emit = defineEmits<{
       :to="componentsTo"
       variant="outlined"
     >
-      组件
+      {{ t("building.common.components") }}
     </AoiButton>
 
     <AoiButton
@@ -41,7 +43,7 @@ const emit = defineEmits<{
       :to="previewTo"
       variant="outlined"
     >
-      预览
+      {{ t("building.common.preview") }}
     </AoiButton>
 
     <AoiButton
@@ -50,7 +52,7 @@ const emit = defineEmits<{
       :to="runtimeTo"
       variant="outlined"
     >
-      运行态
+      {{ t("building.common.runtime") }}
     </AoiButton>
 
     <AoiButton
@@ -60,7 +62,7 @@ const emit = defineEmits<{
       :variant="schemaVisible ? 'tonal' : 'outlined'"
       @click="emit('toggle-schema')"
     >
-      查看 Schema
+      {{ t("building.editor.toolbar.toggleSchema") }}
     </AoiButton>
 
     <span

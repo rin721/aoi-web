@@ -14,13 +14,14 @@ const emit = defineEmits<{
   "import-app": [appSchema: LowCodeApp]
 }>()
 
+const { t } = useI18n()
 const importJson = ref("")
 const statusMessage = ref("")
 const statusTone = ref<"info" | "success" | "danger">("info")
 
 const formattedSchema = computed(() => formatLowCodeAppExport(props.appSchema))
 const pageCountLabel = computed(() => `${props.appSchema.pages.length}`)
-const currentPagePath = computed(() => props.currentPage?.path || "none")
+const currentPagePath = computed(() => props.currentPage?.path || t("building.common.none"))
 
 function setStatus(message: string, tone: "info" | "success" | "danger" = "info") {
   statusMessage.value = message
@@ -29,14 +30,14 @@ function setStatus(message: string, tone: "info" | "success" | "danger" = "info"
 
 async function copyExportJson() {
   if (!import.meta.client) {
-    setStatus("复制仅在浏览器中可用。", "danger")
+    setStatus(t("building.panels.publish.copyBrowserOnly"), "danger")
     return
   }
 
   try {
     if (navigator.clipboard?.writeText) {
       await navigator.clipboard.writeText(formattedSchema.value)
-      setStatus("已复制当前应用 JSON。", "success")
+      setStatus(t("building.panels.publish.copySuccess"), "success")
       return
     }
 
@@ -50,15 +51,18 @@ async function copyExportJson() {
     const copied = document.execCommand("copy")
     textarea.remove()
 
-    setStatus(copied ? "已复制当前应用 JSON。" : "复制失败，请手动选择 SchemaViewer 内容。", copied ? "success" : "danger")
+    setStatus(
+      copied ? t("building.panels.publish.copySuccess") : t("building.panels.publish.copyFailedManual"),
+      copied ? "success" : "danger"
+    )
   } catch {
-    setStatus("复制失败，请检查浏览器剪贴板权限。", "danger")
+    setStatus(t("building.panels.publish.copyPermissionFailed"), "danger")
   }
 }
 
 function downloadExportJson() {
   if (!import.meta.client) {
-    setStatus("下载仅在浏览器中可用。", "danger")
+    setStatus(t("building.panels.publish.downloadBrowserOnly"), "danger")
     return
   }
 
@@ -73,9 +77,9 @@ function downloadExportJson() {
     link.click()
     link.remove()
     URL.revokeObjectURL(url)
-    setStatus("已生成应用 JSON 下载。", "success")
+    setStatus(t("building.panels.publish.downloadSuccess"), "success")
   } catch {
-    setStatus("下载失败，请检查浏览器文件下载权限。", "danger")
+    setStatus(t("building.panels.publish.downloadFailed"), "danger")
   }
 }
 
@@ -83,36 +87,36 @@ function importAppSchema() {
   const importedApp = parseLowCodeAppImport(importJson.value)
 
   if (!importedApp) {
-    setStatus("导入失败：请输入合法的 LowCodeApp JSON。", "danger")
+    setStatus(t("building.panels.publish.importInvalid"), "danger")
     return
   }
 
   emit("import-app", importedApp)
   importJson.value = ""
-  setStatus("已导入应用 Schema，点击保存后持久化。", "success")
+  setStatus(t("building.panels.publish.importSuccess"), "success")
 }
 </script>
 
 <template>
-  <section class="building-editor-publish-panel" aria-label="Publish and export panel">
+  <section class="building-editor-publish-panel" :aria-label="t('building.panels.publish.aria')">
     <header class="building-editor-publish-panel__header">
       <div>
-        <h2>PublishPanel</h2>
-        <p>导出、复制或导入当前 LowCodeApp JSON。本轮不做云发布。</p>
+        <h2>{{ t("building.panels.publish.title") }}</h2>
+        <p>{{ t("building.panels.publish.description") }}</p>
       </div>
     </header>
 
-    <div class="building-editor-publish-panel__stats" aria-label="Current app export summary">
+    <div class="building-editor-publish-panel__stats" :aria-label="t('building.panels.publish.statsAria')">
       <div>
-        <span>App</span>
+        <span>{{ t("building.common.app") }}</span>
         <strong>{{ appSchema.id }}</strong>
       </div>
       <div>
-        <span>Pages</span>
+        <span>{{ t("building.common.pages") }}</span>
         <strong>{{ pageCountLabel }}</strong>
       </div>
       <div class="building-editor-publish-panel__wide">
-        <span>Current path</span>
+        <span>{{ t("building.panels.publish.currentPath") }}</span>
         <strong>{{ currentPagePath }}</strong>
       </div>
     </div>
@@ -124,7 +128,7 @@ function importAppSchema() {
         variant="tonal"
         @click="copyExportJson"
       >
-        复制 JSON
+        {{ t("building.panels.publish.copyJson") }}
       </AoiButton>
       <AoiButton
         icon="download"
@@ -132,7 +136,7 @@ function importAppSchema() {
         variant="outlined"
         @click="downloadExportJson"
       >
-        下载 JSON
+        {{ t("building.panels.publish.downloadJson") }}
       </AoiButton>
     </div>
 
@@ -140,7 +144,7 @@ function importAppSchema() {
       v-model="importJson"
       class="building-editor-publish-panel__import"
       icon="upload"
-      label="导入 LowCodeApp JSON"
+      :label="t('building.panels.publish.importLabel')"
       multiline
       placeholder="{ &quot;schemaVersion&quot;: &quot;lowcode.app.v1&quot;, ... }"
       :rows="8"
@@ -154,7 +158,7 @@ function importAppSchema() {
       variant="outlined"
       @click="importAppSchema"
     >
-      导入到当前应用
+      {{ t("building.panels.publish.importToCurrent") }}
     </AoiButton>
 
     <p

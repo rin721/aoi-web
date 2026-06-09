@@ -103,11 +103,13 @@ export const componentRegistry: ComponentRegistry = {
       text: "Text"
     },
     name: "Text",
+    nameKey: "building.registry.components.text.name",
     propSchema: [
       {
         defaultValue: "Text",
         key: "text",
         label: "Text",
+        labelKey: "building.registry.props.text",
         type: "string"
       }
     ],
@@ -122,17 +124,20 @@ export const componentRegistry: ComponentRegistry = {
       variant: "filled"
     },
     name: "Button",
+    nameKey: "building.registry.components.button.name",
     propSchema: [
       {
         defaultValue: "Button",
         key: "label",
         label: "Label",
+        labelKey: "building.registry.props.label",
         type: "string"
       },
       {
         defaultValue: "filled",
         key: "variant",
         label: "Variant",
+        labelKey: "building.registry.props.variant",
         options: ["filled", "tonal", "outlined", "text", "elevated"],
         type: "select"
       },
@@ -140,6 +145,7 @@ export const componentRegistry: ComponentRegistry = {
         defaultValue: "md",
         key: "size",
         label: "Size",
+        labelKey: "building.registry.props.size",
         options: ["sm", "md", "lg"],
         type: "select"
       },
@@ -147,11 +153,13 @@ export const componentRegistry: ComponentRegistry = {
         defaultValue: false,
         key: "disabled",
         label: "Disabled",
+        labelKey: "building.registry.props.disabled",
         type: "boolean"
       },
       {
         key: "icon",
         label: "Icon",
+        labelKey: "building.registry.props.icon",
         type: "string"
       }
     ],
@@ -164,12 +172,15 @@ export const componentRegistry: ComponentRegistry = {
       class: ""
     },
     name: "Container",
+    nameKey: "building.registry.components.container.name",
     propSchema: [
       {
         defaultValue: "",
         description: "Optional CSS class applied by a future renderer.",
+        descriptionKey: "building.registry.props.classDescription",
         key: "class",
         label: "Class",
+        labelKey: "building.registry.props.class",
         type: "string"
       }
     ],
@@ -184,23 +195,27 @@ export const componentRegistry: ComponentRegistry = {
       src: ""
     },
     name: "Image",
+    nameKey: "building.registry.components.image.name",
     propSchema: [
       {
         defaultValue: "",
         key: "src",
         label: "Source",
+        labelKey: "building.registry.props.source",
         type: "image"
       },
       {
         defaultValue: "",
         key: "alt",
         label: "Alt text",
+        labelKey: "building.registry.props.altText",
         type: "string"
       },
       {
         defaultValue: "16 / 9",
         key: "aspectRatio",
         label: "Aspect ratio",
+        labelKey: "building.registry.props.aspectRatio",
         type: "string"
       }
     ],
@@ -216,30 +231,36 @@ export const componentRegistry: ComponentRegistry = {
       titleField: "name"
     },
     name: "ListBlock",
+    nameKey: "building.registry.components.listBlock.name",
     propSchema: [
       {
         defaultValue: [],
         description: "Array data usually provided by a DataBinding.",
+        descriptionKey: "building.registry.props.itemsDescription",
         key: "items",
         label: "Items",
+        labelKey: "building.registry.props.items",
         type: "array"
       },
       {
         defaultValue: "name",
         key: "titleField",
         label: "Title field",
+        labelKey: "building.registry.props.titleField",
         type: "string"
       },
       {
         defaultValue: "email",
         key: "subtitleField",
         label: "Subtitle field",
+        labelKey: "building.registry.props.subtitleField",
         type: "string"
       },
       {
         defaultValue: "No users",
         key: "emptyText",
         label: "Empty text",
+        labelKey: "building.registry.props.emptyText",
         type: "string"
       }
     ],

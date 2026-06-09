@@ -13,17 +13,20 @@ export const cardBlockPlugin = {
           title: "Card Block"
         },
         name: "CardBlock",
+        nameKey: "building.registry.components.cardBlock.name",
         propSchema: [
           {
             defaultValue: "Card Block",
             key: "title",
             label: "Title",
+            labelKey: "building.registry.props.title",
             type: "string"
           },
           {
             defaultValue: "A plugin-provided block component.",
             key: "description",
             label: "Description",
+            labelKey: "building.registry.props.description",
             type: "string"
           }
         ],

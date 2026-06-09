@@ -3,36 +3,38 @@ defineProps<{
   description?: string
   title: string
 }>()
+
+const { t } = useI18n()
 </script>
 
 <template>
-  <section class="builder-shell" aria-label="Builder workspace">
+  <section class="builder-shell" :aria-label="t('building.shell.workspaceLabel')">
     <header class="builder-shell__header">
       <div class="builder-shell__title">
         <h1>{{ title }}</h1>
         <p v-if="description">{{ description }}</p>
       </div>
 
-      <div class="builder-shell__toolbar" aria-label="Builder toolbar">
+      <div class="builder-shell__toolbar" :aria-label="t('building.shell.toolbarLabel')">
         <slot name="toolbar" />
       </div>
     </header>
 
     <div class="builder-shell__body">
-      <aside class="builder-shell__resources" aria-label="Builder resources">
+      <aside class="builder-shell__resources" :aria-label="t('building.shell.resourcesLabel')">
         <slot name="resources" />
       </aside>
 
-      <main class="builder-shell__canvas" aria-label="Builder canvas">
+      <main class="builder-shell__canvas" :aria-label="t('building.shell.canvasLabel')">
         <slot name="canvas" />
       </main>
 
-      <aside class="builder-shell__inspector" aria-label="Builder inspector">
+      <aside class="builder-shell__inspector" :aria-label="t('building.shell.inspectorLabel')">
         <slot name="inspector" />
       </aside>
     </div>
 
-    <footer class="builder-shell__footer" aria-label="Builder output">
+    <footer class="builder-shell__footer" :aria-label="t('building.shell.outputLabel')">
       <slot name="footer" />
     </footer>
   </section>

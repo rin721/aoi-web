@@ -4,6 +4,7 @@ import BuilderShell from "~/builder/BuilderShell.vue"
 import Canvas from "~/builder/editor/Canvas.vue"
 import ComponentPanel from "~/builder/editor/ComponentPanel.vue"
 import DataSourcePanel from "~/builder/editor/DataSourcePanel.vue"
+import NodeTreePanel from "~/builder/editor/NodeTreePanel.vue"
 import PageManagerPanel from "~/builder/editor/PageManagerPanel.vue"
 import PluginPanel from "~/builder/editor/PluginPanel.vue"
 import PropertyPanel from "~/builder/editor/PropertyPanel.vue"
@@ -23,6 +24,7 @@ import {
   saveLowCodeApp,
   saveLowCodePageVersion
 } from "~/builder/editor/schemaStorage"
+import { cloneLowCodeValue } from "~/lowcode/schemaModel"
 import { getRegisteredComponent } from "~/lowcode/componentRegistry"
 import { getDefaultDataSources } from "~/lowcode/dataSources/dataSourceRegistry"
 import { subscribe as subscribeToPluginRegistry } from "~/lowcode/plugins/pluginRegistry"
@@ -33,6 +35,7 @@ const props = defineProps<{
   appId: string
 }>()
 
+const { t } = useI18n()
 const appSchema = ref<LowCodeApp>(withEditorDefaults(loadOrCreateLowCodeApp(props.appId)))
 const selectedNodeId = ref<string | null>(null)
 const storedAppSummaries = ref<LowCodeAppSummary[]>([])
@@ -83,16 +86,12 @@ const selectedComponentMeta = computed<ComponentMeta | null>(() => {
   return getRegisteredComponent(selectedNode.value.type) || null
 })
 
-function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T
-}
-
 function cloneDefaultDataSources() {
-  return clone(getDefaultDataSources()) as LowCodePage["dataSources"]
+  return cloneLowCodeValue(getDefaultDataSources()) as LowCodePage["dataSources"]
 }
 
 function cloneDefaultTheme() {
-  return clone(getDefaultTheme()) as ThemeConfig
+  return cloneLowCodeValue(getDefaultTheme()) as ThemeConfig
 }
 
 function withPageDefaults(page: LowCodePage) {
@@ -141,7 +140,7 @@ function loadCurrentApp() {
 
   appSchema.value = withEditorDefaults(storedApp || loadOrCreateLowCodeApp(props.appId))
   selectedNodeId.value = currentPage.value?.layout.id || null
-  toolbarStatus.value = storedApp ? "已从本地恢复" : ""
+  toolbarStatus.value = storedApp ? t("building.editor.status.restoredFromLocal") : ""
   refreshStoredApps()
   refreshPageVersions()
 }
@@ -158,7 +157,7 @@ function createComponentNode(type: string): ComponentNode | null {
   createdNodeSequence += 1
 
   return {
-    children: type === "container" ? [] : undefined,
+    children: meta.category === "layout" ? [] : undefined,
     id: `lowcode-${type}-${Date.now()}-${createdNodeSequence}`,
     props: {
       ...meta.defaultProps
@@ -231,17 +230,21 @@ function handleAddComponent(type: string) {
   }
 
   updateCurrentPage((page) => {
-    const layout = page.layout
+    const targetId = selectedNode.value && canAcceptChildNodes(selectedNode.value)
+      ? selectedNode.value.id
+      : page.layout.id
 
-    return withLayout(page, {
-      ...layout,
-      children: [
-        ...(layout.children || []),
-        newNode
-      ]
-    })
+    return withLayout(page, insertNodeIntoTarget(page.layout, targetId, newNode))
   })
   selectedNodeId.value = newNode.id
+}
+
+function canAcceptChildNodes(node: ComponentNode) {
+  const meta = getRegisteredComponent(node.type)
+
+  return node.type === "container"
+    || meta?.category === "layout"
+    || Array.isArray(node.children)
 }
 
 function handleSelectNode(id: string) {
@@ -279,6 +282,7 @@ function createUniquePageSlug() {
 }
 
 function createBlankPage(slug: string): LowCodePage {
+  const pageNumber = appSchema.value.pages.length + 1
   const layout: ComponentNode = {
     children: [],
     id: `${slug}-root`,
@@ -300,14 +304,14 @@ function createBlankPage(slug: string): LowCodePage {
     id: slug,
     layout,
     meta: {
-      description: "Created in the local /building editor.",
-      order: appSchema.value.pages.length + 1
+      description: t("building.editor.generatedPageDescription"),
+      order: pageNumber
     },
-    name: `Page ${appSchema.value.pages.length + 1}`,
+    name: t("building.editor.generatedPageName", { number: pageNumber }),
     path: `/${slug}`,
     root: layout,
     theme: currentPage.value?.theme || cloneDefaultTheme(),
-    title: `Page ${appSchema.value.pages.length + 1}`
+    title: t("building.editor.generatedPageTitle", { number: pageNumber })
   })
 }
 
@@ -333,15 +337,15 @@ function handleSaveSchema() {
     ? saveLowCodePageVersion(
         props.appId,
         page,
-        `保存于 ${new Date().toLocaleString()}`
+        t("building.editor.status.versionLabel", { time: new Date().toLocaleString() })
       )
     : null
   const saved = saveLowCodeApp(appSchema.value)
   const versionSaved = !page || Boolean(version)
 
   toolbarStatus.value = saved && versionSaved
-    ? `已保存 ${new Date().toLocaleTimeString()}`
-    : "保存失败，请检查浏览器存储权限"
+    ? t("building.editor.status.savedAt", { time: new Date().toLocaleTimeString() })
+    : t("building.editor.status.saveFailed")
   refreshStoredApps()
   refreshPageVersions()
 }
@@ -364,6 +368,13 @@ function handleUpdateTheme(theme: ThemeConfig) {
   }))
 }
 
+function handleUpdateDataSources(dataSources: LowCodePage["dataSources"]) {
+  updateCurrentPage((page) => ({
+    ...page,
+    dataSources
+  }))
+}
+
 function handleUpdateNodeEvents(payload: { events: EventConfig[], nodeId: string }) {
   updateCurrentPage((page) => withLayout(
     page,
@@ -376,6 +387,48 @@ function handleUpdateNodeProp(payload: { key: string, nodeId: string, value: unk
     page,
     updateNodeProps(page.layout, payload.nodeId, payload.key, payload.value)
   ))
+}
+
+function handleDeleteNode(nodeId: string) {
+  if (!currentPage.value || currentPage.value.layout.id === nodeId) {
+    return
+  }
+
+  updateCurrentPage((page) => withLayout(
+    page,
+    deleteNodeById(page.layout, nodeId)
+  ))
+  selectedNodeId.value = currentPage.value?.layout.id || null
+}
+
+function handleDuplicateNode(nodeId: string) {
+  if (!currentPage.value || currentPage.value.layout.id === nodeId) {
+    return
+  }
+
+  const duplicatedNode = findNodeById(currentPage.value.layout, nodeId)
+  const duplicatedNodeId = duplicatedNode ? createNodeCopyId(duplicatedNode.id) : ""
+
+  updateCurrentPage((page) => withLayout(
+    page,
+    duplicateNodeById(page.layout, nodeId, duplicatedNodeId)
+  ))
+
+  if (duplicatedNodeId) {
+    selectedNodeId.value = duplicatedNodeId
+  }
+}
+
+function handleMoveNode(nodeId: string, direction: "down" | "up") {
+  if (!currentPage.value || currentPage.value.layout.id === nodeId) {
+    return
+  }
+
+  updateCurrentPage((page) => withLayout(
+    page,
+    moveNodeById(page.layout, nodeId, direction)
+  ))
+  selectedNodeId.value = nodeId
 }
 
 function handleRestorePageVersion(version: PageVersion) {
@@ -393,7 +446,7 @@ function handleRestorePageVersion(version: PageVersion) {
         ]
   })
   selectedNodeId.value = restoredPage.layout.id
-  toolbarStatus.value = "已恢复历史版本，点击保存后持久化"
+  toolbarStatus.value = t("building.editor.status.versionRestored")
   refreshPageVersions(restoredPage.id)
 }
 
@@ -403,7 +456,7 @@ function handleImportApp(importedApp: LowCodeApp) {
     id: props.appId
   })
   selectedNodeId.value = currentPage.value?.layout.id || null
-  toolbarStatus.value = "已导入，点击保存后持久化"
+  toolbarStatus.value = t("building.editor.status.imported")
   refreshPageVersions()
 }
 
@@ -412,7 +465,7 @@ function findNodeById(node: ComponentNode, nodeId: string): ComponentNode | null
     return node
   }
 
-  for (const child of node.children || []) {
+  for (const child of getChildNodes(node)) {
     const result = findNodeById(child, nodeId)
 
     if (result) {
@@ -421,6 +474,166 @@ function findNodeById(node: ComponentNode, nodeId: string): ComponentNode | null
   }
 
   return null
+}
+
+function getChildNodes(node: ComponentNode) {
+  return [
+    ...(node.children || []),
+    ...Object.values(node.slots || {}).flat()
+  ]
+}
+
+function mapNodeChildren(
+  node: ComponentNode,
+  mapper: (child: ComponentNode) => ComponentNode
+): ComponentNode {
+  return {
+    ...node,
+    children: node.children?.map(mapper),
+    slots: node.slots
+      ? Object.fromEntries(
+          Object.entries(node.slots).map(([slotName, slotNodes]) => [
+            slotName,
+            slotNodes.map(mapper)
+          ])
+        )
+      : undefined
+  }
+}
+
+function insertNodeIntoTarget(node: ComponentNode, targetId: string, newNode: ComponentNode): ComponentNode {
+  if (node.id === targetId) {
+    return {
+      ...node,
+      children: [
+        ...(node.children || []),
+        newNode
+      ]
+    }
+  }
+
+  return mapNodeChildren(node, (child) => insertNodeIntoTarget(child, targetId, newNode))
+}
+
+function deleteNodeById(node: ComponentNode, nodeId: string): ComponentNode {
+  return {
+    ...node,
+    children: node.children
+      ?.filter((child) => child.id !== nodeId)
+      .map((child) => deleteNodeById(child, nodeId)),
+    slots: node.slots
+      ? Object.fromEntries(
+          Object.entries(node.slots).map(([slotName, slotNodes]) => [
+            slotName,
+            slotNodes
+              .filter((child) => child.id !== nodeId)
+              .map((child) => deleteNodeById(child, nodeId))
+          ])
+        )
+      : undefined
+  }
+}
+
+function createNodeCopyId(nodeId: string) {
+  createdNodeSequence += 1
+
+  return `${nodeId}-copy-${Date.now()}-${createdNodeSequence}`
+}
+
+function cloneNodeWithFreshIds(node: ComponentNode, rootId?: string): ComponentNode {
+  const nextId = rootId || createNodeCopyId(node.id)
+
+  return {
+    ...cloneLowCodeValue(node),
+    children: node.children?.map((child) => cloneNodeWithFreshIds(child)),
+    id: nextId,
+    slots: node.slots
+      ? Object.fromEntries(
+          Object.entries(node.slots).map(([slotName, slotNodes]) => [
+            slotName,
+            slotNodes.map((child) => cloneNodeWithFreshIds(child))
+          ])
+        )
+      : undefined
+  }
+}
+
+function duplicateNodeInList(nodes: ComponentNode[] | undefined, nodeId: string, duplicateRootId: string) {
+  if (!nodes?.length) {
+    return nodes
+  }
+
+  const nextNodes: ComponentNode[] = []
+
+  for (const node of nodes) {
+    nextNodes.push(duplicateNodeById(node, nodeId, duplicateRootId))
+
+    if (node.id === nodeId) {
+      nextNodes.push(cloneNodeWithFreshIds(node, duplicateRootId))
+    }
+  }
+
+  return nextNodes
+}
+
+function duplicateNodeById(node: ComponentNode, nodeId: string, duplicateRootId: string): ComponentNode {
+  return {
+    ...node,
+    children: duplicateNodeInList(node.children, nodeId, duplicateRootId),
+    slots: node.slots
+      ? Object.fromEntries(
+          Object.entries(node.slots).map(([slotName, slotNodes]) => [
+            slotName,
+            duplicateNodeInList(slotNodes, nodeId, duplicateRootId) || []
+          ])
+        )
+      : undefined
+  }
+}
+
+function moveNodeInList(nodes: ComponentNode[] | undefined, nodeId: string, direction: "down" | "up") {
+  if (!nodes?.length) {
+    return nodes
+  }
+
+  const index = nodes.findIndex((node) => node.id === nodeId)
+
+  if (index >= 0) {
+    const targetIndex = direction === "up" ? index - 1 : index + 1
+
+    if (targetIndex < 0 || targetIndex >= nodes.length) {
+      return nodes
+    }
+
+    const nextNodes = [...nodes]
+    const currentNode = nextNodes[index]
+    const targetNode = nextNodes[targetIndex]
+
+    if (!currentNode || !targetNode) {
+      return nodes
+    }
+
+    nextNodes[index] = targetNode
+    nextNodes[targetIndex] = currentNode
+    return nextNodes
+  }
+
+  return nodes.map((node) => moveNodeById(node, nodeId, direction))
+}
+
+function moveNodeById(node: ComponentNode, nodeId: string, direction: "down" | "up"): ComponentNode {
+  return {
+    ...node,
+    children: moveNodeInList(node.children, nodeId, direction),
+    slots: node.slots
+      ? Object.fromEntries(
+          Object.entries(node.slots).map(([slotName, slotNodes]) => [
+            slotName,
+            moveNodeInList(slotNodes, nodeId, direction) || []
+          ])
+        )
+      : undefined
+  }
 }
 
 function updateNodeBinding(node: ComponentNode, nodeId: string, binding: DataBinding): ComponentNode {
@@ -439,14 +652,7 @@ function updateNodeBinding(node: ComponentNode, nodeId: string, binding: DataBin
     }
   }
 
-  if (!node.children?.length) {
-    return node
-  }
-
-  return {
-    ...node,
-    children: node.children.map((child) => updateNodeBinding(child, nodeId, binding))
-  }
+  return mapNodeChildren(node, (child) => updateNodeBinding(child, nodeId, binding))
 }
 
 function updateNodeEvents(node: ComponentNode, nodeId: string, events: EventConfig[]): ComponentNode {
@@ -457,14 +663,7 @@ function updateNodeEvents(node: ComponentNode, nodeId: string, events: EventConf
     }
   }
 
-  if (!node.children?.length) {
-    return node
-  }
-
-  return {
-    ...node,
-    children: node.children.map((child) => updateNodeEvents(child, nodeId, events))
-  }
+  return mapNodeChildren(node, (child) => updateNodeEvents(child, nodeId, events))
 }
 
 function updateNodeProps(node: ComponentNode, nodeId: string, key: string, value: unknown): ComponentNode {
@@ -478,14 +677,7 @@ function updateNodeProps(node: ComponentNode, nodeId: string, key: string, value
     }
   }
 
-  if (!node.children?.length) {
-    return node
-  }
-
-  return {
-    ...node,
-    children: node.children.map((child) => updateNodeProps(child, nodeId, key, value))
-  }
+  return mapNodeChildren(node, (child) => updateNodeProps(child, nodeId, key, value))
 }
 
 watch(
@@ -511,8 +703,8 @@ onBeforeUnmount(() => {
 <template>
   <div class="aoi-page building-editor-page">
     <BuilderShell
-      :title="`Building Editor · ${appId}`"
-      description="低代码编辑器骨架：当前支持多应用、多页面、本地保存、版本快照和预览，不支持拖拽、权限或发布。"
+      :title="t('building.editor.title', { appId })"
+      :description="t('building.editor.description')"
     >
       <template #toolbar>
         <Toolbar
@@ -534,13 +726,25 @@ onBeforeUnmount(() => {
           @create-page="handleCreatePage"
           @select-page="handleSelectPage"
         />
+        <NodeTreePanel
+          :page-schema="currentPage"
+          :selected-node-id="selectedNodeId"
+          @delete-node="handleDeleteNode"
+          @duplicate-node="handleDuplicateNode"
+          @move-node-down="handleMoveNode($event, 'down')"
+          @move-node-up="handleMoveNode($event, 'up')"
+          @select-node="handleSelectNode"
+        />
         <ComponentPanel @add-component="handleAddComponent" />
         <PluginPanel />
         <ThemePanel
           :theme="currentPage?.theme"
           @update-theme="handleUpdateTheme"
         />
-        <DataSourcePanel :data-sources="currentPage?.dataSources" />
+        <DataSourcePanel
+          :data-sources="currentPage?.dataSources"
+          @update-data-sources="handleUpdateDataSources"
+        />
       </template>
 
       <template #canvas>

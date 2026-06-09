@@ -8,6 +8,7 @@ import {
   subscribe as subscribeToPluginRegistry
 } from "~/lowcode/plugins/pluginRegistry"
 
+const { t } = useI18n()
 const pluginRegistryVersion = ref(0)
 let unsubscribeFromPluginRegistry: (() => void) | undefined
 
@@ -37,11 +38,11 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="building-editor-plugin-panel" aria-label="Plugin panel">
+  <section class="building-editor-plugin-panel" :aria-label="t('building.panels.plugin.aria')">
     <header class="building-editor-plugin-panel__header">
       <div>
-        <h2>Plugins</h2>
-        <p>Local in-memory plugin toggles.</p>
+        <h2>{{ t("building.panels.plugin.title") }}</h2>
+        <p>{{ t("building.panels.plugin.description") }}</p>
       </div>
       <strong>{{ plugins.length }}</strong>
     </header>
@@ -57,7 +58,7 @@ onBeforeUnmount(() => {
       >
         <div class="building-editor-plugin-card__summary">
           <span :class="{ 'building-editor-plugin-card__status--enabled': plugin.enabled }">
-            {{ plugin.enabled ? "enabled" : "disabled" }}
+            {{ plugin.enabled ? t("building.common.enabled") : t("building.common.disabled") }}
           </span>
           <strong>{{ plugin.name }}</strong>
           <code>{{ plugin.id }}</code>
@@ -70,7 +71,7 @@ onBeforeUnmount(() => {
           :variant="plugin.enabled ? 'outlined' : 'tonal'"
           @click="togglePlugin(plugin.id, plugin.enabled)"
         >
-          {{ plugin.enabled ? "Disable" : "Enable" }}
+          {{ plugin.enabled ? t("building.common.disable") : t("building.common.enable") }}
         </AoiButton>
       </article>
     </div>
@@ -79,8 +80,8 @@ onBeforeUnmount(() => {
       v-else
       class="building-editor-plugin-panel__empty"
     >
-      <strong>No local plugins</strong>
-      <p>Register a PluginManifest to expose optional low-code capabilities.</p>
+      <strong>{{ t("building.panels.plugin.emptyTitle") }}</strong>
+      <p>{{ t("building.panels.plugin.emptyDescription") }}</p>
     </div>
   </section>
 </template>

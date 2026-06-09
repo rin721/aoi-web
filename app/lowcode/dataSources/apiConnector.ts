@@ -22,13 +22,16 @@ function applyResponseMapping(source: ApiDataSource, data: unknown) {
 }
 
 function createRequestUrl(source: ApiDataSource) {
-  const url = new URL(source.config.url)
+  const sourceUrl = source.config.url.trim()
+  const isRelativeUrl = sourceUrl.startsWith("/")
+  const baseURL = import.meta.client ? window.location.origin : "http://localhost"
+  const url = new URL(sourceUrl, baseURL)
 
   for (const [key, value] of Object.entries(source.config.params || {})) {
     url.searchParams.set(key, String(value))
   }
 
-  return url.toString()
+  return isRelativeUrl ? `${url.pathname}${url.search}` : url.toString()
 }
 
 function getErrorMessage(error: unknown) {

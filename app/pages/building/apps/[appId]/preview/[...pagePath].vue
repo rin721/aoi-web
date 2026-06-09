@@ -20,6 +20,7 @@ const appId = computed(() => {
 
   return value || "mock-app"
 })
+const pagePath = computed(() => route.params.pagePath)
 
 useHead(() => ({
   title: t("building.preview.headTitle", { appId: appId.value })
@@ -28,7 +29,10 @@ useHead(() => ({
 
 <template>
   <div class="aoi-page building-preview-page">
-    <LowCodeRuntimeView :app-id="appId" />
+    <LowCodeRuntimeView
+      :app-id="appId"
+      :page-path="pagePath"
+    />
   </div>
 </template>
 

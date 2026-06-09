@@ -1,6 +1,6 @@
 import { executeApiDataSource } from "~/lowcode/dataSources/apiConnector"
 import { getActions as getPluginActions } from "~/lowcode/plugins/pluginRegistry"
-import type { ActionRegistry, DataSource } from "~/types/lowcode"
+import type { ActionRegistry, ActionRunnerContext, DataSource } from "~/types/lowcode"
 
 type ApiDataSource = Extract<DataSource, { type: "api" }>
 
@@ -10,13 +10,27 @@ function findApiDataSource(dataSources: DataSource[] | undefined, dataSourceId: 
   )
 }
 
+function translate(
+  context: ActionRunnerContext,
+  key: string,
+  fallback: string,
+  params?: Record<string, unknown>
+) {
+  return context.translate?.(key, fallback, params) || fallback
+}
+
 export const coreActionRegistry = {
   async callApi(action, context) {
     const source = findApiDataSource(context.dataSources, action.dataSourceId)
 
     if (!source) {
       context.showMessage({
-        message: `API data source not found: ${action.dataSourceId}`,
+        message: translate(
+          context,
+          "building.validation.apiDataSourceNotFound",
+          `API data source not found: ${action.dataSourceId}`,
+          { id: action.dataSourceId }
+        ),
         tone: "danger"
       })
       return
@@ -26,7 +40,7 @@ export const coreActionRegistry = {
 
     if (!result.ok) {
       context.showMessage({
-        message: result.error || "API action failed",
+        message: result.error || translate(context, "building.validation.apiActionFailed", "API action failed"),
         tone: "danger"
       })
       return
@@ -34,7 +48,12 @@ export const coreActionRegistry = {
 
     context.setDataSourceValue(source.id, result.data)
     context.showMessage({
-      message: `${source.name} completed`,
+      message: translate(
+        context,
+        "building.actions.apiCompleted",
+        `${source.name} completed`,
+        { name: source.name }
+      ),
       tone: "success"
     })
   },

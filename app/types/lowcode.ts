@@ -141,6 +141,7 @@ export interface ActionRunnerContext {
   setDataSourceValue: (sourceId: string, value: unknown) => void
   setVariable: (key: string, value: unknown) => void
   showMessage: (message: ActionMessage) => void
+  translate?: (key: string, fallback: string, params?: Record<string, unknown>) => string
 }
 
 export type ActionExecutor<TAction extends ActionConfig = ActionConfig> = (
@@ -318,8 +319,10 @@ export type PropSchemaType = "array" | "string" | "number" | "boolean" | "select
 export interface PropSchema {
   defaultValue?: unknown
   description?: string
+  descriptionKey?: string
   key: string
   label: string
+  labelKey?: string
   options?: string[]
   required?: boolean
   type: PropSchemaType
@@ -329,9 +332,13 @@ export type ComponentMetaCategory = "basic" | "layout" | "media" | "action" | "d
 
 export interface ComponentMeta {
   category: ComponentMetaCategory
+  categoryKey?: string
   component: string | Component
   defaultProps: ComponentProps
+  description?: string
+  descriptionKey?: string
   name: string
+  nameKey?: string
   propSchema: PropSchema[]
   type: string
 }

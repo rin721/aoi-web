@@ -773,5 +773,340 @@
     "volume": "Volume",
     "zoomIn": "Zoom in",
     "zoomOut": "Zoom out"
+  },
+  "building": {
+    "actions": {
+      "addCallApi": "Add callApi",
+      "addNavigate": "Add navigate",
+      "addShowToast": "Add showToast",
+      "apiCompleted": "{name} completed",
+      "applyJson": "Apply actions JSON",
+      "clearOnClick": "Clear onClick actions",
+      "defaultToastMessage": "Hello from Event Action",
+      "jsonLabel": "onClick actions JSON",
+      "noOnClick": "No onClick actions configured."
+    },
+    "catalog": {
+      "canvasAria": "Schema rendered component catalog",
+      "emptyText": "No components to display.",
+      "eyebrow": "Low-code management page · {appId}",
+      "headTitle": "Component Catalog - {appId}",
+      "itemSummary": "{type} · {category} · {count} props",
+      "metaDescription": "Read-only builder management page rendered from LowCodePage schema.",
+      "name": "Component Catalog",
+      "pageTitle": "Component catalog management",
+      "schemaSummary": "Current registry exposes {count} low-code components. This page is rendered by LowCodeRenderer.",
+      "schemaTitle": "Component Catalog",
+      "sourceName": "Builder Component Catalog"
+    },
+    "common": {
+      "app": "App",
+      "apps": "Apps",
+      "backToEditor": "Back to editor",
+      "components": "Components",
+      "copy": "Copy",
+      "delete": "Delete",
+      "devOnly": "Dev only",
+      "disable": "Disable",
+      "disabled": "disabled",
+      "down": "Down",
+      "editor": "Editor",
+      "enable": "Enable",
+      "enabled": "enabled",
+      "none": "none",
+      "openRuntime": "Open runtime",
+      "pageCount": "{count} page(s)",
+      "pages": "Pages",
+      "preview": "Preview",
+      "refresh": "Refresh",
+      "remove": "Remove",
+      "reset": "Reset",
+      "restore": "Restore",
+      "runtime": "Runtime",
+      "save": "Save",
+      "unknown": "unknown",
+      "up": "Up",
+      "viewJson": "View JSON"
+    },
+    "console": {
+      "contract": {
+        "appBoundary": "LowCodeApp is the app boundary.",
+        "layoutPrimary": "LowCodePage.layout is the primary page tree.",
+        "recursiveNodes": "ComponentNode children and slots are both recursive.",
+        "registryRenderer": "Renderer output uses registered components only.",
+        "sqliteLocal": "SQLite is local dev service data, not mock API data."
+      },
+      "contractAria": "MVP contract",
+      "contractDescription": "The build-time surface stays centered on ComponentNode schema.",
+      "contractTitle": "MVP Contract",
+      "description": "Dev-only self-building workspace for schema-driven pages, registered components, data sources, local save, preview, and runtime.",
+      "headTitle": "/building - Aoi",
+      "heroAria": "Builder entry",
+      "heroDescription": "Create pages, add components, edit props, bind data, configure actions, save versions, export JSON, and preview runtime output without leaving the Nuxt dev workspace.",
+      "heroEyebrow": "Schema MVP",
+      "heroTitle": "Build a local app from registered schema primitives.",
+      "localAppsAria": "Local low-code apps",
+      "localAppsDescription": "Stored in browser localStorage and restored through the shared schema normalizer.",
+      "localAppsTitle": "Local Apps",
+      "openEditor": "Open editor",
+      "resourcesAria": "Platform resources",
+      "resourcesDescription": "Current low-code platform registry snapshot.",
+      "resourcesTitle": "Resources",
+      "roadmapAria": "Platform stages",
+      "roadmapDescription": "Schema-first evolution order for the builder.",
+      "roadmapTitle": "Roadmap",
+      "stageStatus": {
+        "done": "done",
+        "later": "later",
+        "next": "next"
+      },
+      "stages": {
+        "advanced": {
+          "description": "Workflow orchestration, plugin marketplace, collaborative publishing, and production auth.",
+          "label": "Advanced platform"
+        },
+        "data": {
+          "description": "Editable data source config, local mock data, GET API connector, and dev SQLite adapter.",
+          "label": "Data adapters"
+        },
+        "schema": {
+          "description": "Unified LowCodeApp schema, renderer, registry, storage, preview, and runtime.",
+          "label": "Schema MVP"
+        }
+      },
+      "startFromMock": "Start from mock app",
+      "stats": {
+        "apps": "Apps",
+        "components": "Components",
+        "dataSources": "Data sources",
+        "themes": "Themes"
+      },
+      "title": "Aoi Building Console"
+    },
+    "editor": {
+      "description": "Low-code editor shell for multiple apps, multiple pages, local save, page versions, and preview. Dragging, permissions, and publishing stay out of this MVP.",
+      "generatedPageDescription": "Created in the local /building editor.",
+      "generatedPageName": "Page {number}",
+      "generatedPageTitle": "Page {number}",
+      "headTitle": "Building Editor - {appId}",
+      "status": {
+        "imported": "Imported. Save to persist the app.",
+        "restoredFromLocal": "Restored from local storage",
+        "savedAt": "Saved {time}",
+        "saveFailed": "Save failed. Check browser storage permissions.",
+        "versionLabel": "Saved at {time}",
+        "versionRestored": "Version restored. Save to persist it."
+      },
+      "title": "Building Editor · {appId}",
+      "toolbar": {
+        "aria": "Editor toolbar",
+        "toggleSchema": "View Schema"
+      }
+    },
+    "panels": {
+      "canvas": {
+        "aria": "Canvas",
+        "title": "Canvas"
+      },
+      "component": {
+        "addToCanvas": "Add to canvas",
+        "aria": "Component panel",
+        "description": "Registered schema primitives",
+        "title": "Components"
+      },
+      "dataSource": {
+        "apiAria": "API data sources",
+        "apiDescription": "GET-only external API requests.",
+        "apiTitle": "API Connector",
+        "applyDataSources": "Apply data sources",
+        "aria": "Data source panel",
+        "description": "API connector and local database adapter test panel.",
+        "insertUser": "Insert user",
+        "jsonLabel": "Data sources JSON",
+        "noApiDescription": "Add api DataSource config to the page schema before testing requests.",
+        "noApiTitle": "No API data sources",
+        "noSqliteDescription": "Add sqlite DataSource config to test local database operations.",
+        "noSqliteTitle": "No SQLite data sources",
+        "queryUsers": "Query users",
+        "resetDraft": "Reset draft",
+        "schemaAria": "Data source schema editor",
+        "schemaDescription": "Edit the current page DataSource array stored in LowCodePage.dataSources.",
+        "schemaTitle": "Schema Config",
+        "sqliteAria": "SQLite data sources",
+        "sqliteDescription": "In-memory or dev-service adapter for local CRUD flow.",
+        "sqliteTitle": "SQLite Adapter",
+        "testRequest": "Test request",
+        "title": "Data Sources"
+      },
+      "nodeTree": {
+        "aria": "Node tree panel",
+        "description": "Non-drag schema editing.",
+        "emptyDescription": "Select or create a page before editing schema nodes.",
+        "emptyTitle": "No page selected",
+        "title": "Node Tree"
+      },
+      "pageManager": {
+        "appButton": "{name} · {count}",
+        "aria": "Page manager",
+        "createPage": "Create page",
+        "title": "Page Manager"
+      },
+      "plugin": {
+        "aria": "Plugin panel",
+        "description": "Local in-memory plugin toggles.",
+        "emptyDescription": "Register a PluginManifest to expose optional low-code capabilities.",
+        "emptyTitle": "No local plugins",
+        "title": "Plugins"
+      },
+      "property": {
+        "actionAria": "Event action panel",
+        "actionDescription": "Configure onClick actions stored in ComponentNode.events.",
+        "actionTitle": "Event Actions",
+        "applyBinding": "Apply binding",
+        "aria": "Property panel",
+        "bindingAria": "Data binding panel",
+        "bindingDescription": "Bind a first-level mock, api, or sqlite field to the selected component props.",
+        "bindingTitle": "Data Binding",
+        "dataSourceLabel": "Data source",
+        "dataSourceOption": "{name} · {type}",
+        "description": "Edit the selected node props, bindings, and actions.",
+        "fieldLabel": "Field",
+        "noDataSourcesDescription": "The current page schema has no data sources to bind.",
+        "noDataSourcesTitle": "No available data sources",
+        "noPropsDescription": "The current component has no editable propSchema yet.",
+        "noPropsTitle": "No configurable props",
+        "noSelectionDescription": "Select a component on the canvas to edit its props here.",
+        "noSelectionTitle": "No component selected",
+        "targetPropLabel": "Target prop",
+        "title": "Properties",
+        "unknownComponentDescription": "The current node does not match any componentRegistry entry.",
+        "unknownComponentTitle": "Unknown component contract",
+        "unsupportedPropType": "{type} props are not editable yet."
+      },
+      "publish": {
+        "aria": "Publish and export panel",
+        "copyBrowserOnly": "Copy is only available in the browser.",
+        "copyFailedManual": "Copy failed. Select the SchemaViewer content manually.",
+        "copyJson": "Copy JSON",
+        "copyPermissionFailed": "Copy failed. Check browser clipboard permissions.",
+        "copySuccess": "Copied the current app JSON.",
+        "currentPath": "Current path",
+        "description": "Export, copy, or import the current LowCodeApp JSON. Cloud publishing is not included in this MVP.",
+        "downloadBrowserOnly": "Download is only available in the browser.",
+        "downloadFailed": "Download failed. Check browser file download permissions.",
+        "downloadJson": "Download JSON",
+        "downloadSuccess": "Generated app JSON download.",
+        "importInvalid": "Import failed: enter valid LowCodeApp JSON.",
+        "importLabel": "Import LowCodeApp JSON",
+        "importSuccess": "Imported app schema. Save to persist it.",
+        "importToCurrent": "Import into current app",
+        "statsAria": "Current app export summary",
+        "title": "Publish"
+      },
+      "schemaViewer": {
+        "aria": "Schema viewer",
+        "description": "Read-only JSON snapshot of the current app schema.",
+        "title": "Schema Viewer"
+      },
+      "theme": {
+        "aria": "Theme panel",
+        "background": "Background",
+        "description": "Low-code render tokens.",
+        "presetLabel": "Theme preset",
+        "primary": "Primary",
+        "radius": "Radius",
+        "spacing": "Spacing",
+        "text": "Text",
+        "title": "Theme"
+      },
+      "version": {
+        "aria": "Version panel",
+        "description": "Local schema snapshots for the current page.",
+        "emptyDescription": "Save from the toolbar to create a local snapshot for the current page.",
+        "emptyTitle": "No versions yet",
+        "noPageDescription": "Select a page to inspect its save history.",
+        "noPageTitle": "No page selected",
+        "title": "Versions"
+      }
+    },
+    "preview": {
+      "canvasAria": "Saved schema preview",
+      "defaultNotice": "No locally saved app schema was found. Showing the default app schema.",
+      "empty": "The current app has no previewable pages.",
+      "eyebrow": "Preview · {appId}",
+      "fallbackNotice": "No page matched {path}. Showing the fallback page.",
+      "headTitle": "Building Preview - {appId}",
+      "restoredNotice": "Previewing the locally saved app schema."
+    },
+    "registry": {
+      "categories": {
+        "action": "Action",
+        "basic": "Basic",
+        "data": "Data",
+        "layout": "Layout",
+        "media": "Media"
+      },
+      "components": {
+        "button": { "name": "Button" },
+        "cardBlock": { "name": "Card Block" },
+        "container": { "name": "Container" },
+        "image": { "name": "Image" },
+        "listBlock": { "name": "List Block" },
+        "text": { "name": "Text" }
+      },
+      "props": {
+        "altText": "Alt text",
+        "aspectRatio": "Aspect ratio",
+        "class": "Class",
+        "classDescription": "Optional CSS class applied by a future renderer.",
+        "description": "Description",
+        "disabled": "Disabled",
+        "emptyText": "Empty text",
+        "icon": "Icon",
+        "items": "Items",
+        "itemsDescription": "Array data usually provided by a DataBinding.",
+        "label": "Label",
+        "size": "Size",
+        "source": "Source",
+        "subtitleField": "Subtitle field",
+        "text": "Text",
+        "title": "Title",
+        "titleField": "Title field",
+        "variant": "Variant"
+      }
+    },
+    "runtime": {
+      "aria": "Low-code runtime",
+      "empty": "The current app has no renderable pages.",
+      "fallbackNotice": "No page matched {path}. Showing the app default page.",
+      "headTitle": "Low-code Runtime - {appId}"
+    },
+    "shell": {
+      "canvasLabel": "Builder canvas",
+      "inspectorLabel": "Builder inspector",
+      "outputLabel": "Builder output",
+      "resourcesLabel": "Builder resources",
+      "toolbarLabel": "Builder toolbar",
+      "workspaceLabel": "Builder workspace"
+    },
+    "themes": {
+      "default": "Default",
+      "soft": "Soft"
+    },
+    "validation": {
+      "actionsInvalidArray": "Actions must be an array of supported ActionConfig items.",
+      "actionsJsonInvalid": "Actions JSON is invalid.",
+      "apiActionFailed": "API action failed",
+      "apiDataSourceNotFound": "API data source not found: {id}",
+      "apiRequestFailed": "API request failed",
+      "dataSourceActionFailed": "Data source action failed",
+      "dataSourcesInvalidItems": "Every data source must include a valid id, name, type, and config.",
+      "dataSourcesJsonInvalid": "Data sources JSON is invalid.",
+      "dataSourcesMustBeArray": "Data sources must be a JSON array.",
+      "sqliteNoTables": "SQLite data source has no tables.",
+      "sqliteQueryFailed": "SQLite query failed",
+      "unknownComponent": "Unknown low-code component: {type}",
+      "unsupportedAction": "Unsupported action: {type}"
+    }
   }
 }

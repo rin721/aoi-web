@@ -7,6 +7,8 @@ defineProps<{
   selectedNodeId?: string | null
 }>()
 
+const { t } = useI18n()
+
 const emit = defineEmits<{
   "select-node": [id: string]
 }>()
@@ -27,10 +29,10 @@ function onCanvasClick(event: MouseEvent) {
 </script>
 
 <template>
-  <section class="building-editor-canvas" aria-label="Canvas">
+  <section class="building-editor-canvas" :aria-label="t('building.panels.canvas.aria')">
     <header class="building-editor-canvas__header">
       <div>
-        <h2>Canvas</h2>
+        <h2>{{ t("building.panels.canvas.title") }}</h2>
         <p>{{ pageSchema.title || pageSchema.name }}</p>
       </div>
       <code>{{ pageSchema.path }}</code>

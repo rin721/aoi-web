@@ -10,11 +10,12 @@ if (!import.meta.dev) {
 }
 
 const route = useRoute()
+const { t } = useI18n()
 const isNestedBuildingRoute = computed(() => !["/building", "/building/"].includes(route.path))
 
-useHead({
-  title: "/building - Aoi"
-})
+useHead(() => ({
+  title: t("building.console.headTitle")
+}))
 </script>
 
 <template>

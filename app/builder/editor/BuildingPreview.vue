@@ -14,6 +14,7 @@ const props = defineProps<{
   pagePath?: string | string[]
 }>()
 
+const { t } = useI18n()
 const appSchema = ref<LowCodeApp>(normalizeLowCodeApp(loadOrCreateLowCodeApp(props.appId)))
 const restoredFromLocal = ref(false)
 
@@ -68,13 +69,13 @@ onMounted(() => {
   <div class="aoi-page building-preview-page">
     <header class="building-preview-page__header">
       <div>
-        <p class="building-preview-page__eyebrow">Preview · {{ appId }}</p>
-        <h1>{{ pageSchema?.title || pageSchema?.name || "Preview" }}</h1>
+        <p class="building-preview-page__eyebrow">{{ t("building.preview.eyebrow", { appId }) }}</p>
+        <h1>{{ pageSchema?.title || pageSchema?.name || t("building.common.preview") }}</h1>
         <p v-if="usingFallback">
-          未找到路径 {{ requestedPath }} 对应的页面，当前显示 fallback 页面。
+          {{ t("building.preview.fallbackNotice", { path: requestedPath }) }}
         </p>
         <p v-else>
-          {{ restoredFromLocal ? "正在预览本地保存的应用 Schema。" : "未找到本地保存结果，当前展示默认应用 Schema。" }}
+          {{ restoredFromLocal ? t("building.preview.restoredNotice") : t("building.preview.defaultNotice") }}
         </p>
       </div>
 
@@ -84,11 +85,11 @@ onMounted(() => {
         :to="editorTo"
         variant="outlined"
       >
-        返回编辑器
+        {{ t("building.common.backToEditor") }}
       </AoiButton>
     </header>
 
-    <main class="building-preview-page__canvas" aria-label="Saved schema preview">
+    <main class="building-preview-page__canvas" :aria-label="t('building.preview.canvasAria')">
       <LowCodeRenderer
         v-if="pageSchema"
         :data-sources="pageSchema.dataSources"
@@ -98,7 +99,7 @@ onMounted(() => {
       />
 
       <p v-else class="building-preview-page__empty">
-        当前应用没有可预览页面。
+        {{ t("building.preview.empty") }}
       </p>
     </main>
   </div>

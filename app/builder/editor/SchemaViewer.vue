@@ -6,15 +6,16 @@ const props = defineProps<{
   appSchema: LowCodeApp
 }>()
 
+const { t } = useI18n()
 const formattedSchema = computed(() => JSON.stringify(props.appSchema, null, 2))
 </script>
 
 <template>
-  <section class="building-editor-schema-viewer" aria-label="Schema viewer">
+  <section class="building-editor-schema-viewer" :aria-label="t('building.panels.schemaViewer.aria')">
     <header class="building-editor-schema-viewer__header">
       <div>
-        <h2>SchemaViewer</h2>
-        <p>当前应用 Schema 的只读 JSON 快照。</p>
+        <h2>{{ t("building.panels.schemaViewer.title") }}</h2>
+        <p>{{ t("building.panels.schemaViewer.description") }}</p>
       </div>
       <code>{{ appSchema.id }}</code>
     </header>

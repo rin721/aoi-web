@@ -1,99 +1,20 @@
 import { mockLowCodeApp, mockPageSchema } from "~/lowcode/schemas/mockPageSchema"
-import type { ComponentNode, LowCodeApp, LowCodeAppSummary, LowCodePage, PageVersion } from "~/types/lowcode"
+import {
+  cloneLowCodeValue,
+  isLowCodeApp,
+  isLowCodePage,
+  isPageVersion,
+  normalizeLowCodeApp,
+  normalizeLowCodePage
+} from "~/lowcode/schemaModel"
+import type { LowCodeApp, LowCodeAppSummary, LowCodePage, PageVersion } from "~/types/lowcode"
+
+export { normalizeLowCodeApp, normalizeLowCodePage } from "~/lowcode/schemaModel"
 
 const LOW_CODE_APP_STORAGE_PREFIX = "aoi.lowcode.app.v1"
 const LOW_CODE_APP_INDEX_KEY = "aoi.lowcode.apps.v1:index"
 const LOW_CODE_PAGE_VERSION_STORAGE_PREFIX = "aoi.lowcode.page.versions.v1"
 const LEGACY_LOW_CODE_PAGE_STORAGE_PREFIX = "aoi.lowcode.page.v1"
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return Boolean(value && typeof value === "object" && !Array.isArray(value))
-}
-
-function clone<T>(value: T): T {
-  return JSON.parse(JSON.stringify(value)) as T
-}
-
-function isComponentNode(value: unknown): value is ComponentNode {
-  if (!isRecord(value)) {
-    return false
-  }
-
-  if (typeof value.id !== "string" || typeof value.type !== "string") {
-    return false
-  }
-
-  if (value.children !== undefined) {
-    return Array.isArray(value.children) && value.children.every(isComponentNode)
-  }
-
-  return true
-}
-
-function isLowCodePage(value: unknown): value is LowCodePage {
-  if (!isRecord(value)) {
-    return false
-  }
-
-  const layout = value.layout || value.root
-
-  return typeof value.id === "string"
-    && typeof value.name === "string"
-    && typeof value.path === "string"
-    && isComponentNode(layout)
-}
-
-function isLowCodeApp(value: unknown): value is LowCodeApp {
-  return isRecord(value)
-    && value.schemaVersion === "lowcode.app.v1"
-    && typeof value.id === "string"
-    && typeof value.name === "string"
-    && Array.isArray(value.pages)
-    && value.pages.every(isLowCodePage)
-}
-
-function isPageVersion(value: unknown): value is PageVersion {
-  return isRecord(value)
-    && typeof value.id === "string"
-    && typeof value.pageId === "string"
-    && typeof value.createdAt === "string"
-    && typeof value.label === "string"
-    && isLowCodePage(value.schema)
-}
-
-function normalizePath(path: string) {
-  const trimmed = path.trim()
-
-  if (!trimmed) {
-    return "/"
-  }
-
-  return trimmed.startsWith("/") ? trimmed : `/${trimmed}`
-}
-
-export function normalizeLowCodePage(page: LowCodePage): LowCodePage {
-  const layout = page.layout || page.root || mockPageSchema.layout
-
-  return {
-    ...page,
-    layout,
-    path: normalizePath(page.path),
-    root: layout
-  }
-}
-
-export function normalizeLowCodeApp(app: LowCodeApp): LowCodeApp {
-  const pages = app.pages.map(normalizeLowCodePage)
-  const firstPage = pages[0]
-  const currentPageExists = pages.some((page) => page.id === app.currentPageId)
-
-  return {
-    ...app,
-    currentPageId: currentPageExists ? app.currentPageId : firstPage?.id,
-    pages,
-    schemaVersion: "lowcode.app.v1"
-  }
-}
 
 export function createLowCodeAppStorageKey(appId: string) {
   return `${LOW_CODE_APP_STORAGE_PREFIX}:${appId}`
@@ -108,7 +29,7 @@ export function createLowCodePageVersionsStorageKey(appId: string, pageId: strin
 }
 
 function createDefaultLowCodeApp(appId: string): LowCodeApp {
-  const app = clone(mockLowCodeApp)
+  const app = cloneLowCodeValue(mockLowCodeApp)
 
   return normalizeLowCodeApp({
     ...app,
@@ -232,7 +153,7 @@ export function saveLowCodeApp(app: LowCodeApp) {
     const normalizedApp = normalizeLowCodeApp(app)
     window.localStorage.setItem(
       createLowCodeAppStorageKey(normalizedApp.id),
-      JSON.stringify(clone(normalizedApp))
+      JSON.stringify(cloneLowCodeValue(normalizedApp))
     )
     writeStoredAppIds([
       ...readStoredAppIds(),
@@ -281,7 +202,7 @@ export function saveLowCodePageVersion(appId: string, pageSchema: LowCodePage, l
     id: `version-${normalizedPage.id}-${Date.now()}`,
     label: label || `Saved ${new Date(createdAt).toLocaleString()}`,
     pageId: normalizedPage.id,
-    schema: clone(normalizedPage)
+    schema: cloneLowCodeValue(normalizedPage)
   }
 
   try {
@@ -292,7 +213,7 @@ export function saveLowCodePageVersion(appId: string, pageSchema: LowCodePage, l
 
     window.localStorage.setItem(
       createLowCodePageVersionsStorageKey(appId, normalizedPage.id),
-      JSON.stringify(clone(versions))
+      JSON.stringify(cloneLowCodeValue(versions))
     )
     return version
   } catch {
@@ -301,7 +222,7 @@ export function saveLowCodePageVersion(appId: string, pageSchema: LowCodePage, l
 }
 
 export function restoreLowCodePageVersion(version: PageVersion) {
-  return normalizeLowCodePage(clone(version.schema))
+  return normalizeLowCodePage(cloneLowCodeValue(version.schema))
 }
 
 export function listLowCodeApps(): LowCodeAppSummary[] {

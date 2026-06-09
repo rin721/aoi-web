@@ -13,6 +13,7 @@ if (!import.meta.dev) {
 }
 
 const route = useRoute()
+const { t } = useI18n()
 const appId = computed(() => {
   const value = route.params.appId
 
@@ -24,11 +25,11 @@ const appId = computed(() => {
 })
 const editorTo = computed(() => `/building/apps/${appId.value}/editor`)
 const pageSchema = computed(() =>
-  createBuilderComponentCatalogPageSchema(Object.values(getComponentRegistry()))
+  createBuilderComponentCatalogPageSchema(Object.values(getComponentRegistry()), t)
 )
 
 useHead(() => ({
-  title: `Component Catalog - ${appId.value}`
+  title: t("building.catalog.headTitle", { appId: appId.value })
 }))
 </script>
 
@@ -36,8 +37,8 @@ useHead(() => ({
   <div class="aoi-page building-component-catalog-page">
     <header class="building-component-catalog-page__header">
       <div>
-        <p>Low-code management page · {{ appId }}</p>
-        <h1>组件列表管理页</h1>
+        <p>{{ t("building.catalog.eyebrow", { appId }) }}</p>
+        <h1>{{ t("building.catalog.pageTitle") }}</h1>
       </div>
 
       <AoiButton
@@ -46,13 +47,13 @@ useHead(() => ({
         :to="editorTo"
         variant="outlined"
       >
-        返回编辑器
+        {{ t("building.common.backToEditor") }}
       </AoiButton>
     </header>
 
     <section
       class="building-component-catalog-page__canvas"
-      aria-label="Schema rendered component catalog"
+      :aria-label="t('building.catalog.canvasAria')"
     >
       <LowCodeRenderer
         :data-sources="pageSchema.dataSources"

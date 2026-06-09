@@ -8,6 +8,11 @@ import type { AoiSelectOption } from "~/components/aoi/AoiSelect.vue"
 import {
   getDataSourceFieldOptions
 } from "~/lowcode/dataSources/dataSourceRegistry"
+import {
+  translateComponentCategory,
+  translateComponentName,
+  translatePropSchema
+} from "~/lowcode/componentI18n"
 import type { ActionConfig, ComponentMeta, ComponentNode, DataBinding, DataSource, EventConfig, PropSchema } from "~/types/lowcode"
 
 const props = defineProps<{
@@ -22,19 +27,28 @@ const emit = defineEmits<{
   "update-prop": [payload: { key: string, nodeId: string, value: unknown }]
 }>()
 
+const { t } = useI18n()
 const selectedBindingSourceId = ref("")
 const selectedBindingPath = ref("")
 const selectedBindingTargetKey = ref("")
-const controls = computed(() => props.componentMeta?.propSchema || [])
+const actionDraftJson = ref("[]")
+const actionDraftError = ref("")
+const controls = computed(() => (props.componentMeta?.propSchema || []).map((control) => translatePropSchema(control, t)))
 const hasSelectedNode = computed(() => Boolean(props.selectedNode))
 const hasEditableControls = computed(() =>
   controls.value.some((control) => ["string", "number", "boolean", "select"].includes(control.type))
 )
+const componentName = computed(() =>
+  props.componentMeta ? translateComponentName(props.componentMeta, t) : props.selectedNode?.type
+)
+const componentCategory = computed(() =>
+  props.componentMeta ? translateComponentCategory(props.componentMeta, t) : t("building.common.unknown")
+)
 const dataSourceOptions = computed<AoiSelectOption[]>(() =>
   (props.dataSources || [])
-    .filter((source) => source.type === "mock" || source.type === "api")
+    .filter((source) => source.type === "mock" || source.type === "api" || source.type === "sqlite")
     .map((source) => ({
-      label: `${source.name} · ${source.type}`,
+      label: t("building.panels.property.dataSourceOption", { name: source.name, type: source.type }),
       value: source.id
     }))
 )
@@ -98,6 +112,17 @@ function getSelectOptions(control: PropSchema): AoiSelectOption[] {
     label: option,
     value: option
   }))
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value && typeof value === "object" && !Array.isArray(value))
+}
+
+function isActionConfig(value: unknown): value is ActionConfig {
+  return isRecord(value)
+    && typeof value.id === "string"
+    && typeof value.type === "string"
+    && ["showToast", "navigate", "setVariable", "callApi"].includes(value.type)
 }
 
 function updateProp(key: string, value: unknown) {
@@ -181,7 +206,7 @@ function appendOnClickAction(action: ActionConfig) {
 function addShowToastAction() {
   appendOnClickAction({
     id: createActionId("showToast"),
-    message: "Hello from Event Action",
+    message: t("building.actions.defaultToastMessage"),
     tone: "success",
     type: "showToast"
   })
@@ -207,8 +232,33 @@ function addCallApiAction() {
   })
 }
 
+function removeOnClickAction(actionId: string) {
+  updateOnClickActions(onClickActions.value.filter((action) => action.id !== actionId))
+}
+
 function clearOnClickActions() {
   updateOnClickActions([])
+}
+
+function syncActionDraft() {
+  actionDraftJson.value = JSON.stringify(onClickActions.value, null, 2)
+  actionDraftError.value = ""
+}
+
+function applyActionDraft() {
+  try {
+    const parsed = JSON.parse(actionDraftJson.value)
+
+    if (!Array.isArray(parsed) || !parsed.every(isActionConfig)) {
+      actionDraftError.value = t("building.validation.actionsInvalidArray")
+      return
+    }
+
+    updateOnClickActions(parsed)
+    actionDraftError.value = ""
+  } catch {
+    actionDraftError.value = t("building.validation.actionsJsonInvalid")
+  }
 }
 
 watch([
@@ -224,27 +274,29 @@ watch(selectedBindingSourceId, () => {
     selectedBindingPath.value = fields[0]?.value || ""
   }
 })
+
+watch(onClickActions, syncActionDraft, { immediate: true })
 </script>
 
 <template>
-  <section class="building-editor-property-panel" aria-label="Property panel">
+  <section class="building-editor-property-panel" :aria-label="t('building.panels.property.aria')">
     <header>
-      <h2>PropertyPanel</h2>
-      <p>属性面板</p>
+      <h2>{{ t("building.panels.property.title") }}</h2>
+      <p>{{ t("building.panels.property.description") }}</p>
     </header>
 
     <div
       v-if="!hasSelectedNode"
       class="building-editor-property-panel__empty"
     >
-      <strong>未选择组件</strong>
-      <p>点击画布中的组件后，可以在这里编辑它的 props。</p>
+      <strong>{{ t("building.panels.property.noSelectionTitle") }}</strong>
+      <p>{{ t("building.panels.property.noSelectionDescription") }}</p>
     </div>
 
     <template v-else>
       <div class="building-editor-property-panel__summary">
-        <span>{{ componentMeta?.category || "unknown" }}</span>
-        <strong>{{ componentMeta?.name || selectedNode?.type }}</strong>
+        <span>{{ componentCategory }}</span>
+        <strong>{{ componentName }}</strong>
         <code>{{ selectedNode?.id }}</code>
       </div>
 
@@ -252,16 +304,16 @@ watch(selectedBindingSourceId, () => {
         v-if="!componentMeta"
         class="building-editor-property-panel__empty"
       >
-        <strong>未知组件协议</strong>
-        <p>当前节点没有匹配的 componentRegistry 配置。</p>
+        <strong>{{ t("building.panels.property.unknownComponentTitle") }}</strong>
+        <p>{{ t("building.panels.property.unknownComponentDescription") }}</p>
       </div>
 
       <div
         v-else-if="!controls.length || !hasEditableControls"
         class="building-editor-property-panel__empty"
       >
-        <strong>无可配置属性</strong>
-        <p>当前组件暂时没有可编辑的 propSchema。</p>
+        <strong>{{ t("building.panels.property.noPropsTitle") }}</strong>
+        <p>{{ t("building.panels.property.noPropsDescription") }}</p>
       </div>
 
       <form
@@ -321,23 +373,23 @@ watch(selectedBindingSourceId, () => {
             class="building-editor-property-panel__empty"
           >
             <strong>{{ control.label }}</strong>
-            <p>{{ control.type }} 类型暂未开放编辑。</p>
+            <p>{{ t("building.panels.property.unsupportedPropType", { type: control.type }) }}</p>
           </div>
         </template>
       </form>
 
-      <section class="building-editor-binding-panel" aria-label="Data binding panel">
+      <section class="building-editor-binding-panel" :aria-label="t('building.panels.property.bindingAria')">
         <header>
-          <h3>Data Binding</h3>
-          <p>Bind a first-level mock or api field to the selected component props.</p>
+          <h3>{{ t("building.panels.property.bindingTitle") }}</h3>
+          <p>{{ t("building.panels.property.bindingDescription") }}</p>
         </header>
 
         <div
           v-if="!dataSourceOptions.length"
           class="building-editor-property-panel__empty"
         >
-          <strong>No available data sources</strong>
-          <p>The current page schema has no data sources to bind.</p>
+          <strong>{{ t("building.panels.property.noDataSourcesTitle") }}</strong>
+          <p>{{ t("building.panels.property.noDataSourcesDescription") }}</p>
         </div>
 
         <div
@@ -346,7 +398,7 @@ watch(selectedBindingSourceId, () => {
         >
           <AoiSelect
             v-model="selectedBindingSourceId"
-            label="Data source"
+            :label="t('building.panels.property.dataSourceLabel')"
             :options="dataSourceOptions"
             variant="outlined"
           />
@@ -354,7 +406,7 @@ watch(selectedBindingSourceId, () => {
           <AoiSelect
             v-model="selectedBindingPath"
             :disabled="!bindingFieldOptions.length"
-            label="Field"
+            :label="t('building.panels.property.fieldLabel')"
             :options="bindingFieldOptions"
             variant="outlined"
           />
@@ -362,7 +414,7 @@ watch(selectedBindingSourceId, () => {
           <AoiSelect
             v-model="selectedBindingTargetKey"
             :disabled="!bindingTargetOptions.length"
-            label="Target prop"
+            :label="t('building.panels.property.targetPropLabel')"
             :options="bindingTargetOptions"
             variant="outlined"
           />
@@ -374,7 +426,7 @@ watch(selectedBindingSourceId, () => {
             variant="tonal"
             @click="applyBinding"
           >
-            应用绑定
+            {{ t("building.panels.property.applyBinding") }}
           </AoiButton>
         </div>
       </section>
@@ -382,11 +434,11 @@ watch(selectedBindingSourceId, () => {
       <section
         v-if="isButtonNode"
         class="building-editor-action-panel"
-        aria-label="Event action panel"
+        :aria-label="t('building.panels.property.actionAria')"
       >
         <header>
-          <h3>Event Actions</h3>
-          <p>Configure onClick actions stored in ComponentNode.events.</p>
+          <h3>{{ t("building.panels.property.actionTitle") }}</h3>
+          <p>{{ t("building.panels.property.actionDescription") }}</p>
         </header>
 
         <div class="building-editor-action-panel__controls">
@@ -396,7 +448,7 @@ watch(selectedBindingSourceId, () => {
             variant="tonal"
             @click="addShowToastAction"
           >
-            Add showToast
+            {{ t("building.actions.addShowToast") }}
           </AoiButton>
 
           <AoiButton
@@ -405,7 +457,7 @@ watch(selectedBindingSourceId, () => {
             variant="outlined"
             @click="addNavigateAction"
           >
-            Add navigate
+            {{ t("building.actions.addNavigate") }}
           </AoiButton>
 
           <AoiButton
@@ -415,7 +467,7 @@ watch(selectedBindingSourceId, () => {
             variant="outlined"
             @click="addCallApiAction"
           >
-            Add callApi
+            {{ t("building.actions.addCallApi") }}
           </AoiButton>
 
           <AoiButton
@@ -425,7 +477,7 @@ watch(selectedBindingSourceId, () => {
             variant="text"
             @click="clearOnClickActions"
           >
-            Clear onClick actions
+            {{ t("building.actions.clearOnClick") }}
           </AoiButton>
         </div>
 
@@ -439,6 +491,14 @@ watch(selectedBindingSourceId, () => {
           >
             <span>{{ action.type }}</span>
             <code>{{ action.id }}</code>
+            <AoiButton
+              icon="trash-2"
+              size="sm"
+              variant="text"
+              @click="removeOnClickAction(action.id)"
+            >
+              {{ t("building.common.remove") }}
+            </AoiButton>
           </li>
         </ul>
 
@@ -446,8 +506,28 @@ watch(selectedBindingSourceId, () => {
           v-else
           class="building-editor-action-panel__empty"
         >
-          No onClick actions configured.
+          {{ t("building.actions.noOnClick") }}
         </p>
+
+        <div class="building-editor-action-json">
+          <AoiTextField
+            v-model="actionDraftJson"
+            :error-text="actionDraftError"
+            :label="t('building.actions.jsonLabel')"
+            multiline
+            :rows="8"
+            variant="outlined"
+          />
+
+          <AoiButton
+            icon="braces"
+            size="sm"
+            variant="outlined"
+            @click="applyActionDraft"
+          >
+            {{ t("building.actions.applyJson") }}
+          </AoiButton>
+        </div>
       </section>
     </template>
   </section>
@@ -530,6 +610,7 @@ watch(selectedBindingSourceId, () => {
 .building-editor-binding-panel,
 .building-editor-binding-form,
 .building-editor-action-panel,
+.building-editor-action-json,
 .building-editor-action-panel__controls,
 .building-editor-action-list {
   display: grid;

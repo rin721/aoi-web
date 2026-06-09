@@ -773,5 +773,340 @@
     "volume": "音量",
     "zoomIn": "放大",
     "zoomOut": "缩小"
+  },
+  "building": {
+    "actions": {
+      "addCallApi": "添加 callApi",
+      "addNavigate": "添加 navigate",
+      "addShowToast": "添加 showToast",
+      "apiCompleted": "{name} 已完成",
+      "applyJson": "应用 actions JSON",
+      "clearOnClick": "清空 onClick actions",
+      "defaultToastMessage": "来自 Event Action 的问候",
+      "jsonLabel": "onClick actions JSON",
+      "noOnClick": "还没有配置 onClick actions。"
+    },
+    "catalog": {
+      "canvasAria": "Schema 渲染的组件目录",
+      "emptyText": "当前没有可展示的组件。",
+      "eyebrow": "低代码管理页 · {appId}",
+      "headTitle": "组件目录 - {appId}",
+      "itemSummary": "{type} · {category} · {count} 个 props",
+      "metaDescription": "由 LowCodePage schema 渲染的只读构建器管理页。",
+      "name": "组件目录",
+      "pageTitle": "组件列表管理页",
+      "schemaSummary": "当前 registry 暴露 {count} 个低代码组件。此页面主体由 LowCodeRenderer 渲染。",
+      "schemaTitle": "组件列表",
+      "sourceName": "构建器组件目录"
+    },
+    "common": {
+      "app": "应用",
+      "apps": "应用",
+      "backToEditor": "返回编辑器",
+      "components": "组件",
+      "copy": "复制",
+      "delete": "删除",
+      "devOnly": "仅开发",
+      "disable": "禁用",
+      "disabled": "已禁用",
+      "down": "下移",
+      "editor": "编辑器",
+      "enable": "启用",
+      "enabled": "已启用",
+      "none": "无",
+      "openRuntime": "打开运行态",
+      "pageCount": "{count} 页",
+      "pages": "页面",
+      "preview": "预览",
+      "refresh": "刷新",
+      "remove": "移除",
+      "reset": "重置",
+      "restore": "恢复",
+      "runtime": "运行态",
+      "save": "保存",
+      "unknown": "未知",
+      "up": "上移",
+      "viewJson": "查看 JSON"
+    },
+    "console": {
+      "contract": {
+        "appBoundary": "LowCodeApp 是应用边界。",
+        "layoutPrimary": "LowCodePage.layout 是主页面树。",
+        "recursiveNodes": "ComponentNode children 与 slots 都是递归结构。",
+        "registryRenderer": "渲染输出只使用已注册组件。",
+        "sqliteLocal": "SQLite 是本地开发服务数据，不是 mock API 数据。"
+      },
+      "contractAria": "MVP 契约",
+      "contractDescription": "构建期能力始终围绕 ComponentNode schema 展开。",
+      "contractTitle": "MVP 契约",
+      "description": "仅开发环境可用的自构建工作台，覆盖 schema 页面、注册组件、数据源、本地保存、预览和运行态。",
+      "headTitle": "/building - Aoi",
+      "heroAria": "构建器入口",
+      "heroDescription": "无需离开 Nuxt 开发工作区，即可创建页面、添加组件、编辑 props、绑定数据、配置动作、保存版本、导出 JSON，并预览运行态输出。",
+      "heroEyebrow": "Schema MVP",
+      "heroTitle": "用已注册 schema 原语构建本地应用。",
+      "localAppsAria": "本地低代码应用",
+      "localAppsDescription": "存储在浏览器 localStorage 中，并通过统一 schema normalizer 恢复。",
+      "localAppsTitle": "本地应用",
+      "openEditor": "打开编辑器",
+      "resourcesAria": "平台资源",
+      "resourcesDescription": "当前低代码平台 registry 快照。",
+      "resourcesTitle": "资源",
+      "roadmapAria": "平台阶段",
+      "roadmapDescription": "构建器按 schema-first 顺序演进。",
+      "roadmapTitle": "路线图",
+      "stageStatus": {
+        "done": "已完成",
+        "later": "后续",
+        "next": "下一步"
+      },
+      "stages": {
+        "advanced": {
+          "description": "工作流编排、插件市场、协同发布和生产权限。",
+          "label": "高级平台能力"
+        },
+        "data": {
+          "description": "可编辑数据源配置、本地 mock 数据、GET API connector 和开发 SQLite adapter。",
+          "label": "数据适配"
+        },
+        "schema": {
+          "description": "统一 LowCodeApp schema、renderer、registry、storage、preview 与 runtime。",
+          "label": "Schema MVP"
+        }
+      },
+      "startFromMock": "从 mock 应用开始",
+      "stats": {
+        "apps": "应用",
+        "components": "组件",
+        "dataSources": "数据源",
+        "themes": "主题"
+      },
+      "title": "Aoi Building 控制台"
+    },
+    "editor": {
+      "description": "低代码编辑器骨架：当前支持多应用、多页面、本地保存、版本快照和预览；拖拽、权限和发布不进入本轮 MVP。",
+      "generatedPageDescription": "由本地 /building 编辑器创建。",
+      "generatedPageName": "页面 {number}",
+      "generatedPageTitle": "页面 {number}",
+      "headTitle": "Building 编辑器 - {appId}",
+      "status": {
+        "imported": "已导入，点击保存后持久化。",
+        "restoredFromLocal": "已从本地恢复",
+        "savedAt": "已保存 {time}",
+        "saveFailed": "保存失败，请检查浏览器存储权限。",
+        "versionLabel": "保存于 {time}",
+        "versionRestored": "已恢复历史版本，点击保存后持久化。"
+      },
+      "title": "Building 编辑器 · {appId}",
+      "toolbar": {
+        "aria": "编辑器工具栏",
+        "toggleSchema": "查看 Schema"
+      }
+    },
+    "panels": {
+      "canvas": {
+        "aria": "画布",
+        "title": "画布"
+      },
+      "component": {
+        "addToCanvas": "添加到画布",
+        "aria": "组件面板",
+        "description": "已注册的 schema 原语",
+        "title": "组件"
+      },
+      "dataSource": {
+        "apiAria": "API 数据源",
+        "apiDescription": "仅支持 GET 的外部 API 请求。",
+        "apiTitle": "API Connector",
+        "applyDataSources": "应用数据源",
+        "aria": "数据源面板",
+        "description": "API connector 与本地数据库 adapter 测试面板。",
+        "insertUser": "插入用户",
+        "jsonLabel": "数据源 JSON",
+        "noApiDescription": "先在页面 schema 中添加 api DataSource 配置，再测试请求。",
+        "noApiTitle": "没有 API 数据源",
+        "noSqliteDescription": "添加 sqlite DataSource 配置以测试本地数据库操作。",
+        "noSqliteTitle": "没有 SQLite 数据源",
+        "queryUsers": "查询用户",
+        "resetDraft": "重置草稿",
+        "schemaAria": "数据源 schema 编辑器",
+        "schemaDescription": "编辑当前页面 LowCodePage.dataSources 中保存的 DataSource 数组。",
+        "schemaTitle": "Schema 配置",
+        "sqliteAria": "SQLite 数据源",
+        "sqliteDescription": "用于本地 CRUD 流程的内存或开发服务 adapter。",
+        "sqliteTitle": "SQLite Adapter",
+        "testRequest": "测试请求",
+        "title": "数据源"
+      },
+      "nodeTree": {
+        "aria": "节点树面板",
+        "description": "非拖拽 schema 编辑。",
+        "emptyDescription": "先选择或创建页面，再编辑 schema 节点。",
+        "emptyTitle": "未选择页面",
+        "title": "节点树"
+      },
+      "pageManager": {
+        "appButton": "{name} · {count}",
+        "aria": "页面管理",
+        "createPage": "创建页面",
+        "title": "页面管理"
+      },
+      "plugin": {
+        "aria": "插件面板",
+        "description": "本地内存中的插件开关。",
+        "emptyDescription": "注册 PluginManifest 后即可暴露可选低代码能力。",
+        "emptyTitle": "没有本地插件",
+        "title": "插件"
+      },
+      "property": {
+        "actionAria": "事件动作面板",
+        "actionDescription": "配置存储在 ComponentNode.events 中的 onClick actions。",
+        "actionTitle": "事件动作",
+        "applyBinding": "应用绑定",
+        "aria": "属性面板",
+        "bindingAria": "数据绑定面板",
+        "bindingDescription": "将一级 mock、api 或 sqlite 字段绑定到选中组件 props。",
+        "bindingTitle": "数据绑定",
+        "dataSourceLabel": "数据源",
+        "dataSourceOption": "{name} · {type}",
+        "description": "编辑选中节点的 props、绑定和动作。",
+        "fieldLabel": "字段",
+        "noDataSourcesDescription": "当前页面 schema 没有可绑定的数据源。",
+        "noDataSourcesTitle": "没有可用数据源",
+        "noPropsDescription": "当前组件暂时没有可编辑的 propSchema。",
+        "noPropsTitle": "无可配置属性",
+        "noSelectionDescription": "点击画布中的组件后，可以在这里编辑它的 props。",
+        "noSelectionTitle": "未选择组件",
+        "targetPropLabel": "目标 prop",
+        "title": "属性",
+        "unknownComponentDescription": "当前节点没有匹配的 componentRegistry 配置。",
+        "unknownComponentTitle": "未知组件协议",
+        "unsupportedPropType": "{type} 类型暂未开放编辑。"
+      },
+      "publish": {
+        "aria": "发布与导出面板",
+        "copyBrowserOnly": "复制仅在浏览器中可用。",
+        "copyFailedManual": "复制失败，请手动选择 SchemaViewer 内容。",
+        "copyJson": "复制 JSON",
+        "copyPermissionFailed": "复制失败，请检查浏览器剪贴板权限。",
+        "copySuccess": "已复制当前应用 JSON。",
+        "currentPath": "当前路径",
+        "description": "导出、复制或导入当前 LowCodeApp JSON。本轮不做云发布。",
+        "downloadBrowserOnly": "下载仅在浏览器中可用。",
+        "downloadFailed": "下载失败，请检查浏览器文件下载权限。",
+        "downloadJson": "下载 JSON",
+        "downloadSuccess": "已生成应用 JSON 下载。",
+        "importInvalid": "导入失败：请输入合法的 LowCodeApp JSON。",
+        "importLabel": "导入 LowCodeApp JSON",
+        "importSuccess": "已导入应用 Schema，点击保存后持久化。",
+        "importToCurrent": "导入到当前应用",
+        "statsAria": "当前应用导出摘要",
+        "title": "发布"
+      },
+      "schemaViewer": {
+        "aria": "Schema 查看器",
+        "description": "当前应用 Schema 的只读 JSON 快照。",
+        "title": "Schema 查看器"
+      },
+      "theme": {
+        "aria": "主题面板",
+        "background": "背景",
+        "description": "低代码渲染 token。",
+        "presetLabel": "主题预设",
+        "primary": "主色",
+        "radius": "圆角",
+        "spacing": "间距",
+        "text": "文本",
+        "title": "主题"
+      },
+      "version": {
+        "aria": "版本面板",
+        "description": "当前页面的本地 Schema 快照。",
+        "emptyDescription": "点击工具栏的保存后，会为当前页面生成一个本地快照。",
+        "emptyTitle": "暂无版本",
+        "noPageDescription": "选择页面后可以查看它的保存历史。",
+        "noPageTitle": "未选择页面",
+        "title": "版本"
+      }
+    },
+    "preview": {
+      "canvasAria": "已保存 schema 预览",
+      "defaultNotice": "未找到本地保存结果，当前展示默认应用 Schema。",
+      "empty": "当前应用没有可预览页面。",
+      "eyebrow": "预览 · {appId}",
+      "fallbackNotice": "未找到路径 {path} 对应的页面，当前显示 fallback 页面。",
+      "headTitle": "Building 预览 - {appId}",
+      "restoredNotice": "正在预览本地保存的应用 Schema。"
+    },
+    "registry": {
+      "categories": {
+        "action": "动作",
+        "basic": "基础",
+        "data": "数据",
+        "layout": "布局",
+        "media": "媒体"
+      },
+      "components": {
+        "button": { "name": "按钮" },
+        "cardBlock": { "name": "卡片块" },
+        "container": { "name": "容器" },
+        "image": { "name": "图片" },
+        "listBlock": { "name": "列表块" },
+        "text": { "name": "文本" }
+      },
+      "props": {
+        "altText": "替代文本",
+        "aspectRatio": "宽高比",
+        "class": "Class",
+        "classDescription": "未来渲染器可使用的可选 CSS class。",
+        "description": "描述",
+        "disabled": "禁用",
+        "emptyText": "空状态文本",
+        "icon": "图标",
+        "items": "数据项",
+        "itemsDescription": "通常由 DataBinding 提供的数组数据。",
+        "label": "标签",
+        "size": "尺寸",
+        "source": "来源",
+        "subtitleField": "副标题字段",
+        "text": "文本",
+        "title": "标题",
+        "titleField": "标题字段",
+        "variant": "样式"
+      }
+    },
+    "runtime": {
+      "aria": "低代码运行态",
+      "empty": "当前应用没有可渲染页面。",
+      "fallbackNotice": "未找到路径 {path} 对应的页面，当前显示应用的默认页面。",
+      "headTitle": "低代码运行态 - {appId}"
+    },
+    "shell": {
+      "canvasLabel": "构建器画布",
+      "inspectorLabel": "构建器检查器",
+      "outputLabel": "构建器输出",
+      "resourcesLabel": "构建器资源",
+      "toolbarLabel": "构建器工具栏",
+      "workspaceLabel": "构建器工作区"
+    },
+    "themes": {
+      "default": "默认",
+      "soft": "柔和"
+    },
+    "validation": {
+      "actionsInvalidArray": "Actions 必须是受支持 ActionConfig 项组成的数组。",
+      "actionsJsonInvalid": "Actions JSON 无效。",
+      "apiActionFailed": "API action 执行失败",
+      "apiDataSourceNotFound": "未找到 API 数据源：{id}",
+      "apiRequestFailed": "API 请求失败",
+      "dataSourceActionFailed": "数据源动作执行失败",
+      "dataSourcesInvalidItems": "每个数据源都必须包含合法的 id、name、type 和 config。",
+      "dataSourcesJsonInvalid": "数据源 JSON 无效。",
+      "dataSourcesMustBeArray": "数据源必须是 JSON 数组。",
+      "sqliteNoTables": "SQLite 数据源没有表。",
+      "sqliteQueryFailed": "SQLite 查询失败",
+      "unknownComponent": "未知低代码组件：{type}",
+      "unsupportedAction": "暂不支持的 action：{type}"
+    }
   }
 }

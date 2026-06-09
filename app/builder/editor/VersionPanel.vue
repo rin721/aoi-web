@@ -8,6 +8,8 @@ defineProps<{
   versions: PageVersion[]
 }>()
 
+const { t } = useI18n()
+
 const emit = defineEmits<{
   "restore-version": [version: PageVersion]
 }>()
@@ -26,11 +28,11 @@ const versionCountLabel = computed(() => (count: number) => `${count}`)
 </script>
 
 <template>
-  <section class="building-editor-version-panel" aria-label="Version panel">
+  <section class="building-editor-version-panel" :aria-label="t('building.panels.version.aria')">
     <header class="building-editor-version-panel__header">
       <div>
-        <h2>VersionPanel</h2>
-        <p>当前页面的本地 Schema 快照。</p>
+        <h2>{{ t("building.panels.version.title") }}</h2>
+        <p>{{ t("building.panels.version.description") }}</p>
       </div>
       <strong>{{ versionCountLabel(versions.length) }}</strong>
     </header>
@@ -39,16 +41,16 @@ const versionCountLabel = computed(() => (count: number) => `${count}`)
       v-if="!page"
       class="building-editor-version-panel__empty"
     >
-      <strong>未选择页面</strong>
-      <p>选择页面后可以查看它的保存历史。</p>
+      <strong>{{ t("building.panels.version.noPageTitle") }}</strong>
+      <p>{{ t("building.panels.version.noPageDescription") }}</p>
     </div>
 
     <div
       v-else-if="!versions.length"
       class="building-editor-version-panel__empty"
     >
-      <strong>暂无版本</strong>
-      <p>点击工具栏的保存后，会为当前页面生成一个本地快照。</p>
+      <strong>{{ t("building.panels.version.emptyTitle") }}</strong>
+      <p>{{ t("building.panels.version.emptyDescription") }}</p>
     </div>
 
     <div
@@ -72,11 +74,11 @@ const versionCountLabel = computed(() => (count: number) => `${count}`)
           variant="outlined"
           @click="emit('restore-version', version)"
         >
-          恢复
+          {{ t("building.common.restore") }}
         </AoiButton>
 
         <details class="building-editor-version-card__details">
-          <summary>查看 JSON</summary>
+          <summary>{{ t("building.common.viewJson") }}</summary>
           <pre>{{ formatVersionSchema(version) }}</pre>
         </details>
       </article>

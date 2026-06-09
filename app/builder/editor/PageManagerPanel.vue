@@ -8,6 +8,8 @@ defineProps<{
   currentPageId?: string
 }>()
 
+const { t } = useI18n()
+
 const emit = defineEmits<{
   "create-page": []
   "select-page": [pageId: string]
@@ -23,10 +25,10 @@ function formatPageLabel(page: LowCodePage) {
 </script>
 
 <template>
-  <section class="building-editor-page-manager" aria-label="Page manager">
+  <section class="building-editor-page-manager" :aria-label="t('building.panels.pageManager.aria')">
     <header class="building-editor-page-manager__header">
       <div>
-        <h2>页面管理</h2>
+        <h2>{{ t("building.panels.pageManager.title") }}</h2>
         <p>{{ appSchema.name }}</p>
       </div>
       <strong>{{ appSchema.pages.length }}</strong>
@@ -34,7 +36,7 @@ function formatPageLabel(page: LowCodePage) {
 
     <div class="building-editor-page-manager__section">
       <div class="building-editor-page-manager__section-header">
-        <h3>应用</h3>
+        <h3>{{ t("building.common.apps") }}</h3>
         <span>{{ apps.length }}</span>
       </div>
 
@@ -46,21 +48,21 @@ function formatPageLabel(page: LowCodePage) {
           :to="getEditorTo(app.id)"
           :variant="app.id === appSchema.id ? 'tonal' : 'outlined'"
         >
-          {{ app.name }} · {{ app.pageCount }}
+          {{ t("building.panels.pageManager.appButton", { name: app.name, count: app.pageCount }) }}
         </AoiButton>
       </div>
     </div>
 
     <div class="building-editor-page-manager__section">
       <div class="building-editor-page-manager__section-header">
-        <h3>页面</h3>
+        <h3>{{ t("building.common.pages") }}</h3>
         <AoiButton
           icon="plus"
           size="sm"
           variant="tonal"
           @click="emit('create-page')"
         >
-          创建页面
+          {{ t("building.panels.pageManager.createPage") }}
         </AoiButton>
       </div>
 

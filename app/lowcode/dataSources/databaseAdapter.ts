@@ -14,6 +14,12 @@ interface MemoryTable {
   schema: SQLiteTableSchema
 }
 
+interface RemoteSQLiteResponse<T> {
+  data?: T
+  error?: string
+  ok: boolean
+}
+
 function cloneRecord(record: DatabaseRecord): DatabaseRecord {
   return JSON.parse(JSON.stringify(record)) as DatabaseRecord
 }
@@ -148,8 +154,65 @@ export class InMemoryDatabaseAdapter implements DatabaseAdapter {
   }
 }
 
+export class RemoteSQLiteDatabaseAdapter implements DatabaseAdapter {
+  private readonly source: SQLiteDataSource
+
+  constructor(source: SQLiteDataSource) {
+    this.source = source
+  }
+
+  async connect() {
+    await this.request("connect")
+  }
+
+  async initSchema(tables: SQLiteTableSchema[]) {
+    await this.request("initSchema", { tables })
+  }
+
+  async query(table: string, options: DatabaseQueryOptions = {}) {
+    return await this.request<DatabaseRecord[]>("query", { options, table })
+  }
+
+  async insert(table: string, record: DatabaseRecord) {
+    return await this.request<DatabaseRecord>("insert", { record, table })
+  }
+
+  async update(table: string, where: DatabaseWhere, patch: DatabaseRecord) {
+    return await this.request<DatabaseRecord[]>("update", { patch, table, where })
+  }
+
+  async delete(table: string, where?: DatabaseWhere) {
+    return await this.request<number>("delete", { table, where })
+  }
+
+  private async request<T>(operation: string, payload: Record<string, unknown> = {}) {
+    if (!import.meta.client) {
+      throw new Error("Remote SQLite adapter is only available in the browser.")
+    }
+
+    const response = await fetch(`/api/building/sqlite/${encodeURIComponent(this.source.id)}`, {
+      body: JSON.stringify({
+        operation,
+        source: this.source,
+        ...payload
+      }),
+      headers: {
+        "content-type": "application/json"
+      },
+      method: "POST"
+    })
+    const result = await response.json() as RemoteSQLiteResponse<T>
+
+    if (!response.ok || !result.ok) {
+      throw new Error(result.error || `SQLite ${operation} failed.`)
+    }
+
+    return result.data as T
+  }
+}
+
 export function createSQLiteDatabaseAdapter(source: SQLiteDataSource): DatabaseAdapter {
-  return new InMemoryDatabaseAdapter(source)
+  return new RemoteSQLiteDatabaseAdapter(source)
 }
 
 export function createDatabaseAdapter(source: SQLiteDataSource): DatabaseAdapter {

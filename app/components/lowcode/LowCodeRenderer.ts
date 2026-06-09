@@ -4,12 +4,14 @@ import AoiStatusMessage from "~/components/aoi/AoiStatusMessage.vue"
 import { getNodeEvent, runEventActions } from "~/lowcode/actions/actionRunner"
 import { getRegisteredComponent } from "~/lowcode/componentRegistry"
 import { executeApiDataSource } from "~/lowcode/dataSources/apiConnector"
+import { createDatabaseAdapter } from "~/lowcode/dataSources/databaseAdapter"
 import { resolveDataBindingValue } from "~/lowcode/dataSources/dataSourceRegistry"
 import { toThemeCssVars } from "~/lowcode/themes/themeCssVars"
 import { getDefaultTheme, normalizeTheme } from "~/lowcode/themes/themeRegistry"
 import type { ActionMessage, ActionMessageTone, ComponentNode, ComponentProps, ComponentStyle, DataSource, EventConfig, EventName, ThemeConfig } from "~/types/lowcode"
 
 type ApiDataSource = Extract<DataSource, { type: "api" }>
+type SQLiteDataSource = Extract<DataSource, { type: "sqlite" }>
 
 interface LowCodeRenderContext {
   actionsEnabled: boolean
@@ -20,6 +22,7 @@ interface LowCodeRenderContext {
   selectable: boolean
   selectedNodeId?: string
   theme: ThemeConfig
+  translate?: (key: string, fallback: string, params?: Record<string, unknown>) => string
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -204,7 +207,27 @@ function applySelectableProps(
 }
 
 function getNodeChildren(node: ComponentNode, context: LowCodeRenderContext) {
+  const children = node.children?.map((child) => renderNode(child, context)) || []
+  const slotChildren = Object.values(node.slots || {})
+    .flatMap((slotNodes) => slotNodes.map((child) => renderNode(child, context)))
+
+  return [
+    ...children,
+    ...slotChildren
+  ]
+}
+
+function getDefaultNodeChildren(node: ComponentNode, context: LowCodeRenderContext) {
   return node.children?.map((child) => renderNode(child, context)) || []
+}
+
+function getNodeSlots(node: ComponentNode, context: LowCodeRenderContext) {
+  return Object.fromEntries(
+    Object.entries(node.slots || {}).map(([slotName, slotNodes]) => [
+      slotName,
+      () => slotNodes.map((child) => renderNode(child, context))
+    ])
+  ) as Record<string, () => VNodeChild[]>
 }
 
 function renderUnknownNode(node: ComponentNode, context: LowCodeRenderContext): VNodeChild {
@@ -221,7 +244,11 @@ function renderUnknownNode(node: ComponentNode, context: LowCodeRenderContext): 
   applySelectableProps(props, node, context)
 
   return h("div", props, [
-    `Unknown low-code component: ${node.type}`,
+    context.translate?.(
+      "building.validation.unknownComponent",
+      `Unknown low-code component: ${node.type}`,
+      { type: node.type }
+    ) || `Unknown low-code component: ${node.type}`,
     ...getNodeChildren(node, context)
   ])
 }
@@ -266,6 +293,10 @@ function getApiDataSources(dataSources?: DataSource[]): ApiDataSource[] {
   return (dataSources || []).filter((source): source is ApiDataSource => source.type === "api")
 }
 
+function getSQLiteDataSources(dataSources?: DataSource[]): SQLiteDataSource[] {
+  return (dataSources || []).filter((source): source is SQLiteDataSource => source.type === "sqlite")
+}
+
 function toStatusMessageTone(tone: ActionMessageTone | undefined) {
   return tone === "danger" ? "error" : tone || "info"
 }
@@ -290,21 +321,27 @@ export function renderNode(
   applyThemeProps(props, node)
   applySelectableProps(props, node, context)
   const nodeContent = resolveNodeContent(node, props)
-  const children = getNodeChildren(node, context)
+  const children = getDefaultNodeChildren(node, context)
   const renderedChildren = nodeContent !== undefined
     ? [nodeContent, ...children]
     : children
+  const slots = getNodeSlots(node, context)
+  const hasNamedSlots = Object.keys(slots).length > 0
 
-  if (!renderedChildren.length) {
+  if (!renderedChildren.length && !hasNamedSlots) {
     return h(entry.component, props)
   }
 
   if (typeof entry.component === "string") {
-    return h(entry.component, props, renderedChildren)
+    return h(entry.component, props, [
+      ...renderedChildren,
+      ...Object.values(slots).flatMap((slot) => slot())
+    ])
   }
 
   return h(entry.component, props, {
-    default: () => renderedChildren
+    ...(renderedChildren.length ? { default: () => renderedChildren } : {}),
+    ...slots
   })
 }
 
@@ -348,7 +385,14 @@ export default defineComponent({
     const dataSourceValues = ref<Record<string, unknown>>({})
     const variables = ref<Record<string, unknown>>({})
     const router = useRouter()
+    const { t } = useI18n()
     let requestSequence = 0
+
+    function translate(key: string, fallback: string, params?: Record<string, unknown>) {
+      const translated = params ? t(key, params) : t(key)
+
+      return translated === key ? fallback : translated
+    }
 
     function setDataSourceValue(sourceId: string, value: unknown) {
       dataSourceValues.value = {
@@ -378,7 +422,8 @@ export default defineComponent({
         navigate: (to) => router.push(to),
         setDataSourceValue,
         setVariable,
-        showMessage
+        showMessage,
+        translate
       })
     }
 
@@ -394,25 +439,62 @@ export default defineComponent({
         navigate: (to) => router.push(to),
         setDataSourceValue,
         setVariable,
-        showMessage
+        showMessage,
+        translate
       })
       await runNodeEvent(props.node, "onLoad")
     }
 
-    async function loadApiDataSources() {
-      const apiSources = getApiDataSources(props.dataSources)
+    async function querySQLiteDataSource(source: SQLiteDataSource) {
+      const adapter = createDatabaseAdapter(source)
+      const value: Record<string, unknown> = {}
 
-      if (!import.meta.client || !apiSources.length) {
+      await adapter.connect()
+
+      for (const table of source.config.tables) {
+        value[table.name] = await adapter.query(table.name)
+      }
+
+      return value
+    }
+
+    async function loadRuntimeDataSources() {
+      const apiSources = getApiDataSources(props.dataSources)
+      const sqliteSources = getSQLiteDataSources(props.dataSources)
+
+      if (!import.meta.client || (!apiSources.length && !sqliteSources.length)) {
         dataSourceValues.value = {}
         return
       }
 
       requestSequence += 1
       const currentRequest = requestSequence
-      const results = await Promise.all(apiSources.map(async (source) => ({
+      const apiResults = await Promise.all(apiSources.map(async (source) => ({
         result: await executeApiDataSource(source),
         source
       })))
+      const sqliteResults = await Promise.all(sqliteSources.map(async (source) => {
+        try {
+          return {
+            result: {
+              data: await querySQLiteDataSource(source),
+              ok: true
+            },
+            source
+          }
+        } catch (error) {
+          return {
+            result: {
+              error: error instanceof Error ? error.message : translate(
+                "building.validation.sqliteQueryFailed",
+                "SQLite query failed"
+              ),
+              ok: false
+            },
+            source
+          }
+        }
+      }))
 
       if (currentRequest !== requestSequence) {
         return
@@ -420,7 +502,10 @@ export default defineComponent({
 
       const nextValues: Record<string, unknown> = {}
 
-      for (const { result, source } of results) {
+      for (const { result, source } of [
+        ...apiResults,
+        ...sqliteResults
+      ]) {
         if (result.ok) {
           nextValues[source.id] = result.data
         }
@@ -432,7 +517,7 @@ export default defineComponent({
     watch(
       () => props.dataSources,
       () => {
-        void loadApiDataSources()
+        void loadRuntimeDataSources()
       },
       { deep: true, immediate: true }
     )
@@ -459,7 +544,8 @@ export default defineComponent({
         runNodeEvent,
         selectable: props.selectable,
         selectedNodeId: props.selectedNodeId,
-        theme
+        theme,
+        translate
       })
       const themedChildren = [
         props.actionsEnabled && actionMessage.value

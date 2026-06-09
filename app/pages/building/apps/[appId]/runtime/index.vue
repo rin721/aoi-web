@@ -10,6 +10,7 @@ if (!import.meta.dev) {
 }
 
 const route = useRoute()
+const { t } = useI18n()
 const appId = computed(() => {
   const value = route.params.appId
 
@@ -21,7 +22,7 @@ const appId = computed(() => {
 })
 
 useHead(() => ({
-  title: `Low-code Runtime - ${appId.value}`
+  title: t("building.runtime.headTitle", { appId: appId.value })
 }))
 </script>
 

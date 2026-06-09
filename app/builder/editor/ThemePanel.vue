@@ -20,9 +20,21 @@ const emit = defineEmits<{
   "update-theme": [theme: ThemeConfig]
 }>()
 
+const { t, te } = useI18n()
 const selectedThemeId = ref(props.theme?.id || getDefaultTheme().id)
 const currentTheme = computed(() => normalizeTheme(props.theme))
-const themeOptions = computed(() => getThemeOptions())
+const currentThemeName = computed(() => getThemeLabel(currentTheme.value.id, currentTheme.value.name))
+const themeOptions = computed(() =>
+  getThemeOptions().map((option) => ({
+    ...option,
+    label: getThemeLabel(option.value, option.label)
+  }))
+)
+
+function getThemeLabel(themeId: string, fallback: string) {
+  const key = `building.themes.${themeId}`
+  return te(key) ? t(key) : fallback
+}
 
 function emitTheme(theme: ThemeConfig) {
   emit("update-theme", cloneTheme(theme))
@@ -82,19 +94,19 @@ watch(
 </script>
 
 <template>
-  <section class="building-editor-theme-panel" aria-label="Theme panel">
+  <section class="building-editor-theme-panel" :aria-label="t('building.panels.theme.aria')">
     <header class="building-editor-theme-panel__header">
       <div>
-        <h2>Theme</h2>
-        <p>Low-code render tokens.</p>
+        <h2>{{ t("building.panels.theme.title") }}</h2>
+        <p>{{ t("building.panels.theme.description") }}</p>
       </div>
-      <strong>{{ currentTheme.name }}</strong>
+      <strong>{{ currentThemeName }}</strong>
     </header>
 
     <div class="building-editor-theme-panel__controls">
       <AoiSelect
         :model-value="selectedThemeId"
-        label="Theme preset"
+        :label="t('building.panels.theme.presetLabel')"
         :options="themeOptions"
         variant="outlined"
         @update:model-value="selectTheme"
@@ -106,38 +118,38 @@ watch(
         variant="outlined"
         @click="resetTheme"
       >
-        Reset
+        {{ t("building.common.reset") }}
       </AoiButton>
     </div>
 
     <div class="building-editor-theme-token-grid">
       <AoiTextField
         :model-value="currentTheme.colors.primary"
-        label="Primary"
+        :label="t('building.panels.theme.primary')"
         variant="outlined"
         @update:model-value="updateColor('primary', $event)"
       />
       <AoiTextField
         :model-value="currentTheme.colors.background"
-        label="Background"
+        :label="t('building.panels.theme.background')"
         variant="outlined"
         @update:model-value="updateColor('background', $event)"
       />
       <AoiTextField
         :model-value="currentTheme.colors.text"
-        label="Text"
+        :label="t('building.panels.theme.text')"
         variant="outlined"
         @update:model-value="updateColor('text', $event)"
       />
       <AoiTextField
         :model-value="currentTheme.spacing.md"
-        label="Spacing"
+        :label="t('building.panels.theme.spacing')"
         variant="outlined"
         @update:model-value="updateSpacing('md', $event)"
       />
       <AoiTextField
         :model-value="currentTheme.radius.lg"
-        label="Radius"
+        :label="t('building.panels.theme.radius')"
         variant="outlined"
         @update:model-value="updateRadius('lg', $event)"
       />
@@ -154,7 +166,7 @@ watch(
       }"
     >
       <span />
-      <strong>{{ currentTheme.name }}</strong>
+      <strong>{{ currentThemeName }}</strong>
     </div>
   </section>
 </template>

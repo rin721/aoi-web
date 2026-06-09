@@ -14,7 +14,11 @@ export async function runAction(
 
   if (!executor) {
     context.showMessage({
-      message: `Unsupported action: ${action.type}`,
+      message: context.translate?.(
+        "building.validation.unsupportedAction",
+        `Unsupported action: ${action.type}`,
+        { type: action.type }
+      ) || `Unsupported action: ${action.type}`,
       tone: "danger"
     })
     return

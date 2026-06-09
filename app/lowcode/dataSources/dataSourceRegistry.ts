@@ -53,7 +53,7 @@ export const apiDataSources: DataSource[] = [
 export const sqliteDataSources: DataSource[] = [
   {
     config: {
-      adapter: "memory",
+      adapter: "sqlite",
       databaseName: "aoi-local",
       tables: [
         {
