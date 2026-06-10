@@ -99,7 +99,8 @@
     "routeProgressDelayMs",
     "routeProgressHeightPx",
     "routeProgressShowSpinner",
-    "routeProgressEasing"
+    "routeProgressEasing",
+    "accentPresetCards"
   ],
   "id": "build-profile",
   "name": "aoi",
@@ -116,6 +117,29 @@
       "b": 82,
       "a": 1
     },
+    "derivationPreset": "balanced",
+    "settingDerivationStrengths": {
+      "auxiliaryPalette": 100,
+      "surfaceTint": 100,
+      "stateLayer": 100,
+      "navigationColor": 100,
+      "materialColor": 100,
+      "shadowDepth": 100,
+      "typography": 100,
+      "spacing": 100,
+      "radius": 100,
+      "controls": 100,
+      "contentWidth": 100,
+      "mediaGrid": 100,
+      "settingsLayout": 100,
+      "revealMotion": 100,
+      "routeProgress": 100,
+      "smoothScroll": 100,
+      "scrollSnap": 100,
+      "scrollHijack": 100,
+      "rubberBand": 100,
+      "danmaku": 100
+    },
     "accentDerivationStrengths": {
       "accent10": 100,
       "accent20": 100,
@@ -130,15 +154,15 @@
     "backgroundOpacity": 0.35,
     "backgroundBlur": 1,
     "backgroundDim": 0.2,
-    "danmakuBlocklist": "",
-    "danmakuBottomModeEnabled": true,
     "danmakuEnabled": true,
-    "danmakuFontScale": 1,
-    "danmakuOpacity": 0.86,
     "danmakuScrollModeEnabled": true,
-    "danmakuSpeed": 1,
     "danmakuTopModeEnabled": true,
+    "danmakuBottomModeEnabled": true,
+    "danmakuOpacity": 0.86,
+    "danmakuFontScale": 1,
+    "danmakuSpeed": 1,
     "danmakuVisibleArea": 65,
+    "danmakuBlocklist": "",
     "specUnits": {
       "baseFontPx": 14,
       "spaceUnitPx": 8,
@@ -191,29 +215,12 @@
     "routeProgressHeightPx": 3,
     "routeProgressShowSpinner": false,
     "routeProgressEasing": "ease",
-    "derivationPreset": "balanced",
-    "settingDerivationStrengths": {
-      "auxiliaryPalette": 100,
-      "surfaceTint": 100,
-      "stateLayer": 100,
-      "navigationColor": 100,
-      "materialColor": 100,
-      "shadowDepth": 100,
-      "typography": 100,
-      "spacing": 100,
-      "radius": 100,
-      "controls": 100,
-      "contentWidth": 100,
-      "mediaGrid": 100,
-      "settingsLayout": 100,
-      "revealMotion": 100,
-      "routeProgress": 100,
-      "smoothScroll": 100,
-      "scrollSnap": 100,
-      "scrollHijack": 100,
-      "rubberBand": 100,
-      "danmaku": 100
+    "accentPresetCards": {
+      "sunflower-orange": {
+        "subtitle": "Sunflower (Aoi) Orange",
+        "backgroundImagePath": "theme-card-backgrounds/01-mq7h11uc.webp"
+      }
     }
   },
-  "updatedAt": "2026-06-07T09:34:13.665Z"
+  "updatedAt": "2026-06-10T02:50:21.290Z"
 }

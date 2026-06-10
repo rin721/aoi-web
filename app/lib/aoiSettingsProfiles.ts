@@ -1,5 +1,5 @@
 export type AoiSettingsProfileScope = "build" | "runtime"
-export type AoiSettingsProfileFieldType = "boolean" | "color" | "number" | "string"
+export type AoiSettingsProfileFieldType = "boolean" | "color" | "number" | "object" | "string"
 export type AoiSettingsProfileFieldDepth = "basic" | "all"
 export type AoiSettingsProfilePageId =
   | "appearance"
@@ -68,6 +68,7 @@ const AOI_SETTINGS_PROFILE_FIELD_DEFINITIONS: AoiSettingsProfileFieldDefinition[
   { key: "locale", path: "locale", label: "语言", group: "主题与颜色", type: "string", scopes: ["build", "runtime"] },
   { key: "accentMode", path: "accentMode", label: "色彩模式", group: "主题与颜色", type: "string", scopes: ["build", "runtime"] },
   { key: "accentPreset", path: "accentPreset", label: "预设色", group: "主题与颜色", type: "string", scopes: ["build", "runtime"] },
+  { key: "accentPresetCards", path: "accentPresetCards", label: "个性色卡片物料", group: "主题与颜色", type: "object", scopes: ["build"] },
   { key: "customAccent", path: "customAccent", label: "自定义色", group: "主题与颜色", type: "color", scopes: ["build", "runtime"] },
   { key: "derivationPreset", path: "derivationPreset", label: "派生档位", group: "派生强度", type: "string", scopes: ["build", "runtime"] },
   { key: "accentDerivation.accent10", path: "accentDerivationStrengths.accent10", label: "Accent 10 派生强度", group: "主题与颜色", type: "number", scopes: ["build", "runtime"] },

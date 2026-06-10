@@ -282,6 +282,22 @@
         "title": "アクセントカラー",
         "description": "プリセットの色板を選ぶか、カスタムカラーに切り替えます。",
         "customTitle": "カラーパレット",
+        "persona": {
+          "customTitle": "カスタム",
+          "customSubtitle": "Make It Yours",
+          "customCaption": "カスタム",
+          "backgroundTitle": "背景",
+          "backgroundSubtitle": "背景に合わせる",
+          "backgroundCaption": "背景",
+          "backgroundDescription": "背景画像は現在のブラウザーにのみ保存され、アップロードされません。",
+          "backgroundUpload": "ファイルを選択",
+          "backgroundClear": "クリア",
+          "backgroundEmpty": "背景はまだアップロードされていません",
+          "backgroundDefault": "既定のグラデーション背景を使用中",
+          "backgroundOpacity": "背景の強さ",
+          "backgroundBlur": "背景ぼかし",
+          "backgroundDim": "オーバーレイの強さ"
+        },
         "derivation": {
           "title": "派生強度",
           "description": "淡いアクセント token ごとの柔らかさと鮮やかさを調整します。",
@@ -310,6 +326,38 @@
               "affected": "影響する可能性：進捗バーの active 色、ページ端のヒントグラデーション、ブランド/認証/プロフィール装飾グラデーション、リッチテキスト引用線、スケルトンの accent。"
             }
           }
+        },
+        "cards": {
+          "editAria": "{title} カードを編集",
+          "dialogTitle": "アクセントカラーカードを編集",
+          "titleLabel": "カードタイトル",
+          "subtitleLabel": "カードサブタイトル",
+          "descriptionLabel": "カード説明",
+          "imagePathLabel": "public 背景画像",
+          "imagePathPlaceholder": "/theme-card-backgrounds/example.webp",
+          "assetsTitle": "public 画像アセット",
+          "parent": "上へ",
+          "refresh": "更新",
+          "upload": "画像をアップロード",
+          "clearImage": "画像をクリア",
+          "emptyAssets": "このフォルダーに使える画像はありません。",
+          "cancel": "キャンセル",
+          "save": "ビルド設定に保存",
+          "confirmTitle": "アクセントカラーカード設定を書き込みますか？",
+          "confirmDescription": "この変更を現在の active build profile に書き込みます。ブラウザーのローカル設定や original バックアップは変更しません。",
+          "before": "変更前",
+          "after": "変更後",
+          "confirmSave": "書き込む",
+          "saved": "アクセントカラーカードを現在の active build profile に保存しました。",
+          "errors": {
+            "imageOnly": "画像ファイルを選んでください。",
+            "loadAssets": "public 画像アセットを読み込めません。",
+            "profile": "現在のビルド profile を読み込めません。",
+            "save": "現在のビルド profile に書き込めません。後でもう一度試してください。",
+            "upload": "画像を public アセットにアップロードできません。"
+          },
+          "noChanges": "書き込むカード変更はありません。",
+          "retry": "再試行"
         }
       },
       "density": {

@@ -282,6 +282,22 @@
         "title": "Accent color",
         "description": "Choose a preset palette or switch to a custom color.",
         "customTitle": "Color palette",
+        "persona": {
+          "customTitle": "Custom",
+          "customSubtitle": "Make It Yours",
+          "customCaption": "Custom",
+          "backgroundTitle": "Background",
+          "backgroundSubtitle": "Follow the background",
+          "backgroundCaption": "Background",
+          "backgroundDescription": "The background image is stored only in this browser and is not uploaded.",
+          "backgroundUpload": "Choose file",
+          "backgroundClear": "Clear",
+          "backgroundEmpty": "No background uploaded",
+          "backgroundDefault": "Using the default gradient background",
+          "backgroundOpacity": "Background strength",
+          "backgroundBlur": "Background blur",
+          "backgroundDim": "Overlay strength"
+        },
         "derivation": {
           "title": "Derived strength",
           "description": "Tune how soft or vivid each light accent token feels.",
@@ -310,6 +326,38 @@
               "affected": "May affect: active progress color, page-edge hint gradients, brand/auth/profile decorative gradients, rich-text quote borders, and skeleton accents."
             }
           }
+        },
+        "cards": {
+          "editAria": "Edit {title} card background",
+          "dialogTitle": "Edit accent color card",
+          "titleLabel": "Card title",
+          "subtitleLabel": "Card subtitle",
+          "descriptionLabel": "Supporting copy",
+          "imagePathLabel": "Public asset image path",
+          "imagePathPlaceholder": "theme-card-backgrounds/example.webp",
+          "assetsTitle": "Public asset images",
+          "parent": "Parent",
+          "refresh": "Refresh",
+          "upload": "Upload image",
+          "clearImage": "Clear image",
+          "emptyAssets": "No selectable images in this folder.",
+          "cancel": "Cancel",
+          "save": "Save to build config",
+          "confirmTitle": "Write accent card config",
+          "confirmDescription": "This writes the current active build profile, only updating accent card assets and leaving the original backup unchanged.",
+          "before": "Before",
+          "after": "After",
+          "confirmSave": "Confirm write",
+          "saved": "Accent card config was written to the current active build profile.",
+          "errors": {
+            "imageOnly": "Choose an image file.",
+            "loadAssets": "Could not read public assets. Try again later.",
+            "profile": "Could not read build profiles, so the card config cannot be written.",
+            "save": "Could not write the build profile. Check that developer mode is still available.",
+            "upload": "Image upload failed. Try another image or retry later."
+          },
+          "noChanges": "No card changes to write.",
+          "retry": "Retry"
         }
       },
       "density": {

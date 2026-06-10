@@ -186,7 +186,25 @@ export function parentDeveloperAssetPath(path: string) {
 
 export async function ensureDeveloperAssetDirectory(rootId: AoiDeveloperAssetRootId, path: unknown) {
   const resolved = resolveDeveloperAssetPath(rootId, path)
-  const stat = await fs.lstat(resolved.absolutePath)
+  let stat
+
+  try {
+    stat = await fs.lstat(resolved.absolutePath)
+  } catch (error) {
+    if (
+      rootId === "public"
+      && !resolved.path
+      && error
+      && typeof error === "object"
+      && "code" in error
+      && error.code === "ENOENT"
+    ) {
+      await fs.mkdir(resolved.absolutePath, { recursive: true })
+      stat = await fs.lstat(resolved.absolutePath)
+    } else {
+      throw error
+    }
+  }
 
   if (!stat.isDirectory()) {
     throw createError({

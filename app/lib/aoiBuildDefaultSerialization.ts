@@ -2,6 +2,10 @@ import type { AoiRgbaColor } from "../utils/aoiColor"
 import {
   AOI_DANMAKU_DEFAULTS
 } from "../utils/aoiDanmaku"
+import type { AoiAccentPresetCards } from "../utils/aoiAccentPresets"
+import {
+  normalizeAoiAccentPresetCards
+} from "../utils/aoiAccentPresets"
 import {
   normalizeAoiRgbaColor
 } from "../utils/aoiColor"
@@ -57,6 +61,7 @@ export interface AoiBuildDefaultAppSettings {
   accentDerivationStrengths: AoiAccentDerivationStrengths
   accentMode: AoiBuildAccentMode
   accentPreset: string
+  accentPresetCards: AoiAccentPresetCards
   appearanceContrast: AoiBuildAppearanceContrast
   appearanceDensity: AoiBuildAppearanceDensity
   appearanceShape: AoiBuildAppearanceShape
@@ -133,6 +138,7 @@ export const AOI_FALLBACK_BUILD_DEFAULT_APP_SETTINGS: AoiBuildDefaultAppSettings
   accentDerivationStrengths: AOI_ACCENT_DERIVATION_DEFAULTS,
   accentMode: "preset",
   accentPreset: "sunflower-orange",
+  accentPresetCards: {},
   appearanceContrast: "normal",
   appearanceDensity: "comfortable",
   appearanceShape: "soft",
@@ -256,6 +262,7 @@ export function normalizeAoiBuildDefaultAppSettings(
     accentDerivationStrengths: normalizeAoiAccentDerivationStrengths(candidate.accentDerivationStrengths, fallback.accentDerivationStrengths),
     accentMode: isAccentMode(candidate.accentMode) ? candidate.accentMode : fallback.accentMode,
     accentPreset: typeof candidate.accentPreset === "string" && candidate.accentPreset ? candidate.accentPreset : fallback.accentPreset,
+    accentPresetCards: normalizeAoiAccentPresetCards(candidate.accentPresetCards || fallback.accentPresetCards),
     appearanceContrast: isAppearanceContrast(candidate.appearanceContrast) ? candidate.appearanceContrast : fallback.appearanceContrast,
     appearanceDensity: isAppearanceDensity(candidate.appearanceDensity) ? candidate.appearanceDensity : fallback.appearanceDensity,
     appearanceShape: isAppearanceShape(candidate.appearanceShape) ? candidate.appearanceShape : fallback.appearanceShape,

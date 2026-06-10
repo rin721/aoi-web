@@ -77,6 +77,11 @@ import {
   isAoiDerivationPreset,
   normalizeAoiSettingDerivationStrengths
 } from "~/utils/aoiSettingDerivation"
+import {
+  AOI_ACCENT_PRESETS,
+  createAoiAccentPresetCardOptions,
+  normalizeAoiAccentPresetCards
+} from "~/utils/aoiAccentPresets"
 
 export type AoiPreferredTheme = "system" | "light" | "dark"
 export type AoiAccentMode = "preset" | "custom"
@@ -87,12 +92,6 @@ export type AoiAppearanceSize = "small" | "default" | "large"
 export type AoiAppearanceShape = "square" | "soft" | "pill"
 export type AoiAppearanceContrast = "normal" | "high"
 export type AoiSettingsDisplayDepth = "basic" | "all"
-
-export interface AoiAccentPresetOption extends AoiAccentScale {
-  value: string
-  label: string
-  subtitle: string
-}
 
 interface PersistedAppSettings {
   accentDerivationStrengths: AoiAccentDerivationStrengths
@@ -172,89 +171,6 @@ export const AOI_BACKGROUND_STORE_NAME = "backgrounds"
 export const AOI_BACKGROUND_CURRENT_KEY = "aoi.background.current"
 export const AOI_BACKGROUND_MAX_BYTES = 8 * 1024 * 1024
 export const AOI_BACKGROUND_TYPES = ["image/png", "image/jpeg", "image/webp"]
-
-export const AOI_ACCENT_PRESETS: AoiAccentPresetOption[] = [
-  {
-    value: "sunflower-orange",
-    label: "葵花橙",
-    subtitle: "Sunflower Orange",
-    accent60: "#ff7d52",
-    accent50: "#ff9471",
-    accent40: "#ffb49b",
-    accent20: "#ffe0d5",
-    accent10: "#fff2ee"
-  },
-  {
-    value: "cocoa-pink",
-    label: "心爱粉",
-    subtitle: "Cocoa Rose",
-    accent60: "#d94f8f",
-    accent50: "#f2709c",
-    accent40: "#f69bb9",
-    accent20: "#ffd6e5",
-    accent10: "#fff1f7"
-  },
-  {
-    value: "chino-blue",
-    label: "智乃蓝",
-    subtitle: "Chino Clear",
-    accent60: "#0f9fb7",
-    accent50: "#22b8cf",
-    accent40: "#5ed3df",
-    accent20: "#c9f3f7",
-    accent10: "#e9fbfd"
-  },
-  {
-    value: "rize-purple",
-    label: "理世紫",
-    subtitle: "Rize Violet",
-    accent60: "#6f62d9",
-    accent50: "#897df1",
-    accent40: "#aaa2f7",
-    accent20: "#ddd9ff",
-    accent10: "#f3f1ff"
-  },
-  {
-    value: "chiya-green",
-    label: "千夜绿",
-    subtitle: "Chiya Matcha",
-    accent60: "#3f9c75",
-    accent50: "#5fc795",
-    accent40: "#8eddb8",
-    accent20: "#d6f3e5",
-    accent10: "#effbf5"
-  },
-  {
-    value: "syaro-yellow",
-    label: "纱路黄",
-    subtitle: "Syaro Honey",
-    accent60: "#c98b14",
-    accent50: "#f7b955",
-    accent40: "#ffd47f",
-    accent20: "#ffedc7",
-    accent10: "#fff8e8"
-  },
-  {
-    value: "maya-cyan",
-    label: "麻耶青",
-    subtitle: "Maya Aqua",
-    accent60: "#0e89a6",
-    accent50: "#2eb6d6",
-    accent40: "#72d8ea",
-    accent20: "#d2f4fb",
-    accent10: "#eefcff"
-  },
-  {
-    value: "megumi-red",
-    label: "小惠红",
-    subtitle: "Megu Berry",
-    accent60: "#d04758",
-    accent50: "#f36f7e",
-    accent40: "#f89aa5",
-    accent20: "#ffd8de",
-    accent10: "#fff1f3"
-  }
-]
 
 const STORAGE_KEY = "aoi.appSettings.v1"
 const DEFAULT_ACCENT_PRESET = "sunflower-orange"
@@ -573,6 +489,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
   const appearanceSize = ref<AoiAppearanceSize>(initialState.appearanceSize)
   const accentMode = ref<AoiAccentMode>(initialState.accentMode)
   const accentPreset = ref(initialState.accentPreset)
+  const accentPresetCards = ref(normalizeAoiAccentPresetCards(createAoiActiveBuildDefaultAppSettings().accentPresetCards))
   const accentDerivationStrengths = reactive<AoiAccentDerivationStrengths>({ ...initialState.accentDerivationStrengths })
   const derivationPreset = ref<AoiDerivationPreset>(initialState.derivationPreset)
   const settingDerivationStrengths = reactive<AoiSettingDerivationStrengths>({ ...initialState.settingDerivationStrengths })
@@ -654,6 +571,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
       accent60: activePreset.value.accent60
     }
   })
+  const accentPresetCardOptions = computed(() => createAoiAccentPresetCardOptions(accentPresetCards.value))
   const effectiveRevealMotionSettings = computed(() => ({
     durationMs: deriveAoiSettingNumber(revealMotionDurationMs.value, settingDerivationStrengths.revealMotion, {
       amount: 0.18,
@@ -1250,6 +1168,10 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     persist()
   }
 
+  function setBuildAccentPresetCards(value: unknown) {
+    accentPresetCards.value = normalizeAoiAccentPresetCards(value)
+  }
+
   function setCustomAccent(value: AoiRgbaColor | string) {
     customAccent.value = normalizeAoiRgbaColor(value, customAccent.value)
     accentMode.value = "custom"
@@ -1489,6 +1411,8 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     accentDerivationStrengths,
     accentMode,
     accentPreset,
+    accentPresetCardOptions,
+    accentPresetCards,
     accentScale,
     activeAccent,
     activePreset,
@@ -1577,6 +1501,7 @@ export const useAppSettingsStore = defineStore("app-settings", () => {
     setAppearanceShape,
     setAppearanceSize,
     setBackgroundFile,
+    setBuildAccentPresetCards,
     setContentWidthMode,
     setContentWidthPercent,
     setCustomAccent,

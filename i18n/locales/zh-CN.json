@@ -282,6 +282,22 @@
         "title": "个性色",
         "description": "选择一套色板，或切到自定义色。",
         "customTitle": "调色板",
+        "persona": {
+          "customTitle": "自定义",
+          "customSubtitle": "Make It Yours",
+          "customCaption": "自定义",
+          "backgroundTitle": "背景",
+          "backgroundSubtitle": "跟随背景",
+          "backgroundCaption": "背景",
+          "backgroundDescription": "背景图只保存在当前浏览器，不会上传。",
+          "backgroundUpload": "选择文件",
+          "backgroundClear": "清除",
+          "backgroundEmpty": "尚未上传背景",
+          "backgroundDefault": "当前使用默认渐变背景",
+          "backgroundOpacity": "背景强度",
+          "backgroundBlur": "背景模糊",
+          "backgroundDim": "遮罩强度"
+        },
         "derivation": {
           "title": "派生强度",
           "description": "分别控制主题色浅阶 token 的柔和或鲜明程度。",
@@ -310,6 +326,38 @@
               "affected": "可能影响：进度条 active 色、页面边缘提示渐变、品牌/认证/用户页装饰渐变、富文本引用边线、骨架屏 accent。"
             }
           }
+        },
+        "cards": {
+          "editAria": "编辑 {title} 卡片",
+          "dialogTitle": "编辑个性色卡片",
+          "titleLabel": "卡片标题",
+          "subtitleLabel": "卡片副标题",
+          "descriptionLabel": "卡片描述",
+          "imagePathLabel": "public 背景图片",
+          "imagePathPlaceholder": "/theme-card-backgrounds/example.webp",
+          "assetsTitle": "public 图片资源",
+          "parent": "上一级",
+          "refresh": "刷新",
+          "upload": "上传图片",
+          "clearImage": "清除图片",
+          "emptyAssets": "当前目录没有可用图片。",
+          "cancel": "取消",
+          "save": "保存到构建配置",
+          "confirmTitle": "写入个性色卡片配置？",
+          "confirmDescription": "将把这组变更写入当前 active build profile。不会写入浏览器本地设置，也不会修改 original 备份。",
+          "before": "变更前",
+          "after": "变更后",
+          "confirmSave": "确认写入",
+          "saved": "个性色卡片已写入当前 active build profile。",
+          "errors": {
+            "imageOnly": "请选择图片文件。",
+            "loadAssets": "无法读取 public 图片资源。",
+            "profile": "无法读取当前构建 profile。",
+            "save": "无法写入当前构建 profile，请稍后重试。",
+            "upload": "无法上传图片到 public 资源。"
+          },
+          "noChanges": "没有需要写入的卡片变更。",
+          "retry": "重试"
         }
       },
       "density": {
