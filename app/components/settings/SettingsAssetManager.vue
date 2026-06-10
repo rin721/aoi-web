@@ -563,15 +563,20 @@ function openDirectory(entry: AoiDeveloperAssetEntry) {
 
 async function openExplorerFile(row: ExplorerRow) {
   if (!row.entry) {
-    return
+    return null
   }
 
   const parent = parentAssetPath(row.path)
   const response = await loadAssets(parent, row.rootId, "", row.path)
 
   if (response) {
+    const entry = response.entries.find((item) => item.path === row.path) || row.entry
+
     selectedPath.value = row.path
+    return entry
   }
+
+  return null
 }
 
 function clearEditor() {
@@ -1133,6 +1138,19 @@ function activateExplorerRow(row: ExplorerRow) {
   void openExplorerFile(row)
 }
 
+async function activateExplorerRowDirect(row: ExplorerRow) {
+  if (row.kind !== "file") {
+    activateExplorerRow(row)
+    return
+  }
+
+  const entry = await openExplorerFile(row)
+
+  if (entry) {
+    await activateSelectedFile(entry)
+  }
+}
+
 function sortEntries(sourceEntries: AoiDeveloperAssetEntry[], key: AssetSortKey, direction: AssetSortDirection) {
   const multiplier = direction === "asc" ? 1 : -1
 
@@ -1386,7 +1404,8 @@ function formatDate(value: string) {
               class="settings-asset-manager__explorer-label"
               type="button"
               @click="activateExplorerRow(row)"
-              @keydown.enter.prevent="activateExplorerRow(row)"
+              @dblclick="activateExplorerRowDirect(row)"
+              @keydown.enter.prevent="activateExplorerRowDirect(row)"
             >
               <AoiIcon :name="explorerRowIcon(row)" :size="16" decorative />
               <span>{{ row.label }}</span>
