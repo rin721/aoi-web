@@ -62,7 +62,7 @@ function close() {
 
     <template #actions>
       <AoiButton
-        variant="text"
+        appearance="plain" intent="secondary"
         :disabled="props.confirming"
         @click="close"
       >

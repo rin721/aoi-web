@@ -1,14 +1,16 @@
 <script setup lang="ts">
+import type { AoiIntent } from "~/types/ui"
+
 const props = withDefaults(defineProps<{
   as?: string
   icon?: string
   message?: string
-  tone?: "success" | "error" | "info" | "warning"
+  intent?: Extract<AoiIntent, "danger" | "info" | "success" | "warning">
 }>(), {
   as: "p",
   icon: undefined,
   message: undefined,
-  tone: "info"
+  intent: "info"
 })
 </script>
 
@@ -17,7 +19,7 @@ const props = withDefaults(defineProps<{
     :is="props.as"
     v-if="props.message || $slots.default"
     class="aoi-status-message"
-    :class="`aoi-status-message--${props.tone}`"
+    :class="`aoi-status-message--${props.intent}`"
   >
     <AoiIcon v-if="props.icon" :name="props.icon" :size="15" decorative />
     <slot>{{ props.message }}</slot>
@@ -37,25 +39,26 @@ const props = withDefaults(defineProps<{
 }
 
 .aoi-status-message--success {
-  border-color: color-mix(in srgb, var(--aoi-accent-60) 24%, var(--aoi-border));
-  background: var(--aoi-accent-10);
-  color: var(--aoi-accent-60);
+  border-color: var(--aoi-intent-success-border);
+  background: var(--aoi-intent-success-soft-bg);
+  color: var(--aoi-intent-success-color);
 }
 
-.aoi-status-message--error {
-  border-color: color-mix(in srgb, var(--aoi-danger) 24%, var(--aoi-border));
-  background: color-mix(in srgb, var(--aoi-danger) 9%, var(--aoi-surface));
-  color: var(--aoi-danger);
+.aoi-status-message--danger {
+  border-color: var(--aoi-intent-danger-border);
+  background: var(--aoi-intent-danger-soft-bg);
+  color: var(--aoi-intent-danger-color);
 }
 
 .aoi-status-message--warning {
-  border-color: color-mix(in srgb, var(--aoi-sun-50) 32%, var(--aoi-border));
-  background: color-mix(in srgb, var(--aoi-sun-50) 14%, var(--aoi-surface));
-  color: var(--aoi-text);
+  border-color: var(--aoi-intent-warning-border);
+  background: var(--aoi-intent-warning-soft-bg);
+  color: var(--aoi-intent-warning-color);
 }
 
 .aoi-status-message--info {
-  background: var(--aoi-surface-muted);
-  color: var(--aoi-text-muted);
+  border-color: var(--aoi-intent-info-border);
+  background: var(--aoi-intent-info-soft-bg);
+  color: var(--aoi-intent-info-color);
 }
 </style>

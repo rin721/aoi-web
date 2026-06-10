@@ -54,14 +54,14 @@ function submitComment() {
     <div class="comment-composer__fields">
       <AoiTextField
         v-model="localAuthorName"
-        variant="outlined"
+        appearance="outlined"
         label="显示名称"
         :disabled="disabled"
         :max-length="maxAuthorLength"
       />
       <AoiTextField
         v-model="body"
-        variant="outlined"
+        appearance="outlined"
         label="写下你的想法"
         placeholder="保持友善，也欢迎补充观看笔记。"
         :disabled="disabled"

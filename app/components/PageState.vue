@@ -28,7 +28,7 @@ const emit = defineEmits<{
     </div>
     <AoiButton
       v-if="actionLabel"
-      variant="tonal"
+      appearance="soft"
       :icon="actionIcon"
       @click="emit('action')"
     >

@@ -1273,7 +1273,7 @@ function formatDate(value: string) {
         <AoiSelect
           v-model="rootModel"
           class="settings-asset-manager__root"
-          variant="outlined"
+          appearance="outlined"
           :label="t('settings.developer.assets.rootLabel')"
           :options="rootOptions"
         />
@@ -1281,13 +1281,13 @@ function formatDate(value: string) {
           v-model="query"
           class="settings-asset-manager__search"
           icon="search"
-          variant="outlined"
+          appearance="outlined"
           type="search"
           :label="t('settings.developer.assets.searchLabel')"
         />
         <div class="settings-asset-manager__command-actions">
           <AoiButton
-            variant="outlined"
+            appearance="outline"
             icon="refresh-cw"
             :loading="busyAction === 'list'"
             :disabled="Boolean(busyAction)"
@@ -1303,7 +1303,7 @@ function formatDate(value: string) {
             {{ t("settings.developer.assets.actions.newFile") }}
           </AoiButton>
           <AoiButton
-            variant="outlined"
+            appearance="outline"
             icon="folder-plus"
             :disabled="Boolean(busyAction)"
             @click="openCreateDirectoryDialog"
@@ -1317,7 +1317,7 @@ function formatDate(value: string) {
           >
             <template #default="{ open }">
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="upload"
                 :loading="busyAction === 'upload'"
                 :disabled="Boolean(busyAction)"
@@ -1334,7 +1334,7 @@ function formatDate(value: string) {
         <AoiSelect
           v-model="sortModel"
           class="settings-asset-manager__sort"
-          variant="outlined"
+          appearance="outlined"
           :label="t('settings.developer.assets.sortLabel')"
           :options="sortOptions"
         />
@@ -1357,9 +1357,9 @@ function formatDate(value: string) {
       </div>
     </AoiSurface>
 
-    <AoiStatusMessage v-if="statusMessage" tone="success" :message="statusMessage" />
-    <AoiStatusMessage v-if="warningMessage" tone="warning" :message="warningMessage" />
-    <AoiStatusMessage v-if="errorMessage" tone="error" :message="errorMessage" />
+    <AoiStatusMessage v-if="statusMessage" intent="success" :message="statusMessage" />
+    <AoiStatusMessage v-if="warningMessage" intent="warning" :message="warningMessage" />
+    <AoiStatusMessage v-if="errorMessage" intent="danger" :message="errorMessage" />
 
     <div class="settings-asset-manager__shell">
       <AoiSurface surface="card" padding="none" class="settings-asset-manager__explorer">
@@ -1436,7 +1436,7 @@ function formatDate(value: string) {
               <div class="settings-asset-manager__browser-actions">
                 <small>{{ t("settings.developer.assets.itemCount", { count: filteredEntries.length }) }}</small>
                 <AoiButton
-                  variant="outlined"
+                  appearance="outline"
                   size="sm"
                   icon="more-horizontal"
                   :disabled="!selectedEntry || Boolean(busyAction)"
@@ -1610,7 +1610,7 @@ function formatDate(value: string) {
                   </strong>
                   <div class="settings-asset-manager__button-row">
                     <AoiButton
-                      variant="outlined"
+                      appearance="outline"
                       size="sm"
                       icon="file-text"
                       :disabled="!selectedEntry?.textEditable || Boolean(busyAction)"
@@ -1656,7 +1656,7 @@ function formatDate(value: string) {
             <AoiStatGrid :items="statItems" :columns="2" />
             <div class="settings-asset-manager__button-row">
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 size="sm"
                 icon="download"
                 :disabled="!selectedEntry || selectedEntry.kind !== 'file' || Boolean(busyAction)"
@@ -1665,7 +1665,7 @@ function formatDate(value: string) {
                 {{ t("settings.developer.assets.actions.download") }}
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 size="sm"
                 icon="pencil"
                 :disabled="!selectedEntry || Boolean(busyAction)"
@@ -1674,7 +1674,7 @@ function formatDate(value: string) {
                 {{ t("settings.developer.assets.actions.rename") }}
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 size="sm"
                 icon="copy"
                 :disabled="!selectedEntry || Boolean(busyAction)"
@@ -1683,7 +1683,7 @@ function formatDate(value: string) {
                 {{ t("settings.developer.assets.actions.copy") }}
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 size="sm"
                 icon="move"
                 :disabled="!selectedEntry || Boolean(busyAction)"
@@ -1692,7 +1692,7 @@ function formatDate(value: string) {
                 {{ t("settings.developer.assets.actions.move") }}
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 size="sm"
                 icon="shield"
                 :disabled="!selectedEntry || Boolean(busyAction)"
@@ -1701,7 +1701,7 @@ function formatDate(value: string) {
                 {{ t("settings.developer.assets.actions.chmod") }}
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 size="sm"
                 icon="trash-2"
                 :disabled="!selectedEntry || Boolean(busyAction)"
@@ -1711,7 +1711,7 @@ function formatDate(value: string) {
               </AoiButton>
               <AoiButton
                 v-if="selectedEntry?.publicUrl"
-                variant="text"
+                appearance="plain" intent="secondary"
                 size="sm"
                 icon="link"
                 :disabled="Boolean(busyAction)"
@@ -1769,21 +1769,21 @@ function formatDate(value: string) {
         <AoiTextField
           v-if="dialog.kind === 'createFile' || dialog.kind === 'createDirectory' || dialog.kind === 'rename'"
           v-model="dialogName"
-          variant="outlined"
+          appearance="outlined"
           :label="t('settings.developer.assets.dialogs.nameLabel')"
           @enter="confirmDialog"
         />
         <AoiTextField
           v-if="dialog.kind === 'copy' || dialog.kind === 'move'"
           v-model="dialogDestination"
-          variant="outlined"
+          appearance="outlined"
           :label="t('settings.developer.assets.dialogs.destinationLabel')"
           @enter="confirmDialog"
         />
         <AoiTextField
           v-if="dialog.kind === 'chmod'"
           v-model="dialogMode"
-          variant="outlined"
+          appearance="outlined"
           :label="t('settings.developer.assets.dialogs.modeLabel')"
           supporting-text="644 / 755 / 7777"
           @enter="confirmDialog"
@@ -1796,7 +1796,7 @@ function formatDate(value: string) {
       </div>
 
       <template #actions>
-        <AoiButton variant="text" :disabled="Boolean(busyAction)" @click="dialog.open = false">
+        <AoiButton appearance="plain" intent="secondary" :disabled="Boolean(busyAction)" @click="dialog.open = false">
           {{ t("settings.developer.assets.actions.cancel") }}
         </AoiButton>
         <AoiButton
@@ -1819,7 +1819,7 @@ function formatDate(value: string) {
       </p>
 
       <template #actions>
-        <AoiButton variant="text" :disabled="Boolean(busyAction)" @click="uploadOverwriteOpen = false">
+        <AoiButton appearance="plain" intent="secondary" :disabled="Boolean(busyAction)" @click="uploadOverwriteOpen = false">
           {{ t("settings.developer.assets.actions.cancel") }}
         </AoiButton>
         <AoiButton icon="upload" :loading="busyAction === 'upload'" @click="confirmUploadOverwrite">

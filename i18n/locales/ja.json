@@ -19,6 +19,7 @@
     "search": "検索",
     "history": "履歴",
     "collections": "コレクション",
+    "docs": "ドキュメント",
     "upload": "投稿",
     "settings": "設定",
     "login": "ログイン"
@@ -33,6 +34,42 @@
   "category": {
     "childrenTitle": "サブカテゴリ",
     "childrenDescription": "より細かい分類で閲覧します。親カテゴリは配下の内容をまとめて表示します。"
+  },
+  "docs": {
+    "eyebrow": "Aoi Docs",
+    "title": "プロジェクトシステムとコンポーネントライブラリ",
+    "description": "Nuxt の構成、リポジトリ境界、すべての Aoi wrapper API を静的 Markdown でまとめます。",
+    "actions": {
+      "project": "プロジェクトシステム",
+      "components": "コンポーネント"
+    },
+    "stats": {
+      "pages": "ページ",
+      "components": "コンポーネント",
+      "locales": "言語"
+    },
+    "nav": {
+      "open": "目次",
+      "label": "ドキュメント目次",
+      "close": "閉じる"
+    },
+    "search": {
+      "label": "ドキュメント検索",
+      "placeholder": "タイトル、説明、セクションを検索"
+    },
+    "notFound": {
+      "title": "ドキュメントが見つかりません",
+      "description": "現在のドキュメントセットにはこのページがありません。",
+      "action": "ドキュメントへ戻る"
+    },
+    "pager": {
+      "label": "ドキュメントの前後移動",
+      "previous": "前へ",
+      "next": "次へ"
+    },
+    "toc": {
+      "label": "このページ"
+    }
   },
   "settings": {
     "shell": {

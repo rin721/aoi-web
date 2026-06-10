@@ -19,6 +19,7 @@
     "search": "Search",
     "history": "History",
     "collections": "Collections",
+    "docs": "Docs",
     "upload": "Upload",
     "settings": "Settings",
     "login": "Log in"
@@ -33,6 +34,42 @@
   "category": {
     "childrenTitle": "Subcategories",
     "childrenDescription": "Browse a narrower branch. Parent categories aggregate everything below them."
+  },
+  "docs": {
+    "eyebrow": "Aoi Docs",
+    "title": "Project System and Component Library",
+    "description": "Static Markdown documentation for the Nuxt architecture, repository boundaries, and every Aoi wrapper API.",
+    "actions": {
+      "project": "Project system",
+      "components": "Component library"
+    },
+    "stats": {
+      "pages": "Pages",
+      "components": "Components",
+      "locales": "Locales"
+    },
+    "nav": {
+      "open": "Contents",
+      "label": "Documentation contents",
+      "close": "Close"
+    },
+    "search": {
+      "label": "Search docs",
+      "placeholder": "Search titles, descriptions, or sections"
+    },
+    "notFound": {
+      "title": "Document not found",
+      "description": "This page does not exist in the current documentation set.",
+      "action": "Back to docs"
+    },
+    "pager": {
+      "label": "Document pager",
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "toc": {
+      "label": "On this page"
+    }
   },
   "settings": {
     "shell": {

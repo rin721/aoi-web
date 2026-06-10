@@ -117,7 +117,7 @@ function cancelPendingAction() {
     >
       <template #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           size="sm"
           icon="refresh-cw"
           :loading="apiStatusPending"
@@ -153,7 +153,7 @@ function cancelPendingAction() {
     >
       <template #actions>
         <AoiButton
-          variant="text"
+          appearance="plain" intent="secondary"
           size="sm"
           icon="trash-2"
           :disabled="telemetry.recentErrors.value.length === 0"
@@ -188,7 +188,7 @@ function cancelPendingAction() {
         >
           <template #actions>
             <AoiButton
-              variant="outlined"
+              appearance="outline"
               size="sm"
               icon="rotate-ccw"
               :disabled="!playerSettings.hydrated || !hasPlayerSettings"
@@ -205,7 +205,7 @@ function cancelPendingAction() {
         >
           <template #actions>
             <AoiButton
-              variant="outlined"
+              appearance="outline"
               size="sm"
               icon="rotate-ccw"
               :disabled="!library.hydrated || !hasLocalData"
@@ -222,7 +222,7 @@ function cancelPendingAction() {
         >
           <template #actions>
             <AoiButton
-              variant="outlined"
+              appearance="outline"
               size="sm"
               icon="message-circle-x"
               :disabled="!comments.hydrated || !hasCommentData"
@@ -239,7 +239,7 @@ function cancelPendingAction() {
         >
           <template #actions>
             <AoiButton
-              variant="outlined"
+              appearance="outline"
               size="sm"
               icon="trash-2"
               :disabled="!uploadDrafts.hydrated || !hasUploadDrafts"
@@ -256,7 +256,7 @@ function cancelPendingAction() {
         >
           <template #actions>
             <AoiButton
-              variant="outlined"
+              appearance="outline"
               size="sm"
               icon="user-minus"
               :disabled="!following.hydrated || !hasFollowingData"
@@ -270,11 +270,11 @@ function cancelPendingAction() {
         <SettingsDataActionCard
           title="应用设置"
           description="重置主题、色板、背景和偏好设置。"
-          tone="danger"
+          intent="danger"
         >
           <template #actions>
             <AoiButton
-              variant="outlined"
+              appearance="outline"
               size="sm"
               icon="rotate-ccw"
               :disabled="!settings.hydrated"
@@ -291,7 +291,7 @@ function cancelPendingAction() {
       <template #headline>{{ pendingAction?.title }}</template>
       <p class="settings-note">{{ pendingAction?.body }}</p>
       <template #actions>
-        <AoiButton variant="text" @click="cancelPendingAction">取消</AoiButton>
+        <AoiButton appearance="plain" intent="secondary" @click="cancelPendingAction">取消</AoiButton>
         <AoiButton icon="check" @click="runPendingAction">确认</AoiButton>
       </template>
     </AoiDialog>

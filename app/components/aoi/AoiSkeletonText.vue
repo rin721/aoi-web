@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AoiSkeletonAnimation, AoiSkeletonSize, AoiSkeletonTone } from "~/utils/aoiSkeleton"
+import type { AoiSkeletonAnimation, AoiSkeletonEmphasis, AoiSkeletonSize } from "~/utils/aoiSkeleton"
 import { toAoiSkeletonCssValue } from "~/utils/aoiSkeleton"
 
 const props = withDefaults(defineProps<{
@@ -9,7 +9,7 @@ const props = withDefaults(defineProps<{
   lineHeight?: AoiSkeletonSize
   lines?: number
   radius?: AoiSkeletonSize
-  tone?: AoiSkeletonTone
+  emphasis?: AoiSkeletonEmphasis
   widths?: AoiSkeletonSize[]
 }>(), {
   animation: undefined,
@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<{
   lineHeight: 12,
   lines: 3,
   radius: undefined,
-  tone: undefined,
+  emphasis: undefined,
   widths: undefined
 })
 
@@ -55,7 +55,7 @@ function widthForLine(index: number) {
       :height="lineHeight"
       :radius="radius"
       shape="text"
-      :tone="tone"
+      :emphasis="emphasis"
       :width="widthForLine(index - 1)"
     />
   </span>

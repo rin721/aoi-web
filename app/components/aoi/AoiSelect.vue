@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { AoiFieldAppearance } from "~/types/ui"
+
 export interface AoiSelectOption {
   value: string
   label: string
@@ -11,14 +13,14 @@ const props = withDefaults(defineProps<{
   modelValue?: string
   options?: AoiSelectOption[]
   label?: string
-  variant?: "filled" | "outlined"
+  appearance?: AoiFieldAppearance
   disabled?: boolean
   menuPositioning?: AoiSelectMenuPositioning
 }>(), {
   modelValue: "",
   options: () => [],
   label: undefined,
-  variant: "filled",
+  appearance: "filled",
   disabled: false,
   menuPositioning: "popover"
 })
@@ -27,7 +29,7 @@ const emit = defineEmits<{
   "update:modelValue": [value: string]
 }>()
 
-const tagName = computed(() => props.variant === "outlined" ? "md-outlined-select" : "md-filled-select")
+const tagName = computed(() => props.appearance === "outlined" ? "md-outlined-select" : "md-filled-select")
 const menuOpen = ref(false)
 const layer = useAoiLayer("menu", menuOpen)
 

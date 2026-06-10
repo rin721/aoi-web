@@ -54,7 +54,7 @@ useHead({
     >
       <template #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           icon="trash-2"
           :disabled="!hasHistory"
           @click="library.clearHistory()"

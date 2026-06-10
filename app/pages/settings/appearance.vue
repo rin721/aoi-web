@@ -778,7 +778,7 @@ function formatBytes(value: number) {
     >
       <template #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           size="sm"
           icon="rotate-ccw"
           :disabled="!settings.hydrated || resettingAppearance"
@@ -815,7 +815,7 @@ function formatBytes(value: number) {
     >
       <template v-if="showAdvancedSettings" #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           size="sm"
           icon="ruler"
           to="/settings/appearance#appearance-spec-units"
@@ -913,7 +913,7 @@ function formatBytes(value: number) {
     >
       <template #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           size="sm"
           icon="rotate-ccw"
           @click="settings.resetSpecUnits()"
@@ -987,7 +987,7 @@ function formatBytes(value: number) {
     >
       <template v-if="showAdvancedSettings" #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           size="sm"
           icon="rotate-ccw"
           :disabled="accentDerivationIsDefault"
@@ -1040,7 +1040,7 @@ function formatBytes(value: number) {
             class="settings-persona-card__edit"
             icon="image-plus"
             size="sm"
-            variant="tonal"
+            appearance="soft"
             :label="t('settings.appearance.palette.cards.editAria', { title: preset.cardTitle })"
             @click.stop="openAccentCardEditor(preset)"
           />
@@ -1150,13 +1150,13 @@ function formatBytes(value: number) {
           <AoiActionBar size="sm" align="start">
             <AoiFileInput accept="image/png,image/jpeg,image/webp" @change="onBackgroundChange">
               <template #default="{ open }">
-                <AoiButton variant="filled" size="sm" icon="upload" @click="open">
+                <AoiButton appearance="solid" size="sm" icon="upload" @click="open">
                   {{ t("settings.appearance.palette.persona.backgroundUpload") }}
                 </AoiButton>
               </template>
             </AoiFileInput>
             <AoiButton
-              variant="text"
+              appearance="plain" intent="secondary"
               size="sm"
               icon="x"
               :disabled="!settings.backgroundImageId"
@@ -1219,7 +1219,7 @@ function formatBytes(value: number) {
       :description="t('settings.resetPage.appearance.description')"
     >
       <AoiButton
-        variant="outlined"
+        appearance="outline"
         icon="rotate-ccw"
         :disabled="!settings.hydrated || resettingAppearance"
         @click="resetAppearanceConfirmOpen = true"
@@ -1248,19 +1248,19 @@ function formatBytes(value: number) {
         <div class="settings-accent-card-editor__fields">
           <AoiTextField
             v-model="accentCardDraft.title"
-            variant="outlined"
+            appearance="outlined"
             :label="t('settings.appearance.palette.cards.titleLabel')"
             :max-length="48"
           />
           <AoiTextField
             v-model="accentCardDraft.subtitle"
-            variant="outlined"
+            appearance="outlined"
             :label="t('settings.appearance.palette.cards.subtitleLabel')"
             :max-length="64"
           />
           <AoiTextField
             v-model="accentCardDraft.description"
-            variant="outlined"
+            appearance="outlined"
             multiline
             :rows="3"
             :label="t('settings.appearance.palette.cards.descriptionLabel')"
@@ -1268,7 +1268,7 @@ function formatBytes(value: number) {
           />
           <AoiTextField
             v-model="accentCardDraft.backgroundImagePath"
-            variant="outlined"
+            appearance="outlined"
             icon="image"
             :label="t('settings.appearance.palette.cards.imagePathLabel')"
             :placeholder="t('settings.appearance.palette.cards.imagePathPlaceholder')"
@@ -1281,7 +1281,7 @@ function formatBytes(value: number) {
             <span>{{ assetCurrentPath || "/" }}</span>
             <AoiActionBar size="sm" align="end">
               <AoiButton
-                variant="text"
+                appearance="plain" intent="secondary"
                 size="sm"
                 icon="corner-up-left"
                 :disabled="!assetCurrentPath || Boolean(accentCardBusy)"
@@ -1290,7 +1290,7 @@ function formatBytes(value: number) {
                 {{ t("settings.appearance.palette.cards.parent") }}
               </AoiButton>
               <AoiButton
-                variant="text"
+                appearance="plain" intent="secondary"
                 size="sm"
                 icon="refresh-cw"
                 :disabled="Boolean(accentCardBusy)"
@@ -1305,7 +1305,7 @@ function formatBytes(value: number) {
               >
                 <template #default="{ open }">
                   <AoiButton
-                    variant="outlined"
+                    appearance="outline"
                     size="sm"
                     icon="upload"
                     :disabled="Boolean(accentCardBusy)"
@@ -1316,7 +1316,7 @@ function formatBytes(value: number) {
                 </template>
               </AoiFileInput>
               <AoiButton
-                variant="text"
+                appearance="plain" intent="secondary"
                 size="sm"
                 icon="x"
                 :disabled="!accentCardDraft.backgroundImagePath"
@@ -1330,7 +1330,7 @@ function formatBytes(value: number) {
           <div v-if="accentCardAssetError" class="settings-accent-card-assets__error">
             <span>{{ accentCardAssetError }}</span>
             <AoiButton
-              variant="outlined"
+              appearance="outline"
               size="sm"
               icon="refresh-cw"
               :disabled="Boolean(accentCardBusy)"
@@ -1372,7 +1372,7 @@ function formatBytes(value: number) {
 
       <template #actions>
         <AoiButton
-          variant="text"
+          appearance="plain" intent="secondary"
           :disabled="accentCardSaving"
           @click="closeAccentCardEditor"
         >
@@ -1412,7 +1412,7 @@ function formatBytes(value: number) {
 
       <template #actions>
         <AoiButton
-          variant="text"
+          appearance="plain" intent="secondary"
           :disabled="accentCardSaving"
           @click="accentCardConfirmOpen = false"
         >
@@ -1433,7 +1433,7 @@ function formatBytes(value: number) {
       <p class="settings-note">{{ t("settings.resetPage.appearance.description") }}</p>
       <template #actions>
         <AoiButton
-          variant="text"
+          appearance="plain" intent="secondary"
           :disabled="resettingAppearance"
           @click="resetAppearanceConfirmOpen = false"
         >

@@ -705,7 +705,7 @@ defineExpose({
             v-model="maxWidthValue"
             label="最大宽度"
             type="number"
-            variant="outlined"
+            appearance="outlined"
             min="1"
             step="1"
           />
@@ -713,7 +713,7 @@ defineExpose({
             v-model="maxHeightValue"
             label="最大高度"
             type="number"
-            variant="outlined"
+            appearance="outlined"
             min="1"
             step="1"
           />
@@ -751,23 +751,23 @@ defineExpose({
           >
             {{ primaryActionLabel }}
           </AoiButton>
-          <AoiPlainButton
+          <AoiButton appearance="plain" intent="secondary"
             icon="file-type-2"
             size="sm"
             :disabled="disabled || imageLoading || !cropperReady || isExporting"
             @click="exportSafely"
           >
             预览 WebP
-          </AoiPlainButton>
-          <AoiPlainButton icon="copy" size="sm" :disabled="disabled || imageLoading || !cropperReady || isExporting" @click="copyResult">
+          </AoiButton>
+          <AoiButton appearance="plain" intent="secondary" icon="copy" size="sm" :disabled="disabled || imageLoading || !cropperReady || isExporting" @click="copyResult">
             复制
-          </AoiPlainButton>
-          <AoiPlainButton icon="download" size="sm" :disabled="disabled || imageLoading || !cropperReady || isExporting" @click="downloadResult">
+          </AoiButton>
+          <AoiButton appearance="plain" intent="secondary" icon="download" size="sm" :disabled="disabled || imageLoading || !cropperReady || isExporting" @click="downloadResult">
             下载
-          </AoiPlainButton>
-          <AoiPlainButton icon="x" size="sm" :disabled="isExporting" @click="emit('close')">
+          </AoiButton>
+          <AoiButton appearance="plain" intent="secondary" icon="x" size="sm" :disabled="isExporting" @click="emit('close')">
             关闭
-          </AoiPlainButton>
+          </AoiButton>
         </AoiActionBar>
       </aside>
     </div>

@@ -45,10 +45,10 @@ function fieldLabel(field: AoiSettingsProfileField) {
         <span>{{ props.modelValue.length }} 项 · {{ props.summary }}</span>
       </div>
       <AoiActionBar size="sm" align="end">
-        <AoiButton variant="text" size="sm" icon="list-checks" @click="emit('selectAll')">
+        <AoiButton appearance="plain" intent="secondary" size="sm" icon="list-checks" @click="emit('selectAll')">
           全选
         </AoiButton>
-        <AoiButton variant="text" size="sm" icon="eraser" @click="emit('clear')">
+        <AoiButton appearance="plain" intent="secondary" size="sm" icon="eraser" @click="emit('clear')">
           清空
         </AoiButton>
       </AoiActionBar>

@@ -67,13 +67,13 @@ function triggerPlainDemo() {
             </div>
 
             <div class="home-aoi-demo__group home-aoi-demo__group--inline">
-              <AoiPlainButton icon="sparkles" @click="triggerPlainDemo">朴素按钮</AoiPlainButton>
+              <AoiButton appearance="plain" intent="secondary" icon="sparkles" @click="triggerPlainDemo">朴素按钮</AoiButton>
               <span class="home-aoi-demo__value">{{ demoStatus }}</span>
             </div>
 
             <div class="home-aoi-demo__fields">
-              <AoiDateField v-model="demoDate" label="日期" variant="outlined" min="2026-01-01" max="2026-12-31" />
-              <AoiTimeField v-model="demoTime" label="时间" variant="outlined" step="300" />
+              <AoiDateField v-model="demoDate" label="日期" appearance="outlined" min="2026-01-01" max="2026-12-31" />
+              <AoiTimeField v-model="demoTime" label="时间" appearance="outlined" step="300" />
             </div>
           </div>
 
@@ -94,7 +94,7 @@ function triggerPlainDemo() {
       <AoiSection :title="t('home.latest')" :count="videos.length" title-id="latest-title">
         <template #actions>
           <AoiActionBar class="home-view-toggle" surface size="sm" label="视图模式">
-            <AoiIconButton icon="grid-3x3" :label="t('home.gridView')" active variant="tonal" size="sm" />
+            <AoiIconButton icon="grid-3x3" :label="t('home.gridView')" active appearance="soft" size="sm" />
             <AoiIconButton icon="list" :label="t('home.listView')" size="sm" />
           </AoiActionBar>
         </template>

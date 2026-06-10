@@ -974,7 +974,7 @@ defineExpose({
                   <AoiIconButton
                     :icon="videoPlaying ? 'pause' : 'play'"
                     :label="videoPlaying ? resolvedLabels.pause : resolvedLabels.play"
-                    variant="tonal"
+                    appearance="soft"
                     @click="toggleVideoPlay"
                   />
                   <div class="aoi-lightbox__timeline">
@@ -982,7 +982,7 @@ defineExpose({
                     <AoiSlider
                       :model-value="videoCurrentTime"
                       :aria-label="resolvedLabels.media"
-                      tone="inverse"
+                      contrast="inverse"
                       compact
                       :min="0"
                       :max="videoProgressMax"
@@ -1001,7 +1001,7 @@ defineExpose({
                     class="aoi-lightbox__volume"
                     :model-value="volumePercent"
                     :aria-label="resolvedLabels.volume"
-                    tone="inverse"
+                    contrast="inverse"
                     compact
                     :min="0"
                     :max="100"

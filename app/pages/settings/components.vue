@@ -21,7 +21,7 @@ import type { AoiSettingsProfileDiffItem } from "~/lib/aoiSettingsProfiles"
 
 interface DemoStatus {
   message: string
-  tone: "error" | "info" | "success" | "warning"
+  intent: "danger" | "info" | "success" | "warning"
 }
 
 interface DemoAccordionItem {
@@ -77,7 +77,7 @@ const lightboxIndex = ref(0)
 const routeProgressPreview = ref(false)
 const status = ref<DemoStatus>({
   message: "组件实验台已就绪。",
-  tone: "success"
+  intent: "success"
 })
 const commentSortMode = ref<"newest" | "oldest">("newest")
 const richTextMarkdown = ref([
@@ -200,11 +200,27 @@ const menuItems = [
   { value: "inspect", label: "标记为已检查", icon: "badge-check" },
   { value: "disabled", label: "禁用项", icon: "ban", disabled: true }
 ]
-const statusToneOptions = [
+const statusIntentOptions = [
   { value: "info", label: "信息" },
   { value: "success", label: "成功" },
   { value: "warning", label: "警告" },
-  { value: "error", label: "错误" }
+  { value: "danger", label: "危险" }
+] as const
+const actionAppearances = [
+  { value: "solid", label: "Solid" },
+  { value: "soft", label: "Soft" },
+  { value: "outline", label: "Outline" },
+  { value: "plain", label: "Plain" },
+  { value: "elevated", label: "Elevated" }
+] as const
+const actionIntents = [
+  { value: "primary", label: "主" },
+  { value: "secondary", label: "次" },
+  { value: "neutral", label: "中" },
+  { value: "success", label: "成" },
+  { value: "warning", label: "警" },
+  { value: "danger", label: "险" },
+  { value: "info", label: "信" }
 ] as const
 const lightboxItems: AoiLightboxItem[] = [
   {
@@ -419,8 +435,8 @@ useHead(() => ({
   title: `${t("settings.components.title")} - Aoi`
 }))
 
-function showStatus(message: string, tone: DemoStatus["tone"] = "success") {
-  status.value = { message, tone }
+function showStatus(message: string, intent: DemoStatus["intent"] = "success") {
+  status.value = { message, intent }
 }
 
 function onMenuSelect(value: string) {
@@ -578,17 +594,57 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
 
       <AoiActionBar class="components-lab__actions" label="主要组件动作" size="sm" surface>
         <AoiButton icon="sparkles" @click="showStatus('主要按钮已触发。')">主要按钮</AoiButton>
-        <AoiButton icon="triangle-alert" class="components-lab__warning-button" @click="showStatus('警告按钮已触发。', 'warning')">警告按钮</AoiButton>
-        <AoiButton icon="circle-alert" class="components-lab__danger-button" @click="showStatus('危险按钮已触发。', 'error')">危险按钮</AoiButton>
+        <AoiButton icon="triangle-alert" intent="warning" @click="showStatus('警告按钮已触发。', 'warning')">警告按钮</AoiButton>
+        <AoiButton icon="circle-alert" intent="danger" @click="showStatus('危险按钮已触发。', 'danger')">危险按钮</AoiButton>
         <AoiButton disabled>主要按钮被禁用</AoiButton>
         <AoiButton icon="party-popper" @click="showStatus('五彩纸屑已替换为 Aoi 状态反馈。')">五彩纸屑</AoiButton>
         <AoiButton icon="send" @click="showStatus('发送按钮已触发。')">发送</AoiButton>
-        <AoiButton variant="outlined" @click="dialogOpen = true">显示模态框</AoiButton>
-        <AoiButton id="aoi-components-menu-anchor" variant="outlined" @click="menuOpen = !menuOpen">显示菜单</AoiButton>
-        <AoiButton variant="outlined" @click="routeProgressPreview = !routeProgressPreview">显示进度条</AoiButton>
+        <AoiButton appearance="outline" @click="dialogOpen = true">显示模态框</AoiButton>
+        <AoiButton id="aoi-components-menu-anchor" appearance="outline" @click="menuOpen = !menuOpen">显示菜单</AoiButton>
+        <AoiButton appearance="outline" @click="routeProgressPreview = !routeProgressPreview">显示进度条</AoiButton>
       </AoiActionBar>
 
-      <AoiStatusMessage :tone="status.tone" :message="status.message" />
+      <div class="components-lab__action-matrix" aria-label="按钮外观与意图矩阵">
+        <div
+          v-for="appearance in actionAppearances"
+          :key="appearance.value"
+          class="components-lab__action-row"
+        >
+          <span class="components-lab__matrix-label">{{ appearance.label }}</span>
+          <AoiButton
+            v-for="intent in actionIntents"
+            :key="`${appearance.value}-${intent.value}`"
+            :appearance="appearance.value"
+            :intent="intent.value"
+            size="sm"
+            @click="showStatus(`${appearance.label} / ${intent.label}`)"
+          >
+            {{ intent.label }}
+          </AoiButton>
+        </div>
+        <div class="components-lab__icon-row" aria-label="图标按钮外观与意图矩阵">
+          <AoiIconButton
+            v-for="intent in actionIntents"
+            :key="`icon-${intent.value}`"
+            icon="sparkle"
+            :label="`图标按钮 ${intent.label}`"
+            appearance="plain"
+            :intent="intent.value"
+            size="sm"
+          />
+          <AoiIconButton
+            v-for="intent in actionIntents"
+            :key="`icon-soft-${intent.value}`"
+            icon="sparkles"
+            :label="`填充图标按钮 ${intent.label}`"
+            appearance="soft"
+            :intent="intent.value"
+            size="sm"
+          />
+        </div>
+      </div>
+
+      <AoiStatusMessage :intent="status.intent" :message="status.message" />
       <span v-if="routeProgressPreview" class="components-lab__route-progress-preview" aria-hidden="true" />
       <AoiMenu v-model:open="menuOpen" :anchor="menuAnchorId" :items="menuItems" @select="onMenuSelect" />
     </section>
@@ -656,11 +712,11 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
     <section class="components-lab__section">
       <div class="components-lab__form-grid">
         <AoiTextField v-model="basicText" label="Filled text" />
-        <AoiTextField v-model="normalText" label="Outlined with icon" icon="smile" variant="outlined" />
-        <AoiTextField v-model="searchText" label="Error field" icon="badge-check" error-text="示例错误提示" variant="outlined" />
+        <AoiTextField v-model="normalText" label="Outlined with icon" icon="smile" appearance="outlined" />
+        <AoiTextField v-model="searchText" label="Error field" icon="badge-check" error-text="示例错误提示" appearance="outlined" />
         <AoiTextField v-model="messageText" label="Message" icon="message-square-text" multiline :rows="3" />
         <AoiSelect v-model="selectValue" label="Filled select" :options="selectOptions" />
-        <AoiSelect v-model="outlinedSelectValue" label="Outlined select" variant="outlined" :options="selectOptions" />
+        <AoiSelect v-model="outlinedSelectValue" label="Outlined select" appearance="outlined" :options="selectOptions" />
       </div>
       <p class="components-lab__note">所有输入框使用独立状态；选择器菜单通过 Aoi layer 管理。</p>
     </section>
@@ -690,8 +746,8 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
         <AoiChip label="标签" selected />
         <AoiChip label="输入标签名称" removable remove-label="移除输入标签" @remove="showStatus('标签移除事件已触发。')" />
         <AoiMetaPill icon="clock-3">你知道的</AoiMetaPill>
-        <AoiMetaPill tone="accent">太多了</AoiMetaPill>
-        <AoiMetaPill tone="danger">错误</AoiMetaPill>
+        <AoiMetaPill intent="primary">太多了</AoiMetaPill>
+        <AoiMetaPill intent="danger">错误</AoiMetaPill>
       </div>
 
       <div class="components-lab__slider-stack">
@@ -752,7 +808,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
     <section class="components-lab__section">
       <PageHeader title="组件页面标题" description="PageHeader、AoiSurface、AoiSection、AoiContentGrid 和状态组件的组合。" icon="blocks">
         <template #actions>
-          <AoiButton variant="outlined" size="sm" icon="external-link" to="/settings">设置入口</AoiButton>
+          <AoiButton appearance="outline" size="sm" icon="external-link" to="/settings">设置入口</AoiButton>
         </template>
       </PageHeader>
 
@@ -774,8 +830,8 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
 
       <div class="components-lab__surface-grid">
         <AoiSurface surface="panel" padding="lg">Panel surface</AoiSurface>
-        <AoiSurface surface="card" tone="accent">Accent card</AoiSurface>
-        <AoiSurface surface="state" tone="danger">Danger state</AoiSurface>
+        <AoiSurface surface="card" intent="primary">Accent card</AoiSurface>
+        <AoiSurface surface="state" intent="danger">Danger state</AoiSurface>
         <AoiSurface surface="code" padding="sm"><AoiCodeBlock code="const aoi = 'components'" /></AoiSurface>
       </div>
 
@@ -909,7 +965,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
           loop
         />
       </ClientOnly>
-      <AoiButton variant="outlined" icon="images" @click="lightboxOpen = true">打开灯箱</AoiButton>
+      <AoiButton appearance="outline" icon="images" @click="lightboxOpen = true">打开灯箱</AoiButton>
 
       <ClientOnly>
         <div class="components-lab__rich-text">
@@ -991,8 +1047,8 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
           @submit="showStatus('AuthPanel submit 已触发。')"
         >
           <template #fields>
-            <AoiTextField label="用户名" icon="user" variant="outlined" />
-            <AoiTextField label="密码" icon="lock" type="password" variant="outlined" />
+            <AoiTextField label="用户名" icon="user" appearance="outlined" />
+            <AoiTextField label="密码" icon="lock" type="password" appearance="outlined" />
           </template>
           <template #switch>
             <span>还没有账号？</span>
@@ -1012,7 +1068,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
         </SettingsOptionGrid>
         <SettingsDataActionCard title="数据动作卡片" description="用于高级设置中的操作行。">
           <template #actions>
-            <AoiButton variant="outlined" size="sm" icon="download">导出</AoiButton>
+            <AoiButton appearance="outline" size="sm" icon="download">导出</AoiButton>
           </template>
         </SettingsDataActionCard>
         <SettingsDerivationControlGrid :controls="derivationControls" @update="(key, value) => showStatus(`${key} 已更新为 ${value}。`)" />
@@ -1022,7 +1078,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
           active-id="demo"
           label="Profile list"
         />
-        <AoiButton variant="outlined" icon="git-compare-arrows" @click="diffDialogOpen = true">显示差异弹窗</AoiButton>
+        <AoiButton appearance="outline" icon="git-compare-arrows" @click="diffDialogOpen = true">显示差异弹窗</AoiButton>
       </SettingsPanel>
     </section>
 
@@ -1058,7 +1114,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
       </template>
       <p>这个弹窗使用 AoiDialog，并通过 Material Web wrapper 管理。</p>
       <template #actions>
-        <AoiButton variant="text" @click="dialogOpen = false">取消</AoiButton>
+        <AoiButton appearance="plain" intent="secondary" @click="dialogOpen = false">取消</AoiButton>
         <AoiButton icon="check" @click="dialogOpen = false">确认</AoiButton>
       </template>
     </AoiDialog>
@@ -1196,18 +1252,35 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
   padding: 7px 10px;
 }
 
-.components-lab__warning-button {
-  --md-filled-button-container-color: var(--aoi-sun-50);
-  --md-filled-button-hover-container-color: var(--aoi-sun-50);
-  --md-filled-button-label-text-color: #fff;
-  --md-filled-button-icon-color: #fff;
+.components-lab__action-matrix {
+  display: grid;
+  gap: 9px;
+  overflow-x: auto;
+  border: 1px solid var(--aoi-border);
+  border-radius: var(--aoi-radius-card);
+  background: var(--aoi-surface);
+  padding: 10px;
 }
 
-.components-lab__danger-button {
-  --md-filled-button-container-color: var(--aoi-danger);
-  --md-filled-button-hover-container-color: var(--aoi-danger);
-  --md-filled-button-label-text-color: #fff;
-  --md-filled-button-icon-color: #fff;
+.components-lab__action-row,
+.components-lab__icon-row {
+  display: flex;
+  min-width: max-content;
+  align-items: center;
+  gap: 8px;
+}
+
+.components-lab__matrix-label {
+  width: 70px;
+  flex: 0 0 auto;
+  color: var(--aoi-text-muted);
+  font-size: 12px;
+  font-weight: 820;
+}
+
+.components-lab__icon-row {
+  border-top: 1px solid var(--aoi-border);
+  padding-top: 9px;
 }
 
 .components-lab__route-progress-preview {

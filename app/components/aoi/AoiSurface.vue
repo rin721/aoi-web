@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AoiRevealProp, AoiSurfaceKind, AoiSurfacePadding, AoiSurfaceTone } from "~/types/ui"
+import type { AoiIntent, AoiRevealProp, AoiSurfaceKind, AoiSurfacePadding } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
   as?: string
@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<{
   reveal?: AoiRevealProp
   selected?: boolean
   surface?: AoiSurfaceKind
-  tone?: AoiSurfaceTone
+  intent?: AoiIntent
 }>(), {
   as: "div",
   interactive: false,
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<{
   reveal: false,
   selected: false,
   surface: "card",
-  tone: "default"
+  intent: "neutral"
 })
 </script>
 
@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
     class="aoi-surface"
     :class="[
       `aoi-surface--${props.surface}`,
-      `aoi-surface--tone-${props.tone}`,
+      `aoi-surface--intent-${props.intent}`,
       `aoi-surface--padding-${props.padding}`,
       {
         'aoi-surface--interactive': props.interactive,
@@ -42,6 +42,9 @@ const props = withDefaults(defineProps<{
 <style scoped>
 .aoi-surface {
   min-width: 0;
+  --aoi-surface-intent-bg: var(--aoi-intent-neutral-soft-bg);
+  --aoi-surface-intent-bg-hover: var(--aoi-intent-neutral-soft-bg-hover);
+  --aoi-surface-intent-border: var(--aoi-intent-neutral-border);
   color: var(--aoi-text);
 }
 
@@ -100,17 +103,48 @@ const props = withDefaults(defineProps<{
   padding: var(--aoi-panel-padding);
 }
 
-.aoi-surface--tone-accent {
-  border-color: color-mix(in srgb, var(--aoi-accent-60) 24%, var(--aoi-border));
-  background: color-mix(in srgb, var(--aoi-accent-10) 64%, var(--aoi-card-bg));
+.aoi-surface--intent-primary {
+  --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-primary-soft-bg) 70%, var(--aoi-card-bg));
+  --aoi-surface-intent-bg-hover: var(--aoi-intent-primary-soft-bg-hover);
+  --aoi-surface-intent-border: var(--aoi-intent-primary-border);
+  border-color: var(--aoi-surface-intent-border);
+  background: var(--aoi-surface-intent-bg);
 }
 
-.aoi-surface--tone-danger {
-  border-color: color-mix(in srgb, var(--aoi-danger) 24%, var(--aoi-border));
+.aoi-surface--intent-danger {
+  --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-danger-soft-bg) 70%, var(--aoi-card-bg));
+  --aoi-surface-intent-bg-hover: var(--aoi-intent-danger-soft-bg-hover);
+  --aoi-surface-intent-border: var(--aoi-intent-danger-border);
+  border-color: var(--aoi-surface-intent-border);
 }
 
-.aoi-surface--tone-muted {
+.aoi-surface--intent-secondary {
   background: var(--aoi-surface-muted);
+}
+
+.aoi-surface--intent-success,
+.aoi-surface--intent-warning,
+.aoi-surface--intent-info {
+  border-color: var(--aoi-surface-intent-border);
+  background: var(--aoi-surface-intent-bg);
+}
+
+.aoi-surface--intent-success {
+  --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-success-soft-bg) 70%, var(--aoi-card-bg));
+  --aoi-surface-intent-bg-hover: var(--aoi-intent-success-soft-bg-hover);
+  --aoi-surface-intent-border: var(--aoi-intent-success-border);
+}
+
+.aoi-surface--intent-warning {
+  --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-warning-soft-bg) 70%, var(--aoi-card-bg));
+  --aoi-surface-intent-bg-hover: var(--aoi-intent-warning-soft-bg-hover);
+  --aoi-surface-intent-border: var(--aoi-intent-warning-border);
+}
+
+.aoi-surface--intent-info {
+  --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-info-soft-bg) 70%, var(--aoi-card-bg));
+  --aoi-surface-intent-bg-hover: var(--aoi-intent-info-soft-bg-hover);
+  --aoi-surface-intent-border: var(--aoi-intent-info-border);
 }
 
 .aoi-surface--interactive {
@@ -123,8 +157,8 @@ const props = withDefaults(defineProps<{
 
 .aoi-surface--interactive:hover,
 .aoi-surface--selected {
-  border-color: var(--aoi-state-border-active);
-  background: var(--aoi-state-active);
+  border-color: var(--aoi-surface-intent-border);
+  background: var(--aoi-surface-intent-bg-hover);
 }
 
 .aoi-surface--interactive:hover {

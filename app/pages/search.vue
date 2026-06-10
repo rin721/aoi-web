@@ -112,7 +112,7 @@ useHead(() => ({
         v-model="query"
         label="搜索关键词"
         placeholder="例如：Aoi、设计、Go API"
-        variant="outlined"
+        appearance="outlined"
         @enter="submitSearch"
       />
       <AoiButton icon="search" @click="submitSearch">搜索</AoiButton>

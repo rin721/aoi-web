@@ -709,7 +709,7 @@ defineExpose({
       <div v-else-if="state.hasError || !selectedSource" class="aoi-danmaku-video-player__overlay" @click.stop>
         <AoiIcon name="video-off" :size="32" decorative />
         <span>{{ playerErrorText(state.errorCode) }}</span>
-        <AoiButton variant="tonal" size="sm" icon="refresh-cw" @click="controls.reload">
+        <AoiButton appearance="soft" size="sm" icon="refresh-cw" @click="controls.reload">
           {{ t("player.retry") }}
         </AoiButton>
       </div>
@@ -803,7 +803,7 @@ defineExpose({
           >
             <AoiButton
               class="aoi-danmaku-video-player__menu-button aoi-danmaku-video-player__rate-button"
-              variant="tonal"
+              appearance="soft"
               size="sm"
               icon="gauge"
               :aria-label="t('player.rate')"
@@ -823,7 +823,7 @@ defineExpose({
           >
             <AoiButton
               class="aoi-danmaku-video-player__menu-button aoi-danmaku-video-player__subtitle-button"
-              variant="tonal"
+              appearance="soft"
               size="sm"
               icon="captions"
               :aria-label="t('player.subtitle')"

@@ -19,6 +19,7 @@
     "search": "搜索",
     "history": "历史",
     "collections": "收藏",
+    "docs": "文档",
     "upload": "投稿",
     "settings": "设置",
     "login": "登录"
@@ -33,6 +34,42 @@
   "category": {
     "childrenTitle": "子分类",
     "childrenDescription": "继续细分浏览，父级分类会聚合下方所有内容。"
+  },
+  "docs": {
+    "eyebrow": "Aoi Docs",
+    "title": "项目系统与组件库文档",
+    "description": "以静态 Markdown 记录 Nuxt 架构、仓库边界和全部 Aoi wrapper 组件 API。",
+    "actions": {
+      "project": "项目系统",
+      "components": "组件库"
+    },
+    "stats": {
+      "pages": "页面",
+      "components": "组件",
+      "locales": "语言"
+    },
+    "nav": {
+      "open": "目录",
+      "label": "文档目录",
+      "close": "关闭"
+    },
+    "search": {
+      "label": "搜索文档",
+      "placeholder": "搜索标题、说明或小节"
+    },
+    "notFound": {
+      "title": "文档不存在",
+      "description": "当前文档集中没有这个页面。",
+      "action": "返回文档"
+    },
+    "pager": {
+      "label": "文档翻页",
+      "previous": "上一篇",
+      "next": "下一篇"
+    },
+    "toc": {
+      "label": "本页目录"
+    }
   },
   "settings": {
     "shell": {

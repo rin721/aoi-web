@@ -7,7 +7,7 @@ const props = withDefaults(defineProps<{
   max?: number
   min?: number
   step?: number
-  tone?: "default" | "inverse"
+  contrast?: "default" | "inverse"
   compact?: boolean
 }>(), {
   ariaLabel: undefined,
@@ -18,7 +18,7 @@ const props = withDefaults(defineProps<{
   min: 0,
   modelValue: 0,
   step: 1,
-  tone: "default"
+  contrast: "default"
 })
 
 const emit = defineEmits<{
@@ -80,7 +80,7 @@ function onChange(event: Event) {
   <label
     class="aoi-slider-field"
     :class="[
-      `aoi-slider-field--${tone}`,
+      `aoi-slider-field--${contrast}`,
       { 'aoi-slider-field--compact': compact }
     ]"
   >

@@ -1,19 +1,28 @@
 <script setup lang="ts">
-import type { AoiMetaPillTone } from "~/types/ui"
+import type { AoiActionAppearance, AoiIntent } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
+  appearance?: Extract<AoiActionAppearance, "outline" | "plain" | "soft">
   icon?: string
+  intent?: AoiIntent
   size?: "sm" | "md"
-  tone?: AoiMetaPillTone
 }>(), {
+  appearance: "outline",
   icon: undefined,
+  intent: "secondary",
   size: "sm",
-  tone: "default"
 })
 </script>
 
 <template>
-  <span class="aoi-meta-pill" :class="[`aoi-meta-pill--${props.size}`, `aoi-meta-pill--tone-${props.tone}`]">
+  <span
+    class="aoi-meta-pill"
+    :class="[
+      `aoi-meta-pill--${props.size}`,
+      `aoi-meta-pill--${props.appearance}`,
+      `aoi-meta-pill--intent-${props.intent}`
+    ]"
+  >
     <AoiIcon v-if="props.icon" :name="props.icon" :size="props.size === 'sm' ? 14 : 16" decorative />
     <slot />
   </span>
@@ -29,7 +38,7 @@ const props = withDefaults(defineProps<{
   border: 1px solid var(--aoi-border);
   border-radius: var(--aoi-radius-control);
   background: var(--aoi-surface);
-  color: var(--aoi-text-muted);
+  color: var(--aoi-pill-color, var(--aoi-intent-secondary-color));
   font-weight: 760;
   line-height: 1.25;
 }
@@ -46,18 +55,59 @@ const props = withDefaults(defineProps<{
   padding: 5px 10px;
 }
 
-.aoi-meta-pill--tone-accent {
-  border-color: color-mix(in srgb, var(--aoi-accent-60) 22%, var(--aoi-border));
-  background: var(--aoi-accent-10);
-  color: var(--aoi-accent-60);
+.aoi-meta-pill--intent-primary {
+  --aoi-pill-color: var(--aoi-intent-primary-color);
+  --aoi-pill-bg: var(--aoi-intent-primary-soft-bg);
+  --aoi-pill-border: var(--aoi-intent-primary-border);
 }
 
-.aoi-meta-pill--tone-danger {
-  border-color: color-mix(in srgb, var(--aoi-danger) 26%, var(--aoi-border));
-  color: var(--aoi-danger);
+.aoi-meta-pill--intent-secondary {
+  --aoi-pill-color: var(--aoi-intent-secondary-color);
+  --aoi-pill-bg: var(--aoi-intent-secondary-soft-bg);
+  --aoi-pill-border: var(--aoi-intent-secondary-border);
 }
 
-.aoi-meta-pill--tone-muted {
-  background: var(--aoi-surface-muted);
+.aoi-meta-pill--intent-neutral {
+  --aoi-pill-color: var(--aoi-intent-neutral-color);
+  --aoi-pill-bg: var(--aoi-intent-neutral-soft-bg);
+  --aoi-pill-border: var(--aoi-intent-neutral-border);
+}
+
+.aoi-meta-pill--intent-success {
+  --aoi-pill-color: var(--aoi-intent-success-color);
+  --aoi-pill-bg: var(--aoi-intent-success-soft-bg);
+  --aoi-pill-border: var(--aoi-intent-success-border);
+}
+
+.aoi-meta-pill--intent-warning {
+  --aoi-pill-color: var(--aoi-intent-warning-color);
+  --aoi-pill-bg: var(--aoi-intent-warning-soft-bg);
+  --aoi-pill-border: var(--aoi-intent-warning-border);
+}
+
+.aoi-meta-pill--intent-danger {
+  --aoi-pill-color: var(--aoi-intent-danger-color);
+  --aoi-pill-bg: var(--aoi-intent-danger-soft-bg);
+  --aoi-pill-border: var(--aoi-intent-danger-border);
+}
+
+.aoi-meta-pill--intent-info {
+  --aoi-pill-color: var(--aoi-intent-info-color);
+  --aoi-pill-bg: var(--aoi-intent-info-soft-bg);
+  --aoi-pill-border: var(--aoi-intent-info-border);
+}
+
+.aoi-meta-pill--soft {
+  border-color: transparent;
+  background: var(--aoi-pill-bg);
+}
+
+.aoi-meta-pill--outline {
+  border-color: var(--aoi-pill-border);
+}
+
+.aoi-meta-pill--plain {
+  border-color: transparent;
+  background: transparent;
 }
 </style>

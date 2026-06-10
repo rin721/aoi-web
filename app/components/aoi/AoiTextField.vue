@@ -1,9 +1,9 @@
 <script setup lang="ts">
-type TextFieldVariant = "filled" | "outlined"
+import type { AoiFieldAppearance } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
   modelValue?: string
-  variant?: TextFieldVariant
+  appearance?: AoiFieldAppearance
   label?: string
   placeholder?: string
   supportingText?: string
@@ -19,7 +19,7 @@ const props = withDefaults(defineProps<{
   rows?: number
 }>(), {
   modelValue: "",
-  variant: "filled",
+  appearance: "filled",
   label: undefined,
   placeholder: undefined,
   supportingText: undefined,
@@ -41,7 +41,7 @@ const emit = defineEmits<{
   "update:modelValue": [value: string]
 }>()
 
-const tagName = computed(() => props.variant === "outlined" ? "md-outlined-text-field" : "md-filled-text-field")
+const tagName = computed(() => props.appearance === "outlined" ? "md-outlined-text-field" : "md-filled-text-field")
 const fieldRef = ref<(HTMLElement & { focus?: () => void, showPicker?: () => void, value?: string }) | null>(null)
 let cleanupInternalControl: (() => void) | undefined
 

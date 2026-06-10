@@ -1,17 +1,17 @@
 <script setup lang="ts">
-import type { AoiProgressBarTone } from "~/types/ui"
+import type { AoiIntent } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
+  intent?: Extract<AoiIntent, "danger" | "neutral" | "primary" | "secondary" | "success" | "warning" | "info">
   label?: string
   max?: number
   size?: "sm" | "md"
-  tone?: AoiProgressBarTone
   value: number
 }>(), {
+  intent: "primary",
   label: undefined,
   max: 100,
-  size: "sm",
-  tone: "accent"
+  size: "sm"
 })
 
 const normalizedMax = computed(() => Number.isFinite(props.max) && props.max > 0 ? props.max : 100)
@@ -30,7 +30,7 @@ const progressStyle = computed(() => ({
 <template>
   <span
     class="aoi-progress-bar"
-    :class="[`aoi-progress-bar--${props.size}`, `aoi-progress-bar--tone-${props.tone}`]"
+    :class="[`aoi-progress-bar--${props.size}`, `aoi-progress-bar--intent-${props.intent}`]"
     :style="progressStyle"
     role="progressbar"
     :aria-label="props.label"
@@ -67,11 +67,27 @@ const progressStyle = computed(() => ({
   background: linear-gradient(90deg, var(--aoi-accent-50), var(--aoi-accent-60));
 }
 
-.aoi-progress-bar--tone-danger .aoi-progress-bar__fill {
-  background: var(--aoi-danger);
+.aoi-progress-bar--intent-secondary .aoi-progress-bar__fill {
+  background: var(--aoi-intent-secondary-color);
 }
 
-.aoi-progress-bar--tone-muted .aoi-progress-bar__fill {
-  background: var(--aoi-text-muted);
+.aoi-progress-bar--intent-neutral .aoi-progress-bar__fill {
+  background: var(--aoi-intent-neutral-color);
+}
+
+.aoi-progress-bar--intent-success .aoi-progress-bar__fill {
+  background: var(--aoi-intent-success-color);
+}
+
+.aoi-progress-bar--intent-warning .aoi-progress-bar__fill {
+  background: var(--aoi-intent-warning-color);
+}
+
+.aoi-progress-bar--intent-danger .aoi-progress-bar__fill {
+  background: var(--aoi-intent-danger-color);
+}
+
+.aoi-progress-bar--intent-info .aoi-progress-bar__fill {
+  background: var(--aoi-intent-info-color);
 }
 </style>

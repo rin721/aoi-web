@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AoiSkeletonAnimation, AoiSkeletonShape, AoiSkeletonSize, AoiSkeletonTone } from "~/utils/aoiSkeleton"
+import type { AoiSkeletonAnimation, AoiSkeletonEmphasis, AoiSkeletonShape, AoiSkeletonSize } from "~/utils/aoiSkeleton"
 import { aoiSkeletonDefaultsKey, toAoiSkeletonCssValue } from "~/utils/aoiSkeleton"
 
 defineOptions({
@@ -17,7 +17,7 @@ const props = withDefaults(defineProps<{
   radius?: AoiSkeletonSize
   shape?: AoiSkeletonShape
   tag?: string
-  tone?: AoiSkeletonTone
+  emphasis?: AoiSkeletonEmphasis
   width?: AoiSkeletonSize
 }>(), {
   animation: undefined,
@@ -30,14 +30,14 @@ const props = withDefaults(defineProps<{
   radius: undefined,
   shape: "block",
   tag: "span",
-  tone: undefined,
+  emphasis: undefined,
   width: undefined
 })
 
 const attrs = useAttrs()
 const defaults = inject(aoiSkeletonDefaultsKey, null)
 const resolvedAnimation = computed(() => props.animation ?? defaults?.animation.value ?? "shimmer")
-const resolvedTone = computed(() => props.tone ?? defaults?.tone.value)
+const resolvedEmphasis = computed(() => props.emphasis ?? defaults?.emphasis.value)
 const passThroughAttrs = computed(() => {
   const {
     class: _class,
@@ -70,7 +70,7 @@ const skeletonStyle = computed(() => ({
     :style="[skeletonStyle, attrs.style]"
     :aria-hidden="ariaHidden ? 'true' : undefined"
     :data-aoi-skeleton-animation="resolvedAnimation"
-    :data-aoi-skeleton-tone="resolvedTone"
+    :data-aoi-skeleton-emphasis="resolvedEmphasis"
   >
     <slot />
   </component>
@@ -129,17 +129,17 @@ const skeletonStyle = computed(() => ({
   --aoi-skeleton-default-radius: var(--aoi-radius-round);
 }
 
-.aoi-skeleton[data-aoi-skeleton-tone="surface"] {
+.aoi-skeleton[data-aoi-skeleton-emphasis="surface"] {
   --aoi-skeleton-fill: color-mix(in srgb, var(--aoi-surface-solid) 78%, var(--aoi-surface-muted));
   --aoi-skeleton-highlight: color-mix(in srgb, white 82%, transparent);
 }
 
-.aoi-skeleton[data-aoi-skeleton-tone="strong"] {
+.aoi-skeleton[data-aoi-skeleton-emphasis="strong"] {
   --aoi-skeleton-fill: color-mix(in srgb, var(--aoi-text-muted) 16%, var(--aoi-surface-muted));
   --aoi-skeleton-highlight: color-mix(in srgb, white 72%, transparent);
 }
 
-.aoi-skeleton[data-aoi-skeleton-tone="accent"] {
+.aoi-skeleton[data-aoi-skeleton-emphasis="accent"] {
   --aoi-skeleton-fill: color-mix(in srgb, var(--aoi-accent-50) 15%, var(--aoi-surface-muted));
   --aoi-skeleton-highlight: color-mix(in srgb, var(--aoi-sun-50) 24%, white 58%);
   --aoi-skeleton-edge: color-mix(in srgb, var(--aoi-accent-50) 18%, transparent);
@@ -174,17 +174,17 @@ const skeletonStyle = computed(() => ({
   --aoi-skeleton-edge: color-mix(in srgb, white 7%, transparent);
 }
 
-:global(:root.dark) .aoi-skeleton[data-aoi-skeleton-tone="surface"] {
+:global(:root.dark) .aoi-skeleton[data-aoi-skeleton-emphasis="surface"] {
   --aoi-skeleton-fill: color-mix(in srgb, var(--aoi-surface-solid) 86%, white 5%);
   --aoi-skeleton-highlight: color-mix(in srgb, white 14%, transparent);
 }
 
-:global(:root.dark) .aoi-skeleton[data-aoi-skeleton-tone="strong"] {
+:global(:root.dark) .aoi-skeleton[data-aoi-skeleton-emphasis="strong"] {
   --aoi-skeleton-fill: color-mix(in srgb, var(--aoi-text-muted) 24%, var(--aoi-surface-muted));
   --aoi-skeleton-highlight: color-mix(in srgb, white 18%, transparent);
 }
 
-:global(:root.dark) .aoi-skeleton[data-aoi-skeleton-tone="accent"] {
+:global(:root.dark) .aoi-skeleton[data-aoi-skeleton-emphasis="accent"] {
   --aoi-skeleton-fill: color-mix(in srgb, var(--aoi-accent-40) 18%, var(--aoi-surface-muted));
   --aoi-skeleton-highlight: color-mix(in srgb, var(--aoi-accent-40) 32%, white 8%);
 }

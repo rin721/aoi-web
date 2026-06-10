@@ -41,7 +41,7 @@ const sortOptions = [
           v-model="sortValue"
           class="comment-thread__sort"
           label="排序"
-          variant="outlined"
+          appearance="outlined"
           :options="sortOptions"
           :disabled="!hydrated || comments.length < 2"
         />

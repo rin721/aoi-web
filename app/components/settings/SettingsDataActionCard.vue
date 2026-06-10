@@ -1,11 +1,13 @@
 <script setup lang="ts">
+import type { AoiIntent } from "~/types/ui"
+
 const props = withDefaults(defineProps<{
   description?: string
+  intent?: Extract<AoiIntent, "danger" | "neutral">
   title: string
-  tone?: "default" | "danger"
 }>(), {
   description: undefined,
-  tone: "default"
+  intent: "neutral"
 })
 </script>
 
@@ -15,7 +17,7 @@ const props = withDefaults(defineProps<{
     class="settings-data-action-card"
     surface="card"
     padding="sm"
-    :tone="props.tone === 'danger' ? 'danger' : 'default'"
+    :intent="props.intent"
   >
     <div>
       <h3>{{ props.title }}</h3>

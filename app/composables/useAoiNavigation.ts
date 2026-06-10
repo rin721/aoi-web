@@ -23,6 +23,7 @@ export function useAoiNavigation() {
     { icon: "layout-grid", label: t("nav.categories"), to: "/category", active: isActive("/category") },
     { icon: "history", label: t("nav.history"), to: "/history", active: isActive("/history") },
     { icon: "star", label: t("nav.collections"), to: "/collections", active: isActive("/collections") },
+    { icon: "book-open", label: t("nav.docs"), to: "/docs", active: isActive("/docs") },
     { icon: "radio-tower", label: t("nav.following"), to: "/feed/following", active: isActive("/feed/following") },
     { icon: "upload", label: t("nav.upload"), to: "/upload", active: isActive("/upload") }
   ])

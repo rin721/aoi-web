@@ -34,7 +34,7 @@ function formatTime(seconds: number) {
       class="aoi-video-timeline__slider"
       :model-value="currentTime"
       :aria-label="ariaLabel"
-      tone="inverse"
+      contrast="inverse"
       compact
       :min="0"
       :max="Math.max(0, duration)"

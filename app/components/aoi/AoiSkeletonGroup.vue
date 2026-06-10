@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AoiSkeletonAnimation, AoiSkeletonSize, AoiSkeletonTone } from "~/utils/aoiSkeleton"
+import type { AoiSkeletonAnimation, AoiSkeletonEmphasis, AoiSkeletonSize } from "~/utils/aoiSkeleton"
 import { aoiSkeletonDefaultsKey, toAoiSkeletonCssValue } from "~/utils/aoiSkeleton"
 
 type AoiSkeletonGroupLayout = "stack" | "row" | "grid" | "inline" | "custom"
@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<{
   layout?: AoiSkeletonGroupLayout
   minItemWidth?: AoiSkeletonSize
   tag?: string
-  tone?: AoiSkeletonTone
+  emphasis?: AoiSkeletonEmphasis
   wrap?: boolean
 }>(), {
   align: undefined,
@@ -35,12 +35,12 @@ const props = withDefaults(defineProps<{
   layout: "stack",
   minItemWidth: undefined,
   tag: "div",
-  tone: undefined,
+  emphasis: undefined,
   wrap: false
 })
 
 const attrs = useAttrs()
-const groupTone = computed(() => props.tone)
+const groupEmphasis = computed(() => props.emphasis)
 const groupAnimation = computed(() => props.animation)
 const passThroughAttrs = computed(() => {
   const {
@@ -77,7 +77,7 @@ const groupStyle = computed(() => ({
 
 provide(aoiSkeletonDefaultsKey, {
   animation: groupAnimation,
-  tone: groupTone
+  emphasis: groupEmphasis
 })
 </script>
 

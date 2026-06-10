@@ -334,7 +334,7 @@ async function confirmResetPreference() {
     >
       <template #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           size="sm"
           icon="rotate-ccw"
           :disabled="!settings.hydrated || resettingPreference"
@@ -425,7 +425,7 @@ async function confirmResetPreference() {
         <AoiSelect
           v-model="routeProgressEasingModel"
           class="settings-route-progress-control"
-          variant="outlined"
+          appearance="outlined"
           :label="t('settings.preference.routeProgress.easingLabel')"
           :options="routeProgressEasingOptions"
           :disabled="!settings.routeProgressEnabled"
@@ -530,7 +530,7 @@ async function confirmResetPreference() {
         <AoiSelect
           v-model="revealEffectModel"
           class="settings-reveal-control"
-          variant="outlined"
+          appearance="outlined"
           :label="t('settings.preference.reveal.effectLabel')"
           :options="revealEffectOptions"
           :disabled="!settings.revealMotionEnabled"
@@ -827,7 +827,7 @@ async function confirmResetPreference() {
       <p class="settings-note">{{ t("settings.resetPage.preference.description") }}</p>
       <template #actions>
         <AoiButton
-          variant="text"
+          appearance="plain" intent="secondary"
           :disabled="resettingPreference"
           @click="resetPreferenceConfirmOpen = false"
         >

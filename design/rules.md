@@ -24,6 +24,7 @@ Keep `design/` focused on constraints that guide future implementation. Do not a
 - Business pages and feature components must not use `md-*` Material Web elements directly.
 - Material Web imports stay centralized in `app/plugins/material-web.client.ts`.
 - New Material Web behavior must be exposed through `app/components/aoi/` first.
+- Aoi component semantics use `appearance` for visual form and `intent` for meaning. Do not add thin one-off wrappers such as secondary/danger/plain buttons when the shared component can express the role through this API.
 - Plain text links, card links, tag links, and navigation links use `AoiLink`; business code should not use `NuxtLink` or bare `<a>`.
 - Button-style navigation uses `AoiButton` or `AoiIconButton` with `to`/`href`.
 - Use `app/assets/css/tokens.css` tokens and shared structure rules in `app/assets/css/main.css`.

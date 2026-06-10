@@ -57,10 +57,10 @@ function saveEdit() {
           <small v-if="isEdited">已编辑</small>
         </div>
         <AoiActionBar class="comment-item__actions" size="sm" align="end">
-          <AoiButton v-if="!editing" variant="text" size="sm" icon="pencil" @click="startEdit">
+          <AoiButton v-if="!editing" appearance="plain" intent="secondary" size="sm" icon="pencil" @click="startEdit">
             编辑
           </AoiButton>
-          <AoiButton variant="text" size="sm" icon="trash-2" @click="emit('delete', comment.id)">
+          <AoiButton appearance="plain" intent="secondary" size="sm" icon="trash-2" @click="emit('delete', comment.id)">
             删除
           </AoiButton>
         </AoiActionBar>
@@ -69,7 +69,7 @@ function saveEdit() {
       <template v-if="editing">
         <AoiTextField
           v-model="draft"
-          variant="outlined"
+          appearance="outlined"
           label="编辑评论"
           :max-length="500"
           :supporting-text="`${draft.length}/500`"
@@ -78,7 +78,7 @@ function saveEdit() {
           :rows="3"
         />
         <AoiActionBar class="comment-item__edit-actions" size="sm" align="end">
-          <AoiButton variant="outlined" size="sm" @click="cancelEdit">
+          <AoiButton appearance="outline" size="sm" @click="cancelEdit">
             取消
           </AoiButton>
           <AoiButton size="sm" icon="check" :disabled="!canSave" @click="saveEdit">

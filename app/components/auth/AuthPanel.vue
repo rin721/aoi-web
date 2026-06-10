@@ -42,7 +42,7 @@ const emit = defineEmits<{
 
     <AoiStatusMessage
       v-if="props.successMessage"
-      tone="success"
+      intent="success"
       :message="props.successMessage"
     />
 

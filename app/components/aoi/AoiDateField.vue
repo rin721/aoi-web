@@ -1,9 +1,9 @@
 <script setup lang="ts">
-type DateFieldVariant = "filled" | "outlined"
+import type { AoiFieldAppearance } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
   modelValue?: string
-  variant?: DateFieldVariant
+  appearance?: AoiFieldAppearance
   label?: string
   supportingText?: string
   errorText?: string
@@ -22,7 +22,7 @@ const props = withDefaults(defineProps<{
   modelValue: "",
   step: undefined,
   supportingText: undefined,
-  variant: "filled"
+  appearance: "filled"
 })
 
 const emit = defineEmits<{
@@ -64,7 +64,7 @@ defineExpose({
     :step="props.step"
     :supporting-text="props.supportingText"
     type="date"
-    :variant="props.variant"
+    :appearance="props.appearance"
     @update:model-value="update"
   />
 </template>

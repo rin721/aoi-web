@@ -169,7 +169,7 @@ useHead(() => ({
       >
         <template #actions>
           <AoiButton
-            :variant="isLiked ? 'tonal' : 'outlined'"
+            :appearance="isLiked ? 'soft' : 'outline'"
             icon="heart"
             :aria-label="isLiked ? t('player.unlike') : t('player.like')"
             :disabled="!library.hydrated"
@@ -177,10 +177,10 @@ useHead(() => ({
           >
             {{ localLikeCount }}
           </AoiButton>
-          <AoiButton variant="outlined" icon="message-square-text">
+          <AoiButton appearance="outline" icon="message-square-text">
             {{ displayDanmakuCount }}
           </AoiButton>
-          <AoiButton variant="outlined" icon="message-circle">
+          <AoiButton appearance="outline" icon="message-circle">
             {{ displayCommentCount }}
           </AoiButton>
         </template>
@@ -252,7 +252,7 @@ useHead(() => ({
 
             <template #actions>
               <AoiButton
-                :variant="isFavorite ? 'tonal' : 'outlined'"
+                :appearance="isFavorite ? 'soft' : 'outline'"
                 icon="star"
                 :aria-label="isFavorite ? t('player.unfavorite') : t('player.favorite')"
                 :disabled="!library.hydrated"
@@ -261,7 +261,7 @@ useHead(() => ({
                 {{ isFavorite ? t("player.favorited") : t("player.favorite") }}
               </AoiButton>
               <AoiButton
-                :variant="isWatchLater ? 'tonal' : 'outlined'"
+                :appearance="isWatchLater ? 'soft' : 'outline'"
                 icon="clock-3"
                 :aria-label="isWatchLater ? t('player.removeWatchLater') : t('player.watchLater')"
                 :disabled="!library.hydrated"
@@ -269,7 +269,7 @@ useHead(() => ({
               >
                 {{ isWatchLater ? t("player.watchLaterAdded") : t("player.watchLater") }}
               </AoiButton>
-              <AoiButton variant="outlined" icon="flag">
+              <AoiButton appearance="outline" icon="flag">
                 {{ t("player.report") }}
               </AoiButton>
             </template>

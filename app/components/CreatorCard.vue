@@ -52,7 +52,7 @@ function formatCount(value: number) {
     </template>
     <template v-if="showActions" #actions>
       <AoiButton
-        variant="outlined"
+        appearance="outline"
         size="sm"
         :icon="isFollowing ? 'user-check' : 'user-plus'"
         :aria-label="isFollowing ? `取消关注 ${creator.displayName}` : `关注 ${creator.displayName}`"

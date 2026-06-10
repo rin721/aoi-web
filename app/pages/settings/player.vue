@@ -43,7 +43,7 @@ const playerStats = computed(() => [
     >
       <template #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           size="sm"
           icon="rotate-ccw"
           :disabled="!playerSettings.hydrated || !hasPlayerSettings"
@@ -75,7 +75,7 @@ const playerStats = computed(() => [
           <AoiSelect
             v-model="playbackRateModel"
             label="倍速"
-            variant="outlined"
+            appearance="outlined"
             :options="playbackRateOptions"
           />
         </SettingsRow>

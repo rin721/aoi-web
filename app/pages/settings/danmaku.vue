@@ -81,7 +81,7 @@ function setSettingDerivationStrength(key: string, value: number) {
     >
       <template #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           size="sm"
           icon="rotate-ccw"
           :disabled="!settings.hydrated || !hasDanmakuSettings"
@@ -173,7 +173,7 @@ function setSettingDerivationStrength(key: string, value: number) {
         v-model="blocklistModel"
         label="屏蔽词"
         placeholder="例如：剧透&#10;刷屏"
-        variant="outlined"
+        appearance="outlined"
         multiline
         :rows="5"
       />

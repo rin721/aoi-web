@@ -65,7 +65,7 @@ const playbackRateModel = computed({
         class="aoi-video-toolbar__volume-slider"
         :model-value="volumePercent"
         :aria-label="t('player.volume')"
-        tone="inverse"
+        contrast="inverse"
         compact
         :min="0"
         :max="100"

@@ -901,7 +901,7 @@ function disableDeveloperMode() {
       >
         <template #actions>
           <AoiButton
-            variant="outlined"
+            appearance="outline"
             size="sm"
             icon="refresh-cw"
             :disabled="Boolean(busyAction)"
@@ -911,7 +911,7 @@ function disableDeveloperMode() {
             刷新
           </AoiButton>
           <AoiButton
-            variant="text"
+            appearance="plain" intent="secondary"
             size="sm"
             icon="power"
             :disabled="Boolean(busyAction)"
@@ -925,8 +925,8 @@ function disableDeveloperMode() {
         <p v-if="lastUpdatedAt" class="settings-note">
           最近刷新/写入：{{ lastUpdatedAt }}
         </p>
-        <AoiStatusMessage v-if="statusMessage" tone="success" :message="statusMessage" />
-        <AoiStatusMessage v-if="errorMessage" tone="error" :message="errorMessage" />
+        <AoiStatusMessage v-if="statusMessage" intent="success" :message="statusMessage" />
+        <AoiStatusMessage v-if="errorMessage" intent="danger" :message="errorMessage" />
       </SettingsPanel>
 
       <AoiTabs
@@ -957,18 +957,18 @@ function disableDeveloperMode() {
               <AoiTextField
                 v-model="buildMetaName"
                 label="当前预设名称"
-                variant="outlined"
+                appearance="outlined"
               />
               <AoiTextField
                 v-model="buildMetaDescription"
                 label="当前预设说明"
-                variant="outlined"
+                appearance="outlined"
               />
             </div>
 
             <div class="settings-developer-actions">
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="save"
                 :disabled="!selectedBuildProfile || Boolean(busyAction)"
                 @click="updateSelectedBuildMeta"
@@ -984,7 +984,7 @@ function disableDeveloperMode() {
                 从当前设置写入
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="rotate-ccw"
                 :disabled="!isDevBuild || !selectedBuildProfile || Boolean(busyAction)"
                 @click="restoreSelectedBuildOriginal"
@@ -992,7 +992,7 @@ function disableDeveloperMode() {
                 恢复 original
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="badge-check"
                 :disabled="!isDevBuild || !selectedBuildProfile || buildManifest.activeProfileId === selectedBuildProfile.id || Boolean(busyAction)"
                 @click="setSelectedBuildActive"
@@ -1000,7 +1000,7 @@ function disableDeveloperMode() {
                 设为 active
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="trash-2"
                 :disabled="!isDevBuild || !canDeleteSelectedBuild || Boolean(busyAction)"
                 @click="deleteSelectedBuildProfile"
@@ -1021,17 +1021,17 @@ function disableDeveloperMode() {
               <AoiTextField
                 v-model="buildDraftId"
                 label="新档 ID（slug，可留空）"
-                variant="outlined"
+                appearance="outlined"
               />
               <AoiTextField
                 v-model="buildDraftName"
                 label="新档名称"
-                variant="outlined"
+                appearance="outlined"
               />
               <AoiTextField
                 v-model="buildDraftDescription"
                 label="新档说明"
-                variant="outlined"
+                appearance="outlined"
               />
             </div>
 
@@ -1044,7 +1044,7 @@ function disableDeveloperMode() {
                 新建
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="copy-plus"
                 :disabled="!isDevBuild || !selectedBuildProfile || Boolean(busyAction)"
                 @click="copySelectedBuildProfile"
@@ -1052,7 +1052,7 @@ function disableDeveloperMode() {
                 复制当前档
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="copy"
                 :disabled="!buildPreviewJson || Boolean(busyAction)"
                 @click="copyJson(buildPreviewJson)"
@@ -1060,7 +1060,7 @@ function disableDeveloperMode() {
                 复制预览
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="download"
                 :disabled="!buildPreviewJson || Boolean(busyAction)"
                 @click="downloadJson(`${selectedBuildProfile?.id || 'build-profile'}.json`, buildPreviewJson)"
@@ -1098,18 +1098,18 @@ function disableDeveloperMode() {
               <AoiTextField
                 v-model="runtimeMetaName"
                 label="当前档案名称"
-                variant="outlined"
+                appearance="outlined"
               />
               <AoiTextField
                 v-model="runtimeMetaDescription"
                 label="当前档案说明"
-                variant="outlined"
+                appearance="outlined"
               />
             </div>
 
             <div class="settings-developer-actions">
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="save"
                 :disabled="!selectedRuntimeProfile || Boolean(busyAction)"
                 @click="updateSelectedRuntimeMeta"
@@ -1124,7 +1124,7 @@ function disableDeveloperMode() {
                 预览后应用
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="file-input"
                 :disabled="!selectedRuntimeProfile || Boolean(busyAction)"
                 @click="updateSelectedRuntimeFromCurrent"
@@ -1132,7 +1132,7 @@ function disableDeveloperMode() {
                 从当前设置更新
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="trash-2"
                 :disabled="!selectedRuntimeProfile || Boolean(busyAction)"
                 @click="deleteSelectedRuntimeProfile"
@@ -1153,17 +1153,17 @@ function disableDeveloperMode() {
               <AoiTextField
                 v-model="runtimeDraftId"
                 label="新档 ID（slug，可留空）"
-                variant="outlined"
+                appearance="outlined"
               />
               <AoiTextField
                 v-model="runtimeDraftName"
                 label="新档名称"
-                variant="outlined"
+                appearance="outlined"
               />
               <AoiTextField
                 v-model="runtimeDraftDescription"
                 label="新档说明"
-                variant="outlined"
+                appearance="outlined"
               />
             </div>
 
@@ -1176,7 +1176,7 @@ function disableDeveloperMode() {
                 新建
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="copy-plus"
                 :disabled="!selectedRuntimeProfile || Boolean(busyAction)"
                 @click="copySelectedRuntimeProfile"
@@ -1190,7 +1190,7 @@ function disableDeveloperMode() {
               >
                 <template #default="{ open }">
                   <AoiButton
-                    variant="outlined"
+                    appearance="outline"
                     icon="upload"
                     :disabled="Boolean(busyAction)"
                     :loading="busyAction === 'importRuntime'"
@@ -1201,7 +1201,7 @@ function disableDeveloperMode() {
                 </template>
               </AoiFileInput>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="download"
                 :disabled="!runtimePreviewJson || Boolean(busyAction)"
                 @click="downloadJson(`${selectedRuntimeProfile?.id || 'runtime-profile'}.json`, runtimePreviewJson)"
@@ -1209,7 +1209,7 @@ function disableDeveloperMode() {
                 导出
               </AoiButton>
               <AoiButton
-                variant="outlined"
+                appearance="outline"
                 icon="copy"
                 :disabled="!runtimePreviewJson || Boolean(busyAction)"
                 @click="copyJson(runtimePreviewJson)"

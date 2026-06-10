@@ -41,7 +41,7 @@ useHead({
             label="邮箱"
             placeholder="rin@example.com"
             type="email"
-            variant="outlined"
+            appearance="outlined"
             @enter="submitLogin"
           />
           <AoiTextField
@@ -49,7 +49,7 @@ useHead({
             label="密码"
             supporting-text="至少 6 位即可触发演示状态"
             type="password"
-            variant="outlined"
+            appearance="outlined"
             @enter="submitLogin"
           />
         </template>

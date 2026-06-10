@@ -41,7 +41,7 @@ useHead({
     >
       <template #actions>
         <AoiButton
-          variant="outlined"
+          appearance="outline"
           icon="trash-2"
           :disabled="!hasVideos"
           @click="clearActiveList"

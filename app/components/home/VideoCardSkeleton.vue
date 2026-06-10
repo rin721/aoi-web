@@ -11,7 +11,7 @@
       shape="media"
       aspect-ratio="16 / 9"
       radius="var(--aoi-radius-card)"
-      tone="accent"
+      emphasis="accent"
     />
 
     <AoiSkeletonText
@@ -28,7 +28,7 @@
       align="center"
       :busy="false"
     >
-      <AoiSkeleton shape="circle" width="4px" height="4px" tone="strong" />
+      <AoiSkeleton shape="circle" width="4px" height="4px" emphasis="strong" />
       <AoiSkeleton shape="text" width="42%" height="10px" />
     </AoiSkeletonGroup>
 

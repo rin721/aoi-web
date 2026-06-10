@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
       icon="search"
       :label="props.searchLabel"
       :placeholder="props.searchPlaceholder"
-      variant="outlined"
+      appearance="outlined"
       type="search"
     />
 

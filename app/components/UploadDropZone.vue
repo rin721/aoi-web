@@ -29,7 +29,7 @@ const emit = defineEmits<{
     </div>
     <AoiFileInput accept="video/*" @change="emit('change', $event)">
       <template #default="{ open }">
-        <AoiButton variant="outlined" icon="folder-open" @click="open">
+        <AoiButton appearance="outline" icon="folder-open" @click="open">
           {{ props.source ? props.replaceLabel : props.chooseLabel }}
         </AoiButton>
       </template>

@@ -164,7 +164,7 @@ useHead({
     >
       <template #actions>
         <AoiButton
-          variant="tonal"
+          appearance="soft"
           icon="file-plus-2"
           :disabled="!drafts.hydrated"
           @click="drafts.createDraft()"
@@ -226,14 +226,14 @@ useHead({
               <AoiTextField
                 v-model="draftTitle"
                 label="标题"
-                variant="outlined"
+                appearance="outlined"
                 placeholder="输入视频标题"
                 supporting-text="至少 4 个字符"
               />
               <AoiSelect
                 v-model="draftCategory"
                 label="分区"
-                variant="outlined"
+                appearance="outlined"
                 :disabled="categoriesPending"
                 :options="categoryOptions"
               />
@@ -242,7 +242,7 @@ useHead({
             <AoiTextField
               v-model="draftDescription"
               label="简介"
-              variant="outlined"
+              appearance="outlined"
               placeholder="写一点这支视频的内容、亮点和适合谁看"
               supporting-text="本阶段只保存为本地草稿"
               multiline
@@ -254,7 +254,7 @@ useHead({
               <AoiSelect
                 v-model="draftVisibility"
                 label="可见性"
-                variant="outlined"
+                appearance="outlined"
                 :options="visibilityOptions"
               />
               <div class="upload-checks">
@@ -268,12 +268,12 @@ useHead({
                 <AoiTextField
                   v-model="tagInput"
                   label="标签"
-                  variant="outlined"
+                  appearance="outlined"
                   placeholder="输入后按 Enter"
                   supporting-text="最多保存 8 个标签"
                   @enter="addTag"
                 />
-                <AoiButton variant="outlined" icon="plus" @click="addTag()">添加</AoiButton>
+                <AoiButton appearance="outline" icon="plus" @click="addTag()">添加</AoiButton>
               </div>
               <div v-if="activeDraft.tags.length" class="upload-tags__list" aria-label="草稿标签">
                 <AoiChip
@@ -290,14 +290,14 @@ useHead({
 
           <AoiActionBar reveal="fade" label="投稿草稿操作">
             <AoiButton
-              variant="filled"
+              appearance="solid"
               icon="send"
               :disabled="!validation.ready"
               @click="drafts.queueActiveDraft()"
             >
               本地排队预览
             </AoiButton>
-            <AoiButton variant="text" icon="trash-2" @click="deleteActiveDraft">
+            <AoiButton appearance="plain" intent="secondary" icon="trash-2" @click="deleteActiveDraft">
               删除当前草稿
             </AoiButton>
           </AoiActionBar>

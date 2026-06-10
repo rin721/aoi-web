@@ -15,7 +15,7 @@ const props = defineProps<{
   <AoiReveal tag="article" class="history-entry-card" :index="props.index" variant="rise">
     <div class="history-entry-card__meta">
       <AoiMetaPill icon="clock-3">{{ props.viewedLabel }}</AoiMetaPill>
-      <AoiMetaPill tone="accent">{{ props.progressLabel }}</AoiMetaPill>
+      <AoiMetaPill intent="primary">{{ props.progressLabel }}</AoiMetaPill>
     </div>
     <AoiProgressBar :value="props.progressPercent" :label="props.progressAriaLabel" />
     <VideoCard :video="props.entry.video" :index="props.index" />
