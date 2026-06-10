@@ -219,8 +219,11 @@
       "sunflower-orange": {
         "subtitle": "Sunflower (Aoi) Orange",
         "backgroundImagePath": "theme-card-backgrounds/01-mq7h11uc.webp"
+      },
+      "cocoa-pink": {
+        "backgroundImagePath": "theme-card-backgrounds/99629466-p0-mq7hvkdb.jpg"
       }
     }
   },
-  "updatedAt": "2026-06-10T02:50:21.290Z"
+  "updatedAt": "2026-06-10T03:14:03.880Z"
 }
