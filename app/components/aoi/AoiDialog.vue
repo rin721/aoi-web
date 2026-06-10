@@ -1,12 +1,15 @@
 <script setup lang="ts">
 const props = withDefaults(defineProps<{
+  dismissible?: boolean
   open?: boolean
 }>(), {
+  dismissible: true,
   open: false
 })
 
 const emit = defineEmits<{
   "update:open": [value: boolean]
+  cancel: [event: Event]
   closed: []
 }>()
 
@@ -16,16 +19,29 @@ function onClosed() {
   emit("update:open", false)
   emit("closed")
 }
+
+function onCancel(event: Event) {
+  emit("cancel", event)
+
+  if (!props.dismissible) {
+    event.preventDefault()
+  }
+}
 </script>
 
 <template>
-  <md-dialog :open="props.open || undefined" :style="layer.style.value" @closed="onClosed">
+  <md-dialog
+    :open="props.open || undefined"
+    :style="layer.style.value"
+    @cancel="onCancel"
+    @closed="onClosed"
+  >
     <div slot="headline">
       <slot name="headline" />
     </div>
-    <form slot="content" method="dialog">
+    <div slot="content">
       <slot />
-    </form>
+    </div>
     <div slot="actions">
       <slot name="actions" />
     </div>

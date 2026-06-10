@@ -12,6 +12,9 @@ const props = withDefaults(defineProps<{
   type?: string
   disabled?: boolean
   maxLength?: number
+  min?: string
+  max?: string
+  step?: string | number
   multiline?: boolean
   rows?: number
 }>(), {
@@ -24,9 +27,12 @@ const props = withDefaults(defineProps<{
   icon: undefined,
   type: "text",
   disabled: false,
+  max: undefined,
   maxLength: undefined,
+  min: undefined,
   multiline: false,
-  rows: undefined
+  rows: undefined,
+  step: undefined
 })
 
 const emit = defineEmits<{
@@ -36,7 +42,7 @@ const emit = defineEmits<{
 }>()
 
 const tagName = computed(() => props.variant === "outlined" ? "md-outlined-text-field" : "md-filled-text-field")
-const fieldRef = ref<(HTMLElement & { value?: string }) | null>(null)
+const fieldRef = ref<(HTMLElement & { focus?: () => void, showPicker?: () => void, value?: string }) | null>(null)
 let cleanupInternalControl: (() => void) | undefined
 
 function onInput(event: Event) {
@@ -102,6 +108,19 @@ onMounted(() => {
 onBeforeUnmount(() => {
   cleanupInternalControl?.()
 })
+
+function focus() {
+  fieldRef.value?.focus?.()
+}
+
+function showPicker() {
+  fieldRef.value?.showPicker?.()
+}
+
+defineExpose({
+  focus,
+  showPicker
+})
 </script>
 
 <template>
@@ -117,7 +136,10 @@ onBeforeUnmount(() => {
     :error="Boolean(errorText) || undefined"
     :type="multiline ? 'textarea' : type"
     :maxlength="maxLength"
+    :max="max"
+    :min="min"
     :rows="rows"
+    :step="step"
     :disabled="disabled || undefined"
     @input="onInput"
     @change="onInput"
