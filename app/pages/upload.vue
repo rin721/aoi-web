@@ -163,8 +163,8 @@ useHead({
       description="当前只保存浏览器本地草稿，帮助前端先跑通创作信息流；真实上传、审核和转码留给未来 Go 后端。"
     >
       <template #actions>
-        <AoiButton
-          appearance="soft"
+        <AoiButton tone="accent"
+          variant="tonal"
           icon="file-plus-2"
           :disabled="!drafts.hydrated"
           @click="drafts.createDraft()"
@@ -273,7 +273,7 @@ useHead({
                   supporting-text="最多保存 8 个标签"
                   @enter="addTag"
                 />
-                <AoiButton appearance="outline" icon="plus" @click="addTag()">添加</AoiButton>
+                <AoiButton tone="accent" variant="outlined" icon="plus" @click="addTag()">添加</AoiButton>
               </div>
               <div v-if="activeDraft.tags.length" class="upload-tags__list" aria-label="草稿标签">
                 <AoiChip
@@ -289,15 +289,15 @@ useHead({
           </AoiSurface>
 
           <AoiActionBar reveal="fade" label="投稿草稿操作">
-            <AoiButton
-              appearance="solid"
+            <AoiButton tone="accent"
+              variant="filled"
               icon="send"
               :disabled="!validation.ready"
               @click="drafts.queueActiveDraft()"
             >
               本地排队预览
             </AoiButton>
-            <AoiButton appearance="plain" intent="secondary" icon="trash-2" @click="deleteActiveDraft">
+            <AoiButton icon="trash-2" @click="deleteActiveDraft">
               删除当前草稿
             </AoiButton>
           </AoiActionBar>

@@ -742,7 +742,7 @@ defineExpose({
         </p>
 
         <AoiActionBar class="aoi-image-cropper__primary-actions" size="sm">
-          <AoiButton
+          <AoiButton tone="accent" variant="filled"
             icon="check"
             size="sm"
             :disabled="disabled || imageLoading || !cropperReady || isExporting"
@@ -751,7 +751,7 @@ defineExpose({
           >
             {{ primaryActionLabel }}
           </AoiButton>
-          <AoiButton appearance="plain" intent="secondary"
+          <AoiButton
             icon="file-type-2"
             size="sm"
             :disabled="disabled || imageLoading || !cropperReady || isExporting"
@@ -759,13 +759,13 @@ defineExpose({
           >
             预览 WebP
           </AoiButton>
-          <AoiButton appearance="plain" intent="secondary" icon="copy" size="sm" :disabled="disabled || imageLoading || !cropperReady || isExporting" @click="copyResult">
+          <AoiButton icon="copy" size="sm" :disabled="disabled || imageLoading || !cropperReady || isExporting" @click="copyResult">
             复制
           </AoiButton>
-          <AoiButton appearance="plain" intent="secondary" icon="download" size="sm" :disabled="disabled || imageLoading || !cropperReady || isExporting" @click="downloadResult">
+          <AoiButton icon="download" size="sm" :disabled="disabled || imageLoading || !cropperReady || isExporting" @click="downloadResult">
             下载
           </AoiButton>
-          <AoiButton appearance="plain" intent="secondary" icon="x" size="sm" :disabled="isExporting" @click="emit('close')">
+          <AoiButton icon="x" size="sm" :disabled="isExporting" @click="emit('close')">
             关闭
           </AoiButton>
         </AoiActionBar>

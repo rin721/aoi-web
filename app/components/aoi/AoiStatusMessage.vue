@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import type { AoiIntent } from "~/types/ui"
+import type { AoiFeedbackIntent } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
   as?: string
   icon?: string
   message?: string
-  intent?: Extract<AoiIntent, "danger" | "info" | "success" | "warning">
+  intent?: AoiFeedbackIntent
 }>(), {
   as: "p",
   icon: undefined,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AoiIntent, AoiRevealProp, AoiTagItem } from "~/types/ui"
+import type { AoiRevealProp, AoiTagItem, AoiTone } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
   ariaLabel?: string
@@ -7,10 +7,10 @@ const props = withDefaults(defineProps<{
   prefix?: string
   reveal?: AoiRevealProp
   size?: "sm" | "md"
-  intent?: AoiIntent
+  tone?: AoiTone
 }>(), {
   ariaLabel: undefined,
-  intent: "primary",
+  tone: "muted",
   prefix: "",
   reveal: false,
   size: "md"
@@ -25,7 +25,7 @@ function tagTarget(item: AoiTagItem) {
   <div
     v-aoi-reveal="props.reveal"
     class="aoi-tag-list"
-    :class="[`aoi-tag-list--${props.size}`, `aoi-tag-list--intent-${props.intent}`]"
+    :class="[`aoi-tag-list--${props.size}`, `aoi-tag-list--tone-${props.tone}`]"
     :aria-label="props.ariaLabel"
   >
     <template v-for="item in props.items" :key="item.value || item.label">
@@ -63,7 +63,7 @@ function tagTarget(item: AoiTagItem) {
   border: 1px solid var(--aoi-border);
   border-radius: var(--aoi-radius-control);
   background: var(--aoi-surface);
-  color: var(--aoi-tag-color, var(--aoi-intent-primary-color));
+  color: var(--aoi-tag-color, var(--aoi-intent-secondary-color));
   font-size: 12px;
   font-weight: 800;
   padding: 5px 10px;
@@ -78,27 +78,31 @@ function tagTarget(item: AoiTagItem) {
   background: var(--aoi-state-hover);
 }
 
-.aoi-tag-list--intent-secondary .aoi-tag-list__item {
+.aoi-tag-list--tone-accent .aoi-tag-list__item {
+  --aoi-tag-color: var(--aoi-intent-primary-color);
+}
+
+.aoi-tag-list--tone-muted .aoi-tag-list__item {
   --aoi-tag-color: var(--aoi-intent-secondary-color);
 }
 
-.aoi-tag-list--intent-neutral .aoi-tag-list__item {
+.aoi-tag-list--tone-neutral .aoi-tag-list__item {
   --aoi-tag-color: var(--aoi-intent-neutral-color);
 }
 
-.aoi-tag-list--intent-success .aoi-tag-list__item {
+.aoi-tag-list--tone-success .aoi-tag-list__item {
   --aoi-tag-color: var(--aoi-intent-success-color);
 }
 
-.aoi-tag-list--intent-warning .aoi-tag-list__item {
+.aoi-tag-list--tone-warning .aoi-tag-list__item {
   --aoi-tag-color: var(--aoi-intent-warning-color);
 }
 
-.aoi-tag-list--intent-danger .aoi-tag-list__item {
+.aoi-tag-list--tone-danger .aoi-tag-list__item {
   --aoi-tag-color: var(--aoi-intent-danger-color);
 }
 
-.aoi-tag-list--intent-info .aoi-tag-list__item {
+.aoi-tag-list--tone-info .aoi-tag-list__item {
   --aoi-tag-color: var(--aoi-intent-info-color);
 }
 </style>

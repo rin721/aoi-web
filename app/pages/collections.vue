@@ -40,8 +40,8 @@ useHead({
       description="收藏和稍后看当前只保存在本地，未来可同步到 Go 后端用户资料库。"
     >
       <template #actions>
-        <AoiButton
-          appearance="outline"
+        <AoiButton tone="accent"
+          variant="outlined"
           icon="trash-2"
           :disabled="!hasVideos"
           @click="clearActiveList"

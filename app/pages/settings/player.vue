@@ -42,8 +42,8 @@ const playerStats = computed(() => [
       description="调整默认音量、静音和倍速。"
     >
       <template #actions>
-        <AoiButton
-          appearance="outline"
+        <AoiButton tone="accent"
+          variant="outlined"
           size="sm"
           icon="rotate-ccw"
           :disabled="!playerSettings.hydrated || !hasPlayerSettings"

@@ -333,8 +333,8 @@ async function confirmResetPreference() {
       description="管理浏览、隐私和搜索相关的本地偏好。"
     >
       <template #actions>
-        <AoiButton
-          appearance="outline"
+        <AoiButton tone="accent"
+          variant="outlined"
           size="sm"
           icon="rotate-ccw"
           :disabled="!settings.hydrated || resettingPreference"
@@ -827,13 +827,12 @@ async function confirmResetPreference() {
       <p class="settings-note">{{ t("settings.resetPage.preference.description") }}</p>
       <template #actions>
         <AoiButton
-          appearance="plain" intent="secondary"
           :disabled="resettingPreference"
           @click="resetPreferenceConfirmOpen = false"
         >
           {{ t("settings.resetPage.cancel") }}
         </AoiButton>
-        <AoiButton
+        <AoiButton tone="accent" variant="filled"
           icon="check"
           :loading="resettingPreference"
           @click="confirmResetPreference"

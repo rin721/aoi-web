@@ -82,8 +82,8 @@ useHead(() => ({
           :description="creator.bio || '这个创作者还没有填写简介。'"
         >
           <template #actions>
-            <AoiButton
-              :appearance="isFollowing ? 'soft' : 'solid'"
+            <AoiButton tone="accent"
+              :variant="isFollowing ? 'tonal' : 'filled'"
               :icon="isFollowing ? 'user-check' : 'bell-plus'"
               :aria-label="isFollowing ? '取消关注' : '关注'"
               :disabled="!following.hydrated"
@@ -91,15 +91,15 @@ useHead(() => ({
             >
               {{ isFollowing ? "已关注" : "关注" }}
             </AoiButton>
-            <AoiButton appearance="outline" icon="search" :to="`/search?q=${encodeURIComponent(creator.displayName)}`">
+            <AoiButton tone="accent" variant="outlined" icon="search" :to="`/search?q=${encodeURIComponent(creator.displayName)}`">
               搜索作品
             </AoiButton>
           </template>
         </PageHeader>
 
         <div class="creator-profile__mobile-actions">
-          <AoiButton
-            :appearance="isFollowing ? 'soft' : 'solid'"
+          <AoiButton tone="accent"
+            :variant="isFollowing ? 'tonal' : 'filled'"
             :icon="isFollowing ? 'user-check' : 'bell-plus'"
             :aria-label="isFollowing ? '取消关注' : '关注'"
             :disabled="!following.hydrated"
@@ -107,7 +107,7 @@ useHead(() => ({
           >
             {{ isFollowing ? "已关注" : "关注" }}
           </AoiButton>
-          <AoiButton appearance="outline" icon="search" :to="`/search?q=${encodeURIComponent(creator.displayName)}`">
+          <AoiButton tone="accent" variant="outlined" icon="search" :to="`/search?q=${encodeURIComponent(creator.displayName)}`">
             搜索作品
           </AoiButton>
         </div>

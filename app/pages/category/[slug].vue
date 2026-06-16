@@ -70,7 +70,7 @@ function countFor(category: CategoryTreeNode) {
         :description="data.category.description"
       >
         <template #actions>
-          <AoiButton appearance="soft" icon="layout-grid" to="/category">全部分类</AoiButton>
+          <AoiButton tone="accent" variant="tonal" icon="layout-grid" to="/category">全部分类</AoiButton>
         </template>
       </PageHeader>
 

@@ -80,8 +80,8 @@ function setSettingDerivationStrength(key: string, value: number) {
       description="控制弹幕总开关，以及滚动、顶部、底部三种弹幕模式。"
     >
       <template #actions>
-        <AoiButton
-          appearance="outline"
+        <AoiButton tone="accent"
+          variant="outlined"
           size="sm"
           icon="rotate-ccw"
           :disabled="!settings.hydrated || !hasDanmakuSettings"

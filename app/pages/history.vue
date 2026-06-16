@@ -53,8 +53,8 @@ useHead({
       description="这里记录你在当前浏览器里打开和观看过的视频，包含本地播放进度。"
     >
       <template #actions>
-        <AoiButton
-          appearance="outline"
+        <AoiButton tone="accent"
+          variant="outlined"
           icon="trash-2"
           :disabled="!hasHistory"
           @click="library.clearHistory()"

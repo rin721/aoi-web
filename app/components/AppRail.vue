@@ -8,10 +8,8 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
       <AoiLink v-for="item in desktopPrimaryItems" :key="item.to" class="app-rail__link"
         :class="{ 'app-rail__link--active': item.active }" :to="item.to"
         :aria-current="item.active ? 'page' : undefined" :aria-label="item.label">
-        <!-- <AoiButton> -->
-          <AoiIcon class="app-rail__icon" :name="item.icon" size="var(--aoi-nav-icon-size)" decorative />
-          <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
-        <!-- </AoiButton> -->
+        <AoiIcon class="app-rail__icon" :name="item.icon" size="var(--aoi-nav-icon-size)" decorative />
+        <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
       </AoiLink>
     </div>
 

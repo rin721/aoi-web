@@ -168,8 +168,8 @@ useHead(() => ({
         :description="video.description"
       >
         <template #actions>
-          <AoiButton
-            :appearance="isLiked ? 'soft' : 'outline'"
+          <AoiButton tone="accent"
+            :variant="isLiked ? 'tonal' : 'outlined'"
             icon="heart"
             :aria-label="isLiked ? t('player.unlike') : t('player.like')"
             :disabled="!library.hydrated"
@@ -177,10 +177,10 @@ useHead(() => ({
           >
             {{ localLikeCount }}
           </AoiButton>
-          <AoiButton appearance="outline" icon="message-square-text">
+          <AoiButton tone="accent" variant="outlined" icon="message-square-text">
             {{ displayDanmakuCount }}
           </AoiButton>
-          <AoiButton appearance="outline" icon="message-circle">
+          <AoiButton tone="accent" variant="outlined" icon="message-circle">
             {{ displayCommentCount }}
           </AoiButton>
         </template>
@@ -251,8 +251,8 @@ useHead(() => ({
             </template>
 
             <template #actions>
-              <AoiButton
-                :appearance="isFavorite ? 'soft' : 'outline'"
+              <AoiButton tone="accent"
+                :variant="isFavorite ? 'tonal' : 'outlined'"
                 icon="star"
                 :aria-label="isFavorite ? t('player.unfavorite') : t('player.favorite')"
                 :disabled="!library.hydrated"
@@ -260,8 +260,8 @@ useHead(() => ({
               >
                 {{ isFavorite ? t("player.favorited") : t("player.favorite") }}
               </AoiButton>
-              <AoiButton
-                :appearance="isWatchLater ? 'soft' : 'outline'"
+              <AoiButton tone="accent"
+                :variant="isWatchLater ? 'tonal' : 'outlined'"
                 icon="clock-3"
                 :aria-label="isWatchLater ? t('player.removeWatchLater') : t('player.watchLater')"
                 :disabled="!library.hydrated"
@@ -269,7 +269,7 @@ useHead(() => ({
               >
                 {{ isWatchLater ? t("player.watchLaterAdded") : t("player.watchLater") }}
               </AoiButton>
-              <AoiButton appearance="outline" icon="flag">
+              <AoiButton tone="accent" variant="outlined" icon="flag">
                 {{ t("player.report") }}
               </AoiButton>
             </template>

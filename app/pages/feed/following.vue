@@ -46,7 +46,7 @@ useHead({
         title-id="local-following-title"
       >
         <template #actions>
-          <AoiButton appearance="outline" size="sm" icon="settings" to="/settings">管理缓存</AoiButton>
+          <AoiButton tone="accent" variant="outlined" size="sm" icon="settings" to="/settings">管理缓存</AoiButton>
         </template>
         <AoiContentGrid min-width="260px" gap="compact" :mobile-columns="1">
           <AoiReveal
@@ -75,7 +75,7 @@ useHead({
         title-id="following-creators-title"
       >
         <template #actions>
-          <AoiButton appearance="outline" size="sm" icon="search" to="/search">探索更多</AoiButton>
+          <AoiButton tone="accent" variant="outlined" size="sm" icon="search" to="/search">探索更多</AoiButton>
         </template>
         <AoiContentGrid min-width="260px" gap="compact" :mobile-columns="1">
           <AoiReveal

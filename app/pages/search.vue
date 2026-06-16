@@ -115,7 +115,7 @@ useHead(() => ({
         appearance="outlined"
         @enter="submitSearch"
       />
-      <AoiButton icon="search" @click="submitSearch">搜索</AoiButton>
+      <AoiButton tone="accent" variant="filled" icon="search" @click="submitSearch">搜索</AoiButton>
     </div>
 
     <PageState

@@ -1,20 +1,20 @@
 <script setup lang="ts">
-import type { AoiActionAppearance, AoiIntent } from "~/types/ui"
+import type { AoiActionVariant, AoiTone } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
   label: string
-  appearance?: Extract<AoiActionAppearance, "outline" | "plain" | "soft">
+  variant?: Extract<AoiActionVariant, "outlined" | "plain" | "tonal">
   icon?: string
-  intent?: AoiIntent
+  tone?: AoiTone
   selected?: boolean
   removable?: boolean
   removeLabel?: string
   disabled?: boolean
 }>(), {
-  appearance: "outline",
+  variant: "outlined",
   disabled: false,
   icon: undefined,
-  intent: "secondary",
+  tone: "muted",
   removable: false,
   removeLabel: undefined,
   selected: false
@@ -35,8 +35,8 @@ function remove() {
   <span
     class="aoi-chip"
     :class="[
-      `aoi-chip--${appearance}`,
-      `aoi-chip--intent-${intent}`,
+      `aoi-chip--${variant}`,
+      `aoi-chip--tone-${tone}`,
       { 'aoi-chip--selected': selected, 'aoi-chip--disabled': disabled }
     ]"
   >
@@ -71,54 +71,54 @@ function remove() {
   padding: 4px 7px 4px 9px;
 }
 
-.aoi-chip--intent-primary {
+.aoi-chip--tone-accent {
   --aoi-chip-color: var(--aoi-intent-primary-color);
   --aoi-chip-bg: var(--aoi-intent-primary-soft-bg);
   --aoi-chip-border: var(--aoi-intent-primary-border);
 }
 
-.aoi-chip--intent-secondary {
+.aoi-chip--tone-muted {
   --aoi-chip-color: var(--aoi-intent-secondary-color);
   --aoi-chip-bg: var(--aoi-intent-secondary-soft-bg);
   --aoi-chip-border: var(--aoi-intent-secondary-border);
 }
 
-.aoi-chip--intent-neutral {
+.aoi-chip--tone-neutral {
   --aoi-chip-color: var(--aoi-intent-neutral-color);
   --aoi-chip-bg: var(--aoi-intent-neutral-soft-bg);
   --aoi-chip-border: var(--aoi-intent-neutral-border);
 }
 
-.aoi-chip--intent-success {
+.aoi-chip--tone-success {
   --aoi-chip-color: var(--aoi-intent-success-color);
   --aoi-chip-bg: var(--aoi-intent-success-soft-bg);
   --aoi-chip-border: var(--aoi-intent-success-border);
 }
 
-.aoi-chip--intent-warning {
+.aoi-chip--tone-warning {
   --aoi-chip-color: var(--aoi-intent-warning-color);
   --aoi-chip-bg: var(--aoi-intent-warning-soft-bg);
   --aoi-chip-border: var(--aoi-intent-warning-border);
 }
 
-.aoi-chip--intent-danger {
+.aoi-chip--tone-danger {
   --aoi-chip-color: var(--aoi-intent-danger-color);
   --aoi-chip-bg: var(--aoi-intent-danger-soft-bg);
   --aoi-chip-border: var(--aoi-intent-danger-border);
 }
 
-.aoi-chip--intent-info {
+.aoi-chip--tone-info {
   --aoi-chip-color: var(--aoi-intent-info-color);
   --aoi-chip-bg: var(--aoi-intent-info-soft-bg);
   --aoi-chip-border: var(--aoi-intent-info-border);
 }
 
-.aoi-chip--soft {
+.aoi-chip--tonal {
   border-color: transparent;
   background: var(--aoi-chip-bg);
 }
 
-.aoi-chip--outline {
+.aoi-chip--outlined {
   border-color: var(--aoi-chip-border);
 }
 

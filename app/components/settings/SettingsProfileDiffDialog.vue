@@ -62,13 +62,14 @@ function close() {
 
     <template #actions>
       <AoiButton
-        appearance="plain" intent="secondary"
         :disabled="props.confirming"
         @click="close"
       >
         取消
       </AoiButton>
       <AoiButton
+        variant="filled"
+        :tone="props.danger ? 'danger' : 'accent'"
         :icon="props.danger ? 'trash-2' : 'check'"
         :loading="props.confirming"
         @click="emit('confirm')"

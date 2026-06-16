@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router"
-import type { AoiActionAppearance, AoiIntent } from "~/types/ui"
+import type { AoiActionVariant, AoiTone } from "~/types/ui"
 
 type IconButtonSize = "sm" | "md" | "lg"
 type LinkTarget = "_blank" | "_parent" | "_self" | "_top" | (string & {})
@@ -8,8 +8,8 @@ type LinkTarget = "_blank" | "_parent" | "_self" | "_top" | (string & {})
 const props = withDefaults(defineProps<{
   icon: string
   label: string
-  appearance?: AoiActionAppearance
-  intent?: AoiIntent
+  variant?: AoiActionVariant
+  tone?: AoiTone
   size?: IconButtonSize
   active?: boolean
   disabled?: boolean
@@ -20,8 +20,8 @@ const props = withDefaults(defineProps<{
   target?: LinkTarget | null
   to?: RouteLocationRaw
 }>(), {
-  appearance: "plain",
-  intent: "secondary",
+  variant: "plain",
+  tone: "muted",
   size: "md",
   active: false,
   disabled: false,
@@ -38,15 +38,15 @@ const emit = defineEmits<{
 }>()
 
 const tagName = computed(() => {
-  const map: Record<AoiActionAppearance, string> = {
+  const map: Record<AoiActionVariant, string> = {
     elevated: "md-filled-icon-button",
-    outline: "md-outlined-icon-button",
+    filled: "md-filled-icon-button",
+    outlined: "md-outlined-icon-button",
     plain: "md-icon-button",
-    soft: "md-filled-tonal-icon-button",
-    solid: "md-filled-icon-button"
+    tonal: "md-filled-tonal-icon-button"
   }
 
-  return map[props.appearance]
+  return map[props.variant]
 })
 
 const iconSize = computed(() => {
@@ -85,8 +85,8 @@ function onClick(event: MouseEvent) {
       :is="tagName"
       class="aoi-icon-button"
       :class="{ 'aoi-icon-button--active': active }"
-      :data-aoi-appearance="appearance"
-      :data-aoi-intent="intent"
+      :data-aoi-variant="variant"
+      :data-aoi-tone="tone"
       aria-hidden="true"
       :selected="active || undefined"
       tabindex="-1"
@@ -100,8 +100,8 @@ function onClick(event: MouseEvent) {
     :is="tagName"
     class="aoi-icon-button"
     :class="{ 'aoi-icon-button--active': active }"
-    :data-aoi-appearance="appearance"
-    :data-aoi-intent="intent"
+    :data-aoi-variant="variant"
+    :data-aoi-tone="tone"
     :aria-label="label"
     :disabled="disabled || undefined"
     :selected="active || undefined"
@@ -161,7 +161,7 @@ function onClick(event: MouseEvent) {
   --md-outlined-icon-button-pressed-icon-color: var(--aoi-action-color);
 }
 
-.aoi-icon-button[data-aoi-intent="primary"] {
+.aoi-icon-button[data-aoi-tone="accent"] {
   --aoi-action-color: var(--aoi-intent-primary-color);
   --aoi-action-on-solid: var(--aoi-intent-primary-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-primary-solid-bg);
@@ -171,7 +171,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-border: var(--aoi-intent-primary-border);
 }
 
-.aoi-icon-button[data-aoi-intent="neutral"] {
+.aoi-icon-button[data-aoi-tone="neutral"] {
   --aoi-action-color: var(--aoi-intent-neutral-color);
   --aoi-action-on-solid: var(--aoi-intent-neutral-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-neutral-solid-bg);
@@ -181,7 +181,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-border: var(--aoi-intent-neutral-border);
 }
 
-.aoi-icon-button[data-aoi-intent="success"] {
+.aoi-icon-button[data-aoi-tone="success"] {
   --aoi-action-color: var(--aoi-intent-success-color);
   --aoi-action-on-solid: var(--aoi-intent-success-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-success-solid-bg);
@@ -191,7 +191,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-border: var(--aoi-intent-success-border);
 }
 
-.aoi-icon-button[data-aoi-intent="warning"] {
+.aoi-icon-button[data-aoi-tone="warning"] {
   --aoi-action-color: var(--aoi-intent-warning-color);
   --aoi-action-on-solid: var(--aoi-intent-warning-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-warning-solid-bg);
@@ -201,7 +201,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-border: var(--aoi-intent-warning-border);
 }
 
-.aoi-icon-button[data-aoi-intent="danger"] {
+.aoi-icon-button[data-aoi-tone="danger"] {
   --aoi-action-color: var(--aoi-intent-danger-color);
   --aoi-action-on-solid: var(--aoi-intent-danger-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-danger-solid-bg);
@@ -211,7 +211,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-border: var(--aoi-intent-danger-border);
 }
 
-.aoi-icon-button[data-aoi-intent="info"] {
+.aoi-icon-button[data-aoi-tone="info"] {
   --aoi-action-color: var(--aoi-intent-info-color);
   --aoi-action-on-solid: var(--aoi-intent-info-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-info-solid-bg);
@@ -226,7 +226,7 @@ function onClick(event: MouseEvent) {
   box-shadow: inset 0 0 0 1px var(--aoi-action-border);
 }
 
-.aoi-icon-button[data-aoi-appearance="elevated"] {
+.aoi-icon-button[data-aoi-variant="elevated"] {
   box-shadow: var(--aoi-shadow-sm);
 }
 </style>

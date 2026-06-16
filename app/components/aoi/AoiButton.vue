@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import type { RouteLocationRaw } from "vue-router"
-import type { AoiActionAppearance, AoiIntent } from "~/types/ui"
+import type { AoiActionVariant, AoiTone } from "~/types/ui"
 
 type ButtonSize = "sm" | "md" | "lg"
 type LinkTarget = "_blank" | "_parent" | "_self" | "_top" | (string & {})
 
 const props = withDefaults(defineProps<{
-  appearance?: AoiActionAppearance
-  intent?: AoiIntent
+  variant?: AoiActionVariant
+  tone?: AoiTone
   size?: ButtonSize
   icon?: string
   trailingIcon?: string
@@ -23,8 +23,8 @@ const props = withDefaults(defineProps<{
   to?: RouteLocationRaw
   type?: "button" | "submit" | "reset"
 }>(), {
-  appearance: "solid",
-  intent: "primary",
+  variant: "plain",
+  tone: "muted",
   size: "md",
   icon: undefined,
   trailingIcon: undefined,
@@ -46,15 +46,15 @@ const emit = defineEmits<{
 }>()
 
 const tagName = computed(() => {
-  const map: Record<AoiActionAppearance, string> = {
+  const map: Record<AoiActionVariant, string> = {
     elevated: "md-elevated-button",
-    outline: "md-outlined-button",
+    filled: "md-filled-button",
+    outlined: "md-outlined-button",
     plain: "md-text-button",
-    soft: "md-filled-tonal-button",
-    solid: "md-filled-button"
+    tonal: "md-filled-tonal-button"
   }
 
-  return map[props.appearance]
+  return map[props.variant]
 })
 
 const hasLink = computed(() => Boolean(props.to || props.href))
@@ -84,8 +84,8 @@ function onClick(event: MouseEvent) {
       :is="tagName"
       class="aoi-button"
       :class="`aoi-button--${size}`"
-      :data-aoi-appearance="appearance"
-      :data-aoi-intent="intent"
+      :data-aoi-variant="variant"
+      :data-aoi-tone="tone"
       aria-hidden="true"
       tabindex="-1"
       :type="type"
@@ -112,8 +112,8 @@ function onClick(event: MouseEvent) {
     :is="tagName"
     class="aoi-button"
     :class="`aoi-button--${size}`"
-    :data-aoi-appearance="appearance"
-    :data-aoi-intent="intent"
+    :data-aoi-variant="variant"
+    :data-aoi-tone="tone"
     :aria-label="ariaLabel"
     :aria-pressed="ariaPressed"
     :disabled="disabled || loading || undefined"
@@ -154,17 +154,17 @@ function onClick(event: MouseEvent) {
 }
 
 .aoi-button {
-  --aoi-action-color: var(--aoi-intent-primary-color);
-  --aoi-action-on-solid: var(--aoi-intent-primary-on-solid);
-  --aoi-action-solid-bg: var(--aoi-intent-primary-solid-bg);
-  --aoi-action-solid-bg-hover: var(--aoi-intent-primary-solid-bg-hover);
-  --aoi-action-solid-bg-pressed: var(--aoi-intent-primary-solid-bg-pressed);
-  --aoi-action-soft-bg: var(--aoi-intent-primary-soft-bg);
-  --aoi-action-soft-bg-hover: var(--aoi-intent-primary-soft-bg-hover);
-  --aoi-action-soft-bg-pressed: var(--aoi-intent-primary-soft-bg-pressed);
-  --aoi-action-border: var(--aoi-intent-primary-border);
-  --aoi-action-plain-hover: var(--aoi-intent-primary-plain-hover);
-  --aoi-action-plain-pressed: var(--aoi-intent-primary-plain-pressed);
+  --aoi-action-color: var(--aoi-intent-secondary-color);
+  --aoi-action-on-solid: var(--aoi-intent-secondary-on-solid);
+  --aoi-action-solid-bg: var(--aoi-intent-secondary-solid-bg);
+  --aoi-action-solid-bg-hover: var(--aoi-intent-secondary-solid-bg-hover);
+  --aoi-action-solid-bg-pressed: var(--aoi-intent-secondary-solid-bg-pressed);
+  --aoi-action-soft-bg: var(--aoi-intent-secondary-soft-bg);
+  --aoi-action-soft-bg-hover: var(--aoi-intent-secondary-soft-bg-hover);
+  --aoi-action-soft-bg-pressed: var(--aoi-intent-secondary-soft-bg-pressed);
+  --aoi-action-border: var(--aoi-intent-secondary-border);
+  --aoi-action-plain-hover: var(--aoi-intent-secondary-plain-hover);
+  --aoi-action-plain-pressed: var(--aoi-intent-secondary-plain-pressed);
   --md-filled-button-container-color: var(--aoi-action-solid-bg);
   --md-filled-button-focus-container-color: var(--aoi-action-solid-bg-hover);
   --md-filled-button-hover-container-color: var(--aoi-action-solid-bg-hover);
@@ -229,21 +229,21 @@ function onClick(event: MouseEvent) {
   --md-elevated-button-pressed-icon-color: var(--aoi-action-color);
 }
 
-.aoi-button[data-aoi-intent="secondary"] {
-  --aoi-action-color: var(--aoi-intent-secondary-color);
-  --aoi-action-on-solid: var(--aoi-intent-secondary-on-solid);
-  --aoi-action-solid-bg: var(--aoi-intent-secondary-solid-bg);
-  --aoi-action-solid-bg-hover: var(--aoi-intent-secondary-solid-bg-hover);
-  --aoi-action-solid-bg-pressed: var(--aoi-intent-secondary-solid-bg-pressed);
-  --aoi-action-soft-bg: var(--aoi-intent-secondary-soft-bg);
-  --aoi-action-soft-bg-hover: var(--aoi-intent-secondary-soft-bg-hover);
-  --aoi-action-soft-bg-pressed: var(--aoi-intent-secondary-soft-bg-pressed);
-  --aoi-action-border: var(--aoi-intent-secondary-border);
-  --aoi-action-plain-hover: var(--aoi-intent-secondary-plain-hover);
-  --aoi-action-plain-pressed: var(--aoi-intent-secondary-plain-pressed);
+.aoi-button[data-aoi-tone="accent"] {
+  --aoi-action-color: var(--aoi-intent-primary-color);
+  --aoi-action-on-solid: var(--aoi-intent-primary-on-solid);
+  --aoi-action-solid-bg: var(--aoi-intent-primary-solid-bg);
+  --aoi-action-solid-bg-hover: var(--aoi-intent-primary-solid-bg-hover);
+  --aoi-action-solid-bg-pressed: var(--aoi-intent-primary-solid-bg-pressed);
+  --aoi-action-soft-bg: var(--aoi-intent-primary-soft-bg);
+  --aoi-action-soft-bg-hover: var(--aoi-intent-primary-soft-bg-hover);
+  --aoi-action-soft-bg-pressed: var(--aoi-intent-primary-soft-bg-pressed);
+  --aoi-action-border: var(--aoi-intent-primary-border);
+  --aoi-action-plain-hover: var(--aoi-intent-primary-plain-hover);
+  --aoi-action-plain-pressed: var(--aoi-intent-primary-plain-pressed);
 }
 
-.aoi-button[data-aoi-intent="neutral"] {
+.aoi-button[data-aoi-tone="neutral"] {
   --aoi-action-color: var(--aoi-intent-neutral-color);
   --aoi-action-on-solid: var(--aoi-intent-neutral-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-neutral-solid-bg);
@@ -257,7 +257,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-plain-pressed: var(--aoi-intent-neutral-plain-pressed);
 }
 
-.aoi-button[data-aoi-intent="success"] {
+.aoi-button[data-aoi-tone="success"] {
   --aoi-action-color: var(--aoi-intent-success-color);
   --aoi-action-on-solid: var(--aoi-intent-success-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-success-solid-bg);
@@ -271,7 +271,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-plain-pressed: var(--aoi-intent-success-plain-pressed);
 }
 
-.aoi-button[data-aoi-intent="warning"] {
+.aoi-button[data-aoi-tone="warning"] {
   --aoi-action-color: var(--aoi-intent-warning-color);
   --aoi-action-on-solid: var(--aoi-intent-warning-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-warning-solid-bg);
@@ -285,7 +285,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-plain-pressed: var(--aoi-intent-warning-plain-pressed);
 }
 
-.aoi-button[data-aoi-intent="danger"] {
+.aoi-button[data-aoi-tone="danger"] {
   --aoi-action-color: var(--aoi-intent-danger-color);
   --aoi-action-on-solid: var(--aoi-intent-danger-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-danger-solid-bg);
@@ -299,7 +299,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-plain-pressed: var(--aoi-intent-danger-plain-pressed);
 }
 
-.aoi-button[data-aoi-intent="info"] {
+.aoi-button[data-aoi-tone="info"] {
   --aoi-action-color: var(--aoi-intent-info-color);
   --aoi-action-on-solid: var(--aoi-intent-info-on-solid);
   --aoi-action-solid-bg: var(--aoi-intent-info-solid-bg);
@@ -313,7 +313,7 @@ function onClick(event: MouseEvent) {
   --aoi-action-plain-pressed: var(--aoi-intent-info-plain-pressed);
 }
 
-.aoi-button[data-aoi-appearance="plain"][data-aoi-intent="secondary"] {
+.aoi-button[data-aoi-variant="plain"][data-aoi-tone="muted"] {
   --md-text-button-hover-state-layer-color: var(--aoi-text);
   --md-text-button-focus-state-layer-color: var(--aoi-text);
   --md-text-button-pressed-state-layer-color: var(--aoi-text);

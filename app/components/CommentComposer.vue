@@ -77,7 +77,7 @@ function submitComment() {
       <span class="comment-composer__hint">
         本地评论只保存在当前浏览器。
       </span>
-      <AoiButton
+      <AoiButton tone="accent" variant="filled"
         type="submit"
         icon="send"
         :disabled="!canSubmit"

@@ -900,8 +900,8 @@ function disableDeveloperMode() {
         description="构建预设写入源码 JSON；运行时档案只存浏览器本地。生产构建不会开放写入 API。"
       >
         <template #actions>
-          <AoiButton
-            appearance="outline"
+          <AoiButton tone="accent"
+            variant="outlined"
             size="sm"
             icon="refresh-cw"
             :disabled="Boolean(busyAction)"
@@ -911,7 +911,6 @@ function disableDeveloperMode() {
             刷新
           </AoiButton>
           <AoiButton
-            appearance="plain" intent="secondary"
             size="sm"
             icon="power"
             :disabled="Boolean(busyAction)"
@@ -967,15 +966,15 @@ function disableDeveloperMode() {
             </div>
 
             <div class="settings-developer-actions">
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="save"
                 :disabled="!selectedBuildProfile || Boolean(busyAction)"
                 @click="updateSelectedBuildMeta"
               >
                 保存名称
               </AoiButton>
-              <AoiButton
+              <AoiButton tone="accent" variant="filled"
                 icon="file-input"
                 :disabled="!isDevBuild || !selectedBuildProfile || Boolean(busyAction)"
                 :loading="busyAction === 'writeBuild'"
@@ -983,24 +982,24 @@ function disableDeveloperMode() {
               >
                 从当前设置写入
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="rotate-ccw"
                 :disabled="!isDevBuild || !selectedBuildProfile || Boolean(busyAction)"
                 @click="restoreSelectedBuildOriginal"
               >
                 恢复 original
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="badge-check"
                 :disabled="!isDevBuild || !selectedBuildProfile || buildManifest.activeProfileId === selectedBuildProfile.id || Boolean(busyAction)"
                 @click="setSelectedBuildActive"
               >
                 设为 active
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="trash-2"
                 :disabled="!isDevBuild || !canDeleteSelectedBuild || Boolean(busyAction)"
                 @click="deleteSelectedBuildProfile"
@@ -1036,31 +1035,31 @@ function disableDeveloperMode() {
             </div>
 
             <div class="settings-developer-actions">
-              <AoiButton
+              <AoiButton tone="accent" variant="filled"
                 icon="plus"
                 :disabled="!isDevBuild || Boolean(busyAction)"
                 @click="createBuildProfileFromCurrent"
               >
                 新建
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="copy-plus"
                 :disabled="!isDevBuild || !selectedBuildProfile || Boolean(busyAction)"
                 @click="copySelectedBuildProfile"
               >
                 复制当前档
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="copy"
                 :disabled="!buildPreviewJson || Boolean(busyAction)"
                 @click="copyJson(buildPreviewJson)"
               >
                 复制预览
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="download"
                 :disabled="!buildPreviewJson || Boolean(busyAction)"
                 @click="downloadJson(`${selectedBuildProfile?.id || 'build-profile'}.json`, buildPreviewJson)"
@@ -1108,31 +1107,31 @@ function disableDeveloperMode() {
             </div>
 
             <div class="settings-developer-actions">
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="save"
                 :disabled="!selectedRuntimeProfile || Boolean(busyAction)"
                 @click="updateSelectedRuntimeMeta"
               >
                 保存名称
               </AoiButton>
-              <AoiButton
+              <AoiButton tone="accent" variant="filled"
                 icon="play"
                 :disabled="!selectedRuntimeProfile || Boolean(busyAction)"
                 @click="applySelectedRuntimeProfile"
               >
                 预览后应用
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="file-input"
                 :disabled="!selectedRuntimeProfile || Boolean(busyAction)"
                 @click="updateSelectedRuntimeFromCurrent"
               >
                 从当前设置更新
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="trash-2"
                 :disabled="!selectedRuntimeProfile || Boolean(busyAction)"
                 @click="deleteSelectedRuntimeProfile"
@@ -1168,15 +1167,15 @@ function disableDeveloperMode() {
             </div>
 
             <div class="settings-developer-actions">
-              <AoiButton
+              <AoiButton tone="accent" variant="filled"
                 icon="plus"
                 :disabled="Boolean(busyAction)"
                 @click="createRuntimeProfileFromCurrent"
               >
                 新建
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="copy-plus"
                 :disabled="!selectedRuntimeProfile || Boolean(busyAction)"
                 @click="copySelectedRuntimeProfile"
@@ -1189,8 +1188,8 @@ function disableDeveloperMode() {
                 @change="importRuntimeProfiles"
               >
                 <template #default="{ open }">
-                  <AoiButton
-                    appearance="outline"
+                  <AoiButton tone="accent"
+                    variant="outlined"
                     icon="upload"
                     :disabled="Boolean(busyAction)"
                     :loading="busyAction === 'importRuntime'"
@@ -1200,16 +1199,16 @@ function disableDeveloperMode() {
                   </AoiButton>
                 </template>
               </AoiFileInput>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="download"
                 :disabled="!runtimePreviewJson || Boolean(busyAction)"
                 @click="downloadJson(`${selectedRuntimeProfile?.id || 'runtime-profile'}.json`, runtimePreviewJson)"
               >
                 导出
               </AoiButton>
-              <AoiButton
-                appearance="outline"
+              <AoiButton tone="accent"
+                variant="outlined"
                 icon="copy"
                 :disabled="!runtimePreviewJson || Boolean(busyAction)"
                 @click="copyJson(runtimePreviewJson)"

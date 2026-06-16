@@ -206,16 +206,16 @@ const statusIntentOptions = [
   { value: "warning", label: "警告" },
   { value: "danger", label: "危险" }
 ] as const
-const actionAppearances = [
-  { value: "solid", label: "Solid" },
-  { value: "soft", label: "Soft" },
-  { value: "outline", label: "Outline" },
+const actionVariants = [
+  { value: "filled", label: "Filled" },
+  { value: "tonal", label: "Tonal" },
+  { value: "outlined", label: "Outlined" },
   { value: "plain", label: "Plain" },
   { value: "elevated", label: "Elevated" }
 ] as const
-const actionIntents = [
-  { value: "primary", label: "主" },
-  { value: "secondary", label: "次" },
+const actionTones = [
+  { value: "accent", label: "主" },
+  { value: "muted", label: "弱" },
   { value: "neutral", label: "中" },
   { value: "success", label: "成" },
   { value: "warning", label: "警" },
@@ -593,52 +593,52 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
       />
 
       <AoiActionBar class="components-lab__actions" label="主要组件动作" size="sm" surface>
-        <AoiButton icon="sparkles" @click="showStatus('主要按钮已触发。')">主要按钮</AoiButton>
-        <AoiButton icon="triangle-alert" intent="warning" @click="showStatus('警告按钮已触发。', 'warning')">警告按钮</AoiButton>
-        <AoiButton icon="circle-alert" intent="danger" @click="showStatus('危险按钮已触发。', 'danger')">危险按钮</AoiButton>
-        <AoiButton disabled>主要按钮被禁用</AoiButton>
-        <AoiButton icon="party-popper" @click="showStatus('五彩纸屑已替换为 Aoi 状态反馈。')">五彩纸屑</AoiButton>
-        <AoiButton icon="send" @click="showStatus('发送按钮已触发。')">发送</AoiButton>
-        <AoiButton appearance="outline" @click="dialogOpen = true">显示模态框</AoiButton>
-        <AoiButton id="aoi-components-menu-anchor" appearance="outline" @click="menuOpen = !menuOpen">显示菜单</AoiButton>
-        <AoiButton appearance="outline" @click="routeProgressPreview = !routeProgressPreview">显示进度条</AoiButton>
+        <AoiButton tone="accent" variant="filled" icon="sparkles" @click="showStatus('主要按钮已触发。')">主要按钮</AoiButton>
+        <AoiButton variant="filled" icon="triangle-alert" tone="warning" @click="showStatus('警告按钮已触发。', 'warning')">警告按钮</AoiButton>
+        <AoiButton variant="filled" icon="circle-alert" tone="danger" @click="showStatus('危险按钮已触发。', 'danger')">危险按钮</AoiButton>
+        <AoiButton tone="accent" variant="filled" disabled>主要按钮被禁用</AoiButton>
+        <AoiButton tone="accent" variant="filled" icon="party-popper" @click="showStatus('五彩纸屑已替换为 Aoi 状态反馈。')">五彩纸屑</AoiButton>
+        <AoiButton tone="accent" variant="filled" icon="send" @click="showStatus('发送按钮已触发。')">发送</AoiButton>
+        <AoiButton tone="accent" variant="outlined" @click="dialogOpen = true">显示模态框</AoiButton>
+        <AoiButton tone="accent" id="aoi-components-menu-anchor" variant="outlined" @click="menuOpen = !menuOpen">显示菜单</AoiButton>
+        <AoiButton tone="accent" variant="outlined" @click="routeProgressPreview = !routeProgressPreview">显示进度条</AoiButton>
       </AoiActionBar>
 
-      <div class="components-lab__action-matrix" aria-label="按钮外观与意图矩阵">
+      <div class="components-lab__action-matrix" aria-label="按钮变体与色调矩阵">
         <div
-          v-for="appearance in actionAppearances"
-          :key="appearance.value"
+          v-for="variant in actionVariants"
+          :key="variant.value"
           class="components-lab__action-row"
         >
-          <span class="components-lab__matrix-label">{{ appearance.label }}</span>
+          <span class="components-lab__matrix-label">{{ variant.label }}</span>
           <AoiButton
-            v-for="intent in actionIntents"
-            :key="`${appearance.value}-${intent.value}`"
-            :appearance="appearance.value"
-            :intent="intent.value"
+            v-for="tone in actionTones"
+            :key="`${variant.value}-${tone.value}`"
+            :variant="variant.value"
+            :tone="tone.value"
             size="sm"
-            @click="showStatus(`${appearance.label} / ${intent.label}`)"
+            @click="showStatus(`${variant.label} / ${tone.label}`)"
           >
-            {{ intent.label }}
+            {{ tone.label }}
           </AoiButton>
         </div>
-        <div class="components-lab__icon-row" aria-label="图标按钮外观与意图矩阵">
+        <div class="components-lab__icon-row" aria-label="图标按钮变体与色调矩阵">
           <AoiIconButton
-            v-for="intent in actionIntents"
-            :key="`icon-${intent.value}`"
+            v-for="tone in actionTones"
+            :key="`icon-${tone.value}`"
             icon="sparkle"
-            :label="`图标按钮 ${intent.label}`"
-            appearance="plain"
-            :intent="intent.value"
+            :label="`图标按钮 ${tone.label}`"
+            variant="plain"
+            :tone="tone.value"
             size="sm"
           />
           <AoiIconButton
-            v-for="intent in actionIntents"
-            :key="`icon-soft-${intent.value}`"
+            v-for="tone in actionTones"
+            :key="`icon-tonal-${tone.value}`"
             icon="sparkles"
-            :label="`填充图标按钮 ${intent.label}`"
-            appearance="soft"
-            :intent="intent.value"
+            :label="`填充图标按钮 ${tone.label}`"
+            variant="tonal"
+            :tone="tone.value"
             size="sm"
           />
         </div>
@@ -734,8 +734,8 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
         <AoiSwitch v-model="progressIndeterminate" label="不定状态" />
         <AoiSlider v-model="sliderProgress" label="进度" :min="0" :max="100" />
         <div class="components-lab__inline">
-          <AoiButton loading>加载中的按钮</AoiButton>
-          <AoiButton loading disabled>加载中的禁用按钮</AoiButton>
+          <AoiButton tone="accent" variant="filled" loading>加载中的按钮</AoiButton>
+          <AoiButton tone="accent" variant="filled" loading disabled>加载中的禁用按钮</AoiButton>
           <AoiProgress type="circular" indeterminate />
         </div>
         <AoiProgress :indeterminate="progressIndeterminate" :value="sliderProgress / 100" />
@@ -746,8 +746,8 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
         <AoiChip label="标签" selected />
         <AoiChip label="输入标签名称" removable remove-label="移除输入标签" @remove="showStatus('标签移除事件已触发。')" />
         <AoiMetaPill icon="clock-3">你知道的</AoiMetaPill>
-        <AoiMetaPill intent="primary">太多了</AoiMetaPill>
-        <AoiMetaPill intent="danger">错误</AoiMetaPill>
+        <AoiMetaPill tone="accent">太多了</AoiMetaPill>
+        <AoiMetaPill tone="danger">错误</AoiMetaPill>
       </div>
 
       <div class="components-lab__slider-stack">
@@ -808,7 +808,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
     <section class="components-lab__section">
       <PageHeader title="组件页面标题" description="PageHeader、AoiSurface、AoiSection、AoiContentGrid 和状态组件的组合。" icon="blocks">
         <template #actions>
-          <AoiButton appearance="outline" size="sm" icon="external-link" to="/settings">设置入口</AoiButton>
+          <AoiButton tone="accent" variant="outlined" size="sm" icon="external-link" to="/settings">设置入口</AoiButton>
         </template>
       </PageHeader>
 
@@ -830,8 +830,8 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
 
       <div class="components-lab__surface-grid">
         <AoiSurface surface="panel" padding="lg">Panel surface</AoiSurface>
-        <AoiSurface surface="card" intent="primary">Accent card</AoiSurface>
-        <AoiSurface surface="state" intent="danger">Danger state</AoiSurface>
+        <AoiSurface surface="card" tone="accent">Accent card</AoiSurface>
+        <AoiSurface surface="state" tone="danger">Danger state</AoiSurface>
         <AoiSurface surface="code" padding="sm"><AoiCodeBlock code="const aoi = 'components'" /></AoiSurface>
       </div>
 
@@ -965,7 +965,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
           loop
         />
       </ClientOnly>
-      <AoiButton appearance="outline" icon="images" @click="lightboxOpen = true">打开灯箱</AoiButton>
+      <AoiButton tone="accent" variant="outlined" icon="images" @click="lightboxOpen = true">打开灯箱</AoiButton>
 
       <ClientOnly>
         <div class="components-lab__rich-text">
@@ -1068,7 +1068,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
         </SettingsOptionGrid>
         <SettingsDataActionCard title="数据动作卡片" description="用于高级设置中的操作行。">
           <template #actions>
-            <AoiButton appearance="outline" size="sm" icon="download">导出</AoiButton>
+            <AoiButton tone="accent" variant="outlined" size="sm" icon="download">导出</AoiButton>
           </template>
         </SettingsDataActionCard>
         <SettingsDerivationControlGrid :controls="derivationControls" @update="(key, value) => showStatus(`${key} 已更新为 ${value}。`)" />
@@ -1078,7 +1078,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
           active-id="demo"
           label="Profile list"
         />
-        <AoiButton appearance="outline" icon="git-compare-arrows" @click="diffDialogOpen = true">显示差异弹窗</AoiButton>
+        <AoiButton tone="accent" variant="outlined" icon="git-compare-arrows" @click="diffDialogOpen = true">显示差异弹窗</AoiButton>
       </SettingsPanel>
     </section>
 
@@ -1114,8 +1114,8 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
       </template>
       <p>这个弹窗使用 AoiDialog，并通过 Material Web wrapper 管理。</p>
       <template #actions>
-        <AoiButton appearance="plain" intent="secondary" @click="dialogOpen = false">取消</AoiButton>
-        <AoiButton icon="check" @click="dialogOpen = false">确认</AoiButton>
+        <AoiButton @click="dialogOpen = false">取消</AoiButton>
+        <AoiButton tone="accent" variant="filled" icon="check" @click="dialogOpen = false">确认</AoiButton>
       </template>
     </AoiDialog>
 

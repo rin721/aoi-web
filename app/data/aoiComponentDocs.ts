@@ -86,9 +86,9 @@ export const aoiComponentDocs: AoiComponentDoc[] = [
     row("size", "\"sm\" | \"md\"", "Button density inside the action row.", "\"md\""),
     row("surface", "boolean", "Adds the toolbar surface treatment.", "false")
   ], [], [row("default", "slot", "AoiButton or AoiIconButton actions.")]),
-  component("AoiButton", "actions", "Material Web button wrapper with Aoi appearance, intent, icon, loading, and link support.", "Use for all button-like commands and button-style navigation.", [
-    row("appearance", "\"solid\" | \"soft\" | \"outline\" | \"plain\" | \"elevated\"", "Visual form of the action.", "\"solid\""),
-    row("intent", "\"primary\" | \"secondary\" | \"neutral\" | \"success\" | \"warning\" | \"danger\" | \"info\"", "Semantic meaning and color mapping.", "\"primary\""),
+  component("AoiButton", "actions", "Material Web button wrapper with Aoi variant, tone, icon, loading, and link support.", "Use for all button-like commands and button-style navigation.", [
+    row("variant", "\"filled\" | \"tonal\" | \"outlined\" | \"plain\" | \"elevated\"", "Visual form of the action.", "\"plain\""),
+    row("tone", "\"accent\" | \"muted\" | \"neutral\" | \"success\" | \"warning\" | \"danger\" | \"info\"", "Action color tone.", "\"muted\""),
     row("size", "\"sm\" | \"md\" | \"lg\"", "Control height scale.", "\"md\""),
     row("icon / trailingIcon", "string", "Lucide icon names rendered through AoiIcon."),
     row("to / href", "RouteLocationRaw", "Delegates navigation to AoiLink."),
@@ -103,10 +103,11 @@ export const aoiComponentDocs: AoiComponentDoc[] = [
     row("update:modelValue", "string | string[]", "Emitted when selection changes."),
     row("change", "string | string[]", "Selection change notification.")
   ]),
-  component("AoiIconButton", "actions", "Icon-only command or navigation button with Aoi intent and appearance.", "Use when the icon is the primary affordance and a label remains available to assistive tech.", [
+  component("AoiIconButton", "actions", "Icon-only command or navigation button with Aoi tone and variant.", "Use when the icon is the primary affordance and a label remains available to assistive tech.", [
     row("icon", "string", "Lucide icon name."),
     row("label", "string", "Required accessible label."),
-    row("appearance", "\"standard\" | \"filled\" | \"tonal\" | \"outlined\"", "Material icon-button form.", "\"standard\""),
+    row("variant", "\"filled\" | \"tonal\" | \"outlined\" | \"plain\" | \"elevated\"", "Visual form of the action.", "\"plain\""),
+    row("tone", "\"accent\" | \"muted\" | \"neutral\" | \"success\" | \"warning\" | \"danger\" | \"info\"", "Action color tone.", "\"muted\""),
     row("size", "\"sm\" | \"md\" | \"lg\"", "Icon button dimensions.", "\"md\""),
     row("active", "boolean", "Applies active visual state.", "false"),
     row("to / href", "RouteLocationRaw", "Delegates navigation to AoiLink.")
@@ -228,6 +229,8 @@ export const aoiComponentDocs: AoiComponentDoc[] = [
   ], [row("update:modelValue", "string", "Emitted on time changes.")]),
   component("AoiChip", "layout-content", "Small tag, filter, or status chip with optional icon and selection.", "Use for compact metadata and selectable labels.", [
     row("label", "string", "Chip label."),
+    row("variant", "\"outlined\" | \"plain\" | \"tonal\"", "Chip visual form.", "\"outlined\""),
+    row("tone", "\"accent\" | \"muted\" | \"neutral\" | \"success\" | \"warning\" | \"danger\" | \"info\"", "Chip color tone.", "\"muted\""),
     row("icon", "string", "Optional Lucide icon."),
     row("selected", "boolean", "Applies selected styling.", "false"),
     row("disabled", "boolean", "Disables interaction.", "false"),
@@ -273,6 +276,8 @@ export const aoiComponentDocs: AoiComponentDoc[] = [
     row("fallbackVisible", "boolean", "Renders content when observer is unavailable.", "true")
   ], [row("visible", "void", "Emitted when content becomes visible.")]),
   component("AoiMetaPill", "layout-content", "Metadata pill for compact facts and counts.", "Use inside cards, headers, and media metadata.", [
+    row("variant", "\"outlined\" | \"plain\" | \"tonal\"", "Pill visual form.", "\"outlined\""),
+    row("tone", "\"accent\" | \"muted\" | \"neutral\" | \"success\" | \"warning\" | \"danger\" | \"info\"", "Pill color tone.", "\"muted\""),
     row("icon", "string", "Optional Lucide icon."),
     row("label", "string", "Pill label."),
     row("value", "string | number", "Optional value.")
@@ -328,11 +333,12 @@ export const aoiComponentDocs: AoiComponentDoc[] = [
     row("as", "string", "Rendered tag.", "\"div\""),
     row("surface", "\"plain\" | \"panel\" | \"card\" | \"state\" | \"code\" | \"toolbar\"", "Surface kind.", "\"card\""),
     row("padding", "\"none\" | \"sm\" | \"md\" | \"lg\"", "Padding preset.", "\"md\""),
-    row("intent", "AoiIntent", "Semantic tint.", "\"neutral\""),
+    row("tone", "AoiTone", "Optional visual tint.", "\"neutral\""),
     row("interactive / selected", "boolean", "Interactive and selected states.")
   ]),
   component("AoiTagList", "layout-content", "Wraps metadata tags using AoiChip/AoiLink semantics.", "Use for tag lists on videos and cards.", [
     row("items", "AoiTagItem[]", "Tag entries with label, icon, value, to, or href."),
+    row("tone", "AoiTone", "Tag color tone.", "\"muted\""),
     row("label", "string", "Accessible list label.")
   ], [row("select", "string", "Emitted when a non-link tag is selected.")], []),
   component("AoiProgress", "feedback", "Material linear/circular progress wrapper.", "Use for indeterminate or determinate loading indicators.", [
@@ -340,10 +346,10 @@ export const aoiComponentDocs: AoiComponentDoc[] = [
     row("value", "number", "Determinate progress value."),
     row("indeterminate", "boolean", "Shows ongoing work.", "false")
   ], [], []),
-  component("AoiProgressBar", "feedback", "Lightweight CSS progress bar with intent colors.", "Use for compact status meters.", [
+  component("AoiProgressBar", "feedback", "Lightweight CSS progress bar with tone colors.", "Use for compact status meters.", [
     row("value", "number", "Current value."),
     row("max", "number", "Maximum value.", "100"),
-    row("intent", "AoiIntent", "Semantic fill color.", "\"primary\""),
+    row("tone", "AoiTone", "Progress fill color tone.", "\"accent\""),
     row("size", "\"sm\" | \"md\"", "Bar height.", "\"sm\""),
     row("label", "string", "Accessible label.")
   ], [], []),

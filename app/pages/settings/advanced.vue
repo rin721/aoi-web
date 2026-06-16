@@ -14,6 +14,7 @@ const confirmOpen = ref(false)
 const pendingAction = ref<{
   action: () => Promise<void> | void
   body: string
+  danger: boolean
   title: string
 } | null>(null)
 
@@ -74,8 +75,8 @@ const {
   refresh: refreshApiStatus
 } = useAsyncData("api-status", () => api.getApiStatus())
 
-function askConfirm(title: string, body: string, action: () => Promise<void> | void) {
-  pendingAction.value = { action, body, title }
+function askConfirm(title: string, body: string, action: () => Promise<void> | void, danger = false) {
+  pendingAction.value = { action, body, danger, title }
   confirmOpen.value = true
 }
 
@@ -116,8 +117,8 @@ function cancelPendingAction() {
       description="用于未来对接 Go API 前确认 mock 契约。"
     >
       <template #actions>
-        <AoiButton
-          appearance="outline"
+        <AoiButton tone="accent"
+          variant="outlined"
           size="sm"
           icon="refresh-cw"
           :loading="apiStatusPending"
@@ -153,7 +154,6 @@ function cancelPendingAction() {
     >
       <template #actions>
         <AoiButton
-          appearance="plain" intent="secondary"
           size="sm"
           icon="trash-2"
           :disabled="telemetry.recentErrors.value.length === 0"
@@ -187,8 +187,8 @@ function cancelPendingAction() {
           :description="`${playerStats.volume}% · ${playerStats.playbackRate}x · ${playerStats.theaterMode ? '剧场' : '标准'}`"
         >
           <template #actions>
-            <AoiButton
-              appearance="outline"
+            <AoiButton tone="accent"
+              variant="outlined"
               size="sm"
               icon="rotate-ccw"
               :disabled="!playerSettings.hydrated || !hasPlayerSettings"
@@ -204,8 +204,8 @@ function cancelPendingAction() {
           :description="`历史 ${localStats.history} · 收藏 ${localStats.favorites} · 稍后看 ${localStats.watchLater} · 点赞 ${localStats.liked}`"
         >
           <template #actions>
-            <AoiButton
-              appearance="outline"
+            <AoiButton tone="accent"
+              variant="outlined"
               size="sm"
               icon="rotate-ccw"
               :disabled="!library.hydrated || !hasLocalData"
@@ -221,8 +221,8 @@ function cancelPendingAction() {
           :description="`评论 ${commentStats.total} · 参与视频 ${commentStats.videos} · 作者 ${commentStats.author}`"
         >
           <template #actions>
-            <AoiButton
-              appearance="outline"
+            <AoiButton tone="accent"
+              variant="outlined"
               size="sm"
               icon="message-circle-x"
               :disabled="!comments.hydrated || !hasCommentData"
@@ -238,8 +238,8 @@ function cancelPendingAction() {
           :description="`草稿 ${uploadStats.drafts} · 可排队 ${uploadStats.ready} · 已排队 ${uploadStats.queued}`"
         >
           <template #actions>
-            <AoiButton
-              appearance="outline"
+            <AoiButton tone="accent"
+              variant="outlined"
               size="sm"
               icon="trash-2"
               :disabled="!uploadDrafts.hydrated || !hasUploadDrafts"
@@ -255,8 +255,8 @@ function cancelPendingAction() {
           :description="`创作者 ${followingStats.creators} · 关注更新 ${followingStats.videos}`"
         >
           <template #actions>
-            <AoiButton
-              appearance="outline"
+            <AoiButton tone="accent"
+              variant="outlined"
               size="sm"
               icon="user-minus"
               :disabled="!following.hydrated || !hasFollowingData"
@@ -270,15 +270,16 @@ function cancelPendingAction() {
         <SettingsDataActionCard
           title="应用设置"
           description="重置主题、色板、背景和偏好设置。"
-          intent="danger"
+          tone="danger"
         >
           <template #actions>
             <AoiButton
-              appearance="outline"
+              tone="danger"
+              variant="outlined"
               size="sm"
               icon="rotate-ccw"
               :disabled="!settings.hydrated"
-              @click="askConfirm('重置应用设置', '将恢复外观、背景、语言和偏好的默认值，但不会清除互动、评论、投稿或关注数据。', () => settings.resetAllAppSettings())"
+              @click="askConfirm('重置应用设置', '将恢复外观、背景、语言和偏好的默认值，但不会清除互动、评论、投稿或关注数据。', () => settings.resetAllAppSettings(), true)"
             >
               重置
             </AoiButton>
@@ -291,8 +292,15 @@ function cancelPendingAction() {
       <template #headline>{{ pendingAction?.title }}</template>
       <p class="settings-note">{{ pendingAction?.body }}</p>
       <template #actions>
-        <AoiButton appearance="plain" intent="secondary" @click="cancelPendingAction">取消</AoiButton>
-        <AoiButton icon="check" @click="runPendingAction">确认</AoiButton>
+        <AoiButton @click="cancelPendingAction">取消</AoiButton>
+        <AoiButton
+          variant="filled"
+          :tone="pendingAction?.danger ? 'danger' : 'accent'"
+          :icon="pendingAction?.danger ? 'trash-2' : 'check'"
+          @click="runPendingAction"
+        >
+          确认
+        </AoiButton>
       </template>
     </AoiDialog>
   </div>

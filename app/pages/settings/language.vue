@@ -57,8 +57,8 @@ async function confirmResetLanguage() {
       description="当前项目接入了三种语言。更多语言等 locale 文件完善后再开放。"
     >
       <template #actions>
-        <AoiButton
-          appearance="outline"
+        <AoiButton tone="accent"
+          variant="outlined"
           size="sm"
           icon="rotate-ccw"
           :disabled="!settings.hydrated || resettingLanguage"
@@ -95,13 +95,12 @@ async function confirmResetLanguage() {
       <p class="settings-note">{{ t("settings.resetPage.language.description") }}</p>
       <template #actions>
         <AoiButton
-          appearance="plain" intent="secondary"
           :disabled="resettingLanguage"
           @click="resetLanguageConfirmOpen = false"
         >
           {{ t("settings.resetPage.cancel") }}
         </AoiButton>
-        <AoiButton
+        <AoiButton tone="accent" variant="filled"
           icon="check"
           :loading="resettingLanguage"
           @click="confirmResetLanguage"

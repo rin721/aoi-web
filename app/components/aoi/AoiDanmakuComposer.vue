@@ -147,7 +147,7 @@ defineExpose({
       <AoiIcon name="sliders-horizontal" :size="16" decorative />
     </button>
 
-    <AoiButton
+    <AoiButton tone="accent" variant="filled"
       class="aoi-danmaku-composer__submit"
       type="submit"
       icon="send"

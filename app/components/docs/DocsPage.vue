@@ -138,15 +138,15 @@ function searchHref(item: SearchSection) {
         <h1>{{ page?.title || t("docs.title") }}</h1>
         <p>{{ page?.description || t("docs.description") }}</p>
         <div class="docs-page__hero-actions">
-          <AoiButton icon="book-open" to="/docs/project/overview">{{ t("docs.actions.project") }}</AoiButton>
-          <AoiButton appearance="outline" icon="blocks" to="/docs/components/overview">{{ t("docs.actions.components") }}</AoiButton>
+          <AoiButton tone="accent" variant="filled" icon="book-open" to="/docs/project/overview">{{ t("docs.actions.project") }}</AoiButton>
+          <AoiButton tone="accent" variant="outlined" icon="blocks" to="/docs/components/overview">{{ t("docs.actions.components") }}</AoiButton>
         </div>
       </div>
       <AoiStatGrid :items="docsStats" :columns="3" />
     </header>
 
     <div class="docs-page__mobile-tools">
-      <AoiButton appearance="outline" icon="panel-left-open" @click="mobileNavOpen = true">
+      <AoiButton tone="accent" variant="outlined" icon="panel-left-open" @click="mobileNavOpen = true">
         {{ t("docs.nav.open") }}
       </AoiButton>
       <AoiTextField
@@ -238,7 +238,7 @@ function searchHref(item: SearchSection) {
       </template>
       <DocsNavTree :items="docsNavigation" :active-path="docsPath" />
       <template #actions>
-        <AoiButton appearance="plain" @click="mobileNavOpen = false">{{ t("docs.nav.close") }}</AoiButton>
+        <AoiButton tone="accent" variant="plain" @click="mobileNavOpen = false">{{ t("docs.nav.close") }}</AoiButton>
       </template>
     </AoiDialog>
   </div>

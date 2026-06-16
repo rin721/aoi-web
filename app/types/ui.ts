@@ -1,8 +1,9 @@
 import type { AoiRevealDirectiveValue } from "~/utils/aoiReveal"
 
 export type AoiLayoutMode = "stack" | "grid" | "inline" | "split"
-export type AoiIntent = "primary" | "secondary" | "neutral" | "success" | "warning" | "danger" | "info"
-export type AoiActionAppearance = "solid" | "soft" | "outline" | "plain" | "elevated"
+export type AoiTone = "accent" | "muted" | "neutral" | "success" | "warning" | "danger" | "info"
+export type AoiFeedbackIntent = "danger" | "info" | "success" | "warning"
+export type AoiActionVariant = "filled" | "tonal" | "outlined" | "plain" | "elevated"
 export type AoiFieldAppearance = "filled" | "outlined"
 export type AoiSurfaceKind = "plain" | "panel" | "card" | "state" | "code" | "toolbar"
 export type AoiSurfacePadding = "none" | "sm" | "md" | "lg"
@@ -13,7 +14,7 @@ export type AoiInfoCardLayout = "inline" | "stack"
 export interface AoiStatItem {
   description?: string
   icon?: string
-  intent?: AoiIntent
+  tone?: AoiTone
   label: string
   value: number | string
 }

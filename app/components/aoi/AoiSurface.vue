@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { AoiIntent, AoiRevealProp, AoiSurfaceKind, AoiSurfacePadding } from "~/types/ui"
+import type { AoiRevealProp, AoiSurfaceKind, AoiSurfacePadding, AoiTone } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
   as?: string
@@ -8,7 +8,7 @@ const props = withDefaults(defineProps<{
   reveal?: AoiRevealProp
   selected?: boolean
   surface?: AoiSurfaceKind
-  intent?: AoiIntent
+  tone?: AoiTone
 }>(), {
   as: "div",
   interactive: false,
@@ -16,7 +16,7 @@ const props = withDefaults(defineProps<{
   reveal: false,
   selected: false,
   surface: "card",
-  intent: "neutral"
+  tone: "neutral"
 })
 </script>
 
@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<{
     class="aoi-surface"
     :class="[
       `aoi-surface--${props.surface}`,
-      `aoi-surface--intent-${props.intent}`,
+      `aoi-surface--tone-${props.tone}`,
       `aoi-surface--padding-${props.padding}`,
       {
         'aoi-surface--interactive': props.interactive,
@@ -103,7 +103,7 @@ const props = withDefaults(defineProps<{
   padding: var(--aoi-panel-padding);
 }
 
-.aoi-surface--intent-primary {
+.aoi-surface--tone-accent {
   --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-primary-soft-bg) 70%, var(--aoi-card-bg));
   --aoi-surface-intent-bg-hover: var(--aoi-intent-primary-soft-bg-hover);
   --aoi-surface-intent-border: var(--aoi-intent-primary-border);
@@ -111,37 +111,37 @@ const props = withDefaults(defineProps<{
   background: var(--aoi-surface-intent-bg);
 }
 
-.aoi-surface--intent-danger {
+.aoi-surface--tone-danger {
   --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-danger-soft-bg) 70%, var(--aoi-card-bg));
   --aoi-surface-intent-bg-hover: var(--aoi-intent-danger-soft-bg-hover);
   --aoi-surface-intent-border: var(--aoi-intent-danger-border);
   border-color: var(--aoi-surface-intent-border);
 }
 
-.aoi-surface--intent-secondary {
+.aoi-surface--tone-muted {
   background: var(--aoi-surface-muted);
 }
 
-.aoi-surface--intent-success,
-.aoi-surface--intent-warning,
-.aoi-surface--intent-info {
+.aoi-surface--tone-success,
+.aoi-surface--tone-warning,
+.aoi-surface--tone-info {
   border-color: var(--aoi-surface-intent-border);
   background: var(--aoi-surface-intent-bg);
 }
 
-.aoi-surface--intent-success {
+.aoi-surface--tone-success {
   --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-success-soft-bg) 70%, var(--aoi-card-bg));
   --aoi-surface-intent-bg-hover: var(--aoi-intent-success-soft-bg-hover);
   --aoi-surface-intent-border: var(--aoi-intent-success-border);
 }
 
-.aoi-surface--intent-warning {
+.aoi-surface--tone-warning {
   --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-warning-soft-bg) 70%, var(--aoi-card-bg));
   --aoi-surface-intent-bg-hover: var(--aoi-intent-warning-soft-bg-hover);
   --aoi-surface-intent-border: var(--aoi-intent-warning-border);
 }
 
-.aoi-surface--intent-info {
+.aoi-surface--tone-info {
   --aoi-surface-intent-bg: color-mix(in srgb, var(--aoi-intent-info-soft-bg) 70%, var(--aoi-card-bg));
   --aoi-surface-intent-bg-hover: var(--aoi-intent-info-soft-bg-hover);
   --aoi-surface-intent-border: var(--aoi-intent-info-border);

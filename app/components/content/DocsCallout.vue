@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import type { AoiIntent } from "~/types/ui"
+import type { AoiFeedbackIntent } from "~/types/ui"
 
 const props = withDefaults(defineProps<{
   icon?: string
-  intent?: Extract<AoiIntent, "danger" | "info" | "success" | "warning">
+  intent?: AoiFeedbackIntent
   title?: string
 }>(), {
   icon: undefined,
@@ -24,7 +24,7 @@ const resolvedIcon = computed(() => props.icon || {
     class="docs-callout"
     surface="state"
     padding="md"
-    :intent="props.intent"
+    :tone="props.intent"
   >
     <AoiIcon :name="resolvedIcon" :size="18" decorative />
     <div class="docs-callout__copy">

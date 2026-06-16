@@ -974,7 +974,7 @@ defineExpose({
                   <AoiIconButton
                     :icon="videoPlaying ? 'pause' : 'play'"
                     :label="videoPlaying ? resolvedLabels.pause : resolvedLabels.play"
-                    appearance="soft"
+                    variant="tonal"
                     @click="toggleVideoPlay"
                   />
                   <div class="aoi-lightbox__timeline">

@@ -526,10 +526,10 @@ defineExpose({
         </span>
       </div>
       <AoiActionBar class="aoi-image-clipboard__header-actions" size="sm">
-        <AoiButton appearance="plain" intent="secondary" size="sm" icon="image-plus" :disabled="disabled" @click="open">
+        <AoiButton size="sm" icon="image-plus" :disabled="disabled" @click="open">
           选择图片
         </AoiButton>
-        <AoiButton size="sm" icon="crop" :disabled="disabled || !hasSource" @click="openEditor">
+        <AoiButton tone="accent" variant="filled" size="sm" icon="crop" :disabled="disabled || !hasSource" @click="openEditor">
           打开裁剪
         </AoiButton>
       </AoiActionBar>
@@ -558,13 +558,13 @@ defineExpose({
         <span v-if="result.sourceName">来源：{{ result.sourceName }}</span>
       </div>
       <AoiActionBar class="aoi-image-clipboard__result-actions" size="sm">
-        <AoiButton appearance="plain" intent="secondary" size="sm" icon="copy" :disabled="disabled" @click="copyResult">
+        <AoiButton size="sm" icon="copy" :disabled="disabled" @click="copyResult">
           复制
         </AoiButton>
-        <AoiButton appearance="plain" intent="secondary" size="sm" icon="download" :disabled="disabled" @click="downloadResult">
+        <AoiButton size="sm" icon="download" :disabled="disabled" @click="downloadResult">
           下载
         </AoiButton>
-        <AoiButton appearance="plain" intent="secondary" size="sm" icon="crop" :disabled="disabled || !hasSource" @click="openEditor">
+        <AoiButton size="sm" icon="crop" :disabled="disabled || !hasSource" @click="openEditor">
           重新裁剪
         </AoiButton>
         <AoiIconButton icon="trash-2" label="清除图片" size="sm" :disabled="disabled" @click="clear" />

@@ -31,7 +31,7 @@ const emit = defineEmits<{
       <slot name="fields" />
     </div>
 
-    <AoiButton
+    <AoiButton tone="accent" variant="filled"
       :icon="props.submitIcon"
       type="button"
       :disabled="props.disabled"

@@ -9,7 +9,7 @@ const props = defineProps<{
 }>()
 
 const doc = computed(() => aoiComponentDocs.find((item) => item.name === props.name))
-const selectedMode = ref("solid")
+const selectedMode = ref("filled")
 const selectedButtonBox = ref("docs")
 const selectedSegment = ref("balanced")
 const selectedTab = ref("props")
@@ -106,16 +106,16 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
 <template>
   <AoiSurface class="docs-component-demo" surface="toolbar" padding="md">
     <div v-if="normalizedName === 'AoiButton'" class="docs-component-demo__row">
-      <AoiButton icon="sparkles">Solid</AoiButton>
-      <AoiButton appearance="soft" intent="info" icon="info">Soft</AoiButton>
-      <AoiButton appearance="outline" intent="warning" icon="triangle-alert">Outline</AoiButton>
-      <AoiButton appearance="plain" intent="danger" icon="circle-alert">Plain</AoiButton>
+      <AoiButton tone="accent" variant="filled" icon="sparkles">Filled</AoiButton>
+      <AoiButton variant="tonal" tone="info" icon="info">Tonal</AoiButton>
+      <AoiButton variant="outlined" tone="warning" icon="triangle-alert">Outlined</AoiButton>
+      <AoiButton variant="plain" tone="danger" icon="circle-alert">Plain</AoiButton>
     </div>
 
     <div v-else-if="normalizedName === 'AoiActionBar'" class="docs-component-demo__row">
       <AoiActionBar label="Docs action demo" size="sm" surface>
-        <AoiButton size="sm" icon="save">Save</AoiButton>
-        <AoiButton size="sm" appearance="outline" icon="copy">Copy</AoiButton>
+        <AoiButton tone="accent" variant="filled" size="sm" icon="save">Save</AoiButton>
+        <AoiButton tone="accent" size="sm" variant="outlined" icon="copy">Copy</AoiButton>
         <AoiIconButton icon="more-horizontal" label="More actions" size="sm" />
       </AoiActionBar>
     </div>
@@ -125,8 +125,8 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
     </div>
 
     <div v-else-if="normalizedName === 'AoiIconButton'" class="docs-component-demo__row">
-      <AoiIconButton icon="heart" label="Like" appearance="soft" active />
-      <AoiIconButton icon="bookmark" label="Save" appearance="outline" />
+      <AoiIconButton icon="heart" label="Like" variant="tonal" active />
+      <AoiIconButton icon="bookmark" label="Save" variant="outlined" />
       <AoiIconButton icon="share-2" label="Share" />
     </div>
 
@@ -199,7 +199,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
     <div v-else-if="normalizedName === 'AoiFileInput'" class="docs-component-demo__row">
       <AoiFileInput accept="image/*">
         <template #default="{ open }">
-          <AoiButton icon="image" appearance="outline" @click="open">Choose image</AoiButton>
+          <AoiButton tone="accent" icon="image" variant="outlined" @click="open">Choose image</AoiButton>
         </template>
       </AoiFileInput>
     </div>
@@ -215,7 +215,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
     </div>
 
     <div v-else-if="normalizedName === 'AoiCodeBlock'" class="docs-component-demo__block">
-      <AoiCodeBlock code="<AoiButton icon=&quot;sparkles&quot;>Create</AoiButton>" label="AoiButton example" />
+      <AoiCodeBlock code="<AoiButton variant=&quot;filled&quot; tone=&quot;accent&quot; icon=&quot;sparkles&quot;>Create</AoiButton>" label="AoiButton example" />
     </div>
 
     <div v-else-if="normalizedName === 'AoiContentGrid'" class="docs-component-demo__block">
@@ -286,7 +286,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
 
     <div v-else-if="normalizedName === 'AoiSurface'" class="docs-component-demo__grid">
       <AoiSurface surface="card" padding="sm">Card</AoiSurface>
-      <AoiSurface surface="state" intent="success" padding="sm">State</AoiSurface>
+      <AoiSurface surface="state" tone="success" padding="sm">State</AoiSurface>
       <AoiSurface surface="toolbar" padding="sm">Toolbar</AoiSurface>
     </div>
 
@@ -308,19 +308,19 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
     </div>
 
     <div v-else-if="normalizedName === 'AoiDialog'" class="docs-component-demo__row">
-      <AoiButton appearance="outline" icon="message-square" @click="dialogOpen = true">Open dialog</AoiButton>
+      <AoiButton tone="accent" variant="outlined" icon="message-square" @click="dialogOpen = true">Open dialog</AoiButton>
       <AoiDialog v-model:open="dialogOpen">
         <template #headline>Docs dialog</template>
         <p>AoiDialog keeps Material Web behind the wrapper.</p>
         <template #actions>
-          <AoiButton appearance="plain" @click="dialogOpen = false">Cancel</AoiButton>
-          <AoiButton icon="check" @click="dialogOpen = false">Confirm</AoiButton>
+          <AoiButton tone="accent" variant="plain" @click="dialogOpen = false">Cancel</AoiButton>
+          <AoiButton tone="accent" variant="filled" icon="check" @click="dialogOpen = false">Confirm</AoiButton>
         </template>
       </AoiDialog>
     </div>
 
     <div v-else-if="normalizedName === 'AoiMenu'" class="docs-component-demo__row">
-      <AoiButton :id="menuAnchorId" appearance="outline" icon="list" @click="menuOpen = !menuOpen">Open menu</AoiButton>
+      <AoiButton tone="accent" :id="menuAnchorId" variant="outlined" icon="list" @click="menuOpen = !menuOpen">Open menu</AoiButton>
       <AoiMenu
         v-model:open="menuOpen"
         :anchor="menuAnchorId"
@@ -333,7 +333,7 @@ function sendDanmaku(payload: { body: string, color: string, mode: AoiDanmakuMod
 
     <ClientOnly v-else-if="normalizedName === 'AoiLightboxGallery'">
       <div class="docs-component-demo__row">
-        <AoiButton appearance="outline" icon="images" @click="lightboxOpen = true">Open gallery</AoiButton>
+        <AoiButton tone="accent" variant="outlined" icon="images" @click="lightboxOpen = true">Open gallery</AoiButton>
         <AoiLightboxGallery v-model:open="lightboxOpen" :items="lightboxItems" />
       </div>
     </ClientOnly>

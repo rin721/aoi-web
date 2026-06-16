@@ -23,7 +23,7 @@ const gridStyle = computed(() => ({
       class="aoi-stat-grid__item"
       surface="card"
       padding="sm"
-      :intent="item.intent || 'neutral'"
+      :tone="item.tone || 'neutral'"
     >
       <span class="aoi-stat-grid__label">
         <AoiIcon v-if="item.icon" :name="item.icon" :size="15" decorative />

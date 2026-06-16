@@ -26,9 +26,9 @@ const emit = defineEmits<{
       <h2 class="page-state__title">{{ title }}</h2>
       <p v-if="description" class="page-state__description">{{ description }}</p>
     </div>
-    <AoiButton
+    <AoiButton tone="accent"
       v-if="actionLabel"
-      appearance="soft"
+      variant="tonal"
       :icon="actionIcon"
       @click="emit('action')"
     >
