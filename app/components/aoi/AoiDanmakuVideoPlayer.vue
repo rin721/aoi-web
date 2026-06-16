@@ -1055,7 +1055,7 @@ defineExpose({
   --md-icon-button-hover-state-layer-opacity: 0;
   --md-icon-button-pressed-state-layer-color: transparent;
   --md-icon-button-pressed-state-layer-opacity: 0;
-  --md-icon-button-state-layer-size: 32px;
+  --aoi-icon-action-size: 32px;
   --md-focus-ring-color: transparent;
   --md-ripple-hover-color: transparent;
   --md-ripple-hover-opacity: 0;
@@ -1361,8 +1361,7 @@ defineExpose({
   }
 
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-group--right .aoi-icon-button) {
-    --aoi-icon-button-size: 28px;
-    --md-icon-button-state-layer-size: 28px;
+    --aoi-icon-action-size: 28px;
     width: 28px;
     height: 32px;
   }
@@ -1428,8 +1427,7 @@ defineExpose({
   }
 
   .aoi-danmaku-video-player__controls :deep(.aoi-danmaku-video-player__control-bar .aoi-icon-button) {
-    --aoi-icon-button-size: 32px;
-    --md-icon-button-state-layer-size: 32px;
+    --aoi-icon-action-size: 32px;
     width: 32px;
     height: 34px;
   }

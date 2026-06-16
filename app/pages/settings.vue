@@ -138,7 +138,7 @@ useHead(() => ({
   min-width: 0;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 960px) {
   .settings-shell {
     grid-template-columns: 1fr;
   }

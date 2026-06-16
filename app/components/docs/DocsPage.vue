@@ -221,26 +221,18 @@ function searchHref(item: SearchSection) {
 
       <aside class="docs-page__toc" :aria-label="t('docs.toc.label')">
         <strong>{{ t("docs.toc.label") }}</strong>
-        <AoiLink
+        <AoiButton
           v-for="item in tocLinks"
           :key="item.id"
           class="docs-page__toc-link"
           :to="`${docsPath}#${item.id}`"
           :aria-label="item.text"
+          variant="plain"
+          tone="muted"
+          size="sm"
         >
-          <span class="docs-page__toc-button-layer" aria-hidden="true">
-            <AoiButton
-              class="docs-page__toc-button"
-              variant="plain"
-              tone="muted"
-              size="sm"
-              aria-hidden="true"
-              tabindex="-1"
-              type="button"
-            />
-          </span>
-          <span class="docs-page__toc-label" aria-hidden="true">{{ item.text }}</span>
-        </AoiLink>
+          <span>{{ item.text }}</span>
+        </AoiButton>
       </aside>
     </div>
 
@@ -379,26 +371,23 @@ function searchHref(item: SearchSection) {
   overflow: hidden;
 }
 
-.docs-page__toc-button-layer {
-  position: absolute;
-  inset: 0;
-  display: block;
-}
-
-.docs-page__toc-button {
-  --md-text-button-container-height: 100%;
+.docs-page__toc-link :deep(.aoi-button) {
+  --md-text-button-container-height: auto;
   --md-text-button-container-shape: var(--aoi-radius-control);
+  --md-text-button-leading-space: 8px;
+  --md-text-button-trailing-space: 8px;
+  justify-content: flex-start;
   width: 100%;
-  height: 100%;
+  min-height: 32px;
+  border-radius: var(--aoi-radius-control);
+  color: inherit;
+  line-height: 1.45;
+  text-align: left;
 }
 
-.docs-page__toc-label {
-  position: relative;
-  z-index: 1;
+.docs-page__toc-link :deep(.aoi-button span) {
   min-width: 0;
   overflow: hidden;
-  padding: 7px 8px;
-  pointer-events: none;
   text-overflow: ellipsis;
   white-space: nowrap;
 }

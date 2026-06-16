@@ -126,7 +126,7 @@ const playbackRateModel = computed({
   --md-icon-button-icon-color: rgba(255, 255, 255, .9);
   --md-icon-button-hover-icon-color: #fff;
   --md-icon-button-pressed-icon-color: var(--aoi-player-accent);
-  --md-icon-button-state-layer-color: #fff;
+  --md-icon-button-hover-state-layer-color: #fff;
   color: rgba(255, 255, 255, .9);
   box-shadow: none;
 }

@@ -4,6 +4,11 @@ import type { AoiActionVariant, AoiTone } from "~/types/ui"
 
 type ButtonSize = "sm" | "md" | "lg"
 type LinkTarget = "_blank" | "_parent" | "_self" | "_top" | (string & {})
+type AriaCurrentValue = "page" | "step" | "location" | "date" | "time" | "true" | "false"
+
+defineOptions({
+  inheritAttrs: false
+})
 
 const props = withDefaults(defineProps<{
   variant?: AoiActionVariant
@@ -11,8 +16,11 @@ const props = withDefaults(defineProps<{
   size?: ButtonSize
   icon?: string
   trailingIcon?: string
+  active?: boolean
   loading?: boolean
   disabled?: boolean
+  label?: string
+  ariaCurrent?: AriaCurrentValue
   ariaLabel?: string
   ariaPressed?: boolean
   external?: boolean
@@ -28,8 +36,11 @@ const props = withDefaults(defineProps<{
   size: "md",
   icon: undefined,
   trailingIcon: undefined,
+  active: false,
   loading: false,
   disabled: false,
+  label: undefined,
+  ariaCurrent: undefined,
   ariaLabel: undefined,
   ariaPressed: undefined,
   external: undefined,
@@ -45,6 +56,7 @@ const emit = defineEmits<{
   click: [event: MouseEvent]
 }>()
 
+const attrs = useAttrs()
 const tagName = computed(() => {
   const map: Record<AoiActionVariant, string> = {
     elevated: "md-elevated-button",
@@ -60,6 +72,31 @@ const tagName = computed(() => {
 const hasLink = computed(() => Boolean(props.to || props.href))
 const resolvedIcon = computed(() => props.loading ? "loader-circle" : props.icon)
 const hasTrailingIcon = computed(() => Boolean(props.trailingIcon && !props.loading))
+const resolvedAriaLabel = computed(() => props.ariaLabel || props.label)
+const hideInnerLinkVisual = computed(() => Boolean(resolvedAriaLabel.value))
+const rootAttrs = computed(() => {
+  const { class: _class, ...rest } = attrs
+
+  return rest
+})
+const buttonClass = computed(() => [
+  "aoi-button",
+  `aoi-button--${props.size}`,
+  {
+    "aoi-button--active": props.active
+  }
+])
+const linkClass = computed(() => [
+  "aoi-button-link",
+  attrs.class,
+  {
+    "aoi-button-link--active": props.active
+  }
+])
+const directButtonClass = computed(() => [
+  ...buttonClass.value,
+  attrs.class
+])
 
 function onClick(event: MouseEvent) {
   emit("click", event)
@@ -69,9 +106,11 @@ function onClick(event: MouseEvent) {
 <template>
   <AoiLink
     v-if="hasLink && !disabled && !loading"
-    class="aoi-button-link"
-    :aria-label="ariaLabel"
-    :aria-pressed="ariaPressed"
+    v-bind="rootAttrs"
+    :class="linkClass"
+    :aria-current="ariaCurrent"
+    :aria-label="resolvedAriaLabel"
+    :aria-pressed="ariaPressed === undefined ? undefined : String(ariaPressed)"
     :external="external"
     :href="href"
     :no-rel="noRel"
@@ -82,12 +121,13 @@ function onClick(event: MouseEvent) {
   >
     <component
       :is="tagName"
-      class="aoi-button"
-      :class="`aoi-button--${size}`"
+      :class="buttonClass"
       :data-aoi-variant="variant"
       :data-aoi-tone="tone"
-      aria-hidden="true"
-      tabindex="-1"
+      :data-aoi-active="active || undefined"
+      :aria-hidden.attr="hideInnerLinkVisual ? 'true' : undefined"
+      :href="undefined"
+      :tabindex="hideInnerLinkVisual ? -1 : undefined"
       :type="type"
       :trailing-icon="hasTrailingIcon || undefined"
     >
@@ -109,13 +149,15 @@ function onClick(event: MouseEvent) {
   </AoiLink>
   <component
     v-else
+    v-bind="rootAttrs"
     :is="tagName"
-    class="aoi-button"
-    :class="`aoi-button--${size}`"
+    :class="directButtonClass"
     :data-aoi-variant="variant"
     :data-aoi-tone="tone"
-    :aria-label="ariaLabel"
-    :aria-pressed="ariaPressed"
+    :data-aoi-active="active || undefined"
+    :aria-current.attr="ariaCurrent || undefined"
+    :aria-label.attr="resolvedAriaLabel || undefined"
+    :aria-pressed.attr="ariaPressed === undefined ? undefined : String(ariaPressed)"
     :disabled="disabled || loading || undefined"
     :type="type"
     :trailing-icon="hasTrailingIcon || undefined"
@@ -149,8 +191,47 @@ function onClick(event: MouseEvent) {
   text-decoration: none;
 }
 
-.aoi-button-link > .aoi-button {
+.aoi-button-link:focus-visible {
+  outline: 2px solid var(--aoi-focus);
+  outline-offset: 2px;
+  border-radius: var(--aoi-radius-control);
+}
+
+.aoi-button-link .aoi-button {
   pointer-events: none;
+}
+
+.aoi-button-link:hover .aoi-button[data-aoi-variant="plain"],
+.aoi-button-link:focus-visible .aoi-button[data-aoi-variant="plain"],
+.aoi-button-link:hover .aoi-button[data-aoi-variant="outlined"],
+.aoi-button-link:focus-visible .aoi-button[data-aoi-variant="outlined"] {
+  background: var(--aoi-action-plain-hover);
+}
+
+.aoi-button-link:active .aoi-button[data-aoi-variant="plain"],
+.aoi-button-link:active .aoi-button[data-aoi-variant="outlined"] {
+  background: var(--aoi-action-plain-pressed);
+}
+
+.aoi-button-link:hover .aoi-button[data-aoi-variant="tonal"],
+.aoi-button-link:focus-visible .aoi-button[data-aoi-variant="tonal"],
+.aoi-button-link:hover .aoi-button[data-aoi-variant="elevated"],
+.aoi-button-link:focus-visible .aoi-button[data-aoi-variant="elevated"] {
+  background: var(--aoi-action-soft-bg-hover);
+}
+
+.aoi-button-link:active .aoi-button[data-aoi-variant="tonal"],
+.aoi-button-link:active .aoi-button[data-aoi-variant="elevated"] {
+  background: var(--aoi-action-soft-bg-pressed);
+}
+
+.aoi-button-link:hover .aoi-button[data-aoi-variant="filled"],
+.aoi-button-link:focus-visible .aoi-button[data-aoi-variant="filled"] {
+  background: var(--aoi-action-solid-bg-hover);
+}
+
+.aoi-button-link:active .aoi-button[data-aoi-variant="filled"] {
+  background: var(--aoi-action-solid-bg-pressed);
 }
 
 .aoi-button {
@@ -227,6 +308,11 @@ function onClick(event: MouseEvent) {
   --md-elevated-button-focus-icon-color: var(--aoi-action-color);
   --md-elevated-button-hover-icon-color: var(--aoi-action-color);
   --md-elevated-button-pressed-icon-color: var(--aoi-action-color);
+}
+
+.aoi-button--active {
+  --aoi-action-color: var(--aoi-active-color);
+  color: var(--aoi-action-color);
 }
 
 .aoi-button[data-aoi-tone="accent"] {

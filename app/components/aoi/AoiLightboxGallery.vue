@@ -428,10 +428,15 @@ function trapFocus(event: KeyboardEvent) {
     "input:not([disabled])",
     "select:not([disabled])",
     "textarea:not([disabled])",
-    "md-icon-button:not([disabled])",
+    "md-elevated-button:not([disabled])",
+    "md-filled-button:not([disabled])",
     "md-filled-icon-button:not([disabled])",
+    "md-filled-tonal-button:not([disabled])",
     "md-filled-tonal-icon-button:not([disabled])",
+    "md-icon-button:not([disabled])",
+    "md-outlined-button:not([disabled])",
     "md-outlined-icon-button:not([disabled])",
+    "md-text-button:not([disabled])",
     "md-slider:not([disabled])",
     "[tabindex]:not([tabindex='-1'])"
   ].join(","))).filter((element) => !element.hasAttribute("disabled") && element.offsetParent !== null)
@@ -1207,7 +1212,7 @@ defineExpose({
   --md-icon-button-icon-color: rgba(255, 255, 255, .86);
   --md-icon-button-hover-icon-color: #fff;
   --md-icon-button-pressed-icon-color: #fff;
-  --md-filled-tonal-icon-button-container-color: rgba(255, 255, 255, .14);
+  --md-filled-tonal-button-container-color: rgba(255, 255, 255, .14);
   color: rgba(255, 255, 255, .86);
 }
 

@@ -5,57 +5,45 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 <template>
   <nav class="app-rail" aria-label="桌面主导航">
     <div class="app-rail__group">
-      <AoiLink
+      <span
         v-for="item in desktopPrimaryItems"
         :key="item.to"
-        class="app-rail__link"
-        :class="{ 'app-rail__link--active': item.active }"
-        :to="item.to"
-        :aria-current="item.active ? 'page' : undefined"
-        :aria-label="item.label"
+        class="app-rail__item"
+        :class="{ 'app-rail__item--active': item.active }"
       >
-        <span class="app-rail__button-layer" aria-hidden="true">
-          <AoiIconButton
-            class="app-rail__button"
-            :active="item.active"
-            :icon="item.icon"
-            :label="item.label"
-            :tone="item.active ? 'accent' : 'muted'"
-            :variant="item.active ? 'tonal' : 'plain'"
-            aria-hidden="true"
-            tabindex="-1"
-            type="button"
-          />
-        </span>
+        <AoiIconButton
+          class="app-rail__button"
+          :active="item.active"
+          :aria-current="item.active ? 'page' : undefined"
+          :icon="item.icon"
+          :label="item.label"
+          :to="item.to"
+          :tone="item.active ? 'accent' : 'muted'"
+          variant="plain"
+        />
         <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
-      </AoiLink>
+      </span>
     </div>
 
     <div class="app-rail__group">
-      <AoiLink
+      <span
         v-for="item in secondaryItems"
         :key="item.to"
-        class="app-rail__link"
-        :class="{ 'app-rail__link--active': item.active }"
-        :to="item.to"
-        :aria-current="item.active ? 'page' : undefined"
-        :aria-label="item.label"
+        class="app-rail__item"
+        :class="{ 'app-rail__item--active': item.active }"
       >
-        <span class="app-rail__button-layer" aria-hidden="true">
-          <AoiIconButton
-            class="app-rail__button"
-            :active="item.active"
-            :icon="item.icon"
-            :label="item.label"
-            :tone="item.active ? 'accent' : 'muted'"
-            :variant="item.active ? 'tonal' : 'plain'"
-            aria-hidden="true"
-            tabindex="-1"
-            type="button"
-          />
-        </span>
+        <AoiIconButton
+          class="app-rail__button"
+          :active="item.active"
+          :aria-current="item.active ? 'page' : undefined"
+          :icon="item.icon"
+          :label="item.label"
+          :to="item.to"
+          :tone="item.active ? 'accent' : 'muted'"
+          variant="plain"
+        />
         <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
-      </AoiLink>
+      </span>
     </div>
   </nav>
 </template>
@@ -83,7 +71,7 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   gap: var(--aoi-nav-group-gap);
 }
 
-.app-rail__link {
+.app-rail__item {
   position: relative;
   display: grid;
   width: var(--aoi-nav-action-size);
@@ -98,37 +86,34 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   will-change: transform;
 }
 
-.app-rail__link:hover,
-.app-rail__link:focus-visible {
+.app-rail__item:hover,
+.app-rail__item:focus-within {
   color: var(--aoi-text);
 }
 
-.app-rail__link:active {
+.app-rail__item:active {
   color: var(--aoi-nav-active-color);
   transform: translate3d(0, 0, 0) scale(.94);
 }
 
-.app-rail__link--active {
+.app-rail__item--active {
   color: var(--aoi-nav-active-color);
 }
 
-.app-rail__button-layer,
 .app-rail__button {
   width: var(--aoi-nav-action-size);
   height: var(--aoi-nav-action-size);
 }
 
-.app-rail__button-layer {
-  display: inline-grid;
-  place-items: center;
+.app-rail__button {
+  color: inherit;
 }
 
-.app-rail__button {
+.app-rail__item :deep(.app-rail__button.aoi-icon-button) {
+  --aoi-icon-action-size: var(--aoi-nav-action-size);
   --md-icon-button-icon-size: var(--aoi-nav-icon-size);
   --md-icon-button-state-layer-size: var(--aoi-nav-action-size);
-  --md-filled-tonal-icon-button-container-shape: var(--aoi-radius-nav-indicator);
-  --md-icon-button-container-shape: var(--aoi-radius-nav-indicator);
-  color: inherit;
+  border-radius: var(--aoi-radius-nav-indicator);
 }
 
 .app-rail__label {
@@ -158,8 +143,8 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   white-space: nowrap;
 }
 
-.app-rail__link:hover .app-rail__label,
-.app-rail__link:focus-visible .app-rail__label {
+.app-rail__item:hover .app-rail__label,
+.app-rail__item:focus-within .app-rail__label {
   opacity: 1;
   transform: translate3d(0, -50%, 0) scale(1);
 }
@@ -172,12 +157,12 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 
 @media (prefers-reduced-motion: reduce) {
 
-  .app-rail__link,
+  .app-rail__item,
   .app-rail__label {
     transition-duration: 1ms;
   }
 
-  .app-rail__link {
+  .app-rail__item {
     will-change: auto;
   }
 }

@@ -275,24 +275,6 @@ a {
   --md-elevated-button-container-height: var(--aoi-control-height-lg);
 }
 
-.aoi-icon-button {
-  --md-icon-button-icon-color: var(--aoi-icon);
-  --md-icon-button-hover-icon-color: var(--aoi-accent-60);
-  --md-icon-button-pressed-icon-color: var(--aoi-accent-60);
-  --md-filled-icon-button-container-shape: var(--aoi-radius-control);
-  --md-filled-tonal-icon-button-container-shape: var(--aoi-radius-control);
-  --md-outlined-icon-button-container-shape: var(--aoi-radius-control);
-  width: var(--aoi-icon-button-size);
-  height: var(--aoi-icon-button-size);
-  color: var(--aoi-icon);
-}
-
-.aoi-icon-button--active {
-  --md-icon-button-icon-color: var(--aoi-active-color);
-  --md-filled-tonal-icon-button-container-color: var(--aoi-accent-10);
-  color: var(--aoi-active-color);
-}
-
 .aoi-text-field {
   width: 100%;
   --md-filled-select-text-field-container-shape: var(--aoi-radius-field);

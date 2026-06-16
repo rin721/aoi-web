@@ -86,11 +86,14 @@ export const aoiComponentDocs: AoiComponentDoc[] = [
     row("size", "\"sm\" | \"md\"", "Button density inside the action row.", "\"md\""),
     row("surface", "boolean", "Adds the toolbar surface treatment.", "false")
   ], [], [row("default", "slot", "AoiButton or AoiIconButton actions.")]),
-  component("AoiButton", "actions", "Material Web button wrapper with Aoi variant, tone, icon, loading, and link support.", "Use for all button-like commands and button-style navigation.", [
+  component("AoiButton", "actions", "Material Web button wrapper with Aoi variant, tone, icon, loading, active, and link support.", "Use for button-like commands and text button-style navigation.", [
     row("variant", "\"filled\" | \"tonal\" | \"outlined\" | \"plain\" | \"elevated\"", "Visual form of the action.", "\"plain\""),
     row("tone", "\"accent\" | \"muted\" | \"neutral\" | \"success\" | \"warning\" | \"danger\" | \"info\"", "Action color tone.", "\"muted\""),
     row("size", "\"sm\" | \"md\" | \"lg\"", "Control height scale.", "\"md\""),
     row("icon / trailingIcon", "string", "Lucide icon names rendered through AoiIcon."),
+    row("active", "boolean", "Applies selected navigation styling using the main active color.", "false"),
+    row("ariaCurrent", "\"page\" | \"step\" | \"location\" | \"date\" | \"time\" | \"true\" | \"false\"", "Sets aria-current on linked navigation buttons."),
+    row("ariaLabel / label", "string", "Accessible label for terse controls."),
     row("to / href", "RouteLocationRaw", "Delegates navigation to AoiLink."),
     row("loading / disabled", "boolean", "Disables interaction and optionally shows spinner.")
   ], [row("click", "MouseEvent", "Emitted when the command is activated.")]),
@@ -103,13 +106,16 @@ export const aoiComponentDocs: AoiComponentDoc[] = [
     row("update:modelValue", "string | string[]", "Emitted when selection changes."),
     row("change", "string | string[]", "Selection change notification.")
   ]),
-  component("AoiIconButton", "actions", "Icon-only command or navigation button with Aoi tone and variant.", "Use when the icon is the primary affordance and a label remains available to assistive tech.", [
+  component("AoiIconButton", "actions", "Material Web icon-button wrapper with Aoi tone, variant, active, loading, and link support.", "Use for icon-only commands and icon-only navigation while keeping an accessible label.", [
     row("icon", "string", "Lucide icon name."),
     row("label", "string", "Required accessible label."),
-    row("variant", "\"filled\" | \"tonal\" | \"outlined\" | \"plain\" | \"elevated\"", "Visual form of the action.", "\"plain\""),
+    row("variant", "\"filled\" | \"tonal\" | \"outlined\" | \"plain\" | \"elevated\"", "Material icon-button visual form.", "\"plain\""),
     row("tone", "\"accent\" | \"muted\" | \"neutral\" | \"success\" | \"warning\" | \"danger\" | \"info\"", "Action color tone.", "\"muted\""),
     row("size", "\"sm\" | \"md\" | \"lg\"", "Icon button dimensions.", "\"md\""),
-    row("active", "boolean", "Applies active visual state.", "false"),
+    row("active", "boolean", "Applies main-theme active icon color with a rounded state layer.", "false"),
+    row("decorative", "boolean", "Renders the Material icon-button as a non-interactive visual inside another control.", "false"),
+    row("loading / disabled", "boolean", "Disables interaction and optionally shows spinner."),
+    row("ariaCurrent / ariaPressed", "string | boolean", "Navigation current state or toggle pressed state."),
     row("to / href", "RouteLocationRaw", "Delegates navigation to AoiLink.")
   ], [row("click", "MouseEvent", "Emitted on activation.")]),
   component("AoiLink", "actions", "NuxtLink facade that centralizes internal, external, and formatted URL behavior.", "Use for all text, card, tag, and navigation links.", [
