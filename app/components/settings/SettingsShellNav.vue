@@ -185,9 +185,23 @@ onBeforeUnmount(() => {
           class="settings-shell-nav__item"
           :class="{ 'settings-shell-nav__item--active': props.activePath === item.to }"
           :to="item.to"
+          :aria-current="props.activePath === item.to ? 'page' : undefined"
+          :aria-label="item.label"
         >
-          <AoiIcon :name="item.icon" :size="17" decorative />
-          <span>{{ item.label }}</span>
+          <span class="settings-shell-nav__button-layer" aria-hidden="true">
+            <AoiButton
+              class="settings-shell-nav__button"
+              :tone="props.activePath === item.to ? 'accent' : 'muted'"
+              :variant="props.activePath === item.to ? 'tonal' : 'plain'"
+              aria-hidden="true"
+              tabindex="-1"
+              type="button"
+            />
+          </span>
+          <span class="settings-shell-nav__content" aria-hidden="true">
+            <AoiIcon :name="item.icon" :size="17" decorative />
+            <span>{{ item.label }}</span>
+          </span>
         </AoiLink>
       </section>
 
@@ -227,9 +241,23 @@ onBeforeUnmount(() => {
           class="settings-shell-nav__item"
           :class="{ 'settings-shell-nav__item--active': props.activePath === item.to }"
           :to="item.to"
+          :aria-current="props.activePath === item.to ? 'page' : undefined"
+          :aria-label="item.label"
         >
-          <AoiIcon :name="item.icon" :size="17" decorative />
-          <span>{{ item.label }}</span>
+          <span class="settings-shell-nav__button-layer" aria-hidden="true">
+            <AoiButton
+              class="settings-shell-nav__button"
+              :tone="props.activePath === item.to ? 'accent' : 'muted'"
+              :variant="props.activePath === item.to ? 'tonal' : 'plain'"
+              aria-hidden="true"
+              tabindex="-1"
+              type="button"
+            />
+          </span>
+          <span class="settings-shell-nav__content" aria-hidden="true">
+            <AoiIcon :name="item.icon" :size="17" decorative />
+            <span>{{ item.label }}</span>
+          </span>
         </AoiLink>
       </template>
 
@@ -323,21 +351,61 @@ onBeforeUnmount(() => {
 }
 
 .settings-shell-nav__item {
+  position: relative;
   display: flex;
+  width: 100%;
   min-height: var(--aoi-settings-nav-item-height);
   align-items: center;
   gap: var(--aoi-nav-group-gap);
   border-radius: var(--aoi-radius-choice);
   color: var(--aoi-text-muted);
   font-weight: 740;
+  overflow: hidden;
+  padding: 0;
+}
+
+.settings-shell-nav__button-layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.settings-shell-nav__button {
+  --md-filled-tonal-button-container-color: transparent;
+  --md-filled-tonal-button-focus-container-color: var(--aoi-state-hover);
+  --md-filled-tonal-button-hover-container-color: var(--aoi-state-hover);
+  --md-filled-tonal-button-pressed-container-color: var(--aoi-nav-pressed-bg);
+  --md-filled-tonal-button-container-height: 100%;
+  --md-text-button-container-height: 100%;
+  --md-text-button-container-shape: var(--aoi-radius-choice);
+  --md-filled-tonal-button-container-shape: var(--aoi-radius-choice);
+  width: 100%;
+  height: 100%;
+}
+
+.settings-shell-nav__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: var(--aoi-nav-group-gap);
   padding: 0 8px;
+  pointer-events: none;
+}
+
+.settings-shell-nav__content span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .settings-shell-nav__indicator {
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 2;
   display: block;
   width: var(--settings-shell-nav-indicator-width, 3px);
   height: var(--settings-shell-nav-indicator-height, 16px);
@@ -355,14 +423,20 @@ onBeforeUnmount(() => {
 }
 
 .settings-shell-nav__item:hover,
+.settings-shell-nav__item:focus-visible,
 .settings-shell-nav__item--active {
-  background: var(--aoi-state-hover);
   color: var(--aoi-active-color);
+}
+
+.settings-shell-nav__item.settings-shell-nav__item--active .settings-shell-nav__button {
+  --md-filled-tonal-button-container-color: var(--aoi-nav-active-bg);
+  --md-filled-tonal-button-focus-container-color: var(--aoi-nav-active-bg);
+  --md-filled-tonal-button-hover-container-color: var(--aoi-nav-active-bg);
+  --md-filled-tonal-button-pressed-container-color: var(--aoi-nav-pressed-bg);
 }
 
 .settings-shell-nav__item--active {
   position: relative;
-  padding: 0 8px;
 }
 
 .settings-shell-nav__empty {

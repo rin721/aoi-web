@@ -5,19 +5,55 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 <template>
   <nav class="app-rail" aria-label="桌面主导航">
     <div class="app-rail__group">
-      <AoiLink v-for="item in desktopPrimaryItems" :key="item.to" class="app-rail__link"
-        :class="{ 'app-rail__link--active': item.active }" :to="item.to"
-        :aria-current="item.active ? 'page' : undefined" :aria-label="item.label">
-        <AoiIcon class="app-rail__icon" :name="item.icon" size="var(--aoi-nav-icon-size)" decorative />
+      <AoiLink
+        v-for="item in desktopPrimaryItems"
+        :key="item.to"
+        class="app-rail__link"
+        :class="{ 'app-rail__link--active': item.active }"
+        :to="item.to"
+        :aria-current="item.active ? 'page' : undefined"
+        :aria-label="item.label"
+      >
+        <span class="app-rail__button-layer" aria-hidden="true">
+          <AoiIconButton
+            class="app-rail__button"
+            :active="item.active"
+            :icon="item.icon"
+            :label="item.label"
+            :tone="item.active ? 'accent' : 'muted'"
+            :variant="item.active ? 'tonal' : 'plain'"
+            aria-hidden="true"
+            tabindex="-1"
+            type="button"
+          />
+        </span>
         <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
       </AoiLink>
     </div>
 
     <div class="app-rail__group">
-      <AoiLink v-for="item in secondaryItems" :key="item.to" class="app-rail__link"
-        :class="{ 'app-rail__link--active': item.active }" :to="item.to"
-        :aria-current="item.active ? 'page' : undefined" :aria-label="item.label">
-        <AoiIcon class="app-rail__icon" :name="item.icon" size="var(--aoi-nav-icon-size)" decorative />
+      <AoiLink
+        v-for="item in secondaryItems"
+        :key="item.to"
+        class="app-rail__link"
+        :class="{ 'app-rail__link--active': item.active }"
+        :to="item.to"
+        :aria-current="item.active ? 'page' : undefined"
+        :aria-label="item.label"
+      >
+        <span class="app-rail__button-layer" aria-hidden="true">
+          <AoiIconButton
+            class="app-rail__button"
+            :active="item.active"
+            :icon="item.icon"
+            :label="item.label"
+            :tone="item.active ? 'accent' : 'muted'"
+            :variant="item.active ? 'tonal' : 'plain'"
+            aria-hidden="true"
+            tabindex="-1"
+            type="button"
+          />
+        </span>
         <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
       </AoiLink>
     </div>
@@ -57,7 +93,6 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   color: var(--aoi-icon);
   transform: translate3d(0, 0, 0);
   transition:
-    background var(--aoi-motion-fast) var(--aoi-ease-out),
     color var(--aoi-motion-fast) var(--aoi-ease-out),
     transform var(--aoi-motion-fast) var(--aoi-ease-press);
   will-change: transform;
@@ -65,31 +100,35 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 
 .app-rail__link:hover,
 .app-rail__link:focus-visible {
-  border-radius: var(--aoi-radius-nav-indicator);
-  background: var(--aoi-nav-hover-bg);
   color: var(--aoi-text);
 }
 
 .app-rail__link:active {
-  border-radius: var(--aoi-radius-nav-indicator);
-  background: var(--aoi-nav-pressed-bg);
   color: var(--aoi-nav-active-color);
   transform: translate3d(0, 0, 0) scale(.94);
 }
 
 .app-rail__link--active {
-  border-radius: var(--aoi-radius-nav-indicator);
-  background: var(--aoi-nav-active-bg);
   color: var(--aoi-nav-active-color);
 }
 
-.app-rail__icon {
-  font-size: var(--aoi-nav-icon-size);
+.app-rail__button-layer,
+.app-rail__button {
+  width: var(--aoi-nav-action-size);
+  height: var(--aoi-nav-action-size);
 }
 
-.app-rail__icon :deep(svg),
-.app-rail__icon :deep(.iconify) {
-  stroke-width: 2.35;
+.app-rail__button-layer {
+  display: inline-grid;
+  place-items: center;
+}
+
+.app-rail__button {
+  --md-icon-button-icon-size: var(--aoi-nav-icon-size);
+  --md-icon-button-state-layer-size: var(--aoi-nav-action-size);
+  --md-filled-tonal-icon-button-container-shape: var(--aoi-radius-nav-indicator);
+  --md-icon-button-container-shape: var(--aoi-radius-nav-indicator);
+  color: inherit;
 }
 
 .app-rail__label {

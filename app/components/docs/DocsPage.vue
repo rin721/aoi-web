@@ -226,8 +226,20 @@ function searchHref(item: SearchSection) {
           :key="item.id"
           class="docs-page__toc-link"
           :to="`${docsPath}#${item.id}`"
+          :aria-label="item.text"
         >
-          {{ item.text }}
+          <span class="docs-page__toc-button-layer" aria-hidden="true">
+            <AoiButton
+              class="docs-page__toc-button"
+              variant="plain"
+              tone="muted"
+              size="sm"
+              aria-hidden="true"
+              tabindex="-1"
+              type="button"
+            />
+          </span>
+          <span class="docs-page__toc-label" aria-hidden="true">{{ item.text }}</span>
         </AoiLink>
       </aside>
     </div>
@@ -355,19 +367,44 @@ function searchHref(item: SearchSection) {
 }
 
 .docs-page__toc-link {
-  display: block;
+  position: relative;
+  display: flex;
   width: 100%;
+  min-width: 0;
   border-radius: var(--aoi-radius-control);
   color: var(--aoi-text-muted);
   font-size: 12px;
   font-weight: 720;
   line-height: 1.45;
+  overflow: hidden;
+}
+
+.docs-page__toc-button-layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.docs-page__toc-button {
+  --md-text-button-container-height: 100%;
+  --md-text-button-container-shape: var(--aoi-radius-control);
+  width: 100%;
+  height: 100%;
+}
+
+.docs-page__toc-label {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  overflow: hidden;
   padding: 7px 8px;
+  pointer-events: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .docs-page__toc-link:hover,
 .docs-page__toc-link:focus-visible {
-  background: var(--aoi-state-hover);
   color: var(--aoi-text);
 }
 

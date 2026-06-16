@@ -51,7 +51,7 @@ function triggerPlainDemo() {
 
       <AnnouncementStrip :announcement="announcement" />
 
-      <AoiSection title="Aoi md 组件示例" description="按钮盒子、朴素按钮、日期时间与图片裁剪压缩都在这个首页容器里预览。" title-id="aoi-md-demo-title">
+      <AoiSection v-if="false" title="Aoi md 组件示例" description="按钮盒子、朴素按钮、日期时间与图片裁剪压缩都在这个首页容器里预览。" title-id="aoi-md-demo-title">
         <AoiSurface class="home-aoi-demo" surface="panel" padding="lg">
           <div class="home-aoi-demo__controls">
             <div class="home-aoi-demo__group">

@@ -39,13 +39,28 @@ function isOpen(item: DocsNavigationItem): boolean {
         :class="{ 'docs-nav-tree__link--active': isActive(item) }"
         :to="item.path"
         :aria-current="isActive(item) ? 'page' : undefined"
+        :aria-label="item.title || item.path"
       >
-        <AoiIcon v-if="item.icon" :name="item.icon" :size="15" decorative />
-        <span>{{ item.title || item.path }}</span>
+        <span class="docs-nav-tree__button-layer" aria-hidden="true">
+          <AoiButton
+            class="docs-nav-tree__button"
+            :tone="isActive(item) ? 'accent' : 'muted'"
+            :variant="isActive(item) ? 'tonal' : 'plain'"
+            aria-hidden="true"
+            tabindex="-1"
+            type="button"
+          />
+        </span>
+        <span class="docs-nav-tree__content" aria-hidden="true">
+          <AoiIcon v-if="item.icon" :name="item.icon" :size="15" decorative />
+          <span>{{ item.title || item.path }}</span>
+        </span>
       </AoiLink>
       <span v-else class="docs-nav-tree__label">
-        <AoiIcon v-if="item.icon" :name="item.icon" :size="15" decorative />
-        <span>{{ item.title }}</span>
+        <span class="docs-nav-tree__content">
+          <AoiIcon v-if="item.icon" :name="item.icon" :size="15" decorative />
+          <span>{{ item.title }}</span>
+        </span>
       </span>
 
       <DocsNavTree
@@ -83,32 +98,66 @@ function isOpen(item: DocsNavigationItem): boolean {
 
 .docs-nav-tree__link,
 .docs-nav-tree__label {
+  position: relative;
   display: flex;
   width: 100%;
   min-width: 0;
   min-height: 34px;
   align-items: center;
-  gap: 8px;
   border-radius: var(--aoi-radius-control);
   color: var(--aoi-text-muted);
   font-weight: 720;
   line-height: 1.3;
+  overflow: hidden;
+}
+
+.docs-nav-tree__button-layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.docs-nav-tree__button {
+  --md-filled-tonal-button-container-color: transparent;
+  --md-filled-tonal-button-focus-container-color: var(--aoi-state-hover);
+  --md-filled-tonal-button-hover-container-color: var(--aoi-state-hover);
+  --md-filled-tonal-button-pressed-container-color: var(--aoi-nav-pressed-bg);
+  --md-filled-tonal-button-container-height: 100%;
+  --md-text-button-container-height: 100%;
+  --md-text-button-container-shape: var(--aoi-radius-control);
+  --md-filled-tonal-button-container-shape: var(--aoi-radius-control);
+  width: 100%;
+  height: 100%;
+}
+
+.docs-nav-tree__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 8px;
   padding: 7px 9px;
+  pointer-events: none;
 }
 
 .docs-nav-tree__link:hover,
 .docs-nav-tree__link:focus-visible {
-  background: var(--aoi-state-hover);
   color: var(--aoi-text);
 }
 
 .docs-nav-tree__link--active {
-  background: var(--aoi-nav-active-bg);
   color: var(--aoi-nav-active-color);
 }
 
-.docs-nav-tree__link span,
-.docs-nav-tree__label span {
+.docs-nav-tree__link.docs-nav-tree__link--active .docs-nav-tree__button {
+  --md-filled-tonal-button-container-color: var(--aoi-nav-active-bg);
+  --md-filled-tonal-button-focus-container-color: var(--aoi-nav-active-bg);
+  --md-filled-tonal-button-hover-container-color: var(--aoi-nav-active-bg);
+  --md-filled-tonal-button-pressed-container-color: var(--aoi-nav-pressed-bg);
+}
+
+.docs-nav-tree__content span {
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
