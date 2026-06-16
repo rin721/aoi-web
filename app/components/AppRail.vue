@@ -21,6 +21,7 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
           :tone="item.active ? 'accent' : 'muted'"
           variant="plain"
         />
+        
         <span class="app-rail__label" aria-hidden="true">{{ item.label }}</span>
       </span>
     </div>
