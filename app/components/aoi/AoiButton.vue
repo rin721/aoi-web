@@ -308,6 +308,12 @@ function onClick(event: MouseEvent) {
   --md-elevated-button-focus-icon-color: var(--aoi-action-color);
   --md-elevated-button-hover-icon-color: var(--aoi-action-color);
   --md-elevated-button-pressed-icon-color: var(--aoi-action-color);
+  transition:
+    background var(--aoi-action-motion-base) var(--aoi-ease-out),
+    border-color var(--aoi-action-motion-base) var(--aoi-ease-out),
+    color var(--aoi-action-motion-fast) var(--aoi-ease-out),
+    box-shadow var(--aoi-action-motion-base) var(--aoi-ease-out),
+    transform var(--aoi-action-motion-base) var(--aoi-ease-out);
 }
 
 .aoi-button--active {

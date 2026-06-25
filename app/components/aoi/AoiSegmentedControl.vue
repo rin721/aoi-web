@@ -99,10 +99,10 @@ function select(item: AoiSegmentedItem) {
   padding: 10px 12px;
   text-align: left;
   transition:
-    background var(--aoi-motion-fast) var(--aoi-ease-out),
-    border-color var(--aoi-motion-fast) var(--aoi-ease-out),
-    color var(--aoi-motion-fast) var(--aoi-ease-out),
-    transform var(--aoi-motion-fast) var(--aoi-ease-press);
+    background var(--aoi-action-motion-base) var(--aoi-ease-out),
+    border-color var(--aoi-action-motion-base) var(--aoi-ease-out),
+    color var(--aoi-action-motion-fast) var(--aoi-ease-out),
+    transform var(--aoi-action-motion-base) var(--aoi-ease-press);
 }
 
 .aoi-segmented__item:hover {

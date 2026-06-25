@@ -380,15 +380,8 @@ onBeforeUnmount(() => {
           :aria-current="props.activePath === item.to ? 'page' : undefined"
           :aria-label="item.label"
         >
-          <AoiButton
-            class="settings-shell-nav__item-state"
-            :active="props.activePath === item.to"
-            aria-hidden="true"
-            tabindex="-1"
-            :tone="props.activePath === item.to ? 'accent' : 'muted'"
-            type="button"
-            variant="plain"
-          />
+          <AoiRipple class="settings-shell-nav__item-ripple" />
+          <span class="settings-shell-nav__item-surface" aria-hidden="true" />
           <span class="settings-shell-nav__item-content" aria-hidden="true">
             <AoiIconButton
               class="settings-shell-nav__item-icon"
@@ -521,15 +514,8 @@ onBeforeUnmount(() => {
               :aria-label="item.label"
               @click="onMobileNavItemClick"
             >
-              <AoiButton
-                class="settings-shell-nav__item-state"
-                :active="props.activePath === item.to"
-                aria-hidden="true"
-                tabindex="-1"
-                :tone="props.activePath === item.to ? 'accent' : 'muted'"
-                type="button"
-                variant="plain"
-              />
+              <AoiRipple class="settings-shell-nav__item-ripple" />
+              <span class="settings-shell-nav__item-surface" aria-hidden="true" />
               <span class="settings-shell-nav__item-content" aria-hidden="true">
                 <AoiIconButton
                   class="settings-shell-nav__item-icon"
@@ -651,29 +637,39 @@ onBeforeUnmount(() => {
   border-radius: var(--aoi-radius-choice);
   color: var(--aoi-text-muted);
   font-weight: 740;
-  overflow: hidden;
+  overflow: clip;
   padding: 0;
   text-align: left;
   text-decoration: none;
+  --md-ripple-hover-color: var(--aoi-active-color);
+  --md-ripple-hover-opacity: .08;
+  --md-ripple-pressed-color: var(--aoi-active-color);
+  --md-ripple-pressed-opacity: .12;
 }
 
-.settings-shell-nav__item :deep(.settings-shell-nav__item-state.aoi-button) {
-  --md-text-button-container-height: var(--aoi-settings-nav-item-height);
-  --md-text-button-container-shape: var(--aoi-radius-choice);
+.settings-shell-nav__item-ripple {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: var(--aoi-radius-choice);
+}
+
+.settings-shell-nav__item-surface {
   position: absolute;
   inset: 0;
   z-index: 0;
-  width: 100%;
-  height: 100%;
-  min-height: 100%;
+  display: block;
   border-radius: var(--aoi-radius-choice);
-  color: inherit;
+  background: transparent;
   pointer-events: none;
+  transition:
+    background var(--aoi-action-motion-base) var(--aoi-ease-out),
+    transform var(--aoi-action-motion-base) var(--aoi-ease-out);
 }
 
 .settings-shell-nav__item-content {
   position: relative;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   width: 100%;
   min-width: 0;
@@ -683,6 +679,7 @@ onBeforeUnmount(() => {
   gap: 10px;
   padding: 0 10px 0 8px;
   pointer-events: none;
+  transition: transform var(--aoi-action-motion-base) var(--aoi-ease-out);
 }
 
 .settings-shell-nav__item-icon {
@@ -691,8 +688,13 @@ onBeforeUnmount(() => {
 
 .settings-shell-nav__item :deep(.settings-shell-nav__item-icon.aoi-icon-button) {
   --aoi-icon-action-size: 24px;
+  --aoi-icon-action-soft-bg: transparent;
+  --aoi-icon-action-soft-bg-hover: transparent;
+  --aoi-icon-action-soft-bg-pressed: transparent;
   --md-icon-button-icon-size: 15px;
   --md-icon-button-state-layer-size: 24px;
+  background: transparent;
+  color: inherit;
   flex: 0 0 auto;
 }
 
@@ -718,36 +720,65 @@ onBeforeUnmount(() => {
     var(--settings-shell-nav-indicator-x, 0),
     var(--settings-shell-nav-indicator-y, 0),
     0
-  );
+  ) scale(1, var(--settings-shell-nav-indicator-scale-y, 1));
+  transform-origin: center;
   transition:
-    transform var(--aoi-motion-base) var(--aoi-ease-out),
-    opacity var(--aoi-motion-fast) var(--aoi-ease-out);
+    transform var(--aoi-action-motion-base) var(--aoi-ease-out),
+    opacity var(--aoi-action-motion-fast) var(--aoi-ease-out);
 }
 
 .settings-shell-nav__item:hover,
-.settings-shell-nav__item:focus-within,
-.settings-shell-nav__item--active {
-  color: var(--aoi-active-color);
-}
-
-.settings-shell-nav__item:hover :deep(.settings-shell-nav__item-state.aoi-button),
-.settings-shell-nav__item:focus-visible :deep(.settings-shell-nav__item-state.aoi-button) {
-  background: color-mix(in srgb, var(--aoi-active-color) 8%, transparent);
-}
-
-.settings-shell-nav__item:active :deep(.settings-shell-nav__item-state.aoi-button) {
-  background: color-mix(in srgb, var(--aoi-active-color) 14%, transparent);
-}
-
-.settings-shell-nav__item.settings-shell-nav__item--active :deep(.settings-shell-nav__item-state.aoi-button) {
-  --md-text-button-hover-state-layer-color: var(--aoi-active-color);
-  --md-text-button-focus-state-layer-color: var(--aoi-active-color);
-  --md-text-button-pressed-state-layer-color: var(--aoi-active-color);
-  background: var(--aoi-nav-active-bg);
+.settings-shell-nav__item:focus-within {
+  color: var(--aoi-text);
 }
 
 .settings-shell-nav__item--active {
   position: relative;
+  color: var(--aoi-active-color);
+  font-weight: 800;
+}
+
+.settings-shell-nav__item:hover .settings-shell-nav__item-content,
+.settings-shell-nav__item:focus-visible .settings-shell-nav__item-content {
+  transform: translate3d(3px, 0, 0);
+}
+
+.settings-shell-nav__item:hover .settings-shell-nav__item-surface,
+.settings-shell-nav__item:focus-visible .settings-shell-nav__item-surface {
+  background: color-mix(in srgb, var(--aoi-active-color) 8%, transparent);
+}
+
+.settings-shell-nav__item:active {
+  font-weight: 820;
+}
+
+.settings-shell-nav__item:active .settings-shell-nav__item-surface {
+  background: color-mix(in srgb, var(--aoi-active-color) 14%, transparent);
+}
+
+.settings-shell-nav__item.settings-shell-nav__item--active .settings-shell-nav__item-surface {
+  background: var(--aoi-nav-active-bg);
+}
+
+.settings-shell-nav__item.settings-shell-nav__item--active:hover,
+.settings-shell-nav__item.settings-shell-nav__item--active:focus-visible {
+  color: var(--aoi-active-color);
+  font-weight: 840;
+}
+
+.settings-shell-nav__item.settings-shell-nav__item--active:hover .settings-shell-nav__item-surface,
+.settings-shell-nav__item.settings-shell-nav__item--active:focus-visible .settings-shell-nav__item-surface,
+.settings-shell-nav__item.settings-shell-nav__item--active:active .settings-shell-nav__item-surface {
+  background: color-mix(in srgb, var(--aoi-active-color) 14%, transparent);
+}
+
+.settings-shell-nav__item.settings-shell-nav__item--active:active {
+  font-weight: 900;
+}
+
+.settings-shell-nav__groups:has(.settings-shell-nav__item--active:active) .settings-shell-nav__indicator,
+.settings-shell-nav-drawer__items:has(.settings-shell-nav__item--active:active) .settings-shell-nav__indicator {
+  --settings-shell-nav-indicator-scale-y: .625;
 }
 
 .settings-shell-nav__empty {
@@ -822,10 +853,6 @@ onBeforeUnmount(() => {
   min-height: 52px;
   gap: 16px;
   padding-inline: 20px 14px;
-}
-
-.settings-shell-nav-drawer .settings-shell-nav__item :deep(.settings-shell-nav__item-state.aoi-button) {
-  --md-text-button-container-height: 52px;
 }
 
 @media (max-width: 960px) {

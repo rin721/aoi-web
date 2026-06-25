@@ -81,10 +81,26 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   border-radius: var(--aoi-radius-nav-indicator);
   color: var(--aoi-icon);
   transform: translate3d(0, 0, 0);
+  transition: color var(--aoi-action-motion-fast) var(--aoi-ease-out);
+}
+
+.app-rail__item::after {
+  position: absolute;
+  top: 50%;
+  right: calc((var(--aoi-nav-action-size) - var(--aoi-rail-width)) / 2);
+  display: block;
+  width: 3px;
+  height: 18px;
+  border-radius: var(--aoi-radius-round) 0 0 var(--aoi-radius-round);
+  background: var(--aoi-active-color);
+  content: "";
+  opacity: 0;
+  pointer-events: none;
+  transform: translate3d(0, -50%, 0) scale(1, 1);
+  transform-origin: center;
   transition:
-    color var(--aoi-motion-fast) var(--aoi-ease-out),
-    transform var(--aoi-motion-fast) var(--aoi-ease-press);
-  will-change: transform;
+    opacity var(--aoi-action-motion-fast) var(--aoi-ease-out),
+    transform var(--aoi-action-motion-base) var(--aoi-ease-out);
 }
 
 .app-rail__item:hover,
@@ -94,11 +110,18 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
 
 .app-rail__item:active {
   color: var(--aoi-nav-active-color);
-  transform: translate3d(0, 0, 0) scale(.94);
 }
 
 .app-rail__item--active {
   color: var(--aoi-nav-active-color);
+}
+
+.app-rail__item--active::after {
+  opacity: 1;
+}
+
+.app-rail__item--active:active::after {
+  transform: translate3d(0, -50%, 0) scale(1, .625);
 }
 
 .app-rail__button {
@@ -139,8 +162,8 @@ const { desktopPrimaryItems, secondaryItems } = useAoiNavigation()
   transform: translate3d(calc(var(--aoi-nav-group-gap) * -.6), -50%, 0) scale(.96);
   transform-origin: left center;
   transition:
-    opacity 180ms var(--aoi-ease-out),
-    transform 180ms var(--aoi-ease-out);
+    opacity var(--aoi-action-motion-base) var(--aoi-ease-out),
+    transform var(--aoi-action-motion-base) var(--aoi-ease-out);
   white-space: nowrap;
 }
 

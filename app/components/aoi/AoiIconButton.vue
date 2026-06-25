@@ -124,6 +124,7 @@ function onClick(event: MouseEvent) {
     :to="to"
     @click="onClick"
   >
+    <AoiRipple class="aoi-icon-button-link__ripple" />
     <component
       :is="tagName"
       :class="iconButtonClass"
@@ -180,11 +181,29 @@ function onClick(event: MouseEvent) {
 }
 
 .aoi-icon-button-link {
+  position: relative;
   display: inline-flex;
   width: fit-content;
   color: inherit;
   line-height: 1;
+  overflow: clip;
+  border-radius: var(--aoi-radius-nav-indicator);
   text-decoration: none;
+  --md-ripple-hover-color: currentColor;
+  --md-ripple-hover-opacity: .08;
+  --md-ripple-pressed-color: currentColor;
+  --md-ripple-pressed-opacity: .12;
+}
+
+.aoi-icon-button-link--active {
+  color: var(--aoi-active-color);
+}
+
+.aoi-icon-button-link__ripple {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
 }
 
 .aoi-icon-button-link:focus-visible {
@@ -194,6 +213,8 @@ function onClick(event: MouseEvent) {
 }
 
 .aoi-icon-button-link .aoi-icon-button {
+  position: relative;
+  z-index: 1;
   pointer-events: none;
 }
 
@@ -263,9 +284,9 @@ function onClick(event: MouseEvent) {
   background: var(--aoi-icon-action-soft-bg);
   color: var(--aoi-icon-action-color);
   transition:
-    background var(--aoi-motion-fast) var(--aoi-ease-out),
-    color var(--aoi-motion-fast) var(--aoi-ease-out),
-    box-shadow var(--aoi-motion-fast) var(--aoi-ease-out);
+    background var(--aoi-action-motion-base) var(--aoi-ease-out),
+    color var(--aoi-action-motion-fast) var(--aoi-ease-out),
+    box-shadow var(--aoi-action-motion-base) var(--aoi-ease-out);
 }
 
 .aoi-icon-button--sm {

@@ -218,6 +218,8 @@
   --aoi-motion-fast: 120ms;
   --aoi-motion-base: 220ms;
   --aoi-motion-slow: 360ms;
+  --aoi-action-motion-fast: 150ms;
+  --aoi-action-motion-base: 250ms;
   --aoi-reveal-distance-sm: 10px;
   --aoi-reveal-distance-md: 18px;
   --aoi-reveal-distance-lg: 28px;
